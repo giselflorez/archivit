@@ -1,0 +1,98 @@
+{
+  "query": "giselx",
+  "response": {
+    "id": "9b556fbf-696d-4d81-a17e-f0b500bf5412",
+    "model": "sonar",
+    "created": 1767284261,
+    "usage": {
+      "prompt_tokens": 3,
+      "completion_tokens": 321,
+      "total_tokens": 324,
+      "search_context_size": "low",
+      "cost": {
+        "input_tokens_cost": 0.0,
+        "output_tokens_cost": 0.0,
+        "request_cost": 0.005,
+        "total_cost": 0.005
+      }
+    },
+    "citations": [
+      "https://x.com/GiselFlorez",
+      "https://www.cryptoartnet.com/cryptoartists/nft-art/gisel-x-florez/",
+      "https://foundation.app/giselflorez",
+      "https://rarible.com/giselx-special-edition",
+      "https://warpcast.com/giselx",
+      "https://www.web3photo.com",
+      "https://superrare.com/giselxvault",
+      "https://beta.cent.co/GiselX"
+    ],
+    "search_results": [
+      {
+        "title": "GISELX (@GiselFlorez) / Posts / X",
+        "url": "https://x.com/GiselFlorez",
+        "snippet": "GISELX (@GiselFlorez) - Posts - ✨Artist in Light ✨ #MOONLANGUAGE Photography & Immersive Art RISD ALUM #TransmissionsOfLight WEB... | X (formerly Twitter)",
+        "source": "web"
+      },
+      {
+        "title": "Gisel X Florez",
+        "url": "https://www.cryptoartnet.com/cryptoartists/nft-art/gisel-x-florez/",
+        "snippet": "GiselXFlorez is an artist that incorporates photographic & cinematic techniques with conceptual practice to explore the ways in which we are.",
+        "source": "web"
+      },
+      {
+        "title": "GISELXFLOREZ (@giselflorez)",
+        "url": "https://foundation.app/giselflorez",
+        "snippet": "Artist in light. GiselX uses manual 4x5 photographic & cinematic mediums as digital expression. giselflorez.com linktr.ee/giselx & giselx.art.",
+        "source": "web"
+      },
+      {
+        "title": "GISELX | 420 SPECIAL EDITION NFTs on Rarible",
+        "url": "https://rarible.com/giselx-special-edition",
+        "snippet": "The time was ticking and you acted! This series is an original GISELX creation split into 6 portions. Thank you so much for contributing to my 420fund.eth ...",
+        "source": "web"
+      },
+      {
+        "title": "GISELXFLOREZ 📸💎🎩🍖 (@giselx) on Farcaster",
+        "url": "https://warpcast.com/giselx",
+        "snippet": "Artist in Light. Manual photography & cinema in a post-digital era /artshare web3photo.com giselflorez.com linktr.ee/GISELX.",
+        "source": "web"
+      },
+      {
+        "title": "GISEL WEB3PHOTO",
+        "url": "https://www.web3photo.com",
+        "date": "2016-01-01",
+        "last_updated": "2025-06-22",
+        "snippet": "ARTIST IN LIGHT. photography, video, consulting​, web3. ​​. Gisel is immersed in visual direction. of photographic & emergent technology.",
+        "source": "web"
+      },
+      {
+        "title": "giselxvault",
+        "url": "https://superrare.com/giselxvault",
+        "snippet": "ARTIST IN LIGHT Artist in Light using manual camera techniques drawing upon traditional still & cinematic meth... Read More. www.web3photo..... Owned (47).",
+        "source": "web"
+      },
+      {
+        "title": "/GiselX",
+        "url": "https://beta.cent.co/GiselX",
+        "snippet": "A network for creative income.",
+        "source": "web"
+      }
+    ],
+    "object": "chat.completion",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "**GiselX (also known as GiselXFlorez or Gisel Florez) is a multimedia artist specializing in manual photography, cinematic techniques, and immersive art, often blending traditional methods with digital and web3 technologies.** [1][2][3][5]\n\nShe describes herself as an \"Artist in Light,\" using tools like 4x5 manual cameras to create conceptual works exploring human perception and post-digital expression, with over 20 years of expertise in photographic arts. [3][5][6][7] Her practice includes visual direction, video, consulting, and NFT projects on platforms like Foundation, Rarible, SuperRare, and Farcaster. [3][4][5][7]\n\nKey online presence and projects:\n- **Social and professional profiles**: X/Twitter (@GiselFlorez), Farcaster (@giselx), Cent (@GiselX), with links to giselflorez.com, linktr.ee/giselx, and giselx.art. [1][3][5]\n- **NFT collections**: 420 Special Edition on Rarible (split into 6 portions for her 420fund.eth), works on SuperRare (giselxvault with 47 owned pieces). [4][7]\n- **Web3 and photo focus**: Web3Photo.com for photography, video, consulting, and emergent tech immersion. [6]\n\nShe is a RISD alum associated with #MOONLANGUAGE, #TransmissionsOfLight, and crypto art scenes. [1][2]"
+        },
+        "delta": {
+          "role": "assistant",
+          "content": ""
+        },
+        "finish_reason": "stop"
+      }
+    ]
+  },
+  "timestamp": "2026-01-01T11:16:50.379615"
+}
