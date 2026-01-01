@@ -1,0 +1,30 @@
+{
+  "embedding": {
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "path": "sentence-transformers/all-MiniLM-L6-v2",
+    "content": true
+  },
+  "txtai": {
+    "index_path": "db/txtai_index"
+  },
+  "search": {
+    "similarity_threshold": 0.7,
+    "max_results": 10,
+    "batch_size": 32
+  },
+  "perplexity": {
+    "api_url": "https://api.perplexity.ai",
+    "default_queries": [
+      "gisel florez",
+      "giselx",
+      "giselxflorez",
+      "giselx art",
+      "giselxflorez digital art",
+      "gisel florez blockchain art"
+    ]
+  },
+  "export": {
+    "max_tokens": 50000,
+    "include_metadata": true
+  }
+}
