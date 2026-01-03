@@ -965,7 +965,7 @@
             <span class="selection-count" id="selectionCount">0</span> files selected
         </div>
         <div style="display: flex; gap: 1rem;">
-            <button class="cancel-btn" onclick="resetSelection()">Clear Selection</button>
+            <button class="cancel-btn" onclick="ignoreSelectedFiles()" style="background: var(--bg-tertiary); color: var(--text-tertiary); border: 1px solid var(--border-color);">🚫 Ignore Forever</button>
             <button id="compareBtn" class="compare-btn" onclick="compareSelectedFiles()" disabled style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 0.9rem 2rem; border: 1px solid var(--border-color); font-size: 0.9rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; font-family: 'Work Sans', sans-serif; border-radius: 2px;">
                 ⚠️ Compare Selected
             </button>
@@ -1381,6 +1381,61 @@ function resetSelection() {
     selectedFiles.clear();
     document.querySelectorAll('.file-checkbox').forEach(cb => cb.checked = false);
     updateSelection();
+}
+
+async function ignoreSelectedFiles() {
+    if (selectedFiles.size === 0) return;
+
+    const fileIds = Array.from(selectedFiles);
+    const fileNames = fileIds.map(id => {
+        const file = [...driveFiles.new, ...driveFiles.similar].find(f => f.id === id);
+        return file?.name || 'Unknown';
+    });
+
+    if (!confirm(`Permanently ignore ${fileIds.length} file(s) from future sync checks?\n\nFiles:\n${fileNames.join('\n')}\n\nThey will not appear in future sync scans.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/ignore-drive-files', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file_ids: fileIds
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showStatusMessage(`Successfully ignored ${fileIds.length} file(s). They won't appear in future syncs.`, 'success');
+
+            // Remove from UI
+            fileIds.forEach(fileId => {
+                const listItem = document.querySelector(`input[data-file-id="${fileId}"]`)?.parentElement;
+                if (listItem) {
+                    listItem.style.transition = 'opacity 0.3s ease';
+                    listItem.style.opacity = '0';
+                    setTimeout(() => listItem.remove(), 300);
+                }
+            });
+
+            // Update counts
+            driveFiles.similar = driveFiles.similar.filter(f => !fileIds.includes(f.id));
+            driveFiles.new = driveFiles.new.filter(f => !fileIds.includes(f.id));
+
+            document.getElementById('similarFilesBadge').textContent = driveFiles.similar.length;
+            document.getElementById('newFilesBadge').textContent = driveFiles.new.length;
+
+            resetSelection();
+        } else {
+            showStatusMessage(data.error || 'Failed to ignore files', 'error');
+        }
+    } catch (error) {
+        showStatusMessage('Error ignoring files: ' + error.message, 'error');
+    }
 }
 
 function toggleSection(header) {

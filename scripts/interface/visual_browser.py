@@ -277,6 +277,12 @@ def get_all_documents(limit=50, filter_type=None, sort_by=None):
     elif sort_by == 'source':
         # Group by source
         documents.sort(key=lambda x: (x.get('source', ''), x.get('date', '')), reverse=True)
+    elif sort_by == 'tags':
+        # Most tagged first (by tag count, then date)
+        documents.sort(key=lambda x: (len(x.get('tags', [])), x.get('date', '')), reverse=True)
+    elif sort_by == 'untagged':
+        # Untagged first (by tag count ascending, then date)
+        documents.sort(key=lambda x: (len(x.get('tags', [])), x.get('date', '')), reverse=False)
 
     return documents[:limit]
 
@@ -1462,6 +1468,20 @@ def api_check_drive_files():
         supported_types = drive_config.get('supported_file_types', ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'md'])
         files = list_files_in_folder(service, folder_id, supported_types)
 
+        # Load ignored files
+        ignored_files_path = Path("config/ignored_drive_files.json")
+        ignored_file_ids = set()
+        if ignored_files_path.exists():
+            try:
+                with open(ignored_files_path, 'r') as f:
+                    ignored_data = json.load(f)
+                    ignored_file_ids = set(ignored_data.get('ignored_file_ids', []))
+            except:
+                pass
+
+        # Filter out ignored files
+        files = [f for f in files if f['id'] not in ignored_file_ids]
+
         # Check which files already exist
         kb_path = Path("knowledge_base/processed")
         existing_drive_ids = set()
@@ -1753,6 +1773,52 @@ def api_import_drive_files():
             'imported': imported,
             'merged': merged_count,
             'errors': errors
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ignore-drive-files', methods=['POST'])
+def api_ignore_drive_files():
+    """Add Drive file IDs to permanent ignore list"""
+    try:
+        data = request.get_json()
+        file_ids = data.get('file_ids', [])
+
+        if not file_ids:
+            return jsonify({'error': 'No file IDs provided'}), 400
+
+        # Load existing ignored files
+        ignored_files_path = Path("config/ignored_drive_files.json")
+        ignored_file_ids = []
+
+        if ignored_files_path.exists():
+            try:
+                with open(ignored_files_path, 'r') as f:
+                    ignored_data = json.load(f)
+                    ignored_file_ids = ignored_data.get('ignored_file_ids', [])
+            except:
+                pass
+
+        # Add new file IDs
+        for file_id in file_ids:
+            if file_id not in ignored_file_ids:
+                ignored_file_ids.append(file_id)
+
+        # Save updated list
+        ignored_files_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(ignored_files_path, 'w') as f:
+            json.dump({
+                'ignored_file_ids': ignored_file_ids,
+                'last_updated': datetime.now().isoformat()
+            }, f, indent=2)
+
+        return jsonify({
+            'success': True,
+            'ignored_count': len(file_ids),
+            'total_ignored': len(ignored_file_ids)
         })
 
     except Exception as e:

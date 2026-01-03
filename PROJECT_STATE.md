@@ -5,6 +5,8 @@
 - Full website crawling implemented and active
 - Document editing and image management functional
 - Tag network visualization with color extraction working
+- Organized dropdown sorting with grouping (Date, Title, Source, Tags)
+- Quick tag network navigation from document cards
 
 ## Core Components
 
@@ -241,6 +243,30 @@ tail -f /tmp/claude/-Users-onthego/tasks/b43ca59.output
 ```
 
 ## Recent Updates
+
+### 2026-01-03 - Enhanced Sorting & Tag Network Navigation
+Improved document organization and tag network accessibility:
+- **Grouped dropdown menu** - Organized sorting options with clear categories
+  - 📅 BY DATE: Newest First, Oldest First
+  - 🔤 BY TITLE: A → Z, Z → A
+  - 📁 BY SOURCE: Group by Source
+  - 🏷️ BY TAGS: Most Tagged, Untagged First
+- **Visual optgroup styling** - Gold headers with emojis for easy scanning
+- **Tag network quick links** - Each document card shows "🕸️ Network" button
+  - Click any tag to jump to that tag in the network
+  - Click "🕸️ Network" to view document's tag connections
+  - Hover effects with warm accent color
+  - Tooltips indicate network navigation
+- **Inline diff preview** - Drive sync shows differences before comparison
+  - Format: "Δ 3d newer, 120KB larger" in metadata row
+  - Maintains condensed horizontal layout
+  - Color-coded with accent-warm
+- **🚫 Ignore Forever** - Permanently exclude files from future sync scans
+  - Replaces "Clear Selection" button in action bar
+  - Stores ignored file IDs in `config/ignored_drive_files.json`
+  - Confirmation dialog shows file names before ignoring
+  - Smooth fade-out animation when removing from UI
+  - Persists across sync sessions - ignored files never appear again
 
 ### 2026-01-03 - Drive Sync Click Comparison Popup
 Redesigned similar files comparison with clickable hazard icon:

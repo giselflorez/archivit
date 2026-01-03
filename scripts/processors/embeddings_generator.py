@@ -160,11 +160,12 @@ def update_index_incremental(embeddings, new_documents, config):
 
     print(f"Adding {len(new_documents)} new documents to index...")
 
-    # Prepare data
-    data = [
-        (doc['id'], doc['text'], doc['metadata'])
-        for doc in new_documents
-    ]
+    # Prepare data - serialize metadata as JSON strings like in create_embeddings_index
+    data = []
+    for doc in new_documents:
+        # Combine metadata into the text for searching
+        text_with_meta = f"{doc['text']}\n\n__METADATA__\n{json.dumps(doc['metadata'])}"
+        data.append((doc['id'], text_with_meta, None))
 
     # Upsert (update or insert)
     embeddings.upsert(data)

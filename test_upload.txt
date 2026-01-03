@@ -1,0 +1,11 @@
+Test Document for GiselX Knowledge Base
+
+This is a test file to demonstrate the file processing capabilities.
+
+Content about GiselX and blockchain art:
+- Digital identity in Web3
+- NFT collections on Foundation and SuperRare
+- Artist in Light philosophy
+- Manual 4x5 photography techniques
+
+This file should be processed and added to the knowledge base.

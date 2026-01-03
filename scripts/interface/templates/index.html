@@ -724,10 +724,11 @@
             <div class="document-preview-area">
                 <p class="document-preview">{{ doc.preview[:200] }}...</p>
                 {% if doc.tags %}
-                <div class="document-tags">
+                <div class="document-tags" style="display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap;">
                     {% for tag in doc.tags[:4] %}
-                    <a href="/tags#{{ tag }}" class="tag" style="text-decoration: none; color: inherit; transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--accent-gold)'; this.style.color='var(--accent-gold)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-tertiary)';" onclick="event.stopPropagation();">#{{ tag }}</a>
+                    <a href="/tags#{{ tag }}" class="tag" style="text-decoration: none; color: inherit; transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--accent-gold)'; this.style.color='var(--accent-gold)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-tertiary)';" onclick="event.stopPropagation();" title="Jump to #{{ tag }} in Tag Network">#{{ tag }}</a>
                     {% endfor %}
+                    <a href="/tags#{{ doc.tags[0] }}" class="tag-network-link" style="text-decoration: none; color: var(--accent-warm); font-size: 0.7rem; padding: 0.15rem 0.4rem; border: 1px solid var(--accent-warm); border-radius: 2px; opacity: 0.6; transition: all 0.3s ease; white-space: nowrap;" onmouseover="this.style.opacity='1'; this.style.background='var(--accent-warm)'; this.style.color='var(--bg-primary)';" onmouseout="this.style.opacity='0.6'; this.style.background='transparent'; this.style.color='var(--accent-warm)';" onclick="event.stopPropagation();" title="View this document in Tag Network">🕸️ Network</a>
                 </div>
                 {% endif %}
             </div>

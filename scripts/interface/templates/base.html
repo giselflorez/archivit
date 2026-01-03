@@ -248,6 +248,16 @@
         .sort-select option {
             background: var(--bg-secondary);
             color: var(--text-primary);
+            padding: 0.5rem;
+        }
+
+        .sort-select optgroup {
+            background: var(--bg-primary);
+            color: var(--accent-gold);
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.5rem 0;
+            letter-spacing: 0.1em;
         }
 
         .main-content {
@@ -326,12 +336,22 @@
                 <a href="/tags">🕸️ Tag Network</a>
                 <span class="nav-divider">|</span>
                 <select id="sortSelect" class="sort-select" onchange="updateSort(this.value)">
-                    <option value="">Sort by...</option>
-                    <option value="date_desc">Date: Newest</option>
-                    <option value="date_asc">Date: Oldest</option>
-                    <option value="title_asc">Title: A-Z</option>
-                    <option value="title_desc">Title: Z-A</option>
-                    <option value="source">Source</option>
+                    <option value="">⚡ Sort & Filter</option>
+                    <optgroup label="📅 BY DATE">
+                        <option value="date_desc">Newest First</option>
+                        <option value="date_asc">Oldest First</option>
+                    </optgroup>
+                    <optgroup label="🔤 BY TITLE">
+                        <option value="title_asc">A → Z</option>
+                        <option value="title_desc">Z → A</option>
+                    </optgroup>
+                    <optgroup label="📁 BY SOURCE">
+                        <option value="source">Group by Source</option>
+                    </optgroup>
+                    <optgroup label="🏷️ BY TAGS">
+                        <option value="tags">Most Tagged</option>
+                        <option value="untagged">Untagged First</option>
+                    </optgroup>
                 </select>
                 <a href="/sync-drive">📂 Sync Drive</a>
                 <a href="/add-content" style="background: var(--accent-gold); color: var(--bg-primary); padding: 0.5rem 1.25rem; border-radius: 2px; font-weight: 500;">+ Import</a>

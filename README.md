@@ -5,7 +5,10 @@ A local semantic search system for collecting and exploring information about gi
 ## Features
 
 - **Perplexity Integration**: Collect information about you from Perplexity API
+- **Twitter/X Archive**: Import and search your entire tweet history
+- **Google Drive Automation**: Upload files (PDFs, images, text) via Drive for automatic processing
 - **Semantic Search**: Natural language queries powered by sentence transformers
+- **File Processing**: Extract text from PDFs and images (OCR), process text files
 - **LLM-Ready Export**: Optimized markdown output for Claude conversations
 - **Version Controlled**: Git-based backup and change tracking
 - **Complete Privacy**: All data stored locally with offline embeddings
@@ -67,6 +70,189 @@ python scripts/search/export_context.py \
 ```
 
 Then paste `context.md` into a Claude conversation!
+
+## Google Drive Automation
+
+Upload files from anywhere (computer, phone) to automatically add them to your knowledge base!
+
+### Setup (One-time)
+
+Follow the complete setup guide: **[docs/GOOGLE_DRIVE_SETUP.md](docs/GOOGLE_DRIVE_SETUP.md)**
+
+Quick version:
+1. Set up Google Cloud project and enable Drive API
+2. Download OAuth credentials → `config/google_drive_credentials.json`
+3. Run test: `python scripts/collectors/drive_collector.py --test`
+4. Authenticate in browser
+
+### Daily Usage
+
+1. **Upload files to Google Drive:**
+   - Open Google Drive on computer or phone
+   - Navigate to "WEB3GISELAUTOMATE" folder
+   - Upload PDFs, images (JPG/PNG), or text files
+
+2. **Run automation:**
+   ```bash
+   source venv/bin/activate
+   KMP_DUPLICATE_LIB_OK=TRUE python scripts/orchestration/drive_automation.py
+   ```
+
+3. **Search your files:**
+   ```bash
+   KMP_DUPLICATE_LIB_OK=TRUE python scripts/search/semantic_search.py "content from my uploaded file"
+   ```
+
+### Supported Files
+
+- **PDFs** - Full text extraction
+- **Images** (JPG, PNG) - OCR text extraction (requires Tesseract)
+- **Text files** (TXT, MD) - Direct content read
+- **Documents** (DOC, DOCX) - Metadata only
+
+### What Happens
+
+1. Downloads files from Drive folder
+2. Extracts text content (PDFs, images with OCR, text files)
+3. Creates searchable knowledge entries
+4. Moves processed files to "Processed" subfolder in Drive
+5. Updates embeddings index
+6. Commits to git
+
+**Perfect for:** Notes, sketches, screenshots, PDFs, research papers, receipts, inspiration!
+
+## Twitter/X Archive Processing
+
+Add your entire tweet history to your searchable knowledge base!
+
+### Step 1: Request Your Twitter Archive
+
+1. Go to: https://twitter.com/settings/download_your_data
+2. Click "Request archive"
+3. Wait 24-48 hours for email notification
+4. Download and extract the ZIP file
+
+### Step 2: Process Your Tweets
+
+```bash
+source venv/bin/activate
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/collectors/twitter_collector.py path/to/twitter-archive/data/tweets.js
+```
+
+This will:
+- Group tweets by month
+- Extract hashtags and topics
+- Create searchable markdown files
+- Organize by subject (art, blockchain, photography, etc.)
+
+### Step 3: Update Search Index
+
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/processors/embeddings_generator.py --update
+```
+
+### Step 4: Search Your Tweets
+
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/search/semantic_search.py "moonlanguage project tweets"
+```
+
+**What gets indexed:**
+- All tweet text
+- Dates and timestamps
+- Engagement metrics (likes, retweets)
+- Hashtags and mentions
+- Links shared
+
+See: **[docs/TWITTER_EXPORT_GUIDE.md](docs/TWITTER_EXPORT_GUIDE.md)** for detailed instructions
+
+## Instagram Archive Processing
+
+Import your entire Instagram history with photos linked to captions!
+
+### Step 1: Request Your Instagram Archive
+
+1. Go to Instagram → Settings → Security → Download Data
+2. Request archive (JSON format)
+3. Wait for email (up to 48 hours)
+4. Download and extract the ZIP file
+
+### Step 2: Process Your Instagram Posts
+
+```bash
+source venv/bin/activate
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/collectors/instagram_collector.py ~/Downloads/instagram-archive/
+```
+
+This will:
+- Import all posts with captions
+- Copy photos to your knowledge base
+- Link images with their text
+- Extract hashtags and auto-categorize
+- Make everything searchable
+
+### Step 3: Update Search Index
+
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/processors/embeddings_generator.py --update
+```
+
+### Step 4: Browse Visually
+
+Launch the web interface:
+
+```bash
+python scripts/interface/visual_browser.py
+```
+
+Open: http://localhost:5000
+
+**What gets indexed:**
+- Post captions
+- All photos (viewable in interface)
+- Hashtags and mentions
+- Post dates
+- Visual context linked to text
+
+See: **[docs/INSTAGRAM_EXPORT_GUIDE.md](docs/INSTAGRAM_EXPORT_GUIDE.md)** for detailed instructions
+
+## Visual Web Interface
+
+Browse all your content with a beautiful visual interface!
+
+### Launch the Browser
+
+```bash
+python scripts/interface/visual_browser.py
+```
+
+Then open: **http://localhost:5000**
+
+### Features:
+
+- 🖼️ **Visual Grid View** - See all content with images
+- 🔍 **Semantic Search** - Natural language search across everything
+- 📂 **Filter by Source** - Instagram, Twitter, PDFs, Research
+- 🏷️ **Tag Navigation** - Browse by topic
+- 📱 **Responsive Design** - Works on desktop and mobile
+- 🎨 **Image Galleries** - View Instagram photos inline
+
+### Browse by Source:
+
+- **All Content** - Everything in one place
+- **Instagram** - Visual posts with photos
+- **Twitter** - Tweet history
+- **Research** - Perplexity queries
+- **Files** - Uploaded PDFs and documents
+- **Visual Only** - Filter to content with images
+
+### Search Examples:
+
+Visit http://localhost:5000/search and try:
+- "moonlanguage project photos"
+- "nft exhibition art"
+- "manual 4x5 photography techniques"
+- "woca women crypto art community"
 
 ## Usage Examples
 
