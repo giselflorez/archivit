@@ -26,5 +26,35 @@
   "export": {
     "max_tokens": 50000,
     "include_metadata": true
+  },
+  "google_drive": {
+    "enabled": true,
+    "watch_folder_name": "WEB3AUTOMATE",
+    "watch_folder_id": "11cv5o0ZbcVH3wTlIyx6eClKAh1kqCekM",
+    "poll_interval_seconds": 300,
+    "move_processed_files": true,
+    "processed_folder_name": "Processed",
+    "supported_file_types": ["pdf", "png", "jpg", "jpeg", "txt", "md", "doc", "docx", "glb", "gltf"],
+    "save_files_dir": "knowledge_base/attachments",
+    "credentials_file": "config/google_drive_credentials.json",
+    "token_file": "config/google_drive_token.json"
+  },
+  "perplexity_space": {
+    "url": "https://www.perplexity.ai/spaces/new-space-b2uCZpXJTYC3pj3SiwKg4A",
+    "auto_import": false
+  },
+  "visual_translator": {
+    "enabled": true,
+    "auto_analyze_on_import": true,
+    "ocr_enabled": true,
+    "vision_enabled": true,
+    "claude_api_model": "claude-3-5-sonnet-20241022",
+    "cache_analyses": true,
+    "cache_duration_days": 90,
+    "supported_formats": ["jpg", "jpeg", "png", "gif", "webp"],
+    "ocr_languages": ["eng"],
+    "batch_size": 10,
+    "rate_limit_delay_seconds": 1.0,
+    "max_image_dimension": 2048
   }
 }

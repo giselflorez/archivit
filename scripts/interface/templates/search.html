@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Search: {{ query }} - GiselX Knowledge Base{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .search-results {
+        margin-top: 2rem;
+    }
+
+    .result-item {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .result-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .result-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-score {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .result-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .source-instagram { background: #E1306C; color: white; }
+    .source-twitter { background: #1DA1F2; color: white; }
+    .source-perplexity { background: #20B2AA; color: white; }
+    .source-attachment { background: #6C757D; color: white; }
+
+    .result-preview {
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .result-images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .result-images img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .result-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .tag {
+        background: #f0f0f0;
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .no-results h2 {
+        color: #999;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">
+    {% if query %}
+        Search Results for "{{ query }}"
+    {% else %}
+        Search Your Knowledge Base
+    {% endif %}
+</h1>
+
+{% if results %}
+<p style="color: #666; margin-bottom: 1.5rem;">Found {{ results|length }} result(s)</p>
+
+<div class="search-results">
+    {% for result in results %}
+    <div class="result-item" onclick="window.location.href='/document/{{ result.id }}'">
+        <div class="result-header">
+            <div style="flex: 1;">
+                <h2 class="result-title">{{ result.title }}</h2>
+
+                <div class="result-meta">
+                    <span class="meta-badge source-{{ result.source }}">{{ result.source|upper }}</span>
+                    <span class="meta-badge" style="background: #f0f0f0; color: #666;">
+                        {{ result.type|replace('_', ' ')|title }}
+                    </span>
+                    {% if result.date %}
+                    <span class="meta-badge" style="background: #f0f0f0; color: #666;">
+                        📅 {{ result.date[:10] }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="result-score">
+                {{ "%.1f%%"|format(result.score * 100) }}
+            </div>
+        </div>
+
+        <p class="result-preview">{{ result.preview }}</p>
+
+        {% if result.media_files or result.images %}
+        <div class="result-images">
+            {% for media in result.media_files[:4] %}
+            <img src="/media/{{ media }}" alt="Media">
+            {% endfor %}
+            {% for image in result.images[:4] %}
+            <img src="{{ image }}" alt="Image">
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if result.tags %}
+        <div class="result-tags">
+            {% for tag in result.tags[:8] %}
+            <span class="tag">#{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% elif query %}
+<div class="no-results">
+    <h2>No results found for "{{ query }}"</h2>
+    <p>Try a different search term or browse all content.</p>
+</div>
+{% else %}
+<div class="no-results">
+    <h2>Enter a search query above</h2>
+    <p>Search across all your content: Instagram, Twitter, PDFs, and more.</p>
+</div>
+{% endif %}
+{% endblock %}

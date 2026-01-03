@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<style>
+    .vt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vt-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin: 0;
+        color: var(--accent-gold);
+        letter-spacing: -0.02em;
+    }
+
+    .vt-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.85rem;
+    }
+
+    .vt-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .vt-stat-number {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+    }
+
+    .vt-stat-label {
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.7rem;
+    }
+
+    .vt-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+        padding: 0.6rem 1.25rem;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .filter-btn.active {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-color: var(--accent-gold);
+    }
+
+    .vt-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .vt-image-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        aspect-ratio: 4/3;
+    }
+
+    .vt-image-card:hover {
+        border-color: var(--accent-gold);
+        box-shadow: var(--shadow-subtle);
+    }
+
+    .vt-image-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vt-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .vt-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+        border-radius: 2px;
+        backdrop-filter: blur(10px);
+    }
+
+    .vt-badge-analyzed {
+        background: rgba(212, 165, 116, 0.2);
+        color: var(--accent-gold);
+        border: 1px solid var(--accent-gold);
+    }
+
+    .vt-badge-pending {
+        background: rgba(106, 103, 98, 0.2);
+        color: var(--text-tertiary);
+        border: 1px solid var(--border-color);
+    }
+
+    .vt-text-badge {
+        position: absolute;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        background: rgba(244, 162, 97, 0.2);
+        color: var(--accent-warm);
+        border: 1px solid var(--accent-warm);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-radius: 2px;
+        backdrop-filter: blur(10px);
+    }
+
+    .vt-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.95), transparent);
+        padding: 1rem;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .vt-image-card:hover .vt-overlay {
+        transform: translateY(0);
+    }
+
+    .vt-source {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+    }
+
+    .vt-desc {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .vt-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-tertiary);
+    }
+
+    .vt-empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .vt-empty-text {
+        font-size: 1.1rem;
+    }
+
+    .vt-analyze-btn {
+        margin-top: 1rem;
+        padding: 0.8rem 1.5rem;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .vt-analyze-btn:hover {
+        background: var(--accent-warm);
+    }
+
+    .vt-loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--bg-secondary);
+        padding: 2rem;
+        border: 1px solid var(--accent-gold);
+        z-index: 1000;
+        display: none;
+    }
+
+    .vt-loading.active {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vt-header">
+    <h1 class="vt-title">Visual Translator</h1>
+    <div class="vt-stats">
+        <div class="vt-stat">
+            <div class="vt-stat-number">{{ total }}</div>
+            <div class="vt-stat-label">Total</div>
+        </div>
+        <div class="vt-stat">
+            <div class="vt-stat-number">{{ analyzed }}</div>
+            <div class="vt-stat-label">Analyzed</div>
+        </div>
+        <div class="vt-stat">
+            <div class="vt-stat-number">{{ pending }}</div>
+            <div class="vt-stat-label">Pending</div>
+        </div>
+        <div class="vt-stat">
+            <div class="vt-stat-number">{{ with_text }}</div>
+            <div class="vt-stat-label">With Text</div>
+        </div>
+    </div>
+</div>
+
+<div class="vt-filters">
+    <a href="/visual-translator?filter=all" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">
+        All
+    </a>
+    <a href="/visual-translator?filter=analyzed" class="filter-btn {% if current_filter == 'analyzed' %}active{% endif %}">
+        Analyzed
+    </a>
+    <a href="/visual-translator?filter=pending" class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">
+        Pending
+    </a>
+    <a href="/visual-translator?filter=has_text" class="filter-btn {% if current_filter == 'has_text' %}active{% endif %}">
+        With Text
+    </a>
+</div>
+
+{% if images %}
+<div class="vt-grid">
+    {% for img in images %}
+    <div class="vt-image-card" onclick="window.location.href='/visual-translator/image/{{ img.doc_id }}'">
+        <div class="vt-image-wrapper">
+            <img src="/media/{{ img.path }}" alt="{{ img.filename }}">
+
+            {% if img.analyzed %}
+                <div class="vt-badge vt-badge-analyzed">✓ Analyzed</div>
+            {% else %}
+                <div class="vt-badge vt-badge-pending">Pending</div>
+            {% endif %}
+
+            {% if img.has_text %}
+                <div class="vt-text-badge">📝 Text Detected</div>
+            {% endif %}
+
+            <div class="vt-overlay">
+                <div class="vt-source">{{ img.source }}</div>
+                {% if img.vision_desc %}
+                    <div class="vt-desc">{{ img.vision_desc }}</div>
+                {% else %}
+                    <div class="vt-desc" style="opacity: 0.5;">No analysis yet</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="vt-empty">
+    <div class="vt-empty-icon">🖼️</div>
+    <div class="vt-empty-text">No images found in knowledge base</div>
+    <p style="color: var(--text-tertiary); font-size: 0.9rem; margin-top: 0.5rem;">
+        Import images via Drive, Web scraping, or attachments
+    </p>
+</div>
+{% endif %}
+
+<div class="vt-loading" id="vtLoading">
+    <div style="text-align: center;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
+        <div>Analyzing image...</div>
+        <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: 0.5rem;">This may take a few seconds</div>
+    </div>
+</div>
+
+<script>
+// API call to analyze single image
+async function analyzeImage(docId, skipVision = false) {
+    const loading = document.getElementById('vtLoading');
+    loading.classList.add('active');
+
+    try {
+        const response = await fetch('/api/analyze-image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                doc_id: docId,
+                skip_vision: skipVision
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Reload page to show updated status
+            window.location.reload();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error analyzing image: ' + error);
+    } finally {
+        loading.classList.remove('active');
+    }
+}
+</script>
+{% endblock %}

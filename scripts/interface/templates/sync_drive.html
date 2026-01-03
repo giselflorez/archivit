@@ -1,0 +1,1572 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<style>
+    /* Sync Page Header */
+    .sync-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+        padding: 3rem 0;
+    }
+
+    .sync-header::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(212, 165, 116, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+        animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .sync-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 3.5rem;
+        font-weight: 300;
+        margin-bottom: 1rem;
+        color: var(--accent-gold);
+        letter-spacing: -0.03em;
+        position: relative;
+        z-index: 1;
+        animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sync-subtitle {
+        font-size: 1rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+        animation: fadeIn 1s ease-out 0.3s backwards;
+    }
+
+    /* Check Button */
+    .check-drive-btn {
+        padding: 1.2rem 3rem;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-warm) 100%);
+        color: var(--bg-primary);
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        font-family: 'Work Sans', sans-serif;
+        box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
+        animation: fadeIn 1.2s ease-out 0.6s backwards;
+    }
+
+    .check-drive-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .check-drive-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(212, 165, 116, 0.5);
+    }
+
+    .check-drive-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .check-drive-btn:active {
+        transform: translateY(0);
+    }
+
+    .check-drive-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Loading State */
+    .loading-container {
+        display: none;
+        text-align: center;
+        padding: 4rem 0;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .loading-container.active {
+        display: block;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--accent-gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* Results Container */
+    .results-container {
+        display: none;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .results-container.active {
+        display: block;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Section Styling */
+    .files-section {
+        margin-bottom: 3rem;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .files-section:hover {
+        border-color: var(--accent-dim);
+    }
+
+    .section-header {
+        padding: 1.5rem 2rem;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .section-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        flex: 1;
+    }
+
+    .section-header-left:hover {
+        color: var(--accent-gold);
+    }
+
+    .section-header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .bulk-action-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Work Sans', sans-serif;
+        border-radius: 3px;
+    }
+
+    .bulk-action-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        background: rgba(212, 165, 116, 0.05);
+    }
+
+    .bulk-action-btn.check-all {
+        border-color: #2ecc71;
+        color: #2ecc71;
+    }
+
+    .bulk-action-btn.check-all:hover {
+        background: rgba(46, 204, 113, 0.1);
+    }
+
+    .bulk-action-btn.uncheck-all {
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
+
+    .bulk-action-btn.uncheck-all:hover {
+        background: rgba(231, 76, 60, 0.1);
+    }
+
+    .section-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 50%;
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    .section-badge.warning {
+        background: var(--accent-warm);
+    }
+
+    .section-badge.muted {
+        background: var(--text-tertiary);
+    }
+
+    .section-toggle {
+        color: var(--text-tertiary);
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .section-header.collapsed .section-toggle {
+        transform: rotate(-90deg);
+    }
+
+    .section-content {
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    .section-header.collapsed + .section-content {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    /* File List */
+    .file-list {
+        padding: 0;
+    }
+
+    .file-item {
+        position: relative;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        gap: 1.5rem;
+        align-items: center;
+        transition: all 0.3s ease;
+        animation: slideInLeft 0.4s ease-out backwards;
+    }
+
+    .file-item:nth-child(1) { animation-delay: 0.05s; }
+    .file-item:nth-child(2) { animation-delay: 0.1s; }
+    .file-item:nth-child(3) { animation-delay: 0.15s; }
+    .file-item:nth-child(4) { animation-delay: 0.2s; }
+    .file-item:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .file-item:last-child {
+        border-bottom: none;
+    }
+
+    .file-item:hover {
+        background: rgba(212, 165, 116, 0.05);
+    }
+
+    .file-checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-color);
+        border-radius: 3px;
+        cursor: pointer;
+        appearance: none;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .file-checkbox:checked {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+
+    .file-checkbox:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--bg-primary);
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .file-checkbox:hover {
+        border-color: var(--accent-gold);
+    }
+
+    .file-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .file-name {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    .file-meta {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+        display: flex;
+        gap: 1rem;
+        letter-spacing: 0.03em;
+    }
+
+    .file-tag {
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+    }
+
+    .file-tag.pdf { border-color: #e74c3c; color: #e74c3c; }
+    .file-tag.jpg, .file-tag.png { border-color: #3498db; color: #3498db; }
+    .file-tag.txt { border-color: #2ecc71; color: #2ecc71; }
+
+    .file-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .similarity-badge {
+        padding: 0.4rem 1rem;
+        background: rgba(244, 162, 97, 0.15);
+        border: 1px solid var(--accent-warm);
+        color: var(--accent-warm);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        border-radius: 2px;
+    }
+
+    /* Similar File Details - Click Popup */
+    .similar-details {
+        position: fixed;
+        left: 50%;
+        top: 55%;
+        transform: translate(-50%, -50%) scale(0.9);
+        z-index: 1000;
+        width: 650px;
+        max-width: 90vw;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 0;
+        background: var(--bg-primary);
+        border: 2px solid var(--accent-warm);
+        border-radius: 8px;
+        box-shadow: 0 10px 60px rgba(0, 0, 0, 0.6),
+                    0 0 0 1px rgba(244, 162, 97, 0.3),
+                    0 0 80px rgba(244, 162, 97, 0.2);
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .similar-details.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .similar-details::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+    }
+
+    .popup-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(3px);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .popup-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .comparison-header {
+        padding: 0.75rem 1rem;
+        background: rgba(244, 162, 97, 0.1);
+        border-bottom: 1px solid rgba(244, 162, 97, 0.2);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-warm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .match-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 3px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .match-indicator:hover {
+        transform: scale(1.1);
+    }
+
+    .match-indicator.high {
+        background: rgba(231, 76, 60, 0.15);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .match-indicator.high:hover {
+        background: rgba(231, 76, 60, 0.25);
+        border-color: #e74c3c;
+    }
+
+    .match-indicator.medium {
+        background: rgba(244, 162, 97, 0.15);
+        color: var(--accent-warm);
+        border: 1px solid rgba(244, 162, 97, 0.3);
+    }
+
+    .match-indicator.medium:hover {
+        background: rgba(244, 162, 97, 0.25);
+        border-color: var(--accent-warm);
+    }
+
+    .match-indicator.low {
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .match-indicator.low:hover {
+        background: rgba(46, 204, 113, 0.25);
+        border-color: #2ecc71;
+    }
+
+    .match-indicator.unknown {
+        background: rgba(149, 165, 166, 0.15);
+        color: #95a5a6;
+        border: 1px solid rgba(149, 165, 166, 0.3);
+    }
+
+    .match-indicator.unknown:hover {
+        background: rgba(149, 165, 166, 0.25);
+        border-color: #95a5a6;
+    }
+
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+
+    .comparison-column {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .comparison-column.new {
+        background: rgba(46, 204, 113, 0.03);
+        border-right: 1px solid rgba(244, 162, 97, 0.2);
+    }
+
+    .comparison-column.existing {
+        background: rgba(149, 165, 166, 0.03);
+    }
+
+    .comparison-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.25rem;
+    }
+
+    .comparison-label.new {
+        color: #2ecc71;
+    }
+
+    .comparison-label.existing {
+        color: #95a5a6;
+    }
+
+    .comparison-value {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .comparison-meta {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        margin-top: 0.25rem;
+    }
+
+    .diff-highlight {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        background: rgba(212, 165, 116, 0.15);
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        margin: 0.25rem 0;
+    }
+
+    .diff-quote {
+        margin-top: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgba(106, 103, 98, 0.1);
+        border-left: 3px solid var(--text-tertiary);
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        line-height: 1.5;
+    }
+
+    .diff-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .diff-indicator.larger {
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+    }
+
+    .diff-indicator.smaller {
+        background: rgba(231, 76, 60, 0.15);
+        color: #e74c3c;
+    }
+
+    .diff-indicator.newer {
+        background: rgba(52, 152, 219, 0.15);
+        color: #3498db;
+    }
+
+    .diff-indicator.older {
+        background: rgba(149, 165, 166, 0.15);
+        color: #95a5a6;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: rgba(244, 162, 97, 0.05);
+        border-top: 1px solid rgba(244, 162, 97, 0.2);
+    }
+
+    .quick-action-btn {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    .quick-action-btn:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .quick-action-btn.skip {
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
+
+    .quick-action-btn.skip:hover {
+        background: rgba(231, 76, 60, 0.1);
+    }
+
+    .quick-action-btn.import {
+        border-color: #2ecc71;
+        color: #2ecc71;
+    }
+
+    .quick-action-btn.import:hover {
+        background: rgba(46, 204, 113, 0.1);
+    }
+
+    /* Action Buttons */
+    .action-bar {
+        padding: 2rem;
+        background: var(--bg-tertiary);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        backdrop-filter: blur(10px);
+    }
+
+    .selection-info {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        letter-spacing: 0.05em;
+    }
+
+    .selection-count {
+        color: var(--accent-gold);
+        font-weight: 600;
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.1rem;
+    }
+
+    .import-btn {
+        padding: 0.9rem 2.5rem;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Work Sans', sans-serif;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .import-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .import-btn:hover::before {
+        left: 100%;
+    }
+
+    .import-btn:hover {
+        background: var(--accent-warm);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(212, 165, 116, 0.4);
+    }
+
+    .import-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .cancel-btn {
+        padding: 0.9rem 2rem;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    .cancel-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .compare-btn:hover {
+        border-color: var(--accent-warm);
+        color: var(--accent-warm);
+        background: rgba(244, 162, 97, 0.1);
+    }
+
+    .compare-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .empty-text {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-subtext {
+        font-size: 0.9rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Status Messages */
+    .status-message {
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid var(--accent-gold);
+        background: rgba(212, 165, 116, 0.1);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        animation: slideInLeft 0.5s ease-out;
+    }
+
+    .status-message.error {
+        border-left-color: #e74c3c;
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+
+    .status-message.success {
+        border-left-color: #2ecc71;
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sync-header">
+    <h1 class="sync-title">Drive Synchronization</h1>
+    <p class="sync-subtitle">WEB3AUTOMATE Folder</p>
+</div>
+
+<div style="text-align: center; margin-bottom: 3rem;">
+    <button id="checkDriveBtn" class="check-drive-btn" onclick="checkDriveFiles()">
+        ⚡ Check for New Files
+    </button>
+</div>
+
+<div id="loadingContainer" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Scanning Drive...</p>
+</div>
+
+<div id="resultsContainer" class="results-container">
+    <div id="statusMessage"></div>
+
+    <!-- New Files Section -->
+    <div id="newFilesSection" class="files-section" style="display: none;">
+        <div class="section-header">
+            <div class="section-header-left" onclick="toggleSection(this.parentElement)">
+                <span class="section-badge" id="newFilesBadge">0</span>
+                <div class="section-title">
+                    New Files
+                </div>
+            </div>
+            <div class="section-header-right">
+                <button class="bulk-action-btn check-all" onclick="checkAllInSection('newFilesList', true, event)">
+                    ✓ Check All
+                </button>
+                <button class="bulk-action-btn uncheck-all" onclick="checkAllInSection('newFilesList', false, event)">
+                    ✕ Uncheck All
+                </button>
+                <span class="section-toggle" onclick="toggleSection(this.parentElement.parentElement)">▼</span>
+            </div>
+        </div>
+        <div class="section-content">
+            <div id="newFilesList" class="file-list"></div>
+        </div>
+    </div>
+
+    <!-- Similar Files Section -->
+    <div id="similarFilesSection" class="files-section" style="display: none;">
+        <div class="section-header">
+            <div class="section-header-left" onclick="toggleSection(this.parentElement)">
+                <span class="section-badge warning" id="similarFilesBadge">0</span>
+                <div class="section-title">
+                    Similar Files
+                    <span style="font-size: 0.9rem; font-weight: 300; color: var(--text-tertiary); font-family: 'Work Sans', sans-serif;">(Review Recommended)</span>
+                </div>
+            </div>
+            <div class="section-header-right">
+                <button class="bulk-action-btn check-all" onclick="checkAllInSection('similarFilesList', true, event)">
+                    ✓ Check All
+                </button>
+                <button class="bulk-action-btn uncheck-all" onclick="checkAllInSection('similarFilesList', false, event)">
+                    ✕ Uncheck All
+                </button>
+                <span class="section-toggle" onclick="toggleSection(this.parentElement.parentElement)">▼</span>
+            </div>
+        </div>
+        <div class="section-content">
+            <div id="similarFilesList" class="file-list"></div>
+        </div>
+    </div>
+
+    <!-- Duplicate Files Section -->
+    <div id="duplicateFilesSection" class="files-section" style="display: none;">
+        <div class="section-header">
+            <div class="section-header-left" onclick="toggleSection(this.parentElement)">
+                <span class="section-badge muted" id="duplicateFilesBadge">0</span>
+                <div class="section-title">
+                    Already Imported
+                </div>
+            </div>
+            <div class="section-header-right">
+                <span class="section-toggle" onclick="toggleSection(this.parentElement.parentElement)">▼</span>
+            </div>
+        </div>
+        <div class="section-content">
+            <div id="duplicateFilesList" class="file-list"></div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div id="actionBar" class="action-bar" style="display: none;">
+        <div class="selection-info">
+            <span class="selection-count" id="selectionCount">0</span> files selected
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="cancel-btn" onclick="resetSelection()">Clear Selection</button>
+            <button id="compareBtn" class="compare-btn" onclick="compareSelectedFiles()" disabled style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 0.9rem 2rem; border: 1px solid var(--border-color); font-size: 0.9rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; font-family: 'Work Sans', sans-serif; border-radius: 2px;">
+                ⚠️ Compare Selected
+            </button>
+            <button id="importBtn" class="import-btn" onclick="importSelectedFiles()" disabled>
+                Import Selected Files
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let driveFiles = {
+    new: [],
+    similar: [],
+    duplicate: []
+};
+
+let selectedFiles = new Set();
+
+async function checkDriveFiles() {
+    const btn = document.getElementById('checkDriveBtn');
+    const loading = document.getElementById('loadingContainer');
+    const results = document.getElementById('resultsContainer');
+
+    // Reset state
+    selectedFiles.clear();
+    results.classList.remove('active');
+
+    // Show loading
+    btn.disabled = true;
+    loading.classList.add('active');
+
+    try {
+        const response = await fetch('/api/check-drive-files');
+        const data = await response.json();
+
+        if (data.error) {
+            showStatusMessage(data.error, 'error');
+            return;
+        }
+
+        // Map API response to frontend format
+        // API returns 'existing' field, frontend expects 'similar_to'
+        const similarFiles = (data.similar_files || []).map(file => ({
+            ...file,
+            similar_to: file.existing, // Map existing to similar_to
+            modifiedTime: file.modified // Ensure consistent field name
+        }));
+
+        driveFiles = {
+            new: data.new_files || [],
+            similar: similarFiles,
+            duplicate: data.duplicate_files || []
+        };
+
+        displayResults();
+    } catch (error) {
+        showStatusMessage('Failed to connect to Drive: ' + error.message, 'error');
+    } finally {
+        loading.classList.remove('active');
+        btn.disabled = false;
+    }
+}
+
+function displayResults() {
+    const results = document.getElementById('resultsContainer');
+    results.classList.add('active');
+
+    // Update counts
+    document.getElementById('newFilesBadge').textContent = driveFiles.new.length;
+    document.getElementById('similarFilesBadge').textContent = driveFiles.similar.length;
+    document.getElementById('duplicateFilesBadge').textContent = driveFiles.duplicate.length;
+
+    // Display sections
+    displayFileSection('newFilesList', 'newFilesSection', driveFiles.new, false);
+    displayFileSection('similarFilesList', 'similarFilesSection', driveFiles.similar, true);
+    displayFileSection('duplicateFilesList', 'duplicateFilesSection', driveFiles.duplicate, false, true);
+
+    // Show action bar if there are selectable files
+    if (driveFiles.new.length > 0 || driveFiles.similar.length > 0) {
+        document.getElementById('actionBar').style.display = 'flex';
+    }
+
+    // Show status message
+    if (driveFiles.new.length === 0 && driveFiles.similar.length === 0 && driveFiles.duplicate.length === 0) {
+        showStatusMessage('No new files found in WEB3AUTOMATE folder. Your archive is up to date!', 'success');
+    } else {
+        const total = driveFiles.new.length + driveFiles.similar.length;
+        showStatusMessage(`Found ${total} new file${total !== 1 ? 's' : ''} to import. ${driveFiles.duplicate.length} duplicate${driveFiles.duplicate.length !== 1 ? 's' : ''} skipped.`, 'success');
+    }
+}
+
+function displayFileSection(listId, sectionId, files, showSimilarity = false, hideCheckbox = false) {
+    const list = document.getElementById(listId);
+    const section = document.getElementById(sectionId);
+
+    if (files.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+
+    files.forEach((file, index) => {
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        const fileSize = formatFileSize(file.size);
+
+        const item = document.createElement('div');
+        item.className = 'file-item';
+
+        // Calculate match level for color coding
+        const similarity = file.similarity || 0;
+        const matchLevel = getMatchLevel(similarity);
+        const matchText = similarity > 0 ? `${Math.round(similarity * 100)}%` : 'Unknown';
+
+        // Generate quick diff summary for similar files to show in metadata
+        let metaExtra = '';
+        if (showSimilarity && file.similar_to) {
+            const existingFile = file.similar_to;
+            const quickDiffs = [];
+
+            // Check date difference
+            const newDate = new Date(file.modifiedTime);
+            const existingDate = existingFile.created_at ? new Date(existingFile.created_at) : null;
+            if (existingDate) {
+                const dateDiff = (newDate - existingDate) / (1000 * 60 * 60 * 24);
+                if (Math.abs(dateDiff) > 1) {
+                    const days = Math.round(Math.abs(dateDiff));
+                    const direction = dateDiff > 0 ? 'newer' : 'older';
+                    quickDiffs.push(`${days}d ${direction}`);
+                }
+            }
+
+            // Check size difference
+            const sizeDiff = file.size - (existingFile.size || 0);
+            if (Math.abs(sizeDiff) > 1024) {
+                const diffKB = Math.round(Math.abs(sizeDiff) / 1024);
+                const direction = sizeDiff > 0 ? 'larger' : 'smaller';
+                quickDiffs.push(`${diffKB}KB ${direction}`);
+            }
+
+            if (quickDiffs.length > 0) {
+                metaExtra = `<span style="color: var(--accent-warm);">Δ ${quickDiffs.join(', ')}</span>`;
+            }
+        }
+
+        item.innerHTML = `
+            ${!hideCheckbox ? `
+                <input type="checkbox"
+                       class="file-checkbox"
+                       data-file-id="${file.id}"
+                       onchange="updateSelection()">
+            ` : '<div style="width: 20px;"></div>'}
+
+            <div class="file-info" style="flex: 1;">
+                <div class="file-name">${file.name}</div>
+                <div class="file-meta">
+                    <span>${fileSize}</span>
+                    <span>Modified: ${new Date(file.modifiedTime).toLocaleDateString()}</span>
+                    ${metaExtra ? metaExtra : ''}
+                </div>
+            </div>
+
+            <div class="file-tag ${fileExt}">${fileExt.toUpperCase()}</div>
+
+            ${showSimilarity && file.similar_to ? `
+                <div class="match-indicator ${matchLevel}" onclick="toggleComparisonPopup('${file.id}', event)" title="Click to view comparison">
+                    ⚠️
+                </div>
+            ` : hideCheckbox ? `
+                <div class="similarity-badge" style="background: rgba(106, 103, 98, 0.2); border-color: var(--text-tertiary); color: var(--text-tertiary);">
+                    Already Imported
+                </div>
+            ` : ''}
+        `;
+
+        // Add popup if similar file
+        if (showSimilarity && file.similar_to) {
+            const popupHTML = createComparisonPopup(file, matchLevel, matchText);
+            item.insertAdjacentHTML('beforeend', popupHTML);
+        }
+
+        list.appendChild(item);
+    });
+}
+
+function getMatchLevel(similarity) {
+    if (!similarity || similarity === 0) return 'unknown';
+    if (similarity >= 0.8) return 'high';  // 80%+ = likely duplicate
+    if (similarity >= 0.5) return 'medium'; // 50-79% = similar
+    return 'low';  // <50% = different enough
+}
+
+function toggleComparisonPopup(fileId, event) {
+    event.stopPropagation();
+
+    const popup = document.getElementById(`popup-${fileId}`);
+    const backdrop = document.getElementById(`backdrop-${fileId}`);
+
+    if (!popup || !backdrop) return;
+
+    // Close all other popups first
+    document.querySelectorAll('.similar-details.active').forEach(p => {
+        if (p.id !== `popup-${fileId}`) {
+            p.classList.remove('active');
+        }
+    });
+    document.querySelectorAll('.popup-backdrop.active').forEach(b => {
+        if (b.id !== `backdrop-${fileId}`) {
+            b.classList.remove('active');
+        }
+    });
+
+    // Toggle this popup
+    popup.classList.toggle('active');
+    backdrop.classList.toggle('active');
+}
+
+function closePopup(fileId, event) {
+    event.stopPropagation();
+
+    const popup = document.getElementById(`popup-${fileId}`);
+    const backdrop = document.getElementById(`backdrop-${fileId}`);
+
+    if (popup) popup.classList.remove('active');
+    if (backdrop) backdrop.classList.remove('active');
+}
+
+function getMatchIcon(level) {
+    switch(level) {
+        case 'high': return '⚠️';
+        case 'medium': return '⚡';
+        case 'low': return '✓';
+        default: return '?';
+    }
+}
+
+function createComparisonPopup(file, matchLevel, matchText) {
+    const existingFile = file.similar_to;
+    const newSize = formatFileSize(file.size);
+    const existingSize = formatFileSize(existingFile.size || 0);
+    const newDate = new Date(file.modifiedTime);
+    const existingDate = existingFile.created_at ? new Date(existingFile.created_at) : null;
+
+    const recommendation = getRecommendation(matchLevel, file, existingFile);
+
+    // Calculate differences
+    const sizeDiff = file.size - (existingFile.size || 0);
+    const dateDiff = existingDate ? (newDate - existingDate) / (1000 * 60 * 60 * 24) : null;
+
+    // Create diff indicators
+    const sizeIndicator = sizeDiff > 0 ?
+        `<span class="diff-indicator larger">↑ ${formatFileSize(Math.abs(sizeDiff))} larger</span>` :
+        sizeDiff < 0 ?
+        `<span class="diff-indicator smaller">↓ ${formatFileSize(Math.abs(sizeDiff))} smaller</span>` :
+        `<span class="diff-indicator" style="color: var(--text-tertiary);">= same size</span>`;
+
+    const dateIndicator = dateDiff !== null ?
+        (dateDiff > 0 ?
+            `<span class="diff-indicator newer">↑ ${Math.round(Math.abs(dateDiff))} days newer</span>` :
+            dateDiff < 0 ?
+            `<span class="diff-indicator older">↓ ${Math.round(Math.abs(dateDiff))} days older</span>` :
+            `<span class="diff-indicator" style="color: var(--text-tertiary);">= same date</span>`) :
+        '';
+
+    // Generate ONLY actual differences for quote
+    const differences = [];
+
+    // Only show name if different
+    if (file.name.toLowerCase() !== (existingFile.title || '').toLowerCase()) {
+        differences.push(`<strong>Different names:</strong> "${file.name}" ≠ "${existingFile.title}"`);
+    }
+
+    // Only show size if significantly different (>1KB)
+    if (Math.abs(sizeDiff) > 1024) {
+        const diffAmount = formatFileSize(Math.abs(sizeDiff));
+        const direction = sizeDiff > 0 ? 'larger' : 'smaller';
+        differences.push(`<strong>Size difference:</strong> New file is ${diffAmount} ${direction}`);
+    }
+
+    // Only show date if different by more than 1 day
+    if (dateDiff !== null && Math.abs(dateDiff) > 1) {
+        const days = Math.round(Math.abs(dateDiff));
+        const direction = dateDiff > 0 ? 'newer' : 'older';
+        differences.push(`<strong>Date difference:</strong> New file is ${days} days ${direction}`);
+    }
+
+    const diffQuote = differences.length > 0 ?
+        `<div class="diff-quote">
+            <div style="font-weight: 600; color: var(--accent-warm); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Only Showing Differences:</div>
+            ${differences.join('<br><br>')}
+        </div>` :
+        `<div class="diff-quote">
+            <div style="font-weight: 600; color: #2ecc71; margin-bottom: 0.5rem;">✓ No Significant Differences Detected</div>
+            Files have same name, similar size, and similar date. This appears to be a duplicate.
+        </div>`;
+
+    return `
+        <div class="popup-backdrop" id="backdrop-${file.id}" onclick="closePopup('${file.id}', event)"></div>
+        <div class="similar-details" id="popup-${file.id}">
+            <div class="comparison-header">
+                <span>Potential Duplicate Detected</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-warm);">
+                        ${matchText} Match
+                    </span>
+                    <button onclick="closePopup('${file.id}', event)" style="background: transparent; border: none; color: var(--text-tertiary); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-gold)'" onmouseout="this.style.color='var(--text-tertiary)'">×</button>
+                </span>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-column new">
+                    <div class="comparison-label new">📁 New File (Drive)</div>
+                    <div class="comparison-value">${file.name}</div>
+                    <div class="comparison-meta">
+                        ${newSize} ${sizeIndicator}<br>
+                        ${newDate.toLocaleDateString()} ${dateIndicator}
+                    </div>
+                </div>
+
+                <div class="comparison-column existing">
+                    <div class="comparison-label existing">📚 Existing (Archive)</div>
+                    <div class="comparison-value">${existingFile.title || 'Untitled'}</div>
+                    <div class="comparison-meta">
+                        ${existingSize}<br>
+                        ${existingDate ? existingDate.toLocaleDateString() : 'Unknown'}
+                        ${existingFile.source ? `<br>Source: ${existingFile.source}` : ''}
+                    </div>
+                </div>
+            </div>
+
+            ${diffQuote}
+
+            <div class="quick-actions">
+                <button class="quick-action-btn skip" onclick="skipFile('${file.id}', event); closePopup('${file.id}', event);">
+                    ✕ Skip (Keep Existing)
+                </button>
+                <button class="quick-action-btn import" onclick="quickImport('${file.id}', event); closePopup('${file.id}', event);">
+                    ✓ Import Anyway
+                </button>
+            </div>
+
+            <div style="padding: 0.75rem 1rem; font-size: 0.75rem; color: var(--text-tertiary); border-top: 1px solid rgba(244, 162, 97, 0.1);">
+                💡 ${recommendation}
+            </div>
+        </div>
+    `;
+}
+
+function getRecommendation(matchLevel, newFile, existingFile) {
+    switch(matchLevel) {
+        case 'high':
+            return 'High match: Likely a duplicate. Skip unless you need a newer version.';
+        case 'medium':
+            return 'Moderate match: Similar content. Review to decide if it adds new information.';
+        case 'low':
+            return 'Low match: Different enough. Safe to import if relevant.';
+        default:
+            return 'Unable to calculate similarity. Review manually to avoid duplicates.';
+    }
+}
+
+function skipFile(fileId, event) {
+    event.stopPropagation();
+    const checkbox = document.querySelector(`input[data-file-id="${fileId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        checkbox.disabled = true;
+        checkbox.parentElement.parentElement.style.opacity = '0.4';
+        updateSelection();
+    }
+}
+
+function quickImport(fileId, event) {
+    event.stopPropagation();
+    const checkbox = document.querySelector(`input[data-file-id="${fileId}"]`);
+    if (checkbox) {
+        checkbox.checked = true;
+        updateSelection();
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function updateSelection() {
+    selectedFiles.clear();
+    document.querySelectorAll('.file-checkbox:checked').forEach(cb => {
+        selectedFiles.add(cb.dataset.fileId);
+    });
+
+    const count = selectedFiles.size;
+    document.getElementById('selectionCount').textContent = count;
+    document.getElementById('importBtn').disabled = count === 0;
+
+    // Enable compare button if any files are selected
+    const compareBtn = document.getElementById('compareBtn');
+    compareBtn.disabled = count === 0;
+
+    // Update compare button text
+    if (count > 0) {
+        compareBtn.textContent = `⚠️ Compare Selected (${count})`;
+    } else {
+        compareBtn.textContent = '⚠️ Compare Selected';
+    }
+}
+
+function resetSelection() {
+    selectedFiles.clear();
+    document.querySelectorAll('.file-checkbox').forEach(cb => cb.checked = false);
+    updateSelection();
+}
+
+function toggleSection(header) {
+    header.classList.toggle('collapsed');
+}
+
+function checkAllInSection(listId, checked, event) {
+    event.stopPropagation();
+    const list = document.getElementById(listId);
+    const checkboxes = list.querySelectorAll('.file-checkbox:not(:disabled)');
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+    });
+    updateSelection();
+}
+
+function showStatusMessage(message, type = 'success') {
+    const container = document.getElementById('statusMessage');
+    container.innerHTML = `<div class="status-message ${type}">${message}</div>`;
+}
+
+let comparisonQueue = [];
+let currentComparisonIndex = 0;
+
+function compareSelectedFiles() {
+    // Build queue of comparable selected files
+    comparisonQueue = Array.from(selectedFiles).filter(fileId => {
+        const popup = document.getElementById(`popup-${fileId}`);
+        return popup !== null;
+    });
+
+    if (comparisonQueue.length === 0) {
+        showStatusMessage('No selected files have comparison data available.', 'error');
+        return;
+    }
+
+    currentComparisonIndex = 0;
+    showComparisonAtIndex(currentComparisonIndex);
+}
+
+function showComparisonAtIndex(index) {
+    if (index < 0 || index >= comparisonQueue.length) return;
+
+    const fileId = comparisonQueue[index];
+
+    // Close all popups first
+    document.querySelectorAll('.similar-details.active').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.popup-backdrop.active').forEach(b => b.classList.remove('active'));
+
+    // Open this popup
+    const popup = document.getElementById(`popup-${fileId}`);
+    const backdrop = document.getElementById(`backdrop-${fileId}`);
+
+    if (popup && backdrop) {
+        popup.classList.add('active');
+        backdrop.classList.add('active');
+
+        // Add navigation if multiple files
+        if (comparisonQueue.length > 1) {
+            addNavigationToPopup(popup, index);
+        }
+
+        // Scroll to the file in the list
+        const checkbox = document.querySelector(`input[data-file-id="${fileId}"]`);
+        if (checkbox) {
+            checkbox.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function addNavigationToPopup(popup, index) {
+    // Remove existing navigation if any
+    const existingNav = popup.querySelector('.comparison-navigation');
+    if (existingNav) {
+        existingNav.remove();
+    }
+
+    const navHTML = `
+        <div class="comparison-navigation" style="padding: 1rem; background: var(--bg-tertiary); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <button onclick="navigateComparison(-1)" ${index === 0 ? 'disabled' : ''} style="padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; border-radius: 2px; font-size: 0.8rem; transition: all 0.2s;" onmouseover="if(!this.disabled) { this.style.borderColor='var(--accent-gold)'; this.style.color='var(--accent-gold)'; }" onmouseout="if(!this.disabled) { this.style.borderColor='var(--border-color)'; this.style.color='var(--text-secondary)'; }">
+                ← Previous
+            </button>
+            <span style="font-size: 0.8rem; color: var(--text-tertiary); letter-spacing: 0.05em;">
+                ${index + 1} of ${comparisonQueue.length}
+            </span>
+            <button onclick="navigateComparison(1)" ${index === comparisonQueue.length - 1 ? 'disabled' : ''} style="padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; border-radius: 2px; font-size: 0.8rem; transition: all 0.2s;" onmouseover="if(!this.disabled) { this.style.borderColor='var(--accent-gold)'; this.style.color='var(--accent-gold)'; }" onmouseout="if(!this.disabled) { this.style.borderColor='var(--border-color)'; this.style.color='var(--text-secondary)'; }">
+                Next →
+            </button>
+        </div>
+    `;
+
+    popup.insertAdjacentHTML('beforeend', navHTML);
+}
+
+function navigateComparison(direction) {
+    currentComparisonIndex += direction;
+    if (currentComparisonIndex >= 0 && currentComparisonIndex < comparisonQueue.length) {
+        showComparisonAtIndex(currentComparisonIndex);
+    }
+}
+
+// Keyboard navigation for comparison popups
+document.addEventListener('keydown', function(e) {
+    // Only handle if a comparison popup is active
+    const activePopup = document.querySelector('.similar-details.active');
+    if (!activePopup || comparisonQueue.length === 0) return;
+
+    switch(e.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+            if (currentComparisonIndex > 0) {
+                navigateComparison(-1);
+                e.preventDefault();
+            }
+            break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+            if (currentComparisonIndex < comparisonQueue.length - 1) {
+                navigateComparison(1);
+                e.preventDefault();
+            }
+            break;
+        case 'Escape':
+            // Close all popups
+            document.querySelectorAll('.similar-details.active').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.popup-backdrop.active').forEach(b => b.classList.remove('active'));
+            comparisonQueue = [];
+            e.preventDefault();
+            break;
+    }
+});
+
+async function importSelectedFiles() {
+    if (selectedFiles.size === 0) return;
+
+    const btn = document.getElementById('importBtn');
+    btn.disabled = true;
+    btn.textContent = 'Importing...';
+
+    try {
+        // Build import data with existing file info for merging
+        const importData = Array.from(selectedFiles).map(fileId => {
+            const file = [...driveFiles.new, ...driveFiles.similar].find(f => f.id === fileId);
+            return {
+                file_id: fileId,
+                existing_id: file?.similar_to?.id || null,  // If similar file exists, send its ID for merging
+                merge: file?.similar_to ? true : false       // Flag to merge instead of create new
+            };
+        });
+
+        const response = await fetch('/api/import-drive-files', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                files: importData
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            showStatusMessage(data.error, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Import Selected Files';
+            return;
+        }
+
+        // Show success and refresh
+        const action = data.merged > 0 ? `merged ${data.merged} update(s) and imported ${data.imported.length - data.merged} new` : `imported ${data.imported.length}`;
+        showStatusMessage(
+            `Successfully ${action} file${data.imported.length !== 1 ? 's' : ''}! ` +
+            `Redirecting to archive...`,
+            'success'
+        );
+
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+
+    } catch (error) {
+        showStatusMessage('Import failed: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Import Selected Files';
+    }
+}
+</script>
+{% endblock %}

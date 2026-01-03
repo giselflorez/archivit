@@ -1,0 +1,688 @@
+{% extends "base.html" %}
+
+{% block title %}{{ frontmatter.get('title', 'Document') }} - GiselX Knowledge Base{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .document-detail {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .document-header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .document-meta {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .source-instagram { background: #E1306C; color: white; }
+    .source-twitter { background: #1DA1F2; color: white; }
+    .source-perplexity { background: #20B2AA; color: white; }
+    .source-attachment { background: #6C757D; color: white; }
+    .source-google_drive { background: #4285F4; color: white; }
+
+    .document-body {
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .document-body h1,
+    .document-body h2,
+    .document-body h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #667eea;
+    }
+
+    .document-body h1 { font-size: 2rem; }
+    .document-body h2 { font-size: 1.5rem; }
+    .document-body h3 { font-size: 1.2rem; }
+
+    .document-body p {
+        margin-bottom: 1rem;
+    }
+
+    .document-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin: 1rem 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .document-body ul, .document-body ol {
+        margin-left: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .document-body li {
+        margin-bottom: 0.5rem;
+    }
+
+    .document-body code {
+        background: #f5f5f5;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .media-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .media-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .media-item img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .media-item:hover {
+        transform: scale(1.02);
+    }
+
+    .media-item.selected {
+        outline: 3px solid var(--accent-gold);
+        outline-offset: -3px;
+    }
+
+    .media-checkbox {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .media-item:hover .media-checkbox {
+        opacity: 1;
+    }
+
+    .media-item.selected .media-checkbox {
+        opacity: 1;
+    }
+
+    .tags-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .tag {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #f0f0f0;
+        color: #333;
+        text-decoration: none;
+        border-radius: 25px;
+        margin-bottom: 2rem;
+        transition: background 0.2s;
+    }
+
+    .back-button:hover {
+        background: #e0e0e0;
+    }
+
+    .action-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-edit {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .btn-edit:hover {
+        background: var(--accent-warm);
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        display: none;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+    }
+
+    .btn-delete.visible {
+        display: inline-block;
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
+
+    .btn-save {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-save:hover {
+        background: #218838;
+    }
+
+    .edit-mode .document-body {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .edit-textarea {
+        width: 100%;
+        min-height: 400px;
+        padding: 1rem;
+        font-family: 'Work Sans', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        resize: vertical;
+    }
+
+    .edit-textarea:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+    }
+
+    .tags-edit {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .tag-edit-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-tertiary);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .tag-remove {
+        cursor: pointer;
+        color: var(--accent-warm);
+        font-weight: bold;
+    }
+
+    .tag-add-input {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="/" class="back-button">← Back to All Content</a>
+
+<div class="action-bar">
+    <button class="action-btn btn-edit" onclick="toggleEditMode()">✏️ Edit Document</button>
+    <button class="action-btn btn-delete" id="deleteImagesBtn" onclick="deleteSelectedImages()">🗑️ Delete Selected</button>
+    <button class="action-btn btn-save" id="saveBtn" style="display: none;" onclick="saveDocument()">💾 Save Changes</button>
+    <button class="action-btn btn-cancel" id="cancelBtn" style="display: none;" onclick="cancelEdit()">✕ Cancel</button>
+</div>
+
+<div class="document-detail" id="documentDetail">
+    <div class="document-header">
+        <div class="document-meta">
+            <span class="meta-badge source-{{ frontmatter.source }}">
+                {{ frontmatter.source|upper }}
+            </span>
+            <span class="meta-badge" style="background: #f0f0f0; color: #666;">
+                {{ frontmatter.type|replace('_', ' ')|title }}
+            </span>
+            {% if frontmatter.created_at %}
+            <span class="meta-badge" style="background: #f0f0f0; color: #666;">
+                📅 {{ frontmatter.created_at[:10] }}
+            </span>
+            {% endif %}
+            {% if frontmatter.media_count %}
+            <span class="meta-badge" style="background: #f0f0f0; color: #666;">
+                📷 {{ frontmatter.media_count }} media
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if media_files %}
+    <div class="media-gallery" id="mediaGallery">
+        {% for media in media_files %}
+        <div class="media-item" data-filename="{{ media.filename }}">
+            <input type="checkbox" class="media-checkbox" onchange="updateDeleteButton()">
+            <img src="/media/{{ media.path }}" alt="{{ media.filename }}" onclick="toggleImageSelection(this.parentElement)">
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if model_files %}
+    <div class="model-viewer-section">
+        <h3 style="font-family: 'Crimson Pro', serif; color: var(--accent-gold); margin-bottom: 1.5rem;">3D Models</h3>
+        {% for model in model_files %}
+        <div class="model-viewer-container" style="margin-bottom: 2rem;">
+            <div class="model-info" style="margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                <strong>{{ model.filename }}</strong> ({{ model.type|upper }})
+            </div>
+            <div id="viewer-{{ loop.index0 }}" class="model-viewer" data-model-path="/media/{{ model.path }}" data-model-type="{{ model.type }}" style="width: 100%; height: 500px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; position: relative;"></div>
+            <div class="model-controls" style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                <button onclick="resetCamera({{ loop.index0 }})" style="padding: 0.5rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; border-radius: 2px; font-size: 0.85rem;">Reset View</button>
+                <button onclick="toggleWireframe({{ loop.index0 }})" style="padding: 0.5rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; border-radius: 2px; font-size: 0.85rem;">Wireframe</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="document-body">
+        {{ body|safe }}
+    </div>
+
+    {% if frontmatter.tags %}
+    <div class="tags-section" id="tagsSection">
+        <h3>Tags</h3>
+        <div class="tags-list" id="tagsList">
+            {% for tag in frontmatter.tags %}
+            <span class="tag">#{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const DOC_ID = '{{ frontmatter.id }}';
+let editMode = false;
+let originalBody = `{{ body|safe }}`;
+let originalTags = {{ frontmatter.tags|tojson }};
+
+function toggleImageSelection(mediaItem) {
+    const checkbox = mediaItem.querySelector('.media-checkbox');
+    checkbox.checked = !checkbox.checked;
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const checkboxes = document.querySelectorAll('.media-checkbox');
+    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+    const deleteBtn = document.getElementById('deleteImagesBtn');
+
+    if (anyChecked) {
+        deleteBtn.classList.add('visible');
+        // Add selected class to checked items
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                cb.parentElement.classList.add('selected');
+            } else {
+                cb.parentElement.classList.remove('selected');
+            }
+        });
+    } else {
+        deleteBtn.classList.remove('visible');
+        checkboxes.forEach(cb => cb.parentElement.classList.remove('selected'));
+    }
+}
+
+async function deleteSelectedImages() {
+    const checkboxes = document.querySelectorAll('.media-checkbox:checked');
+    const filenames = Array.from(checkboxes).map(cb =>
+        cb.parentElement.getAttribute('data-filename')
+    );
+
+    if (filenames.length === 0) return;
+
+    if (!confirm(`Delete ${filenames.length} image(s)?`)) return;
+
+    try {
+        const response = await fetch(`/api/document/${DOC_ID}/delete-images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filenames })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove deleted items from DOM
+            checkboxes.forEach(cb => cb.parentElement.remove());
+            updateDeleteButton();
+            alert(`${filenames.length} image(s) deleted successfully`);
+        } else {
+            alert('Error: ' + (result.error || 'Failed to delete images'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting images');
+    }
+}
+
+function toggleEditMode() {
+    editMode = !editMode;
+    const detail = document.getElementById('documentDetail');
+    const bodyDiv = document.querySelector('.document-body');
+    const editBtn = document.querySelector('.btn-edit');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    if (editMode) {
+        detail.classList.add('edit-mode');
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+
+        // Make body editable
+        const currentContent = bodyDiv.innerHTML.trim();
+        bodyDiv.innerHTML = `<textarea class="edit-textarea" id="bodyEditor">${currentContent}</textarea>`;
+
+        // Make tags editable
+        renderTagsEdit();
+    } else {
+        detail.classList.remove('edit-mode');
+        editBtn.style.display = 'inline-block';
+        saveBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+
+        // Restore original content
+        bodyDiv.innerHTML = originalBody;
+        renderTagsView();
+    }
+}
+
+function cancelEdit() {
+    editMode = false;
+    toggleEditMode();
+}
+
+async function saveDocument() {
+    const bodyEditor = document.getElementById('bodyEditor');
+    const newBody = bodyEditor.value;
+    const newTags = getCurrentTags();
+
+    try {
+        const response = await fetch(`/api/document/${DOC_ID}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                body: newBody,
+                tags: newTags
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            originalBody = newBody;
+            originalTags = newTags;
+            alert('Document saved successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + (result.error || 'Failed to save document'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving document');
+    }
+}
+
+function renderTagsEdit() {
+    const tagsSection = document.getElementById('tagsSection');
+    const tagsList = document.getElementById('tagsList');
+
+    const tagsHtml = originalTags.map(tag => `
+        <span class="tag-edit-item">
+            <span>#${tag}</span>
+            <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
+        </span>
+    `).join('');
+
+    tagsList.innerHTML = `
+        <div class="tags-edit">
+            ${tagsHtml}
+            <input type="text" class="tag-add-input" id="tagInput" placeholder="Add tag..." onkeypress="handleTagInput(event)">
+        </div>
+    `;
+}
+
+function renderTagsView() {
+    const tagsList = document.getElementById('tagsList');
+    tagsList.innerHTML = originalTags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+}
+
+function removeTag(tag) {
+    originalTags = originalTags.filter(t => t !== tag);
+    renderTagsEdit();
+}
+
+function handleTagInput(event) {
+    if (event.key === 'Enter') {
+        const input = event.target;
+        const newTag = input.value.trim().replace(/^#/, '');
+
+        if (newTag && !originalTags.includes(newTag)) {
+            originalTags.push(newTag);
+            renderTagsEdit();
+        }
+
+        input.value = '';
+    }
+}
+
+function getCurrentTags() {
+    return originalTags;
+}
+
+// Initialize
+updateDeleteButton();
+
+// 3D Model Viewer Initialization
+{% if model_files %}
+// Load Three.js and GLTFLoader from CDN
+const script1 = document.createElement('script');
+script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js';
+script1.onload = function() {
+    const script2 = document.createElement('script');
+    script2.src = 'https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/loaders/GLTFLoader.js';
+    script2.onload = function() {
+        const script3 = document.createElement('script');
+        script3.src = 'https://cdn.jsdelivr.net/npm/three@0.152.0/examples/js/controls/OrbitControls.js';
+        script3.onload = init3DViewers;
+        document.head.appendChild(script3);
+    };
+    document.head.appendChild(script2);
+};
+document.head.appendChild(script1);
+
+let viewers = [];
+let wireframeMode = [];
+
+function init3DViewers() {
+    const viewerElements = document.querySelectorAll('.model-viewer');
+
+    viewerElements.forEach((element, index) => {
+        const modelPath = element.dataset.modelPath;
+        const modelType = element.dataset.modelType;
+
+        // Create scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+
+        // Create camera
+        const camera = new THREE.PerspectiveCamera(75, element.clientWidth / element.clientHeight, 0.1, 1000);
+        camera.position.set(0, 1, 3);
+
+        // Create renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(element.clientWidth, element.clientHeight);
+        renderer.shadowMap.enabled = true;
+        element.appendChild(renderer.domElement);
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 7.5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        // Add orbit controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Load model
+        const loader = new THREE.GLTFLoader();
+        let model = null;
+
+        loader.load(
+            modelPath,
+            function(gltf) {
+                model = gltf.scene;
+                scene.add(model);
+
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 2 / maxDim;
+                model.scale.multiplyScalar(scale);
+                model.position.sub(center.multiplyScalar(scale));
+
+                // Add grid
+                const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+                scene.add(gridHelper);
+            },
+            function(xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            function(error) {
+                console.error('Error loading model:', error);
+                element.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-tertiary);">Error loading 3D model</div>';
+            }
+        );
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            camera.aspect = element.clientWidth / element.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(element.clientWidth, element.clientHeight);
+        });
+
+        // Store viewer data
+        viewers[index] = {
+            scene,
+            camera,
+            renderer,
+            controls,
+            model,
+            defaultPosition: camera.position.clone()
+        };
+        wireframeMode[index] = false;
+    });
+}
+
+function resetCamera(index) {
+    if (viewers[index]) {
+        viewers[index].camera.position.copy(viewers[index].defaultPosition);
+        viewers[index].controls.reset();
+    }
+}
+
+function toggleWireframe(index) {
+    if (viewers[index] && viewers[index].model) {
+        wireframeMode[index] = !wireframeMode[index];
+        viewers[index].scene.traverse((child) => {
+            if (child.isMesh) {
+                child.material.wireframe = wireframeMode[index];
+            }
+        });
+    }
+}
+{% endif %}
+</script>
+{% endblock %}

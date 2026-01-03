@@ -1,0 +1,1222 @@
+{% extends "base.html" %}
+
+{% block title %}Tag Network - GiselX Knowledge Archive{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .tag-network-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .tag-network-stats {
+        display: flex;
+        gap: 3rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .network-container {
+        position: relative;
+        width: 100%;
+        height: 700px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    #tagNetwork {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+    }
+
+    #tagNetwork:active {
+        cursor: grabbing;
+    }
+
+    .network-controls {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 10;
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+    }
+
+    .network-controls:hover {
+        opacity: 1;
+    }
+
+    .network-btn {
+        background: rgba(22, 22, 22, 0.8);
+        border: 1px solid var(--border-color);
+        color: var(--text-tertiary);
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+        font-size: 0.65rem;
+        font-weight: 400;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(5px);
+    }
+
+    .network-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        background: rgba(22, 22, 22, 0.95);
+    }
+
+    .network-info {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(22, 22, 22, 0.95);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        max-width: 300px;
+        z-index: 10;
+        display: none;
+    }
+
+    .network-info.active {
+        display: block;
+    }
+
+    .info-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .info-detail {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.3rem;
+    }
+
+    .info-close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .info-close:hover {
+        color: var(--accent-warm);
+    }
+
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .tag-search {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        font-size: 1.1rem;
+        font-family: 'Work Sans', sans-serif;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .tag-search::placeholder {
+        color: var(--text-tertiary);
+        font-style: italic;
+    }
+
+    .tag-search:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+        background: var(--bg-primary);
+        box-shadow: 0 0 0 1px var(--accent-gold);
+    }
+
+    .instructions {
+        text-align: center;
+        color: var(--text-tertiary);
+        font-size: 0.85rem;
+        margin-top: 1rem;
+    }
+
+    .instructions strong {
+        color: var(--accent-gold);
+    }
+
+    .node {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        stroke: none;
+        stroke-width: 0;
+    }
+
+    .node:hover {
+        filter: brightness(1.1);
+    }
+
+    .link {
+        stroke: var(--border-color);
+        stroke-opacity: 0.3;
+    }
+
+    .node-label {
+        font-size: 10px;
+        fill: var(--text-secondary);
+        pointer-events: none;
+        font-family: 'Work Sans', sans-serif;
+        font-weight: 500;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 10, 10, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        z-index: 20;
+    }
+
+    .loading-overlay.hidden {
+        display: none;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--accent-gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Compact Tag Sidebar */
+    .tag-modal {
+        position: fixed;
+        top: 100px;
+        left: -320px;
+        width: 320px;
+        height: calc(100% - 100px);
+        background: rgba(22, 22, 22, 0.98);
+        border-right: 1px solid var(--border-color);
+        z-index: 1000;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .tag-modal.active {
+        left: 0;
+    }
+
+    .tag-modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tag-modal-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+    }
+
+    .tag-modal-close {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        line-height: 1;
+        transition: color 0.2s ease;
+    }
+
+    .tag-modal-close:hover {
+        color: var(--accent-warm);
+    }
+
+    .tag-modal-body {
+        padding: 0;
+    }
+
+    .tag-stat-row {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.75rem;
+    }
+
+    .tag-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--text-tertiary);
+    }
+
+    .tag-stat-icon {
+        font-size: 0.9rem;
+    }
+
+    .tag-thumbnails {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+        padding: 0.5rem;
+    }
+
+    .tag-thumb {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .tag-thumb:hover {
+        opacity: 0.7;
+    }
+
+    .tag-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .tag-connected-section {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .tag-connected-title {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .tag-connected-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .tag-connected-item {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tag-connected-item:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .tag-loading {
+        text-align: center;
+        padding: 1rem;
+        color: var(--text-tertiary);
+        font-size: 0.75rem;
+    }
+
+    .tag-actions {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .tag-action-btn {
+        width: 100%;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.5rem;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .tag-action-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    /* Hover Thumbnail Preview */
+    .node-thumbnail-preview {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border: 3px solid var(--accent-gold);
+        border-radius: 50%;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease, border-color 0.3s ease;
+        z-index: 100;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    .node-thumbnail-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .node-thumbnail-preview.active {
+        opacity: 1;
+    }
+
+    /* Color extraction canvas (hidden) */
+    #colorExtractCanvas {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tag-network-header">
+    <h2 style="font-family: 'Crimson Pro', serif; font-size: 3rem; font-weight: 300; margin-bottom: 1rem; color: var(--text-primary);">
+        Tag <strong style="font-weight: 600; color: var(--accent-gold);">Network</strong>
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; letter-spacing: 0.05em;">Interactive knowledge graph visualization</p>
+</div>
+
+<div class="tag-network-stats">
+    <div class="stat-item">
+        <span class="stat-number">{{ total_tags }}</span>
+        <span class="stat-label">Tags</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number" id="connectionCount">0</span>
+        <span class="stat-label">Connections</span>
+    </div>
+</div>
+
+<div class="search-container">
+    <input type="text"
+           id="tagSearch"
+           class="tag-search"
+           placeholder="Search tags to highlight..."
+           autocomplete="off">
+</div>
+
+<div class="network-container">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div style="color: var(--text-secondary);">Building network graph...</div>
+    </div>
+
+    <svg id="tagNetwork"></svg>
+
+    <!-- Hover Thumbnail Preview -->
+    <div class="node-thumbnail-preview" id="thumbnailPreview">
+        <img id="thumbnailPreviewImg" src="" alt="">
+    </div>
+
+    <!-- Hidden canvas for color extraction -->
+    <canvas id="colorExtractCanvas"></canvas>
+
+    <div class="network-controls">
+        <button class="network-btn" onclick="resetZoom()" title="Reset View (0)">⟲</button>
+        <button class="network-btn" onclick="toggleLabels()" title="Toggle Labels (L)">Aa</button>
+        <button class="network-btn" onclick="reheatSimulation()" title="Reheat (H)">↻</button>
+        <button class="network-btn" id="recordingBtn" onclick="toggleRecordingMode()" title="Recording (R)">🎥</button>
+    </div>
+
+    <div class="network-info" id="nodeInfo">
+        <button class="info-close" onclick="closeInfo()">&times;</button>
+        <div class="info-title" id="infoTag"></div>
+        <div class="info-detail" id="infoCount"></div>
+        <div class="info-detail" id="infoConnections"></div>
+        <button class="network-btn" style="margin-top: 1rem; width: 100%;" onclick="viewTagDocs()">View Documents</button>
+    </div>
+</div>
+
+<div class="instructions">
+    <strong>Drag</strong> nodes • <strong>Click</strong> inspect • <strong>Scroll</strong> zoom • <strong>0</strong> reset • <strong>L</strong> labels • <strong>H</strong> reheat • <strong>R</strong> record • <strong>Esc</strong> close
+</div>
+
+<!-- Compact Tag Sidebar -->
+<div class="tag-modal" id="tagModal">
+    <div class="tag-modal-header">
+        <div class="tag-modal-title" id="modalTagName">#tag</div>
+        <button class="tag-modal-close" onclick="closeTagModal()">×</button>
+    </div>
+    <div class="tag-stat-row">
+        <div class="tag-stat">
+            <span class="tag-stat-icon">📄</span>
+            <span id="modalDocCount">0</span>
+        </div>
+        <div class="tag-stat">
+            <span class="tag-stat-icon">🔗</span>
+            <span id="modalConnectionCount">0</span>
+        </div>
+    </div>
+    <div class="tag-modal-body">
+        <div class="tag-thumbnails" id="modalThumbnails">
+            <div class="tag-loading">Loading...</div>
+        </div>
+        <div class="tag-connected-section" id="modalConnectionsSection">
+            <div class="tag-connected-title">Connected</div>
+            <div class="tag-connected-list" id="modalConnectedTags"></div>
+        </div>
+        <div class="tag-actions">
+            <button class="tag-action-btn" onclick="viewTagDocuments()">View All</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// Prepare data
+const tags = {{ tags|tojson }};
+const tagConnections = {{ tag_connections|tojson }};
+const tagToDocs = {{ tag_to_docs|tojson }};
+
+// Build network data
+const nodes = tags.map(([tag, count]) => ({
+    id: tag,
+    count: count,
+    radius: Math.sqrt(count) * 3 + 5,
+    docs: tagToDocs[tag] || []
+}));
+
+const links = [];
+const linkMap = new Set();
+
+// Create links between connected tags
+tags.forEach(([tag, _]) => {
+    if (tagConnections[tag]) {
+        Object.entries(tagConnections[tag]).forEach(([targetTag, strength]) => {
+            // Only create link if both tags exist and link doesn't already exist
+            const linkId = [tag, targetTag].sort().join('-');
+            if (!linkMap.has(linkId) && nodes.find(n => n.id === targetTag)) {
+                linkMap.add(linkId);
+                links.push({
+                    source: tag,
+                    target: targetTag,
+                    strength: strength
+                });
+            }
+        });
+    }
+});
+
+document.getElementById('connectionCount').textContent = links.length;
+
+// Set up SVG
+const container = document.getElementById('tagNetwork');
+const width = container.clientWidth;
+const height = container.clientHeight;
+
+const svg = d3.select('#tagNetwork')
+    .attr('width', width)
+    .attr('height', height);
+
+const g = svg.append('g');
+
+// Zoom behavior
+const zoom = d3.zoom()
+    .scaleExtent([0.1, 10])
+    .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+        // Update thumbnail position on zoom
+        updateThumbnailPosition();
+    });
+
+svg.call(zoom);
+
+// Track currently hovered node for thumbnail updates
+let hoveredNode = null;
+
+function updateThumbnailPosition() {
+    if (hoveredNode && thumbnailPreview.classList.contains('active')) {
+        const transform = d3.zoomTransform(svg.node());
+        const x = transform.applyX(hoveredNode.x);
+        const y = transform.applyY(hoveredNode.y);
+        thumbnailPreview.style.left = `${x - 40}px`;
+        thumbnailPreview.style.top = `${y - 40}px`;
+    }
+}
+
+// Force simulation with continuous animation
+const simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => 100 / d.strength))
+    .force('charge', d3.forceManyBody().strength(-200))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(d => d.radius + 10))
+    .alphaDecay(0.01)  // Slower decay keeps simulation alive longer
+    .velocityDecay(0.4)  // Moderate friction
+    .alphaMin(0.001);  // Lower minimum keeps subtle movement
+
+// Create links
+const link = g.append('g')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('class', 'link')
+    .attr('stroke-width', d => Math.sqrt(d.strength));
+
+// Create nodes
+const node = g.append('g')
+    .selectAll('circle')
+    .data(nodes)
+    .join('circle')
+    .attr('class', 'node')
+    .attr('r', d => d.radius)
+    .attr('fill', d => {
+        const hue = (d.count / Math.max(...nodes.map(n => n.count))) * 60;
+        return `hsl(${30 + hue}, 60%, 50%)`;
+    })
+    .call(d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended))
+    .on('click', showNodeInfo)
+    .on('mouseenter', function(event, d) {
+        hoveredNode = d;
+        const nodeElement = d3.select(this);
+
+        nodeElement
+            .transition()
+            .duration(150)
+            .attr('r', d.radius * 1.15);
+
+        // Subtle highlight of connected nodes
+        const connectedIds = new Set();
+        links.forEach(l => {
+            if (l.source.id === d.id) connectedIds.add(l.target.id);
+            if (l.target.id === d.id) connectedIds.add(l.source.id);
+        });
+
+        node.style('opacity', n => connectedIds.has(n.id) || n.id === d.id ? 1 : 0.5);
+        link.style('opacity', l =>
+            l.source.id === d.id || l.target.id === d.id ? 0.6 : 0.2
+        );
+
+        // Show thumbnail preview if available
+        showThumbnailPreview(d, event, nodeElement);
+    })
+    .on('mouseleave', function(event, d) {
+        hoveredNode = null;
+
+        d3.select(this)
+            .transition()
+            .duration(150)
+            .attr('r', d.radius)
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+
+        node.style('opacity', 1);
+        link.style('opacity', 0.3);
+
+        // Hide thumbnail preview
+        hideThumbnailPreview();
+    });
+
+// Create labels
+let labelsVisible = true;
+const label = g.append('g')
+    .selectAll('text')
+    .data(nodes)
+    .join('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .text(d => d.count > 2 ? d.id : '');
+
+// Update positions on tick with subtle organic movement
+let tickCount = 0;
+simulation.on('tick', () => {
+    tickCount++;
+
+    // Add gentle drift to keep movement alive (very subtle)
+    if (tickCount % 10 === 0) {
+        nodes.forEach((d, i) => {
+            if (!d.fx && !d.fy) {  // Only affect non-pinned nodes
+                const drift = Math.sin(tickCount * 0.01 + i) * 0.3;
+                d.vx = (d.vx || 0) + drift * 0.1;
+                d.vy = (d.vy || 0) + Math.cos(tickCount * 0.01 + i) * 0.1;
+            }
+        });
+    }
+
+    link
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+
+    node
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y);
+
+    label
+        .attr('x', d => d.x)
+        .attr('y', d => d.y);
+
+    // Update thumbnail position if visible
+    updateThumbnailPosition();
+});
+
+// Hide loading overlay and fit to screen when simulation settles
+let initialFitDone = false;
+let hideLoadingTimer = setTimeout(() => {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+
+    // Fit all nodes to screen on initial load
+    if (!initialFitDone) {
+        fitToScreen();
+        initialFitDone = true;
+    }
+}, 2000);
+
+// Fit all nodes to screen
+function fitToScreen() {
+    if (nodes.length === 0) return;
+
+    // Calculate bounding box of all nodes
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+
+    nodes.forEach(d => {
+        const r = d.radius || 5;
+        minX = Math.min(minX, d.x - r);
+        maxX = Math.max(maxX, d.x + r);
+        minY = Math.min(minY, d.y - r);
+        maxY = Math.max(maxY, d.y + r);
+    });
+
+    // Calculate bounds
+    const boundsWidth = maxX - minX;
+    const boundsHeight = maxY - minY;
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    // Calculate scale to fit with padding
+    const padding = 50;
+    const scaleX = (width - padding * 2) / boundsWidth;
+    const scaleY = (height - padding * 2) / boundsHeight;
+    const scale = Math.min(scaleX, scaleY, 1.5); // Max zoom of 1.5x
+
+    // Calculate translation to center
+    const translateX = width / 2 - centerX * scale;
+    const translateY = height / 2 - centerY * scale;
+
+    // Apply transform
+    svg.transition()
+        .duration(1000)
+        .call(
+            zoom.transform,
+            d3.zoomIdentity.translate(translateX, translateY).scale(scale)
+        );
+}
+
+// Keep simulation alive with periodic gentle nudges
+let keepAliveInterval = setInterval(() => {
+    if (simulation.alpha() < 0.1) {
+        // Give it a tiny boost to maintain subtle movement
+        simulation.alpha(0.05).restart();
+    }
+}, 5000);
+
+// Continuous breathing animation for visual feedback
+let breathePhase = 0;
+function animateBreathe() {
+    breathePhase += 0.005;
+
+    // Subtle pulse effect on nodes
+    node.attr('opacity', d => {
+        const basePulse = 0.85 + Math.sin(breathePhase + d.count * 0.1) * 0.15;
+        return basePulse;
+    });
+
+    requestAnimationFrame(animateBreathe);
+}
+animateBreathe();
+
+// Prevent pausing on visibility change (for screen recording)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        // Resume animation when tab becomes visible
+        simulation.alpha(0.3).restart();
+    }
+});
+
+// Keep running even when page loses focus
+window.addEventListener('blur', () => {
+    // Don't stop the simulation
+    if (simulation.alpha() < 0.1) {
+        simulation.alpha(0.1).restart();
+    }
+});
+
+window.addEventListener('focus', () => {
+    // Boost simulation when focus returns
+    simulation.alpha(0.2).restart();
+});
+
+// Drag functions
+function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+}
+
+function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+}
+
+// Thumbnail preview cache
+const thumbnailCache = {};
+const colorCache = {};
+const thumbnailPreview = document.getElementById('thumbnailPreview');
+const thumbnailPreviewImg = document.getElementById('thumbnailPreviewImg');
+const colorExtractCanvas = document.getElementById('colorExtractCanvas');
+const colorExtractCtx = colorExtractCanvas.getContext('2d');
+
+// Extract dominant color from image
+function extractDominantColor(imgElement) {
+    try {
+        // Set canvas size
+        colorExtractCanvas.width = imgElement.width || 100;
+        colorExtractCanvas.height = imgElement.height || 100;
+
+        // Draw image to canvas
+        colorExtractCtx.drawImage(imgElement, 0, 0, colorExtractCanvas.width, colorExtractCanvas.height);
+
+        // Get image data
+        const imageData = colorExtractCtx.getImageData(0, 0, colorExtractCanvas.width, colorExtractCanvas.height);
+        const data = imageData.data;
+
+        // Sample colors (not every pixel for performance)
+        const colorMap = {};
+        const step = 4; // Sample every 4th pixel
+
+        for (let i = 0; i < data.length; i += step * 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+
+            // Skip transparent or very dark/light pixels
+            if (a < 125 || (r + g + b) < 30 || (r + g + b) > 720) continue;
+
+            // Quantize colors to reduce variations
+            const qr = Math.round(r / 32) * 32;
+            const qg = Math.round(g / 32) * 32;
+            const qb = Math.round(b / 32) * 32;
+            const key = `${qr},${qg},${qb}`;
+
+            colorMap[key] = (colorMap[key] || 0) + 1;
+        }
+
+        // Find most common color
+        let maxCount = 0;
+        let dominantColor = '212, 165, 116'; // Default gold
+
+        for (const [color, count] of Object.entries(colorMap)) {
+            if (count > maxCount) {
+                maxCount = count;
+                dominantColor = color;
+            }
+        }
+
+        return dominantColor;
+    } catch (error) {
+        console.error('Error extracting color:', error);
+        return '212, 165, 116'; // Default gold
+    }
+}
+
+async function showThumbnailPreview(d, event, nodeElement) {
+    // Check if we already have thumbnail data
+    if (!thumbnailCache[d.id]) {
+        // Fetch thumbnail data
+        try {
+            const response = await fetch(`/api/documents-by-tag/${encodeURIComponent(d.id)}`);
+            const data = await response.json();
+
+            // Find first document with an image
+            if (data.documents && data.documents.length > 0) {
+                for (const doc of data.documents) {
+                    if (doc.media_files && doc.media_files.length > 0) {
+                        thumbnailCache[d.id] = `/media/knowledge_base/media/${doc.media_files[0]}`;
+                        break;
+                    }
+                }
+            }
+
+            if (!thumbnailCache[d.id]) {
+                thumbnailCache[d.id] = null; // No image available
+            }
+        } catch (error) {
+            console.error('Error fetching thumbnail:', error);
+            thumbnailCache[d.id] = null;
+        }
+    }
+
+    // Show thumbnail if available
+    if (thumbnailCache[d.id]) {
+        const transform = d3.zoomTransform(svg.node());
+        const x = transform.applyX(d.x);
+        const y = transform.applyY(d.y);
+
+        thumbnailPreviewImg.src = thumbnailCache[d.id];
+        thumbnailPreview.style.left = `${x - 40}px`;
+        thumbnailPreview.style.top = `${y - 40}px`;
+        thumbnailPreview.classList.add('active');
+
+        // Extract and apply color if not cached
+        if (!colorCache[d.id]) {
+            thumbnailPreviewImg.onload = function() {
+                const dominantColor = extractDominantColor(thumbnailPreviewImg);
+                colorCache[d.id] = dominantColor;
+                applyColorToNode(dominantColor, nodeElement);
+            };
+        } else {
+            // Use cached color
+            const dominantColor = colorCache[d.id];
+            applyColorToNode(dominantColor, nodeElement);
+        }
+    }
+}
+
+function applyColorToNode(dominantColor, nodeElement) {
+    // Apply to thumbnail ring
+    thumbnailPreview.style.borderColor = `rgb(${dominantColor})`;
+    thumbnailPreview.style.boxShadow = `0 4px 16px rgba(${dominantColor}, 0.6), 0 0 20px rgba(${dominantColor}, 0.4)`;
+
+    // Apply colored stroke to the node bubble
+    if (nodeElement) {
+        nodeElement
+            .attr('stroke', `rgb(${dominantColor})`)
+            .attr('stroke-width', 2);
+    }
+}
+
+function hideThumbnailPreview() {
+    thumbnailPreview.classList.remove('active');
+    // Reset to default gold
+    thumbnailPreview.style.borderColor = 'var(--accent-gold)';
+    thumbnailPreview.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.7)';
+}
+
+// Node info display
+let selectedTag = null;
+let modalTagData = null;
+
+function showNodeInfo(event, d) {
+    event.stopPropagation();
+    selectedTag = d.id;
+    modalTagData = d;
+
+    // Show modal
+    const modal = document.getElementById('tagModal');
+    modal.classList.add('active');
+
+    // Set basic info
+    document.getElementById('modalTagName').textContent = `#${d.id}`;
+    document.getElementById('modalDocCount').textContent = `${d.count}`;
+
+    // Get connected tags
+    const connectedTags = new Set();
+    const connectedStrength = {};
+    links.forEach(l => {
+        if (l.source.id === d.id) {
+            connectedTags.add(l.target.id);
+            connectedStrength[l.target.id] = l.strength;
+        }
+        if (l.target.id === d.id) {
+            connectedTags.add(l.source.id);
+            connectedStrength[l.source.id] = l.strength;
+        }
+    });
+
+    document.getElementById('modalConnectionCount').textContent = `${connectedTags.size}`;
+
+    // Display connected tags sorted by strength
+    const connectedList = document.getElementById('modalConnectedTags');
+    if (connectedTags.size > 0) {
+        const sortedConnected = Array.from(connectedTags).sort((a, b) =>
+            (connectedStrength[b] || 0) - (connectedStrength[a] || 0)
+        );
+        connectedList.innerHTML = sortedConnected.map(tag =>
+            `<div class="tag-connected-item" onclick="jumpToTag('${tag}')">#${tag}</div>`
+        ).join('');
+        document.getElementById('modalConnectionsSection').style.display = 'block';
+    } else {
+        document.getElementById('modalConnectionsSection').style.display = 'none';
+    }
+
+    // Load thumbnails via API
+    loadTagThumbnails(d.id);
+}
+
+async function loadTagThumbnails(tag) {
+    const thumbnailsContainer = document.getElementById('modalThumbnails');
+    thumbnailsContainer.innerHTML = '<div class="tag-loading">Loading...</div>';
+
+    try {
+        const response = await fetch(`/api/documents-by-tag/${encodeURIComponent(tag)}`);
+        const data = await response.json();
+
+        console.log('Tag data:', tag, data);
+
+        if (data.documents && data.documents.length > 0) {
+            // Collect all thumbnails from all documents
+            const allThumbs = [];
+
+            data.documents.forEach(doc => {
+                if (doc.media_files && doc.media_files.length > 0) {
+                    // Add all media files from this document
+                    doc.media_files.forEach(mediaFile => {
+                        allThumbs.push({
+                            url: `/media/knowledge_base/media/${mediaFile}`,
+                            docId: doc.id,
+                            title: doc.title
+                        });
+                    });
+                }
+            });
+
+            console.log('All thumbnails:', allThumbs);
+
+            if (allThumbs.length > 0) {
+                const thumbsHtml = allThumbs.map(thumb => `
+                    <div class="tag-thumb" onclick="window.location.href='/document/${thumb.docId}'" title="${thumb.title}">
+                        <img src="${thumb.url}" alt="" loading="lazy" onerror="console.error('Failed to load:', '${thumb.url}')">
+                    </div>
+                `).join('');
+                thumbnailsContainer.innerHTML = thumbsHtml;
+            } else {
+                thumbnailsContainer.innerHTML = '<div class="tag-loading">No images available</div>';
+            }
+        } else {
+            thumbnailsContainer.innerHTML = '<div class="tag-loading">No documents found</div>';
+        }
+    } catch (error) {
+        console.error('Error loading thumbnails:', error);
+        thumbnailsContainer.innerHTML = `<div class="tag-loading">Error: ${error.message}</div>`;
+    }
+}
+
+function closeTagModal() {
+    document.getElementById('tagModal').classList.remove('active');
+    selectedTag = null;
+    modalTagData = null;
+}
+
+function viewTagDocuments() {
+    if (selectedTag) {
+        window.location.href = `/?q=${encodeURIComponent('#' + selectedTag)}`;
+    }
+}
+
+function jumpToTag(tagName) {
+    // Close modal
+    closeTagModal();
+
+    // Find the tag node
+    const targetNode = nodes.find(n => n.id === tagName);
+    if (targetNode) {
+        // Zoom to the tag
+        const scale = 2;
+        const x = width / 2 - targetNode.x * scale;
+        const y = height / 2 - targetNode.y * scale;
+
+        svg.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity.translate(x, y).scale(scale)
+        );
+
+        // Highlight the tag briefly
+        setTimeout(() => {
+            const nodeElement = d3.select(node.nodes().find((n, i) => nodes[i].id === tagName));
+            nodeElement
+                .transition()
+                .duration(300)
+                .attr('r', targetNode.radius * 2)
+                .transition()
+                .duration(300)
+                .attr('r', targetNode.radius);
+        }, 750);
+    }
+}
+
+// Keep old info panel for backward compatibility
+function closeInfo() {
+    document.getElementById('nodeInfo').classList.remove('active');
+}
+
+function viewTagDocs() {
+    if (selectedTag) {
+        window.location.href = `/?q=${encodeURIComponent('#' + selectedTag)}`;
+    }
+}
+
+// Search functionality
+const searchInput = document.getElementById('tagSearch');
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+
+    if (!query) {
+        node.style('opacity', 1);
+        link.style('opacity', 0.3);
+        label.style('opacity', 1);
+        return;
+    }
+
+    node.style('opacity', d => d.id.toLowerCase().includes(query) ? 1 : 0.1);
+    link.style('opacity', 0.1);
+    label.style('opacity', d => d.id.toLowerCase().includes(query) ? 1 : 0.2);
+});
+
+// Control functions
+function resetZoom() {
+    fitToScreen();
+}
+
+function toggleLabels() {
+    labelsVisible = !labelsVisible;
+    label.style('display', labelsVisible ? 'block' : 'none');
+}
+
+function reheatSimulation() {
+    simulation.alpha(1).restart();
+    // Show visual feedback
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.remove('hidden');
+    overlay.querySelector('div:last-child').textContent = 'Reheating network...';
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.querySelector('div:last-child').textContent = 'Building network graph...';
+    }, 1500);
+}
+
+// Add recording mode toggle
+let recordingMode = false;
+function toggleRecordingMode() {
+    recordingMode = !recordingMode;
+    const btn = document.getElementById('recordingBtn');
+
+    if (recordingMode) {
+        // Boost simulation for more activity during recording
+        simulation.alphaDecay(0.005); // Even slower decay
+        simulation.alpha(0.3).restart();
+        btn.style.background = 'rgba(244, 162, 97, 0.3)';
+        btn.style.borderColor = 'var(--accent-warm)';
+        btn.textContent = '🔴';
+        console.log('🎥 Recording mode ON - Enhanced animation');
+
+        // Add extra drift for more visible movement
+        nodes.forEach((d, i) => {
+            if (!d.fx && !d.fy) {
+                d.vx = (Math.random() - 0.5) * 2;
+                d.vy = (Math.random() - 0.5) * 2;
+            }
+        });
+    } else {
+        // Normal mode
+        simulation.alphaDecay(0.01);
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.textContent = '🎥';
+        console.log('Recording mode OFF');
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Don't trigger if user is typing in an input field
+    if (e.target.matches('input, textarea')) return;
+
+    switch(e.key.toLowerCase()) {
+        case 'r':
+            toggleRecordingMode();
+            break;
+        case '0':
+            resetZoom();
+            break;
+        case 'l':
+            toggleLabels();
+            break;
+        case 'h':
+            reheatSimulation();
+            break;
+    }
+});
+
+// Close info on background click
+svg.on('click', () => {
+    if (event.target.tagName === 'svg') {
+        closeInfo();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeTagModal();
+    }
+});
+</script>
+{% endblock %}

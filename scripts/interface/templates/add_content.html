@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Add Content - GiselX Knowledge Base{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .add-content-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .submit-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-2px);
+    }
+
+    .submit-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .success-message {
+        background: #4CAF50;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .error-message {
+        background: #f44336;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .preview-section {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+        display: none;
+    }
+
+    .preview-section.active {
+        display: block;
+    }
+
+    .preview-images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .preview-images img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">Add Content from URL</h1>
+
+{% if success %}
+<div class="success-message">
+    ✓ Content successfully added to your knowledge base!
+    <a href="/document/{{ doc_id }}" style="color: white; text-decoration: underline;">View it here</a>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="error-message">
+    ✗ Error: {{ error }}
+</div>
+{% endif %}
+
+<div class="add-content-form">
+    <form method="POST" action="/add-content" id="addContentForm">
+        <div class="form-group">
+            <label for="url">URL to Import</label>
+            <input type="url"
+                   id="url"
+                   name="url"
+                   placeholder="https://example.com/page"
+                   required>
+            <p class="form-help">
+                Paste a link to an AI conversation, article, or website you want to save
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="title">Title (Optional)</label>
+            <input type="text"
+                   id="title"
+                   name="title"
+                   placeholder="Auto-detected from page">
+            <p class="form-help">
+                Leave blank to use the page title automatically
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="manual_content">Manual Content (Optional - for pages that don't scrape well)</label>
+            <textarea id="manual_content"
+                      name="manual_content"
+                      rows="10"
+                      placeholder="If the URL doesn't scrape properly (like Claude conversations), paste the full content here..."></textarea>
+            <p class="form-help">
+                For Claude conversations: Copy the entire conversation text and paste here
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Your Notes (Optional)</label>
+            <textarea id="notes"
+                      name="notes"
+                      placeholder="Add your own notes about this content..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="source_type">Content Type</label>
+            <select id="source_type" name="source_type">
+                <option value="web_import">Web Page</option>
+                <option value="ai_conversation">AI Conversation (Claude, ChatGPT, etc.)</option>
+                <option value="article">Article</option>
+                <option value="reference">Reference Material</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="extract_images" checked> Extract and save images
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="crawl_site" id="crawl_site"> Crawl entire website (all pages)
+            </label>
+            <p class="form-help">
+                Enable this to scrape all pages on the domain (up to 20 pages). Extracts all content and images from every page found.
+            </p>
+        </div>
+
+        <button type="submit" class="submit-button" id="submitBtn">
+            Import Content
+        </button>
+    </form>
+
+    <div class="preview-section" id="previewSection">
+        <h3>Preview</h3>
+        <p id="previewText">Loading preview...</p>
+        <div class="preview-images" id="previewImages"></div>
+    </div>
+
+    <div class="loading" id="loadingIndicator" style="display: none;">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem;">Importing content...</p>
+    </div>
+</div>
+
+<script>
+document.getElementById('addContentForm').addEventListener('submit', function(e) {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loadingIndicator').style.display = 'block';
+});
+
+// Optional: Preview functionality
+document.getElementById('url').addEventListener('blur', async function() {
+    const url = this.value;
+    if (!url) return;
+
+    try {
+        const response = await fetch('/api/preview-url?url=' + encodeURIComponent(url));
+        const data = await response.json();
+
+        if (data.title && !document.getElementById('title').value) {
+            document.getElementById('title').value = data.title;
+        }
+
+        if (data.preview) {
+            document.getElementById('previewText').textContent = data.preview;
+            document.getElementById('previewSection').classList.add('active');
+        }
+    } catch (e) {
+        console.log('Preview not available');
+    }
+});
+</script>
+{% endblock %}
