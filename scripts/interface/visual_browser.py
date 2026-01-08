@@ -2,8 +2,21 @@
 """
 Visual Browser - Web interface for exploring knowledge base with images
 """
+import os
 import sys
 from pathlib import Path
+
+# Prevent multiprocessing issues on macOS - MUST be set before any other imports
+os.environ['LOKY_MAX_CPU_COUNT'] = '1'
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
+
+# Suppress multiprocessing warnings
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='multiprocessing.resource_tracker')
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -18,6 +31,19 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import time
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Import Whisper for local transcription
+try:
+    import whisper
+    WHISPER_AVAILABLE = True
+except ImportError:
+    WHISPER_AVAILABLE = False
+    print("Warning: Whisper not available. Transcription features disabled.")
 
 # Selenium imports for JavaScript-rendered pages
 try:
@@ -44,29 +70,208 @@ except ImportError:
     VISUAL_TRANSLATOR_AVAILABLE = False
     print("Warning: Visual translator not available")
 
+# Import semantic network builder
+from interface.semantic_network_builder import (
+    build_semantic_network,
+    get_mints_by_address,
+    get_mints_by_network,
+    get_all_blockchain_addresses,
+    classify_document_cognitive_type,
+    extract_blockchain_metadata,
+    extract_domain_from_url
+)
+
 app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
 
+# Set secret key for sessions
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Import user configuration database
+from interface.user_config_db import UserConfigDB
+from interface.setup_routes import register_setup_routes
+
+# Register setup routes
+register_setup_routes(app)
+
+# Import and register API routes
+try:
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from api.api_routes import register_api_routes
+    register_api_routes(app)
+except ImportError as e:
+    print(f"Warning: Could not load API routes: {e}")
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SECURITY: URL Validation and Content Security Policy
+# Protects against SSRF, XSS, and malicious redirects
+# ═══════════════════════════════════════════════════════════════════════════
+import ipaddress
+import socket
+
+def is_safe_url(url):
+    """
+    Validate URL to prevent SSRF attacks.
+    Returns (is_safe, error_message)
+    """
+    if not url:
+        return False, "URL is empty"
+
+    try:
+        parsed = urlparse(url)
+
+        # Only allow http and https schemes
+        if parsed.scheme not in ('http', 'https'):
+            return False, f"Invalid scheme: {parsed.scheme}. Only http/https allowed."
+
+        # Must have a hostname
+        if not parsed.netloc:
+            return False, "URL must have a hostname"
+
+        hostname = parsed.hostname
+        if not hostname:
+            return False, "Could not parse hostname"
+
+        # Block private/internal IP ranges
+        try:
+            # Try to resolve hostname to IP
+            ip = socket.gethostbyname(hostname)
+            ip_obj = ipaddress.ip_address(ip)
+
+            # Block private, loopback, link-local, and reserved addresses
+            if ip_obj.is_private:
+                return False, "Private IP addresses are not allowed"
+            if ip_obj.is_loopback:
+                return False, "Loopback addresses are not allowed"
+            if ip_obj.is_link_local:
+                return False, "Link-local addresses are not allowed"
+            if ip_obj.is_reserved:
+                return False, "Reserved addresses are not allowed"
+
+            # Block cloud metadata endpoints
+            if ip == '169.254.169.254':
+                return False, "Cloud metadata endpoint blocked"
+
+        except socket.gaierror:
+            # Hostname resolution failed - could be valid external host
+            pass
+        except ValueError:
+            # Not a valid IP - that's fine for hostnames
+            pass
+
+        # Block common internal hostnames
+        blocked_hosts = [
+            'localhost', '127.0.0.1', '0.0.0.0', '::1',
+            'metadata.google.internal', 'metadata.google.com',
+            '169.254.169.254', 'metadata'
+        ]
+        if hostname.lower() in blocked_hosts:
+            return False, f"Blocked hostname: {hostname}"
+
+        return True, None
+
+    except Exception as e:
+        return False, f"URL parsing error: {str(e)}"
+
+# Content Security Policy - prevents XSS and injection attacks
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    # Content Security Policy
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://d3js.org https://unpkg.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: blob: https: http:; "
+        "connect-src 'self' https://api.openai.com https://api.anthropic.com https://*.etherscan.io https://*.solscan.io; "
+        "frame-ancestors 'self'; "
+        "form-action 'self'"
+    )
+    response.headers['Content-Security-Policy'] = csp
+
+    # Other security headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+
+    # =========================================================================
+    # ANTI-AI CRAWLER HEADERS
+    # These headers instruct compliant crawlers not to index or train on content
+    # Added: 2026-01-08 Security Audit
+    # =========================================================================
+
+    # Primary AI blocking directive - tells crawlers not to use for AI training
+    response.headers['X-Robots-Tag'] = 'noai, noimageai, noindex, nofollow, noarchive, nosnippet'
+
+    # Prevent caching by AI systems
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    # Additional security headers
+    response.headers['X-Download-Options'] = 'noopen'
+
+    # Copyright assertion - establishes ownership
+    response.headers['X-Copyright'] = 'WEB3GISEL 2026 - All Rights Reserved'
+    response.headers['X-AI-Training-Prohibited'] = 'true'
+
+    return response
+
 # Load embeddings index
 embeddings = None
+
+# Middleware to check if setup is complete
+@app.before_request
+def check_setup():
+    """Redirect to setup if not complete"""
+    # Allow setup routes, API routes, settings, and static files
+    allowed_prefixes = ('/setup', '/static', '/api/', '/settings/')
+    if any(request.path.startswith(p) for p in allowed_prefixes):
+        return None
+
+    # Check if setup is complete
+    user_db = UserConfigDB()
+    if not user_db.is_setup_complete():
+        return redirect('/setup')
 
 def get_global_source_counts():
     """Get source counts for all documents (used in navigation)"""
     try:
         all_documents = get_all_documents(limit=1000, filter_type='all')
         source_counts = {}
+        category_counts = {
+            'my_work': 0,
+            'collected': 0,
+            'research': 0,
+            'identity': 0,
+            'conversations': 0,
+            'archive': 0
+        }
         visual_count = 0
 
         for doc in all_documents:
+            # Count by source (legacy)
             source = doc['source']
             source_counts[source] = source_counts.get(source, 0) + 1
+
+            # Count by new categories
+            category = doc.get('category', 'research')
+            if category in category_counts:
+                category_counts[category] += 1
+
             if doc.get('has_visual'):
                 visual_count += 1
 
         # Add total and visual counts
         source_counts['all'] = len(all_documents)
         source_counts['visual'] = visual_count
+
+        # Merge category counts into source_counts for template compatibility
+        source_counts.update(category_counts)
 
         return source_counts
     except Exception as e:
@@ -110,6 +315,107 @@ def parse_markdown_file(filepath):
             body = parts[2].strip()
 
     return frontmatter, body
+
+def generate_semantic_filename(current_filename, frontmatter, cognitive_type, blockchain_metadata, body):
+    """
+    Generate intelligent filename based on semantic network context
+    Uses deep analysis of metadata, tags, blockchain info, and content
+    to create meaningful filenames when original is not available
+    """
+    # First, try to extract original filename from document content
+    original_patterns = [
+        r'(?:original|source)\s*(?:filename|file)[:\s]+([^\s\n]+\.[a-z]{3,4})',
+        r'filename[:\s]+([^\s\n]+\.[a-z]{3,4})',
+        r'image[:\s]+([^\s\n]+\.[a-z]{3,4})',
+    ]
+
+    for pattern in original_patterns:
+        match = re.search(pattern, body, re.IGNORECASE)
+        if match:
+            original_name = match.group(1).strip()
+            # Clean up and return if it looks valid
+            if len(original_name) > 3 and '.' in original_name:
+                return original_name
+
+    # If not found, generate intelligent name based on context
+    parts = []
+
+    # 1. Cognitive type prefix
+    type_map = {
+        'blockchain': 'nft',
+        'web_article': 'web',
+        'media': 'media',
+        'research': 'research',
+        'conversation': 'chat'
+    }
+    parts.append(type_map.get(cognitive_type, cognitive_type))
+
+    # 2. Platform/source identifier
+    if blockchain_metadata:
+        platforms = blockchain_metadata.get('platforms', [])
+        if platforms:
+            # Use first platform, clean it up
+            platform = platforms[0].lower().replace(' ', '').replace('nft', '')
+            parts.append(platform)
+
+        # Add token ID if available
+        token_ids = blockchain_metadata.get('token_ids', [])
+        if token_ids:
+            parts.append(f"token{token_ids[0]}")
+
+        # Add blockchain network
+        network = blockchain_metadata.get('blockchain_network')
+        if network:
+            network_short = {'ethereum': 'eth', 'bitcoin': 'btc', 'solana': 'sol'}
+            parts.append(network_short.get(network, network))
+
+    # 3. Domain for web articles
+    if cognitive_type == 'web_article':
+        domain = frontmatter.get('domain', '')
+        if domain:
+            # Extract main part (e.g., 'nytimes' from 'nytimes.com')
+            domain_parts = domain.split('.')
+            if len(domain_parts) >= 2:
+                parts.append(domain_parts[0])
+
+    # 4. Title slugification (most important semantic identifier)
+    title = frontmatter.get('title', '')
+    if title:
+        # Clean and slugify title
+        title_slug = re.sub(r'[^\w\s-]', '', title.lower())
+        title_slug = re.sub(r'[-\s]+', '_', title_slug)
+        # Take first 4 meaningful words
+        words = [w for w in title_slug.split('_') if len(w) > 2][:4]
+        if words:
+            parts.extend(words)
+
+    # 5. Add most relevant tag if title not available or too short
+    if len(parts) < 3:
+        tags = frontmatter.get('tags', [])
+        # Filter out generic tags
+        generic_tags = {'web_import', 'blockchain', 'nft', 'import', 'article'}
+        meaningful_tags = [t for t in tags if t.lower() not in generic_tags and len(t) > 2]
+        if meaningful_tags:
+            # Add first meaningful tag
+            tag_slug = meaningful_tags[0].lower().replace(' ', '_')
+            parts.append(tag_slug)
+
+    # 6. Get file extension from current filename
+    ext = Path(current_filename).suffix
+    if not ext:
+        ext = '.png'  # Default to PNG
+
+    # Construct final filename
+    # Limit total length and join parts
+    filename_base = '_'.join(parts)[:80]  # Max 80 chars before extension
+    suggested = f"{filename_base}{ext}"
+
+    # Fallback if somehow we ended up with nothing
+    if len(filename_base) < 5:
+        doc_id = frontmatter.get('id', 'unknown')
+        suggested = f"{cognitive_type}_{doc_id}{ext}"
+
+    return suggested
 
 def search_knowledge_base(query, limit=20):
     """Search knowledge base and return results with images"""
@@ -181,6 +487,66 @@ def get_title_from_markdown(markdown_text):
             return line[2:].strip()
     return "Untitled"
 
+def categorize_document(frontmatter, body, source, doc_type):
+    """Categorize document into meaningful knowledge vault categories"""
+    tags = frontmatter.get('tags', [])
+    tags_lower = [tag.lower() for tag in tags]
+    title = frontmatter.get('title', '').lower()
+    body_lower = body.lower()
+
+    # MY WORK: Original creations by Gisel
+    my_work_keywords = ['giselx', 'gisel florez', 'my work', 'my art', 'my nft']
+    if any(keyword in tags_lower for keyword in my_work_keywords):
+        return 'my_work'
+    if any(keyword in title for keyword in my_work_keywords):
+        return 'my_work'
+    if 'creator' in frontmatter and 'gisel' in frontmatter.get('creator', '').lower():
+        return 'my_work'
+
+    # IDENTITY: Professional materials (CV, bio, artist statement)
+    identity_keywords = ['cv', 'resume', 'bio', 'artist statement', 'professional', 'portfolio']
+    if source == 'attachment' and any(keyword in title for keyword in identity_keywords):
+        return 'identity'
+    if any(keyword in tags_lower for keyword in identity_keywords):
+        return 'identity'
+
+    # CONVERSATIONS: Social interactions and AI discussions
+    if source in ['ai_conversation', 'twitter', 'discord']:
+        return 'conversations'
+    if doc_type == 'conversation' or 'conversation' in tags_lower:
+        return 'conversations'
+
+    # RESEARCH: Learning materials, articles, documentation
+    if source == 'perplexity':
+        return 'research'
+    if doc_type in ['web_article', 'research']:
+        return 'research'
+    research_keywords = ['tutorial', 'documentation', 'guide', 'how to', 'research', 'article']
+    if any(keyword in tags_lower for keyword in research_keywords):
+        return 'research'
+
+    # COLLECTED: Saved NFTs, artwork from others, visual references
+    if source in ['instagram', 'web_import']:
+        # If it's blockchain content but not tagged as "my work", it's collected
+        if frontmatter.get('blockchain_metadata') and 'my_work' not in tags_lower:
+            return 'collected'
+        # Instagram saves are typically collected inspiration
+        if source == 'instagram':
+            return 'collected'
+    if 'collected' in tags_lower or 'saved' in tags_lower or 'inspiration' in tags_lower:
+        return 'collected'
+
+    # ARCHIVE: Explicitly tagged or old content
+    if 'archive' in tags_lower or 'archived' in tags_lower:
+        return 'archive'
+
+    # Default: If it has blockchain metadata, assume it's collected NFTs
+    if frontmatter.get('blockchain_metadata'):
+        return 'collected'
+
+    # Default fallback to research for uncategorized content
+    return 'research'
+
 def get_all_documents(limit=50, filter_type=None, sort_by=None):
     """Get all documents from knowledge base"""
     kb_path = Path("knowledge_base/processed")
@@ -193,9 +559,17 @@ def get_all_documents(limit=50, filter_type=None, sort_by=None):
             doc_type = frontmatter.get('type', 'unknown')
             source = frontmatter.get('source', 'unknown')
 
+            # Categorize document into meaningful knowledge vault categories
+            category = categorize_document(frontmatter, body, source, doc_type)
+
             # Apply filter
             if filter_type and filter_type != 'all':
-                if filter_type == 'visual':
+                # New category-based filtering
+                if filter_type in ['my_work', 'collected', 'research', 'identity', 'conversations', 'archive']:
+                    if category != filter_type:
+                        continue
+                # Legacy source-based filtering (for backwards compatibility)
+                elif filter_type == 'visual':
                     # Check if has images
                     images = re.findall(r'!\[.*?\]\((.*?)\)', body)
                     media_dir = Path("knowledge_base/media/instagram") / frontmatter.get('id', '')
@@ -242,6 +616,7 @@ def get_all_documents(limit=50, filter_type=None, sort_by=None):
                 'id': frontmatter.get('id', ''),
                 'source': source,
                 'type': doc_type,
+                'category': category,  # New meaningful category
                 'title': get_title_from_markdown(body),
                 'preview': preview,
                 'date': frontmatter.get('created_at', frontmatter.get('post_date', '')),
@@ -254,7 +629,10 @@ def get_all_documents(limit=50, filter_type=None, sort_by=None):
                 'ipfs_links': ipfs_links,
                 'ipfs_gateways': ipfs_gateways,
                 'image_urls': image_urls,
-                'domain': frontmatter.get('domain', '')
+                'domain': frontmatter.get('domain', ''),
+                'cognitive_type': frontmatter.get('cognitive_type', ''),
+                'blockchain_network': frontmatter.get('blockchain_metadata', {}).get('blockchain_network', '') if frontmatter.get('blockchain_metadata') else '',
+                'platform': frontmatter.get('blockchain_metadata', {}).get('platforms', [''])[0] if frontmatter.get('blockchain_metadata', {}).get('platforms') else ''
             })
 
         except Exception as e:
@@ -310,6 +688,331 @@ def search():
         results = search_knowledge_base(query, limit=50)
 
     return render_template('search.html', query=query, results=results)
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    """Terms of Service page"""
+    return render_template('terms_of_service.html')
+
+@app.route('/setup/accept-terms', methods=['POST'])
+def accept_terms():
+    """Process ToS acceptance"""
+    from flask import session
+
+    # Verify all checkboxes were checked
+    agree_terms = request.form.get('agree_terms')
+    agree_no_copycat = request.form.get('agree_no_copycat')
+    agree_revocation = request.form.get('agree_revocation')
+
+    if agree_terms and agree_no_copycat and agree_revocation:
+        # Store acceptance in session and user config
+        session['tos_accepted'] = True
+        session['tos_accepted_at'] = datetime.now().isoformat()
+
+        # Also store in user config DB if available
+        try:
+            from interface.user_config_db import UserConfigDB
+            user_db = UserConfigDB()
+            user = user_db.get_any_user()
+            if user:
+                conn = user_db.get_connection()
+                cursor = conn.cursor()
+                cursor.execute('''
+                    UPDATE user_config
+                    SET tos_accepted = 1, tos_accepted_at = ?
+                    WHERE id = ?
+                ''', (datetime.now().isoformat(), user['id']))
+                conn.commit()
+                conn.close()
+        except:
+            pass
+
+        return redirect(url_for('training_layers'))
+    else:
+        return redirect(url_for('terms_of_service'))
+
+@app.route('/setup/declined')
+def setup_declined():
+    """User declined ToS"""
+    return '''
+    <html>
+    <head><title>ARCHIV-IT | Terms Declined</title></head>
+    <body style="background: #0a0a0f; color: #e8e6e3; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+        <div style="text-align: center; max-width: 400px;">
+            <h1 style="font-weight: 300; letter-spacing: 0.1em;">ARCHIV-IT</h1>
+            <p style="color: rgba(232,230,227,0.5);">You must accept the Terms of Service to use ARCHIV-IT.</p>
+            <a href="/terms-of-service" style="color: #d4a574;">Return to Terms</a>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.route('/api/trust-score')
+def get_trust_score():
+    """Get current user's trust score for the indicator"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        from trust_system import get_trust_score_for_display
+
+        result = get_trust_score_for_display()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'trust_score': 0,
+            'level': 'critical',
+            'breakdown': {},
+            'recommendations': ['Complete setup to build your trust score'],
+            'error': str(e)
+        })
+
+@app.route('/training-layers')
+def training_layers():
+    """Training layers selection - build your dataspace"""
+    return render_template('training_layers.html')
+
+@app.route('/setup/training', methods=['POST'])
+def setup_training():
+    """Process selected training layers and redirect to first layer form"""
+    selected_layers = request.form.getlist('layers')
+    if selected_layers:
+        # Store selected layers in session for multi-step form
+        from flask import session
+        session['training_layers'] = selected_layers
+        session['training_current'] = 0
+        # Redirect to first layer form
+        return redirect(url_for('training_layer_form', layer=selected_layers[0]))
+    return redirect(url_for('training_layers'))
+
+@app.route('/training/<layer>')
+def training_layer_form(layer):
+    """Individual layer training form"""
+    from flask import session
+    selected_layers = session.get('training_layers', [])
+    current_idx = session.get('training_current', 0)
+
+    if layer not in selected_layers:
+        return redirect(url_for('training_layers'))
+
+    # Update current index based on layer position
+    try:
+        current_idx = selected_layers.index(layer)
+        session['training_current'] = current_idx
+    except ValueError:
+        pass
+
+    # Layer metadata for form rendering
+    layer_info = {
+        'identity': {'title': 'Identity Foundation', 'fields': ['professional_name', 'wallet_addresses', 'platform_profiles', 'social_handles']},
+        'throughline': {'title': 'Artistic Throughline', 'fields': ['origin_philosophy', 'evolution_points', 'techniques', 'recurring_themes', 'signature_elements']},
+        'works': {'title': 'Body of Work', 'fields': ['series', 'collections', 'individual_works']},
+        'collaborations': {'title': 'Collaboration Network', 'fields': ['active_collaborations', 'historical_projects', 'collaborator_roles']},
+        'roles': {'title': 'Roles & Positions', 'fields': ['founder', 'advisor', 'curator', 'ambassador', 'board_positions']},
+        'exhibitions': {'title': 'Exhibition History', 'fields': ['physical_shows', 'virtual_exhibitions', 'speaking', 'performances']},
+        'recognition': {'title': 'Recognition & Press', 'fields': ['awards', 'press_features', 'museum_collections', 'interviews']},
+        'collectors': {'title': 'Collector Network', 'fields': ['notable_collectors', 'relationships', 'patronage']},
+        'platforms': {'title': 'Platform Layer', 'fields': ['primary_platforms', 'contracts', 'platform_roles', 'platform_health']},
+        'temporal': {'title': 'Temporal / Living Works', 'fields': ['interactive_works', 'programmable_works', 'scheduled_events']},
+        'preservation': {'title': 'Preservation & Risk', 'fields': ['platform_dependency', 'revival_solutions', 'backups', 'legal_ip']},
+        'collection': {'title': 'Collection Layer', 'fields': ['holdings_by_chain', 'holdings_by_artist', 'holdings_by_theme', 'value_trajectory']},
+        'artist_relationships': {'title': 'Artist Relationships', 'fields': ['depth_per_artist', 'first_acquisitions', 'irl_connections']},
+        'community': {'title': 'Community Layer', 'fields': ['daos', 'collector_circles', 'co_collecting', 'exhibition_loans']},
+        # Social Archive Imports
+        'twitter_archive': {'title': 'Twitter/X Archive Import', 'fields': ['archive_path', 'username'], 'is_import': True},
+        'instagram_archive': {'title': 'Instagram Archive Import', 'fields': ['archive_path', 'username'], 'is_import': True}
+    }
+
+    info = layer_info.get(layer, {'title': layer.title(), 'fields': []})
+    progress = ((current_idx + 1) / len(selected_layers)) * 100 if selected_layers else 0
+
+    return render_template('training_layer_form.html',
+                         layer=layer,
+                         layer_info=info,
+                         current_idx=current_idx,
+                         total_layers=len(selected_layers),
+                         progress=progress,
+                         selected_layers=selected_layers)
+
+@app.route('/training/<layer>/save', methods=['POST'])
+def save_training_layer(layer):
+    """Save training layer data and advance to next"""
+    from flask import session
+    import json
+
+    selected_layers = session.get('training_layers', [])
+    current_idx = session.get('training_current', 0)
+
+    # Get all form data
+    layer_data = {}
+    for key, value in request.form.items():
+        if value.strip():  # Only save non-empty values
+            layer_data[key] = value.strip()
+
+    # Save to local training data file
+    training_file = Path("knowledge_base/training_data.json")
+    training_file.parent.mkdir(parents=True, exist_ok=True)
+
+    existing_data = {}
+    if training_file.exists():
+        try:
+            with open(training_file, 'r') as f:
+                existing_data = json.load(f)
+        except:
+            existing_data = {}
+
+    existing_data[layer] = layer_data
+
+    with open(training_file, 'w') as f:
+        json.dump(existing_data, f, indent=2)
+
+    # Advance to next layer or complete
+    try:
+        layer_idx = selected_layers.index(layer)
+        if layer_idx < len(selected_layers) - 1:
+            # Go to next layer
+            next_layer = selected_layers[layer_idx + 1]
+            session['training_current'] = layer_idx + 1
+            return redirect(url_for('training_layer_form', layer=next_layer))
+        else:
+            # Training complete
+            session.pop('training_layers', None)
+            session.pop('training_current', None)
+            return redirect('/')
+    except ValueError:
+        return redirect(url_for('training_layers'))
+
+# =============================================================================
+# Scrape Queue API Routes
+# =============================================================================
+
+@app.route('/api/scrape-queue/status')
+def scrape_queue_status():
+    """Get scrape queue status and resumable jobs"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        qm = ScrapeQueueManager()
+        status = qm.get_queue_status()
+        resumable = qm.get_resumable_jobs()
+
+        return jsonify({
+            'status': status,
+            'resumable_jobs': resumable
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'resumable_jobs': []})
+
+@app.route('/api/scrape-queue/estimate', methods=['POST'])
+def scrape_queue_estimate():
+    """Estimate cost for a scrape job"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        data = request.get_json()
+        source_type = data.get('source_type', 'twitter_archive')
+        source_path = data.get('source_path', '')
+        include_embeddings = data.get('include_embeddings', True)
+        include_vision = data.get('include_vision', False)
+
+        qm = ScrapeQueueManager()
+
+        # Count items first
+        item_count = qm._count_items(source_type, source_path)
+
+        # Get estimate
+        estimate = qm.estimate_cost(
+            source_type,
+            item_count,
+            include_embeddings,
+            include_vision
+        )
+
+        return jsonify(estimate)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/scrape-queue/create', methods=['POST'])
+def scrape_queue_create():
+    """Create a new scrape job"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        data = request.get_json()
+        source_type = data.get('source_type')
+        source_path = data.get('source_path')
+        username = data.get('username', 'unknown')
+        options = data.get('options', {})
+
+        qm = ScrapeQueueManager()
+        job = qm.create_job(source_type, source_path, username, options)
+
+        return jsonify(job)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/scrape-queue/resume/<job_id>', methods=['POST'])
+def scrape_queue_resume(job_id):
+    """Resume a paused scrape job"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        qm = ScrapeQueueManager()
+        resume_data = qm.resume_job(job_id)
+
+        if resume_data:
+            return jsonify({
+                'success': True,
+                'job_id': job_id,
+                'checkpoint': resume_data['checkpoint']
+            })
+        else:
+            return jsonify({'error': 'Job not found or cannot be resumed'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/scrape-queue/pause/<job_id>', methods=['POST'])
+def scrape_queue_pause(job_id):
+    """Pause a running scrape job"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        data = request.get_json() or {}
+        checkpoint_data = data.get('checkpoint_data')
+
+        qm = ScrapeQueueManager()
+        success = qm.pause_job(job_id, checkpoint_data)
+
+        return jsonify({'success': success})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/scrape-queue/job/<job_id>')
+def scrape_queue_job(job_id):
+    """Get job details"""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.scrape_queue_manager import ScrapeQueueManager
+
+        qm = ScrapeQueueManager()
+        job = qm.get_job(job_id)
+
+        if job:
+            return jsonify(job)
+        else:
+            return jsonify({'error': 'Job not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/document/<doc_id>')
 def document_detail(doc_id):
@@ -466,6 +1169,45 @@ def api_stats():
         'sources': sources
     })
 
+@app.route('/api/document-content')
+def api_document_content():
+    """Get full document content for attachments and other documents"""
+    filepath = request.args.get('filepath')
+
+    if not filepath:
+        return jsonify({'success': False, 'error': 'No filepath provided'})
+
+    try:
+        # Parse the markdown file
+        frontmatter, body = parse_markdown_file(filepath)
+
+        # Extract links from the body
+        http_links = re.findall(r'https?://[^\s\)\]]+', body)
+        ipfs_links = re.findall(r'ipfs://[^\s\)\]]+', body)
+        all_links = list(set(http_links + ipfs_links))  # Remove duplicates
+
+        # Clean the body content - remove frontmatter formatting if present
+        clean_body = body.strip()
+
+        # Remove excessive newlines
+        clean_body = re.sub(r'\n{3,}', '\n\n', clean_body)
+
+        return jsonify({
+            'success': True,
+            'body': clean_body,
+            'type': frontmatter.get('type', 'document'),
+            'date': frontmatter.get('created_at', frontmatter.get('post_date', '')),
+            'tags': frontmatter.get('tags', []),
+            'links': all_links,
+            'source': frontmatter.get('source', 'unknown')
+        })
+
+    except Exception as e:
+        print(f"Error loading document content: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/add-content', methods=['GET', 'POST'])
 def add_content():
     """Add content from URL"""
@@ -492,6 +1234,11 @@ def add_content():
 def preview_url():
     """Preview a URL before importing"""
     url = request.args.get('url')
+
+    # SECURITY: Validate URL to prevent SSRF attacks
+    is_safe, error_msg = is_safe_url(url)
+    if not is_safe:
+        return jsonify({'error': f'Invalid URL: {error_msg}'}), 400
 
     try:
         response = requests.get(url, timeout=10, headers={
@@ -643,26 +1390,126 @@ def scrape_with_selenium(url, wait_time=5):
                         content_text += text + '\n\n'
                         seen_text.add(text)
 
-        # For NFT platforms, extract structured data
+        # For NFT platforms, extract structured data with priority on artwork descriptions
         elif any(nft_site in url for nft_site in ['foundation.app', 'opensea.io', 'rarible.com', 'superrare.com']):
-            # Extract bio/description
-            bio_selectors = ['p', 'div[class*="bio"]', 'div[class*="description"]']
+            print("  → Extracting NFT-specific content...")
+
+            # Priority 1: Extract artwork titles (most important)
+            nft_titles = soup.find_all(['h1', 'h2'], class_=re.compile('title|name|artwork', re.I))
+            for title_elem in nft_titles:
+                text = title_elem.get_text(strip=True)
+                if text and len(text) > 2 and text not in seen_text:
+                    # Skip navigation/button text
+                    if not any(skip in text.lower() for skip in ['menu', 'profile', 'wallet', 'connect', 'sign in', 'explore']):
+                        content_text += f"**{text}**\n\n"
+                        seen_text.add(text)
+                        print(f"  → Found NFT title: {text[:50]}")
+
+            # Priority 2: Extract NFT descriptions (artist statements, artwork details)
+            # SuperRare-specific: Look for description sections
+            description_selectors = [
+                'div[class*="description"]',
+                'div[class*="about"]',
+                'div[class*="details"]',
+                'p[class*="description"]',
+                'section[class*="description"]',
+                'div[data-testid*="description"]',
+                'div[aria-label*="description"]'
+            ]
+
+            for selector in description_selectors:
+                elements = soup.select(selector)
+                for elem in elements:
+                    text = elem.get_text(strip=True)
+                    # NFT descriptions are usually substantial
+                    if text and len(text) > 50 and text not in seen_text:
+                        # Filter out navigation, headers, footers
+                        if not any(skip in text.lower() for skip in [
+                            'connect wallet', 'sign in', 'marketplace', 'trending', 'cookies',
+                            'privacy policy', 'terms of service', '©', 'all rights reserved',
+                            'follow us', 'newsletter', 'discord', 'twitter'
+                        ]):
+                            content_text += text + '\n\n'
+                            seen_text.add(text)
+                            print(f"  → Found NFT description: {text[:80]}...")
+
+            # Priority 3: Extract artist bio/statement (contextual)
+            bio_selectors = [
+                'div[class*="bio"]',
+                'div[class*="artist"]',
+                'section[class*="about"]',
+                'p[class*="bio"]'
+            ]
+
             for selector in bio_selectors:
                 elements = soup.select(selector)
                 for elem in elements:
                     text = elem.get_text(strip=True)
-                    # Only add substantial, unique text
-                    if text and len(text) > 30 and text not in seen_text:
+                    if text and len(text) > 40 and text not in seen_text:
+                        if not any(skip in text.lower() for skip in ['connect wallet', 'marketplace', 'trending', 'newsletter']):
+                            content_text += text + '\n\n'
+                            seen_text.add(text)
+                            print(f"  → Found artist bio: {text[:60]}...")
+
+            # Priority 4: Extract metadata (medium, edition, date, etc.)
+            metadata_selectors = [
+                'div[class*="metadata"]',
+                'div[class*="properties"]',
+                'div[class*="details"]',
+                'dl',  # Definition lists often contain metadata
+                'span[class*="edition"]',
+                'span[class*="medium"]'
+            ]
+
+            for selector in metadata_selectors:
+                elements = soup.select(selector)
+                for elem in elements:
+                    text = elem.get_text(strip=True)
+                    if text and len(text) > 10 and text not in seen_text:
+                        # Metadata is usually concise key-value pairs
+                        if any(meta_key in text.lower() for meta_key in ['edition', 'medium', 'created', 'minted', 'owner', 'creator', 'size', 'year']):
+                            content_text += text + '\n\n'
+                            seen_text.add(text)
+                            print(f"  → Found metadata: {text[:50]}")
+
+            # Priority 5: Extract any remaining paragraphs (fallback for content we might have missed)
+            remaining_paragraphs = soup.find_all('p')
+            for p in remaining_paragraphs:
+                text = p.get_text(strip=True)
+                if text and len(text) > 30 and text not in seen_text:
+                    # More aggressive filtering for generic paragraphs
+                    if not any(skip in text.lower() for skip in [
+                        'connect', 'wallet', 'sign in', 'menu', 'explore', 'marketplace',
+                        'cookies', 'privacy', 'terms', 'newsletter', 'follow', 'discord',
+                        'twitter', 'instagram', 'rights reserved', '©'
+                    ]):
                         content_text += text + '\n\n'
                         seen_text.add(text)
 
-            # Extract NFT titles and metadata
-            nft_titles = soup.find_all(['h1', 'h2', 'h3'], class_=re.compile('title|name', re.I))
-            for title_elem in nft_titles:
-                text = title_elem.get_text(strip=True)
-                if text and len(text) > 3 and text not in seen_text:
-                    content_text += f"**{text}**\n\n"
-                    seen_text.add(text)
+            # Clean up content - remove technical metadata that might have slipped through
+            lines_to_remove = []
+            for line in content_text.split('\n'):
+                # Skip lines with file paths, URLs, or technical metadata
+                if any(tech in line.lower() for tech in [
+                    'knowledge_base/', 'media/web_imports/', 'http://', 'https://',
+                    '**source:**', '**imported:**', '**metadata:**', '**original url:**',
+                    'avatar', 'image_', '.jpg', '.png', '.jpeg', 'storage.googleapis',
+                    'pixura.imgix.net', 'ipfs://', 'cloudfront.net'
+                ]):
+                    lines_to_remove.append(line)
+                # Skip very short lines (likely navigation or labels)
+                elif len(line.strip()) < 15:
+                    lines_to_remove.append(line)
+
+            # Remove unwanted lines
+            for line in lines_to_remove:
+                content_text = content_text.replace(line, '')
+
+            # Clean up excessive whitespace
+            content_text = '\n'.join(line for line in content_text.split('\n') if line.strip())
+            content_text = '\n\n'.join(content_text.split('\n\n'))
+
+            print(f"  ✓ Extracted {len(content_text)} characters of meaningful NFT content")
 
         else:
             # Generic extraction for other JS-heavy sites
@@ -1206,9 +2053,23 @@ def visual_translator():
     if not VISUAL_TRANSLATOR_AVAILABLE:
         return "Visual Translator not available. Install required packages.", 503
 
+    # Helper function for file size formatting
+    def format_bytes(bytes_size):
+        if bytes_size < 1024:
+            return f"{bytes_size} B"
+        elif bytes_size < 1024 * 1024:
+            return f"{bytes_size / 1024:.1f} KB"
+        elif bytes_size < 1024 * 1024 * 1024:
+            return f"{bytes_size / (1024 * 1024):.1f} MB"
+        else:
+            return f"{bytes_size / (1024 * 1024 * 1024):.1f} GB"
+
     # Find all images in media directories
     media_base = Path("knowledge_base/media")
     all_images = []
+
+    # Cache for cognitive type classification (one per document)
+    cognitive_cache = {}
 
     if media_base.exists():
         for source_dir in media_base.iterdir():
@@ -1223,41 +2084,417 @@ def visual_translator():
                         kb_path = Path("knowledge_base/processed")
                         for md in kb_path.rglob("*.md"):
                             try:
-                                frontmatter, _ = parse_markdown_file(md)
+                                frontmatter, body = parse_markdown_file(md)
                                 if frontmatter.get('id') == doc_id:
                                     md_file = md
                                     break
                             except:
                                 continue
 
-                        # Get images in this doc directory
+                        # Get images and media files in this doc directory
                         for img_file in doc_dir.glob("*"):
-                            if img_file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
-                                # Check if analyzed
-                                analyzed = False
-                                has_text = False
-                                vision_desc = None
+                            # Support images, videos, and audio files
+                            if img_file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp',
+                                                           '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v',
+                                                           '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac']:
+                                # Initialize image data
+                                # Determine source type for visual distinctions
+                                source_type = None
+                                automation_ready = False
+                                file_ext = img_file.suffix.lower()
 
-                                if md_file:
-                                    frontmatter, _ = parse_markdown_file(md_file)
-                                    analyzed = 'visual_analysis_date' in frontmatter
-                                    has_text = frontmatter.get('has_text', False)
-                                    vision_desc = frontmatter.get('vision_description', '')
+                                # Audio files
+                                if file_ext in ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac']:
+                                    source_type = 'audio'
+                                    automation_ready = True  # Audio transcripts are automation-ready
 
-                                all_images.append({
+                                # Video files
+                                elif file_ext in ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v']:
+                                    source_type = 'video'
+
+                                # Image files - need more context
+                                elif file_ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                                    # Check source directory
+                                    if 'web' in source.lower() or 'import' in source.lower():
+                                        source_type = 'web-scrape'
+                                    elif 'manual' in source.lower() or 'upload' in source.lower():
+                                        source_type = 'file-upload'
+                                    else:
+                                        # Default for images
+                                        source_type = 'visual-ai'  # Assume visual content
+
+                                img_data = {
                                     'path': str(img_file),
                                     'filename': img_file.name,
                                     'doc_id': doc_id,
                                     'source': source,
-                                    'analyzed': analyzed,
-                                    'has_text': has_text,
-                                    'vision_desc': vision_desc[:100] if vision_desc else None
-                                })
+                                    'source_type': source_type,
+                                    'source_types': None,  # For merged documents with multiple sources
+                                    'is_merged': False,
+                                    'automation_ready': automation_ready,
+                                    'analyzed': False,
+                                    'has_text': False,
+                                    'vision_desc': None,
+                                    'cognitive_type': 'unknown',
+                                    'blockchain_metadata': None,
+                                    'domain': None,
+                                    'file_size': 0,
+                                    'file_size_human': '0 B',
+                                    'dimensions': None,
+                                    'width': 0,
+                                    'height': 0,
+                                    'relationship_count': 0,
+                                    'doc_frontmatter': {},
+                                    'original_date': None,
+                                    'created_at': None,
+                                    'doc_body': None,
+                                    'source_urls': []  # Track all source URLs with metadata
+                                }
 
-    # Get filter from query string
-    filter_type = request.args.get('filter', 'all')
+                                if md_file:
+                                    frontmatter, body = parse_markdown_file(md_file)
 
-    # Apply filter
+                                    # Check if this is a merged document (multiple sources)
+                                    if frontmatter.get('is_merged') and frontmatter.get('source_types'):
+                                        img_data['is_merged'] = True
+                                        img_data['source_types'] = frontmatter['source_types']
+                                        # Also keep single source_type for backward compatibility
+                                        # Use first source type as primary
+                                        img_data['source_type'] = frontmatter['source_types'][0] if frontmatter['source_types'] else source_type
+
+                                    # FIX: Document-level analysis applies to ALL images
+                                    doc_analyzed = 'visual_analysis_date' in frontmatter
+                                    doc_has_text = frontmatter.get('has_text', False)
+                                    doc_vision_desc = frontmatter.get('vision_description', '')
+
+                                    img_data['analyzed'] = doc_analyzed
+                                    img_data['has_text'] = doc_has_text
+                                    img_data['vision_desc'] = doc_vision_desc[:100] if doc_vision_desc else None
+                                    img_data['doc_frontmatter'] = frontmatter
+
+                                    # Extract document body text for context in hover overlay
+                                    # Limit to first 300 characters to keep hover overlay concise
+                                    if body and len(body.strip()) > 0:
+                                        clean_body = body.strip()
+
+                                        # Remove markdown headers and extra whitespace
+                                        import re
+                                        clean_body = re.sub(r'^#+\s+', '', clean_body, flags=re.MULTILINE)
+                                        clean_body = re.sub(r'\n\n+', ' ', clean_body)
+
+                                        # Filter out technical metadata from body text
+                                        lines = clean_body.split('\n')
+                                        filtered_lines = []
+                                        for line in lines:
+                                            # Skip technical metadata, file paths, URLs
+                                            if not any(tech in line.lower() for tech in [
+                                                'knowledge_base/', 'media/web_imports/', 'http://', 'https://',
+                                                '**source:**', '**imported:**', '**metadata:**', '**original url:**',
+                                                'avatar', 'image_', '.jpg', '.png', '.jpeg', 'storage.googleapis',
+                                                'pixura.imgix.net', 'ipfs://', 'cloudfront.net', '../', './',
+                                                '[avatar]', '(http'
+                                            ]):
+                                                # Skip very short lines (navigation/labels)
+                                                if len(line.strip()) >= 20:
+                                                    filtered_lines.append(line.strip())
+
+                                        clean_body = ' '.join(filtered_lines)
+
+                                        # Only save if we have meaningful content
+                                        if len(clean_body) > 50:
+                                            img_data['doc_body'] = clean_body[:300] if len(clean_body) > 300 else clean_body
+
+                                    # Classify cognitive type (cached per document)
+                                    if doc_id not in cognitive_cache:
+                                        doc = {
+                                            'id': doc_id,
+                                            'source': frontmatter.get('source', source),  # Use frontmatter source, fallback to directory
+                                            'type': frontmatter.get('type', ''),
+                                            'title': frontmatter.get('title', ''),
+                                            'body': body[:1000],  # First 1000 chars for classification
+                                            'url': frontmatter.get('url', ''),
+                                            'tags': frontmatter.get('tags', []),
+                                            'created_at': frontmatter.get('created_at', ''),
+                                            'image_count': frontmatter.get('image_count', 0),
+                                            'has_images': frontmatter.get('has_images', False),
+                                        }
+
+                                        cognitive_type = classify_document_cognitive_type(doc)
+                                        blockchain_meta = None
+
+                                        if cognitive_type == 'blockchain':
+                                            blockchain_meta = extract_blockchain_metadata(doc)
+
+                                        cognitive_cache[doc_id] = {
+                                            'type': cognitive_type,
+                                            'blockchain': blockchain_meta
+                                        }
+
+                                    img_data['cognitive_type'] = cognitive_cache[doc_id]['type']
+                                    img_data['blockchain_metadata'] = cognitive_cache[doc_id]['blockchain']
+
+                                    # Always fetch current owner for ALL blockchain NFTs
+                                    img_data['is_collected'] = False
+                                    img_data['current_owner'] = None
+                                    img_data['creator_address'] = None
+
+                                    if cognitive_cache[doc_id]['blockchain'] and cognitive_cache[doc_id]['type'] == 'blockchain':
+                                        blockchain_meta = cognitive_cache[doc_id]['blockchain']
+
+                                        # Get creator addresses (your minting addresses from user config)
+                                        creator_addresses = set()
+                                        try:
+                                            user_config_db = UserConfigDB()
+                                            user = user_config_db.get_primary_user()
+                                            if user:
+                                                minting_addrs = user_config_db.get_minting_addresses(user['id'])
+                                                creator_addresses = {addr['address'].lower() for addr in minting_addrs}
+                                        except:
+                                            pass
+
+                                        # Fallback: Use blockchain addresses found in document as creator
+                                        if not creator_addresses:
+                                            blockchain_addrs = blockchain_meta.get('blockchain_addresses', [])
+                                            for network, addr in blockchain_addrs:
+                                                creator_addresses.add(addr.lower())
+
+                                        # Set creator address for display
+                                        if creator_addresses:
+                                            img_data['creator_address'] = list(creator_addresses)[0]
+
+                                        # ALWAYS query blockchain for current owner on browser reload
+                                        contract_addr = blockchain_meta.get('contract_address')
+                                        token_ids = blockchain_meta.get('token_ids', [])
+                                        network = blockchain_meta.get('blockchain_network', 'ethereum')
+
+                                        if contract_addr and token_ids and network == 'ethereum':
+                                            token_id = str(token_ids[0])
+
+                                            # Try Alchemy API first (more reliable for current owner)
+                                            alchemy_key = os.getenv('ALCHEMY_API_KEY', '')
+                                            if alchemy_key:
+                                                try:
+                                                    import requests
+                                                    url = f"https://eth-mainnet.g.alchemy.com/nft/v2/{alchemy_key}/getOwnersForToken"
+                                                    params = {
+                                                        'contractAddress': contract_addr,
+                                                        'tokenId': token_id
+                                                    }
+                                                    response = requests.get(url, params=params, timeout=3)
+                                                    if response.status_code == 200:
+                                                        data = response.json()
+                                                        owners = data.get('owners', [])
+                                                        if owners:
+                                                            img_data['current_owner'] = owners[0].lower()
+                                                except:
+                                                    pass
+
+                                            # Fallback to Etherscan API
+                                            if not img_data['current_owner']:
+                                                etherscan_key = os.getenv('ETHERSCAN_API_KEY', '')
+                                                if etherscan_key:
+                                                    try:
+                                                        import requests
+                                                        url = f"https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress={contract_addr}&page=1&offset=1&sort=desc&apikey={etherscan_key}"
+                                                        response = requests.get(url, timeout=3)
+                                                        if response.status_code == 200:
+                                                            data = response.json()
+                                                            if data.get('status') == '1' and data.get('result'):
+                                                                for tx in data['result']:
+                                                                    if tx.get('tokenID') == token_id:
+                                                                        img_data['current_owner'] = tx.get('to', '').lower()
+                                                                        break
+                                                    except:
+                                                        pass
+
+                                        # Final fallback: Check document metadata for owner
+                                        if not img_data['current_owner']:
+                                            if frontmatter.get('current_owner'):
+                                                img_data['current_owner'] = frontmatter['current_owner'].lower()
+                                            elif blockchain_meta.get('blockchain_addresses'):
+                                                # Use first blockchain address as assumed owner
+                                                img_data['current_owner'] = blockchain_meta['blockchain_addresses'][0][1].lower()
+
+                                        # Mark as "collected" ONLY if current owner != creator
+                                        if img_data['current_owner'] and img_data['current_owner'] not in creator_addresses:
+                                            img_data['is_collected'] = True
+
+                                    # Refine source type based on metadata
+                                    # Blockchain NFTs override other types
+                                    if cognitive_cache[doc_id]['blockchain'] and cognitive_cache[doc_id]['type'] == 'blockchain':
+                                        img_data['source_type'] = 'blockchain'
+                                        img_data['automation_ready'] = True  # Blockchain data is verified
+
+                                    # AI-analyzed images
+                                    if doc_analyzed and img_data['source_type'] == 'visual-ai':
+                                        img_data['automation_ready'] = True  # AI-analyzed images are automation-ready
+
+                                    # Written content (no images, text-only)
+                                    if frontmatter.get('type') == 'note' or frontmatter.get('type') == 'article':
+                                        if not frontmatter.get('has_images'):
+                                            img_data['source_type'] = 'written'
+
+                                    # Extract domain for web articles (always try to get it)
+                                    url_to_parse = frontmatter.get('url') or frontmatter.get('source_url')
+                                    if url_to_parse:
+                                        img_data['domain'] = extract_domain_from_url(url_to_parse)
+                                    elif not img_data['domain']:
+                                        # Fallback: Try to extract from document domain field
+                                        img_data['domain'] = frontmatter.get('domain', '')
+
+                                    # Relationship count (use tag count as proxy)
+                                    img_data['relationship_count'] = len(frontmatter.get('tags', []))
+
+                                    # Extract timeline dates (original_date from blockchain metadata, created_at from frontmatter)
+                                    if img_data['blockchain_metadata'] and img_data['blockchain_metadata'].get('original_date'):
+                                        img_data['original_date'] = img_data['blockchain_metadata']['original_date']
+
+                                    img_data['created_at'] = frontmatter.get('created_at') or frontmatter.get('date')
+
+                                # Get file metadata
+                                try:
+                                    stat = img_file.stat()
+                                    img_data['file_size'] = stat.st_size
+                                    img_data['file_size_human'] = format_bytes(stat.st_size)
+                                except:
+                                    pass
+
+                                # Get image dimensions (current downsampled version)
+                                try:
+                                    from PIL import Image as PILImage
+                                    with PILImage.open(img_file) as pil_img:
+                                        img_data['dimensions'] = f"{pil_img.width}×{pil_img.height}"
+                                        img_data['width'] = pil_img.width
+                                        img_data['height'] = pil_img.height
+                                except:
+                                    pass
+
+                                # Extract original dimensions from document metadata
+                                img_data['original_dimensions'] = None
+                                img_data['original_width'] = None
+                                img_data['original_height'] = None
+                                img_data['suggested_filename'] = None
+
+                                if md_file:
+                                    # Look for original dimensions in document body
+                                    # Common patterns: "1920x1080", "width: 1920, height: 1080", "dimensions: 1920×1080"
+                                    dimension_patterns = [
+                                        r'(?:original|source)?\s*(?:dimension|size|resolution)[:\s]+(\d{3,5})\s*[x×]\s*(\d{3,5})',
+                                        r'width[:\s]+(\d{3,5})[,\s]+height[:\s]+(\d{3,5})',
+                                        r'(\d{3,5})\s*[x×]\s*(\d{3,5})\s*(?:px|pixels)',
+                                    ]
+
+                                    for pattern in dimension_patterns:
+                                        match = re.search(pattern, body, re.IGNORECASE)
+                                        if match:
+                                            orig_w, orig_h = int(match.group(1)), int(match.group(2))
+                                            # Only accept if larger than current (original should be bigger)
+                                            if orig_w > img_data.get('width', 0) or orig_h > img_data.get('height', 0):
+                                                img_data['original_dimensions'] = f"{orig_w}×{orig_h}"
+                                                img_data['original_width'] = orig_w
+                                                img_data['original_height'] = orig_h
+                                                break
+
+                                    # Generate intelligent filename based on semantic context
+                                    img_data['suggested_filename'] = generate_semantic_filename(
+                                        img_file.name,
+                                        frontmatter,
+                                        img_data.get('cognitive_type', 'unknown'),
+                                        img_data.get('blockchain_metadata'),
+                                        body
+                                    )
+
+                                    # Extract source URLs from document metadata
+                                    source_urls = []
+
+                                    # Method 1: Check frontmatter URLs
+                                    if frontmatter.get('url'):
+                                        source_urls.append({
+                                            'url': frontmatter['url'],
+                                            'domain': extract_domain_from_url(frontmatter['url'])[:10] if extract_domain_from_url(frontmatter['url']) else 'unknown',
+                                            'is_highres': False,
+                                            'type': 'document'
+                                        })
+
+                                    # Method 2: Check merged document URLs
+                                    if frontmatter.get('urls'):
+                                        for idx, url in enumerate(frontmatter['urls']):
+                                            if url not in [s['url'] for s in source_urls]:
+                                                source_urls.append({
+                                                    'url': url,
+                                                    'domain': extract_domain_from_url(url)[:10] if extract_domain_from_url(url) else 'unknown',
+                                                    'is_highres': False,
+                                                    'type': 'merged'
+                                                })
+
+                                    # Method 3: Parse image metadata from markdown body - SKIP image CDN URLs
+                                    # We don't want direct image hosting URLs (pixura.img, CDN buckets, etc.)
+                                    # Only include platform URLs (SuperRare, Foundation, etc.) which come from frontmatter
+
+                                    # Method 4: Check blockchain IPFS URLs
+                                    if img_data.get('blockchain_metadata'):
+                                        ipfs_hashes = img_data['blockchain_metadata'].get('ipfs_hashes', [])
+                                        for ipfs_hash in ipfs_hashes[:2]:  # Max 2 IPFS links
+                                            ipfs_url = f"https://ipfs.io/ipfs/{ipfs_hash.replace('ipfs://', '')}"
+                                            if ipfs_url not in [s['url'] for s in source_urls]:
+                                                source_urls.append({
+                                                    'url': ipfs_url,
+                                                    'domain': 'ipfs.io',
+                                                    'is_highres': True,  # IPFS is typically high-res original
+                                                    'type': 'ipfs'
+                                                })
+
+                                    img_data['source_urls'] = source_urls
+
+                                all_images.append(img_data)
+
+    # Calculate stats BEFORE filtering
+    total = len(all_images)
+    analyzed = len([img for img in all_images if img['analyzed']])
+    pending = total - analyzed
+    with_text = len([img for img in all_images if img['has_text']])
+
+    # Count assets per platform/network/type/quality for filter visibility
+    platform_counts = {}
+    network_counts = {}
+    type_counts = {}
+    quality_counts = {'high': 0, 'medium': 0, 'low': 0}
+
+    for img in all_images:
+        # Count platforms
+        if img.get('blockchain_metadata'):
+            platforms = img['blockchain_metadata'].get('platforms', [])
+            for platform in platforms:
+                platform_counts[platform] = platform_counts.get(platform, 0) + 1
+
+            # Count networks
+            network = img['blockchain_metadata'].get('blockchain_network')
+            if network:
+                network_counts[network] = network_counts.get(network, 0) + 1
+
+        # Count content types
+        ctype = img.get('cognitive_type')
+        if ctype:
+            type_counts[ctype] = type_counts.get(ctype, 0) + 1
+
+        # Count quality levels
+        width = img.get('width', 0)
+        height = img.get('height', 0)
+        if width >= 1920 or height >= 1920:
+            quality_counts['high'] += 1
+        elif (1024 <= width < 1920) or (1024 <= height < 1920):
+            quality_counts['medium'] += 1
+        elif width < 1024 and height < 1024:
+            quality_counts['low'] += 1
+
+    # Get filter parameters from query string
+    filter_type = request.args.get('filter', 'all')  # existing filter
+    network_filter = request.args.get('network', 'all')
+    platform_filter = request.args.get('platform', 'all')
+    quality_filter = request.args.get('quality', 'all')
+    type_filter = request.args.get('type', 'all')
+
+    # Apply existing filter AFTER stats calculated
     if filter_type == 'analyzed':
         all_images = [img for img in all_images if img['analyzed']]
     elif filter_type == 'pending':
@@ -1265,11 +2502,53 @@ def visual_translator():
     elif filter_type == 'has_text':
         all_images = [img for img in all_images if img['has_text']]
 
-    # Calculate stats
-    total = len([img for img in all_images if filter_type == 'all' or True])
-    analyzed = len([img for img in all_images if img['analyzed']])
-    pending = total - analyzed
-    with_text = len([img for img in all_images if img['has_text']])
+    # Apply Tier 1: Blockchain Network filter
+    if network_filter != 'all':
+        if network_filter == 'none':
+            # Show only non-blockchain content
+            all_images = [img for img in all_images if not img.get('blockchain_metadata')]
+        else:
+            # Show only specific blockchain network (ethereum, bitcoin, solana)
+            all_images = [img for img in all_images
+                         if img.get('blockchain_metadata')
+                         and img['blockchain_metadata'].get('blockchain_network') == network_filter]
+
+    # Apply Tier 2: Platform filter
+    if platform_filter != 'all':
+        all_images = [img for img in all_images
+                     if img.get('blockchain_metadata')
+                     and platform_filter in img['blockchain_metadata'].get('platforms', [])]
+
+    # Apply Tier 3: Quality/Resolution filter
+    if quality_filter != 'all':
+        if quality_filter == 'high':
+            # High-res: ≥1920px on either dimension
+            all_images = [img for img in all_images
+                         if img.get('width', 0) >= 1920 or img.get('height', 0) >= 1920]
+        elif quality_filter == 'medium':
+            # Medium-res: 1024-1919px on either dimension
+            all_images = [img for img in all_images
+                         if (1024 <= img.get('width', 0) < 1920) or (1024 <= img.get('height', 0) < 1920)]
+        elif quality_filter == 'low':
+            # Low-res: <1024px on both dimensions
+            all_images = [img for img in all_images
+                         if img.get('width', 0) < 1024 and img.get('height', 0) < 1024]
+
+    # Apply Tier 4: Cognitive Type filter
+    if type_filter != 'all':
+        all_images = [img for img in all_images if img.get('cognitive_type') == type_filter]
+
+    # Apply timeline sorting
+    sort_by = request.args.get('sort', 'default')
+    if sort_by == 'original_date':
+        # Sort by original date (IPFS upload, mint date, etc.) - newest first
+        all_images = sorted(all_images, key=lambda x: x.get('original_date') or x.get('created_at') or '1970-01-01', reverse=True)
+    elif sort_by == 'created_date':
+        # Sort by import/created date - newest first
+        all_images = sorted(all_images, key=lambda x: x.get('created_at') or '1970-01-01', reverse=True)
+    elif sort_by == 'oldest_first':
+        # Sort by original date - oldest first (for timeline view)
+        all_images = sorted(all_images, key=lambda x: x.get('original_date') or x.get('created_at') or '2999-01-01', reverse=False)
 
     return render_template('visual_translator.html',
                          images=all_images,
@@ -1277,40 +2556,154 @@ def visual_translator():
                          analyzed=analyzed,
                          pending=pending,
                          with_text=with_text,
-                         current_filter=filter_type)
+                         current_filter=filter_type,
+                         network_filter=network_filter,
+                         platform_filter=platform_filter,
+                         quality_filter=quality_filter,
+                         type_filter=type_filter,
+                         sort_by=sort_by,
+                         platform_counts=platform_counts,
+                         network_counts=network_counts,
+                         type_counts=type_counts,
+                         quality_counts=quality_counts)
 
-@app.route('/visual-translator/image/<doc_id>')
-def visual_translator_image(doc_id):
-    """Detailed view of single image analysis"""
-    if not VISUAL_TRANSLATOR_AVAILABLE:
-        return "Visual Translator not available", 503
+@app.route('/api/estimate-costs', methods=['POST'])
+def api_estimate_costs():
+    """API endpoint to estimate costs for processing media - Deep Analysis Version"""
+    try:
+        from cost_manager import cost_manager
 
-    # Find markdown file
-    kb_path = Path("knowledge_base/processed")
-    for md_file in kb_path.rglob("*.md"):
-        frontmatter, body = parse_markdown_file(md_file)
+        data = request.get_json()
+        url = data.get('url')
+        extract_images = data.get('extract_images', True)
+        crawl_site = data.get('crawl_site', False)
 
-        if frontmatter.get('id') == doc_id:
-            # Find image files
-            media_dirs = [
-                Path("knowledge_base/media/instagram") / doc_id,
-                Path("knowledge_base/media/web_imports") / doc_id,
-                Path("knowledge_base/media/attachments") / doc_id
-            ]
+        # Service toggles
+        enable_vision = data.get('enable_vision', True)
+        enable_transcription = data.get('enable_transcription', True)
+        enable_video = data.get('enable_video', True)
 
-            images = []
-            for media_dir in media_dirs:
-                if media_dir.exists():
-                    for img_file in media_dir.glob("*"):
-                        if img_file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
-                            images.append(str(img_file))
+        # Model selection
+        vision_model = data.get('vision_model', 'haiku')  # haiku, sonnet, or opus
 
-            return render_template('visual_translator_detail.html',
-                                 frontmatter=frontmatter,
-                                 doc_id=doc_id,
-                                 images=images)
+        if not url:
+            return jsonify({'error': 'No URL provided'}), 400
 
-    return "Document not found", 404
+        # Fetch the page to count media
+        try:
+            response = requests.get(url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            soup = BeautifulSoup(response.text, 'html.parser')
+        except Exception as e:
+            return jsonify({
+                'error': f'Failed to fetch URL: {str(e)}',
+                'image_count': 0,
+                'audio_count': 0,
+                'video_count': 0,
+                'total_cost': 0.0
+            }), 200
+
+        # Count images
+        image_count = 0
+        if extract_images and enable_vision:
+            img_tags = soup.find_all('img', src=True)
+            # Filter out tiny images (icons, tracking pixels)
+            image_count = len([img for img in img_tags
+                             if 'data:image' not in img.get('src', '')
+                             and not any(x in img.get('src', '').lower() for x in ['icon', 'logo', 'pixel', 'tracker'])])
+
+        # Count and analyze audio files
+        audio_files = []
+        if enable_transcription:
+            # Audio tags
+            for audio_tag in soup.find_all('audio'):
+                duration = audio_tag.get('duration', 0)
+                audio_files.append({
+                    'url': audio_tag.get('src', ''),
+                    'estimated_duration_minutes': float(duration) / 60 if duration else 3
+                })
+
+            # Audio sources
+            for source in soup.find_all('source', type=lambda x: x and 'audio' in x):
+                audio_files.append({
+                    'url': source.get('src', ''),
+                    'estimated_duration_minutes': 3  # Default estimate
+                })
+
+            # Audio links
+            for link in soup.find_all('a', href=lambda x: x and any(x.endswith(ext) for ext in ['.mp3', '.wav', '.m4a', '.aac'])):
+                audio_files.append({
+                    'url': link.get('href', ''),
+                    'estimated_duration_minutes': 3  # Default estimate
+                })
+
+        # Count and analyze video files
+        video_files = []
+        if enable_video:
+            # Video tags
+            for video_tag in soup.find_all('video'):
+                duration = video_tag.get('duration', 0)
+                video_files.append({
+                    'url': video_tag.get('src', ''),
+                    'estimated_duration_seconds': float(duration) if duration else 10
+                })
+
+            # Video sources
+            for source in soup.find_all('source', type=lambda x: x and 'video' in x):
+                video_files.append({
+                    'url': source.get('src', ''),
+                    'estimated_duration_seconds': 10  # Default estimate
+                })
+
+            # Video links
+            for link in soup.find_all('a', href=lambda x: x and any(x.endswith(ext) for ext in ['.mp4', '.mov', '.avi', '.mkv'])):
+                video_files.append({
+                    'url': link.get('href', ''),
+                    'estimated_duration_seconds': 10  # Default estimate
+                })
+
+        # Use cost manager for deep estimation
+        estimate = cost_manager.estimate_web_import(
+            url=url,
+            image_count=image_count,
+            audio_files=audio_files,
+            video_files=video_files,
+            vision_model=vision_model,
+            enable_vision=enable_vision and extract_images,
+            enable_transcription=enable_transcription,
+            enable_video=enable_video
+        )
+
+        # Apply site crawl multiplier if enabled
+        if crawl_site:
+            estimated_pages = 5
+            estimate['total_cost'] *= estimated_pages
+            estimate['total_items'] *= estimated_pages
+
+            for est in estimate['estimates']:
+                est['total_cost'] *= estimated_pages
+                est['item_count'] *= estimated_pages
+                if est.get('details'):
+                    est['details']['page_multiplier'] = estimated_pages
+
+            estimate['crawl_multiplier'] = estimated_pages
+
+        estimate['crawl_site'] = crawl_site
+        estimate['settings'] = {
+            'vision_model': vision_model,
+            'enable_vision': enable_vision,
+            'enable_transcription': enable_transcription,
+            'enable_video': enable_video,
+            'extract_images': extract_images
+        }
+
+        return jsonify(estimate)
+
+    except Exception as e:
+        import traceback
+        print(f"Cost estimation error: {traceback.format_exc()}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/analyze-image', methods=['POST'])
 def api_analyze_image():
@@ -1387,6 +2780,130 @@ def api_analyze_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/transcribe-media', methods=['POST'])
+def api_transcribe_media():
+    """API endpoint to transcribe audio/video files and save to knowledge base"""
+    if not WHISPER_AVAILABLE:
+        return jsonify({'error': 'Whisper transcription not available. Install ffmpeg and openai-whisper.'}), 503
+
+    try:
+        data = request.get_json()
+        media_path = data.get('media_path', '').replace('/media/', '')
+        filename = data.get('filename', '')
+        source_doc_id = data.get('doc_id', '')
+
+        if not media_path or not filename:
+            return jsonify({'error': 'Missing media_path or filename'}), 400
+
+        # Construct full path
+        full_path = Path(media_path)
+        if not full_path.exists():
+            return jsonify({'error': f'Media file not found: {media_path}'}), 404
+
+        # Load Whisper model (base model - good balance of speed/accuracy)
+        print(f"Loading Whisper model...")
+        model = whisper.load_model("base")
+
+        # Transcribe audio/video
+        print(f"Transcribing {filename}...")
+        result = model.transcribe(str(full_path))
+
+        transcript_text = result["text"]
+        detected_language = result.get("language", "unknown")
+        word_count = len(transcript_text.split())
+
+        # Generate new document ID
+        new_doc_id = hashlib.md5(f"{filename}{datetime.now().isoformat()}".encode()).hexdigest()[:12]
+
+        # Determine source type based on original document
+        kb_path = Path("knowledge_base/processed")
+        source_type = "transcripts"
+        original_title = ""
+        original_url = ""
+
+        # Find original document to link to
+        for md_file in kb_path.rglob("*.md"):
+            frontmatter, _ = parse_markdown_file(md_file)
+            if frontmatter.get('id') == source_doc_id:
+                source_type = frontmatter.get('type', 'transcripts')
+                original_title = frontmatter.get('title', '')
+                original_url = frontmatter.get('url', '')
+                break
+
+        # Create transcript document title
+        title = f"Transcript: {original_title or filename}"
+
+        # Create frontmatter
+        frontmatter_data = {
+            'id': new_doc_id,
+            'source': 'transcript',
+            'type': 'transcript',
+            'created_at': datetime.now().isoformat(),
+            'title': title,
+            'original_filename': filename,
+            'source_document_id': source_doc_id,
+            'original_url': original_url,
+            'media_path': media_path,
+            'word_count': word_count,
+            'detected_language': detected_language,
+            'transcription_model': 'whisper-base',
+            'tags': ['transcript', 'audio', detected_language]
+        }
+
+        # Create markdown content
+        markdown_content = f"""---
+{yaml.dump(frontmatter_data, default_flow_style=False, allow_unicode=True)}---
+
+# {title}
+
+## Metadata
+- **Original File:** {filename}
+- **Language:** {detected_language}
+- **Word Count:** {word_count:,}
+- **Transcribed:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Source Document:** [{original_title or source_doc_id}](/document/{source_doc_id})
+
+## Transcript
+
+{transcript_text}
+
+---
+
+*Transcribed using Whisper (local model) - automatic speech recognition*
+"""
+
+        # Save to knowledge base
+        output_dir = Path(f"knowledge_base/processed/transcripts")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / f"{new_doc_id}.md"
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(markdown_content)
+
+        print(f"✓ Transcript saved: {output_file}")
+
+        # Update embeddings index
+        try:
+            from processors.embeddings_generator import update_index
+            update_index()
+            print("✓ Embeddings updated")
+        except Exception as e:
+            print(f"Warning: Could not update embeddings: {e}")
+
+        return jsonify({
+            'success': True,
+            'title': title,
+            'word_count': word_count,
+            'new_doc_id': new_doc_id,
+            'language': detected_language,
+            'transcript': transcript_text
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/visual-stats')
 def api_visual_stats():
     """Get visual translator statistics"""
@@ -1430,6 +2947,231 @@ def api_visual_stats():
         'pending': total_images - analyzed_images,
         'with_text': with_text
     })
+
+@app.route('/visual-translator-v2')
+def visual_translator_v2():
+    """New Lightroom-style visual translator with thumbnail grid"""
+    return render_template('visual_translator_v2.html')
+
+@app.route('/api/visual-translator/queries')
+def api_visual_translator_queries():
+    """Get all visual translator queries with metadata for thumbnail grid"""
+    try:
+        queries = []
+        media_base = Path("knowledge_base/media")
+
+        if media_base.exists():
+            for source_dir in media_base.iterdir():
+                if source_dir.is_dir():
+                    for doc_dir in source_dir.iterdir():
+                        if doc_dir.is_dir():
+                            doc_id = doc_dir.name
+                            source = source_dir.name
+
+                            # Find markdown file for this doc
+                            md_file = None
+                            kb_path = Path("knowledge_base/processed")
+                            for md in kb_path.rglob("*.md"):
+                                try:
+                                    frontmatter, body = parse_markdown_file(md)
+                                    if frontmatter.get('id') == doc_id:
+                                        md_file = md
+                                        break
+                                except:
+                                    continue
+
+                            if not md_file:
+                                continue
+
+                            # Find images in this doc directory
+                            for img_file in doc_dir.glob("*"):
+                                if img_file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                                    # Get frontmatter and metadata
+                                    try:
+                                        frontmatter, body = parse_markdown_file(md_file)
+
+                                        # Determine category (cognitive type)
+                                        category = classify_document_cognitive_type(frontmatter, body)
+
+                                        # Extract blockchain metadata
+                                        blockchain_metadata = extract_blockchain_metadata(frontmatter, body)
+                                        network = blockchain_metadata.get('network')
+
+                                        # Determine status
+                                        status = 'analyzed' if 'visual_analysis_date' in frontmatter else 'pending'
+
+                                        # Get visual analysis if available
+                                        description = frontmatter.get('visual_description', '')
+                                        if not description and body:
+                                            # Extract first paragraph as description
+                                            lines = [l for l in body.split('\n') if l.strip() and not l.startswith('#')]
+                                            if lines:
+                                                description = lines[0][:200]
+
+                                        query = {
+                                            'id': f"{doc_id}_{img_file.name}",
+                                            'title': frontmatter.get('title', img_file.name),
+                                            'image_url': f"/media/{source}/{doc_id}/{img_file.name}",
+                                            'category': category,
+                                            'network': network,
+                                            'status': status,
+                                            'created_at': frontmatter.get('created_at', ''),
+                                            'source_url': frontmatter.get('url', ''),
+                                            'description': description,
+                                            'blockchain_data': blockchain_metadata if blockchain_metadata.get('has_blockchain_data') else None
+                                        }
+
+                                        queries.append(query)
+
+                                    except Exception as e:
+                                        print(f"Error processing {img_file}: {e}")
+                                        continue
+
+        return jsonify({
+            'success': True,
+            'queries': queries,
+            'total': len(queries)
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-translator/analyze/<query_id>', methods=['POST'])
+def api_visual_translator_analyze(query_id):
+    """Analyze a single query"""
+    try:
+        # Parse query_id to get doc_id and image_filename
+        parts = query_id.rsplit('_', 1)
+        if len(parts) != 2:
+            return jsonify({'error': 'Invalid query ID'}), 400
+
+        doc_id, img_filename = parts
+
+        # Find the image file
+        media_base = Path("knowledge_base/media")
+        img_file = None
+
+        for source_dir in media_base.iterdir():
+            if source_dir.is_dir():
+                doc_dir = source_dir / doc_id
+                if doc_dir.exists():
+                    potential_img = doc_dir / img_filename
+                    if potential_img.exists():
+                        img_file = potential_img
+                        break
+
+        if not img_file:
+            return jsonify({'error': 'Image not found'}), 404
+
+        # Analyze the image
+        if VISUAL_TRANSLATOR_AVAILABLE:
+            analysis = analyze_image(str(img_file))
+
+            # Update markdown file with analysis
+            kb_path = Path("knowledge_base/processed")
+            for md in kb_path.rglob("*.md"):
+                try:
+                    frontmatter, body = parse_markdown_file(md)
+                    if frontmatter.get('id') == doc_id:
+                        # Update frontmatter with analysis
+                        frontmatter['visual_analysis_date'] = datetime.now().isoformat()
+                        frontmatter['visual_description'] = analysis.get('description', '')
+                        frontmatter['has_text'] = analysis.get('has_text', False)
+
+                        # Write back
+                        with open(md, 'w') as f:
+                            f.write('---\n')
+                            yaml.dump(frontmatter, f, default_flow_style=False, allow_unicode=True)
+                            f.write('---\n\n')
+                            f.write(body)
+
+                        break
+                except:
+                    continue
+
+            return jsonify({
+                'success': True,
+                'analysis': analysis
+            })
+        else:
+            return jsonify({'error': 'Visual translator not available'}), 503
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/visual-translator/analyze-batch', methods=['POST'])
+def api_visual_translator_analyze_batch():
+    """Analyze multiple queries in batch"""
+    try:
+        data = request.json
+        query_ids = data.get('ids', [])
+
+        if not query_ids:
+            return jsonify({'error': 'No query IDs provided'}), 400
+
+        results = []
+        for query_id in query_ids:
+            # Call the single analyze endpoint
+            try:
+                # Parse query_id
+                parts = query_id.rsplit('_', 1)
+                if len(parts) != 2:
+                    results.append({'id': query_id, 'success': False, 'error': 'Invalid ID'})
+                    continue
+
+                doc_id, img_filename = parts
+
+                # Find and analyze image
+                media_base = Path("knowledge_base/media")
+                for source_dir in media_base.iterdir():
+                    if source_dir.is_dir():
+                        doc_dir = source_dir / doc_id
+                        if doc_dir.exists():
+                            potential_img = doc_dir / img_filename
+                            if potential_img.exists() and VISUAL_TRANSLATOR_AVAILABLE:
+                                analysis = analyze_image(str(potential_img))
+
+                                # Update markdown
+                                kb_path = Path("knowledge_base/processed")
+                                for md in kb_path.rglob("*.md"):
+                                    try:
+                                        frontmatter, body = parse_markdown_file(md)
+                                        if frontmatter.get('id') == doc_id:
+                                            frontmatter['visual_analysis_date'] = datetime.now().isoformat()
+                                            frontmatter['visual_description'] = analysis.get('description', '')
+                                            frontmatter['has_text'] = analysis.get('has_text', False)
+
+                                            with open(md, 'w') as f:
+                                                f.write('---\n')
+                                                yaml.dump(frontmatter, f, default_flow_style=False, allow_unicode=True)
+                                                f.write('---\n\n')
+                                                f.write(body)
+
+                                            break
+                                    except:
+                                        continue
+
+                                results.append({'id': query_id, 'success': True})
+                                break
+
+            except Exception as e:
+                results.append({'id': query_id, 'success': False, 'error': str(e)})
+
+        return jsonify({
+            'success': True,
+            'results': results,
+            'total': len(query_ids),
+            'succeeded': sum(1 for r in results if r.get('success'))
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/sync-drive')
 def sync_drive():
@@ -1826,6 +3568,241 @@ def api_ignore_drive_files():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+
+# =============================================================================
+# Email Collector API Routes
+# =============================================================================
+
+@app.route('/api/email/sync', methods=['POST'])
+def api_email_sync():
+    """
+    Trigger Gmail email sync to collect attachments.
+    Searches for emails with subject filter and processes attachments.
+    """
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.email_collector import EmailCollector, GMAIL_OAUTH_AVAILABLE
+
+        if not GMAIL_OAUTH_AVAILABLE:
+            return jsonify({
+                'error': 'Gmail OAuth libraries not available',
+                'install_command': 'pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client'
+            }), 400
+
+        # Get optional parameters from request
+        data = request.get_json() or {}
+        subject_filter = data.get('subject_filter')
+        max_results = data.get('max_results')
+
+        # Initialize collector
+        collector = EmailCollector()
+
+        # Run sync
+        results = collector.sync(
+            subject_filter=subject_filter,
+            max_results=max_results
+        )
+
+        return jsonify({
+            'success': True,
+            'attachments_processed': len(results),
+            'results': results,
+            'stats': collector.sync_stats
+        })
+
+    except FileNotFoundError as e:
+        return jsonify({
+            'error': 'Gmail credentials not configured',
+            'details': str(e),
+            'setup_required': True
+        }), 400
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/email/status')
+def api_email_status():
+    """
+    Get Gmail sync status including last sync time and statistics.
+    """
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.email_collector import EmailCollector, GMAIL_OAUTH_AVAILABLE
+
+        if not GMAIL_OAUTH_AVAILABLE:
+            return jsonify({
+                'configured': False,
+                'oauth_available': False,
+                'error': 'Gmail OAuth libraries not installed'
+            })
+
+        collector = EmailCollector()
+        status = collector.get_status()
+
+        # Check if credentials exist
+        credentials_exist = collector.credentials_path.exists()
+        token_exists = collector.token_path.exists()
+
+        return jsonify({
+            'configured': credentials_exist,
+            'authenticated': token_exists,
+            'oauth_available': True,
+            'subject_filter': collector.subject_filter,
+            'last_sync': status.get('last_sync'),
+            'stats': status.get('stats', {})
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'configured': False,
+            'error': str(e)
+        })
+
+
+@app.route('/api/email/test', methods=['POST'])
+def api_email_test():
+    """
+    Test Gmail OAuth connection.
+    """
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from collectors.email_collector import EmailCollector, GMAIL_OAUTH_AVAILABLE
+
+        if not GMAIL_OAUTH_AVAILABLE:
+            return jsonify({
+                'success': False,
+                'error': 'Gmail OAuth libraries not available',
+                'install_command': 'pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client'
+            }), 400
+
+        collector = EmailCollector()
+        result = collector.test_connection()
+
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+
+@app.route('/api/email/config', methods=['GET', 'POST'])
+def api_email_config():
+    """
+    Get or update Gmail collector configuration.
+    """
+    try:
+        config_path = Path("config/settings.json")
+
+        if request.method == 'GET':
+            # Return current Gmail config
+            if config_path.exists():
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                gmail_config = config.get('gmail', {})
+                # Remove sensitive paths from response
+                safe_config = {
+                    'enabled': gmail_config.get('enabled', False),
+                    'subject_filter': gmail_config.get('subject_filter', 'WEB3GISELAUTOMATE'),
+                    'max_results': gmail_config.get('max_results', 50),
+                    'save_attachments_dir': gmail_config.get('save_attachments_dir', 'knowledge_base/media/email_attachments')
+                }
+                return jsonify(safe_config)
+            else:
+                return jsonify({
+                    'enabled': False,
+                    'subject_filter': 'WEB3GISELAUTOMATE',
+                    'max_results': 50
+                })
+
+        elif request.method == 'POST':
+            # Update Gmail config
+            data = request.get_json() or {}
+
+            # Load existing config
+            if config_path.exists():
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+            else:
+                config = {}
+
+            # Update gmail section
+            if 'gmail' not in config:
+                config['gmail'] = {}
+
+            if 'enabled' in data:
+                config['gmail']['enabled'] = data['enabled']
+            if 'subject_filter' in data:
+                config['gmail']['subject_filter'] = data['subject_filter']
+            if 'max_results' in data:
+                config['gmail']['max_results'] = int(data['max_results'])
+
+            # Save config
+            with open(config_path, 'w') as f:
+                json.dump(config, f, indent=2)
+
+            return jsonify({
+                'success': True,
+                'message': 'Gmail configuration updated'
+            })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/email-setup')
+def email_setup():
+    """Gmail OAuth setup page"""
+    return render_template('email_setup.html')
+
+
+@app.route('/api/email/credentials', methods=['POST'])
+def api_email_credentials():
+    """
+    Save Gmail OAuth credentials file.
+    """
+    try:
+        data = request.get_json()
+        credentials = data.get('credentials')
+
+        if not credentials:
+            return jsonify({'error': 'No credentials provided'}), 400
+
+        # Validate credentials format
+        if not credentials.get('installed') and not credentials.get('web'):
+            return jsonify({'error': 'Invalid credentials format'}), 400
+
+        # Save credentials to file
+        credentials_path = Path("config/gmail_credentials.json")
+        credentials_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(credentials_path, 'w') as f:
+            json.dump(credentials, f, indent=2)
+
+        return jsonify({
+            'success': True,
+            'message': 'Gmail credentials saved successfully'
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/tags')
 def tag_cloud():
     """Tag cloud visualization page"""
@@ -1864,6 +3841,217 @@ def tag_cloud():
                          tag_to_docs=tag_to_docs,
                          tag_connections=tag_connections,
                          total_tags=len(tag_counts))
+
+@app.route('/semantic-network')
+def semantic_network():
+    """Semantic network visualization page"""
+    return render_template('semantic_network.html')
+
+@app.route('/module-sandbox')
+def module_sandbox():
+    """Module sandbox - testing environment for data visualization modules"""
+    return render_template('module_sandbox.html')
+
+@app.route('/point-cloud')
+@app.route('/point-cloud/')
+def point_cloud_index():
+    """Point cloud paradigms selector"""
+    return render_template('point_cloud/index.html')
+
+@app.route('/point-cloud/<paradigm>')
+def point_cloud_paradigm(paradigm):
+    """Individual point cloud paradigm visualization"""
+    valid_paradigms = ['temporal', 'conceptual', 'stewardship', 'river', 'resonance']
+    if paradigm in valid_paradigms:
+        return render_template(f'point_cloud/{paradigm}.html')
+    return redirect('/point-cloud')
+
+# ============================================
+# IT-R8 SPATIAL CANVAS (Preview/Prototype)
+# ============================================
+
+@app.route('/spatial-canvas')
+@app.route('/spatial-canvas/')
+def spatial_canvas():
+    """IT-R8 Spatial Canvas prototype - 3D bubble visualization"""
+    return render_template('spatial_canvas.html')
+
+@app.route('/api/export/itr8')
+def export_itr8():
+    """
+    Export archive data as .itr8 format for IT-R8 Spatial Canvas.
+    Returns JSON file download.
+    """
+    from datetime import datetime
+
+    try:
+        docs = get_all_documents()
+
+        bubbles = []
+        total_images = 0
+
+        for doc in docs:
+            bubble = {
+                'id': doc.get('id', ''),
+                'title': doc.get('title', 'Untitled'),
+                'tags': doc.get('tags', []),
+                'first_image': doc.get('first_image', ''),
+                'media_count': doc.get('media_count', 0),
+                'source': doc.get('source', 'unknown'),
+                'url': doc.get('url', ''),
+                'created_at': doc.get('created_at', '')
+            }
+            bubbles.append(bubble)
+            total_images += doc.get('media_count', 0)
+
+        export_data = {
+            'name': 'ARCHIV-IT Export',
+            'version': '1.0',
+            'created': datetime.now().isoformat(),
+            'source': 'ARCHIV-IT',
+            'bubbles': bubbles,
+            'metadata': {
+                'artist': 'Gisel Florez',
+                'total_bubbles': len(bubbles),
+                'total_images': total_images,
+                'exported_from': 'http://localhost:5001'
+            }
+        }
+
+        response = make_response(json.dumps(export_data, indent=2))
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Content-Disposition'] = f'attachment; filename=archivit-export-{datetime.now().strftime("%Y%m%d")}.itr8'
+
+        return response
+
+    except Exception as e:
+        logger.error(f"Error exporting .itr8: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/point-cloud/data')
+def api_point_cloud_data():
+    """
+    Return point cloud network data with temporal enrichment.
+    Used by the temporal existence visualization.
+    Merges blockchain data with knowledge base documents.
+    """
+    try:
+        # Get blockchain network data
+        blockchain_nodes = []
+        blockchain_edges = []
+        try:
+            from collectors.network_data_builder import NetworkDataBuilder
+            builder = NetworkDataBuilder(include_temporal=True)
+            data = builder.build_from_database()
+            blockchain_nodes = data.get('nodes', [])
+            blockchain_edges = data.get('edges', [])
+        except Exception as e:
+            logger.warning(f"Could not load blockchain data: {e}")
+
+        # Get knowledge base documents and add as nodes
+        kb_documents = get_all_documents(limit=500, filter_type='all')
+        kb_nodes = []
+        kb_edges = []
+
+        # Type colors for document nodes
+        type_colors = {
+            'blockchain': '#627EEA',
+            'web_article': '#22c55e',
+            'research': '#8b5cf6',
+            'media': '#f59e0b',
+            'conversation': '#3b82f6'
+        }
+
+        for doc in kb_documents:
+            cognitive_type = doc.get('cognitive_type', 'web_article')
+            color = type_colors.get(cognitive_type, '#22c55e')
+
+            node = {
+                'id': f"doc_{doc.get('id', '')}",
+                'type': 'document',
+                'identifier': doc.get('id', ''),
+                'size': 12 if doc.get('has_visual') else 8,
+                'color': color,
+                'shape': 'sphere',
+                'connections': len(doc.get('tags', [])),
+                'data': {
+                    'title': doc.get('title', 'Untitled'),
+                    'source': doc.get('source', ''),
+                    'tags': doc.get('tags', []),
+                    'cognitive_type': cognitive_type,
+                    'has_image': doc.get('has_visual', False),
+                    'url': doc.get('marketplace_url', ''),
+                    'created_at': doc.get('date', '')
+                }
+            }
+            kb_nodes.append(node)
+
+            # Create tag-based connections between documents
+            for tag in doc.get('tags', []):
+                for other_doc in kb_documents:
+                    if other_doc.get('id') != doc.get('id') and tag in other_doc.get('tags', []):
+                        edge = {
+                            'source': f"doc_{doc.get('id', '')}",
+                            'target': f"doc_{other_doc.get('id', '')}",
+                            'type': 'same_tag',
+                            'weight': 0.5,
+                            'data': {'tag': tag}
+                        }
+                        kb_edges.append(edge)
+
+        # Merge all nodes and edges
+        all_nodes = blockchain_nodes + kb_nodes
+        all_edges = blockchain_edges + kb_edges
+
+        return jsonify({
+            'success': True,
+            'nodes': all_nodes,
+            'edges': all_edges,
+            'stats': {
+                'total_nodes': len(all_nodes),
+                'total_edges': len(all_edges),
+                'nft_count': len([n for n in all_nodes if n.get('type') == 'nft']),
+                'document_count': len(kb_nodes),
+                'living_count': len([n for n in all_nodes if n.get('temporal', {}).get('is_living')])
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error building point cloud data: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'nodes': [],
+            'edges': []
+        })
+
+@app.route('/api/documents')
+def api_documents():
+    """Get all documents from knowledge base as JSON for visualizers.
+    Used by spatial_canvas.html and other visualizers that need document data."""
+    filter_type = request.args.get('filter', 'all')
+    sort_by = request.args.get('sort', 'date_desc')
+    limit = request.args.get('limit', 200, type=int)
+
+    documents = get_all_documents(limit=limit, filter_type=filter_type, sort_by=sort_by)
+
+    # Enrich documents with first image for spatial visualizer
+    for doc in documents:
+        # Get first image from media_files or images list
+        first_image = None
+        if doc.get('media_files'):
+            first_image = doc['media_files'][0]
+        elif doc.get('images'):
+            first_image = doc['images'][0]
+        elif doc.get('image_urls'):
+            first_image = doc['image_urls'][0]
+        doc['first_image'] = first_image
+        doc['media_count'] = len(doc.get('media_files', [])) + len(doc.get('images', []))
+
+    return jsonify({
+        'success': True,
+        'documents': documents,
+        'total': len(documents)
+    })
 
 @app.route('/api/documents-by-tag/<tag>')
 def documents_by_tag(tag):
@@ -1908,6 +4096,575 @@ def documents_by_tag(tag):
 
     return jsonify({'tag': tag, 'documents': documents, 'count': len(documents)})
 
+@app.route('/api/semantic-network')
+def semantic_network_api():
+    """
+    Build and return semantic network graph data
+    Returns nodes and edges representing cognitive data relationships
+    """
+    import gc
+    import warnings
+
+    # Suppress multiprocessing warnings that cause crashes on macOS
+    warnings.filterwarnings('ignore', category=UserWarning, module='multiprocessing.resource_tracker')
+
+    try:
+        # Get all documents
+        all_documents = get_all_documents(limit=1000, filter_type='all')
+
+        # Use embeddings index for semantic similarity
+        if not embeddings:
+            return jsonify({
+                'error': 'Embeddings not initialized',
+                'nodes': [],
+                'edges': []
+            }), 500
+
+        # Build semantic network with resource cleanup
+        network = build_semantic_network(all_documents, embeddings)
+
+        # Force garbage collection to clean up multiprocessing resources
+        gc.collect()
+
+        return jsonify(network)
+
+    except Exception as e:
+        print(f"Error building semantic network: {e}")
+        import traceback
+        traceback.print_exc()
+        # Force cleanup on error
+        gc.collect()
+        return jsonify({
+            'error': str(e),
+            'nodes': [],
+            'edges': []
+        }), 500
+
+@app.route('/api/blockchain/address/<address>')
+def get_mints_by_address_api(address):
+    """
+    Get all NFT mints/documents associated with a blockchain address
+    """
+    try:
+        all_documents = get_all_documents(limit=1000, filter_type='all')
+        mints = get_mints_by_address(all_documents, address)
+
+        return jsonify({
+            'address': address,
+            'count': len(mints),
+            'mints': mints
+        })
+    except Exception as e:
+        print(f"Error retrieving mints by address: {e}")
+        return jsonify({'error': str(e), 'mints': []}), 500
+
+@app.route('/api/blockchain/network/<network>')
+def get_mints_by_network_api(network):
+    """
+    Get all NFT mints/documents from a specific blockchain network (ethereum/bitcoin/solana)
+    """
+    try:
+        all_documents = get_all_documents(limit=1000, filter_type='all')
+        mints = get_mints_by_network(all_documents, network)
+
+        return jsonify({
+            'network': network,
+            'count': len(mints),
+            'mints': mints
+        })
+    except Exception as e:
+        print(f"Error retrieving mints by network: {e}")
+        return jsonify({'error': str(e), 'mints': []}), 500
+
+@app.route('/api/blockchain/addresses')
+def get_all_addresses_api():
+    """
+    Get index of all blockchain addresses found in the knowledge base
+    """
+    try:
+        all_documents = get_all_documents(limit=1000, filter_type='all')
+        address_index = get_all_blockchain_addresses(all_documents)
+
+        # Convert to list format for easier display
+        addresses_list = []
+        for address, docs in address_index.items():
+            addresses_list.append({
+                'address': address,
+                'network': docs[0]['network'] if docs else 'unknown',
+                'document_count': len(docs),
+                'documents': docs
+            })
+
+        return jsonify({
+            'total_addresses': len(addresses_list),
+            'addresses': addresses_list
+        })
+    except Exception as e:
+        print(f"Error retrieving blockchain addresses: {e}")
+        return jsonify({'error': str(e), 'addresses': []}), 500
+
+# ============================================================================
+# NEW FEATURES - Blockchain Tracker, Sales Analytics, Collections, Press Kit
+# ============================================================================
+
+# Import new feature modules
+sys.path.insert(0, str(Path(__file__).parent.parent / 'collectors'))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'analytics'))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'export'))
+
+from collectors.address_registry import AddressRegistry
+from collectors.ethereum_tracker import EthereumTracker
+from analytics.sales_db import get_sales_db
+from export.press_kit_generator import PressKitGenerator
+
+# Import collections_db directly to avoid conflict with built-in collections module
+import importlib.util
+collections_module_path = Path(__file__).parent.parent / 'collections' / 'collections_db.py'
+spec = importlib.util.spec_from_file_location("collections_db", collections_module_path)
+collections_db_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(collections_db_module)
+get_collections_db = collections_db_module.get_collections_db
+
+# Initialize feature modules
+address_registry = AddressRegistry()
+eth_tracker = EthereumTracker()
+sales_db = get_sales_db()
+collections_db = get_collections_db()
+press_kit_gen = PressKitGenerator()
+
+# ============================================================================
+# BLOCKCHAIN ADDRESS TRACKER ROUTES
+# ============================================================================
+
+@app.route('/blockchain-tracker')
+def blockchain_tracker_ui():
+    """Blockchain address tracker dashboard"""
+    try:
+        tracked_addresses = address_registry.get_all_addresses()
+        stats = {
+            'total_addresses': len(tracked_addresses),
+            'by_network': {}
+        }
+
+        for addr in tracked_addresses:
+            network = addr['network']
+            stats['by_network'][network] = stats['by_network'].get(network, 0) + 1
+
+        return render_template('blockchain_tracker.html',
+                             addresses=tracked_addresses,
+                             stats=stats)
+    except Exception as e:
+        return f"Error loading blockchain tracker: {e}", 500
+
+@app.route('/api/tracker/addresses', methods=['GET', 'POST'])
+def tracker_addresses_api():
+    """Get or add tracked addresses"""
+    if request.method == 'POST':
+        data = request.json
+        result = address_registry.add_address(
+            address=data.get('address'),
+            network=data.get('network'),
+            label=data.get('label'),
+            address_type=data.get('address_type', 'wallet'),
+            notes=data.get('notes')
+        )
+        return jsonify(result)
+    else:
+        network = request.args.get('network')
+        addresses = address_registry.get_all_addresses(network=network)
+        return jsonify({'addresses': addresses})
+
+@app.route('/api/tracker/addresses/<int:address_id>', methods=['GET', 'PUT', 'DELETE'])
+def tracker_address_api(address_id):
+    """Get, update, or delete a tracked address"""
+    if request.method == 'GET':
+        address = address_registry.get_address_by_id(address_id)
+        return jsonify(address if address else {'error': 'Not found'}), 200 if address else 404
+
+    elif request.method == 'PUT':
+        data = request.json
+        result = address_registry.update_address(
+            address_id,
+            label=data.get('label'),
+            notes=data.get('notes'),
+            sync_enabled=data.get('sync_enabled')
+        )
+        return jsonify(result)
+
+    elif request.method == 'DELETE':
+        result = address_registry.delete_address(address_id)
+        return jsonify(result)
+
+@app.route('/api/tracker/addresses/<int:address_id>/sync', methods=['POST'])
+def tracker_sync_address(address_id):
+    """Trigger sync for a specific address"""
+    try:
+        address_data = address_registry.get_address_by_id(address_id)
+
+        if not address_data:
+            return jsonify({'error': 'Address not found'}), 404
+
+        if address_data['network'] == 'ethereum':
+            result = eth_tracker.sync_address(
+                address_id,
+                address_data['address'],
+                full_sync=request.json.get('full_sync', False)
+            )
+            return jsonify(result)
+        else:
+            return jsonify({'error': f"Network {address_data['network']} not yet supported"}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tracker/nfts')
+def tracker_nfts_api():
+    """Get all NFTs from tracked addresses"""
+    try:
+        from collectors.blockchain_db import get_db
+        db = get_db()
+
+        nfts = db.execute('''
+            SELECT nm.*, ta.address, ta.label, ta.network
+            FROM nft_mints nm
+            JOIN tracked_addresses ta ON nm.address_id = ta.id
+            ORDER BY nm.mint_timestamp DESC
+            LIMIT 100
+        ''')
+
+        return jsonify({'nfts': nfts})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SALES ANALYTICS ROUTES
+# ============================================================================
+
+@app.route('/sales-analytics')
+def sales_analytics_ui():
+    """Sales analytics dashboard"""
+    try:
+        stats = sales_db.get_stats()
+        return render_template('sales_analytics.html', stats=stats)
+    except Exception as e:
+        return f"Error loading sales analytics: {e}", 500
+
+@app.route('/api/sales/stats')
+def sales_stats_api():
+    """Get sales statistics"""
+    try:
+        stats = sales_db.get_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/sales/nft/<contract>/<token_id>')
+def sales_for_nft_api(contract, token_id):
+    """Get cumulative sales for a specific NFT"""
+    try:
+        sales_data = sales_db.get_cumulative_sales_for_nft(contract, token_id)
+        return jsonify(sales_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/sales/collection/<contract>')
+def sales_for_collection_api(contract):
+    """Get cumulative sales for entire collection"""
+    try:
+        sales_data = sales_db.get_cumulative_sales_for_collection(contract)
+        return jsonify(sales_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/sales/tracked-address/<int:address_id>')
+def sales_for_tracked_address_api(address_id):
+    """Get sales for NFTs from a tracked address"""
+    try:
+        sales = sales_db.get_sales_for_tracked_address(address_id)
+        return jsonify({'sales': sales})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# HISTORICAL PURCHASE ANALYSIS ROUTES
+# ============================================================================
+
+@app.route('/api/analytics/nft-history/<contract>/<token_id>')
+def nft_history_api(contract, token_id):
+    """Get full history and analysis for a specific NFT"""
+    try:
+        from analytics.historical_purchase_analyzer import HistoricalPurchaseAnalyzer
+        analyzer = HistoricalPurchaseAnalyzer()
+        history = analyzer.analyze_nft_full_history(contract, token_id)
+        return jsonify(history)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/collection-buyers/<contract>')
+def collection_buyers_api(contract):
+    """Analyze all collectors for a collection"""
+    try:
+        from analytics.historical_purchase_analyzer import HistoricalPurchaseAnalyzer
+        analyzer = HistoricalPurchaseAnalyzer()
+
+        min_purchases = request.args.get('min_purchases', type=int, default=1)
+        analysis = analyzer.analyze_collection_buyers(contract, min_purchases=min_purchases)
+
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/collector-report/<address>')
+def collector_report_api(address):
+    """Generate detailed collector report for a buyer address"""
+    try:
+        from analytics.historical_purchase_analyzer import HistoricalPurchaseAnalyzer
+        analyzer = HistoricalPurchaseAnalyzer()
+        report = analyzer.generate_collector_report(address)
+        return jsonify(report)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# EDITION CONSTELLATION ROUTES
+# ============================================================================
+
+@app.route('/edition-constellation')
+def edition_constellation_ui():
+    """Edition constellation visualization - collector distribution for multi-edition works"""
+    return render_template('edition_constellation.html')
+
+@app.route('/api/edition-works')
+def edition_works_api():
+    """Get all tracked edition works"""
+    try:
+        from analytics.edition_tracker import EditionTracker
+        tracker = EditionTracker()
+        editions = tracker.get_edition_works()
+
+        # If no editions tracked yet, return sample data structure
+        if not editions:
+            # Check if we have any ERC-1155 tokens in the knowledge base
+            sample_editions = []
+
+            return jsonify({
+                'editions': sample_editions,
+                'message': 'No editions tracked yet. Use /api/edition-works/track to add one.'
+            })
+
+        return jsonify({'editions': editions})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/edition-works/track', methods=['POST'])
+def track_edition_work_api():
+    """Track a new edition work"""
+    try:
+        from analytics.edition_tracker import EditionTracker
+        tracker = EditionTracker()
+
+        data = request.json
+        contract = data.get('contract')
+        token_id = data.get('token_id')
+        title = data.get('title')
+
+        if not contract or token_id is None:
+            return jsonify({'error': 'contract and token_id required'}), 400
+
+        result = tracker.track_edition_work(contract, int(token_id), title)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/edition-constellation/<contract>/<int:token_id>')
+def edition_constellation_api(contract, token_id):
+    """Get constellation visualization data for an edition"""
+    try:
+        from analytics.edition_tracker import EditionTracker
+        tracker = EditionTracker()
+        data = tracker.get_constellation_data(contract, token_id)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/collector-network/<address>')
+def collector_network_api(address):
+    """Get a collector's network - other collectors they share editions with"""
+    try:
+        from analytics.edition_tracker import EditionTracker
+        tracker = EditionTracker()
+        data = tracker.get_collector_network(address)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# COLLECTIONS & CREATIVE PERIODS ROUTES
+# ============================================================================
+
+@app.route('/collections')
+def collections_ui():
+    """Collections and creative periods dashboard"""
+    try:
+        stats = collections_db.get_stats()
+
+        # Get recent collections
+        conn = collections_db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM collections ORDER BY created_at DESC LIMIT 10')
+        recent_collections = [dict(row) for row in cursor.fetchall()]
+
+        # Get creative periods
+        cursor.execute('SELECT * FROM creative_periods ORDER BY start_date DESC')
+        periods = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return render_template('collections.html',
+                             stats=stats,
+                             collections=recent_collections,
+                             periods=periods)
+    except Exception as e:
+        return f"Error loading collections: {e}", 500
+
+@app.route('/api/collections', methods=['GET', 'POST'])
+def collections_api():
+    """Get or create collections"""
+    if request.method == 'POST':
+        data = request.json
+        result = collections_db.create_collection(
+            name=data.get('name'),
+            description=data.get('description'),
+            creator_address=data.get('creator_address'),
+            collection_type=data.get('type', 'custom'),
+            tags=data.get('tags', [])
+        )
+        return jsonify(result)
+    else:
+        conn = collections_db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM collections ORDER BY created_at DESC')
+        collections = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({'collections': collections})
+
+@app.route('/api/collections/<int:collection_id>/works')
+def collection_works_api(collection_id):
+    """Get all works in a collection"""
+    try:
+        conn = collections_db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT w.*,
+                   (SELECT COUNT(*) FROM cross_references WHERE work_id = w.id) as ref_count
+            FROM works w
+            WHERE w.collection_id = ?
+            ORDER BY w.creation_date DESC
+        ''', (collection_id,))
+        works = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({'works': works})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/works/<int:work_id>')
+def work_detail_api(work_id):
+    """Get work with all cross-references"""
+    try:
+        work_data = collections_db.get_work_with_references(work_id)
+        return jsonify(work_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/periods', methods=['GET', 'POST'])
+def periods_api():
+    """Get or create creative periods"""
+    if request.method == 'POST':
+        data = request.json
+        result = collections_db.create_creative_period(
+            name=data.get('name'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            description=data.get('description'),
+            auto_detected=data.get('auto_detected', False),
+            dominant_subjects=data.get('dominant_subjects', []),
+            dominant_tones=data.get('dominant_tones', []),
+            dominant_mediums=data.get('dominant_mediums', [])
+        )
+        return jsonify(result)
+    else:
+        conn = collections_db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM creative_periods ORDER BY start_date DESC')
+        periods = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({'periods': periods})
+
+@app.route('/api/periods/<int:period_id>/works')
+def period_works_api(period_id):
+    """Get all works in a creative period"""
+    try:
+        conn = collections_db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT w.*, pw.confidence
+            FROM works w
+            JOIN period_works pw ON w.id = pw.work_id
+            WHERE pw.period_id = ?
+            ORDER BY w.creation_date
+        ''', (period_id,))
+        works = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({'works': works})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# PRESS KIT EXPORT ROUTES
+# ============================================================================
+
+@app.route('/api/export/press-kit', methods=['POST'])
+def export_press_kit_api():
+    """Generate press kit PDF"""
+    try:
+        data = request.json
+
+        # Generate press kit
+        pdf_path = press_kit_gen.generate_pdf(
+            title=data.get('title', 'Press Kit'),
+            description=data.get('description', ''),
+            works=data.get('works', []),
+            artist_bio=data.get('artist_bio'),
+            contact_info=data.get('contact_info')
+        )
+
+        if pdf_path:
+            return jsonify({
+                'success': True,
+                'pdf_path': str(pdf_path),
+                'download_url': f'/api/export/download/{pdf_path.name}'
+            })
+        else:
+            return jsonify({'success': False, 'error': 'PDF generation failed'}), 500
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/export/download/<filename>')
+def download_press_kit(filename):
+    """Download generated press kit"""
+    try:
+        return send_from_directory(
+            press_kit_gen.output_dir,
+            filename,
+            as_attachment=True
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+# ============================================================================
+
 def get_stats_direct():
     """Get stats without Flask context"""
     kb_path = Path("knowledge_base/processed")
@@ -1935,10 +4692,1665 @@ def get_stats_direct():
         'sources': sources
     }
 
+# ============================================================================
+# OWNER-ONLY: ADMIN ROUTES (exclude from distributed builds)
+# ============================================================================
+
+@app.route('/admin/contacts')
+def admin_contacts():
+    """View all signup contacts - OWNER ONLY"""
+    try:
+        conn = sqlite3.connect('db/user_config.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT email, marketing_opt_in, email_confirmed, created_at, confirmed_at
+            FROM user_config
+            ORDER BY created_at DESC
+        ''')
+        contacts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'total': len(contacts),
+            'opted_in': sum(1 for c in contacts if c.get('marketing_opt_in')),
+            'confirmed': sum(1 for c in contacts if c.get('email_confirmed')),
+            'contacts': contacts
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/admin/contacts/export')
+def admin_contacts_export():
+    """Export contacts as CSV - OWNER ONLY"""
+    try:
+        import csv
+        from io import StringIO
+
+        conn = sqlite3.connect('db/user_config.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT email, marketing_opt_in, email_confirmed, created_at, confirmed_at
+            FROM user_config
+            WHERE marketing_opt_in = 1
+            ORDER BY created_at DESC
+        ''')
+        contacts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Create CSV
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=['email', 'marketing_opt_in', 'email_confirmed', 'created_at', 'confirmed_at'])
+        writer.writeheader()
+        writer.writerows(contacts)
+
+        from flask import Response
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={'Content-Disposition': 'attachment; filename=archiveit_contacts.csv'}
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# BADGE NFT & TRUST VERIFICATION SYSTEM
+# ============================================================================
+
+@app.route('/badge/<username>/<path:filename>')
+def serve_badge(username, filename):
+    """
+    Serve signed badge SVG with verification
+
+    URL format: /badge/{username}/{timestamp_b64}.{signature}.svg
+    """
+    from interface.badge_integrity import BadgeIntegrity, BadgeRenderer, badge_rate_limiter
+
+    # Rate limiting
+    client_ip = request.remote_addr
+    if not badge_rate_limiter.is_allowed(client_ip):
+        return jsonify({'error': 'Rate limit exceeded'}), 429
+
+    # Parse the signed URL
+    url_path = f"/badge/{username}/{filename}"
+    parsed = BadgeIntegrity.parse_badge_url(url_path)
+
+    if not parsed:
+        return jsonify({'error': 'Invalid badge URL format'}), 400
+
+    # Verify signature
+    is_valid, reason = BadgeIntegrity.verify_signature(
+        parsed['username'],
+        parsed['timestamp'],
+        parsed['signature']
+    )
+
+    if not is_valid:
+        # Return a "verification failed" badge
+        svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" fill="#1a1a24" stroke="#e53e3e" stroke-width="2"/>
+            <text x="32" y="36" text-anchor="middle" fill="#e53e3e" font-size="10">INVALID</text>
+        </svg>'''
+        response = app.response_class(svg, mimetype='image/svg+xml')
+        response.headers['X-Badge-Status'] = reason
+        return response
+
+    # Get user's trust score
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+        score = score_data.get('trust_score', 0)
+    except:
+        score = 0
+
+    # Render the badge
+    svg = BadgeRenderer.render_badge_svg(username, score)
+
+    response = app.response_class(svg, mimetype='image/svg+xml')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['X-Badge-Status'] = 'valid'
+    response.headers['X-Trust-Score'] = str(score)
+    return response
+
+@app.route('/badge/<username>/nft.svg')
+def serve_nft_badge(username):
+    """Serve badge for NFT metadata without signature requirement"""
+    from interface.badge_integrity import BadgeRenderer
+    from interface.badge_nft_system import AccumeterNFT
+
+    # Check if user has registered NFT badge
+    nft_system = AccumeterNFT()
+    badge = nft_system.get_user_badge(username)
+
+    if not badge:
+        # Return placeholder for users without badge
+        svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" fill="#1a1a24" stroke="#666" stroke-width="2"/>
+            <text x="32" y="36" text-anchor="middle" fill="#666" font-size="8">NO BADGE</text>
+        </svg>'''
+        return app.response_class(svg, mimetype='image/svg+xml')
+
+    # Get trust score
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+        score = score_data.get('trust_score', 0)
+    except:
+        score = 0
+
+    svg = BadgeRenderer.render_badge_svg(username, score, size=512)
+    response = app.response_class(svg, mimetype='image/svg+xml')
+    response.headers['Cache-Control'] = 'public, max-age=300'  # 5 min cache for NFT
+    return response
+
+@app.route('/api/nft/metadata/<int:token_id>')
+def nft_metadata(token_id):
+    """
+    ERC-721 tokenURI endpoint - returns NFT metadata JSON
+
+    This is what the NFT contract's tokenURI() function points to.
+    """
+    from interface.badge_nft_system import AccumeterNFT
+
+    nft_system = AccumeterNFT()
+
+    # Find user by token ID
+    for chain_key, reg in nft_system.registry.get('nfts', {}).items():
+        if reg.get('token_id') == token_id:
+            user_id = reg['user_id']
+
+            # Get current trust score
+            try:
+                from interface.trust_system import get_trust_score_for_display
+                score_data = get_trust_score_for_display()
+                score = score_data.get('trust_score', 0)
+                level = score_data.get('level', 'critical')
+            except:
+                score = 0
+                level = 'critical'
+
+            metadata = nft_system.generate_token_metadata(user_id, score, level)
+            return jsonify(metadata)
+
+    return jsonify({'error': 'Token not found'}), 404
+
+@app.route('/api/badge/register', methods=['POST'])
+def register_badge_nft():
+    """Register a minted badge NFT"""
+    from interface.badge_nft_system import AccumeterNFT
+
+    data = request.get_json()
+    required = ['user_id', 'wallet_address', 'chain', 'token_id', 'tx_hash']
+
+    if not all(k in data for k in required):
+        return jsonify({'error': f'Missing required fields: {required}'}), 400
+
+    nft_system = AccumeterNFT()
+    result = nft_system.register_accumeter_nft(
+        user_id=data['user_id'],
+        wallet_address=data['wallet_address'],
+        chain=data['chain'],
+        token_id=data['token_id'],
+        tx_hash=data['tx_hash']
+    )
+
+    return jsonify(result)
+
+@app.route('/api/badge/verify', methods=['POST'])
+def verify_badge_ownership():
+    """Verify wallet owns badge NFT for user"""
+    from interface.badge_nft_system import AccumeterNFT
+
+    data = request.get_json()
+    if not data.get('user_id') or not data.get('wallet_address'):
+        return jsonify({'error': 'user_id and wallet_address required'}), 400
+
+    nft_system = AccumeterNFT()
+    result = nft_system.verify_nft_ownership(
+        data['user_id'],
+        data['wallet_address']
+    )
+
+    return jsonify(result)
+
+@app.route('/api/badge/generate', methods=['POST'])
+def generate_verified_badge():
+    """
+    Full badge generation with dual verification
+
+    Verifies NFT ownership + server registration before
+    generating badge with IPFS audit trail.
+    """
+    from interface.badge_nft_system import DualVerificationSystem
+
+    data = request.get_json()
+    required = ['user_id', 'wallet_address']
+
+    if not all(k in data for k in required):
+        return jsonify({'error': 'user_id and wallet_address required'}), 400
+
+    # Get current trust score
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+        score = score_data.get('trust_score', 0)
+        level = score_data.get('level', 'critical')
+        breakdown = score_data.get('breakdown', {})
+    except:
+        score = 0
+        level = 'critical'
+        breakdown = {}
+
+    dual_system = DualVerificationSystem()
+    result = dual_system.verify_and_generate_badge(
+        user_id=data['user_id'],
+        wallet_address=data['wallet_address'],
+        trust_score=score,
+        trust_level=level,
+        breakdown=breakdown
+    )
+
+    return jsonify(result)
+
+@app.route('/verify/<badge_id>')
+def public_verification_page(badge_id):
+    """
+    Public verification page for badge
+
+    Third parties can visit this to verify a badge is real.
+    """
+    from interface.badge_nft_system import AccumeterNFT, IPFSAuditTrail
+
+    nft_system = AccumeterNFT()
+    ipfs_audit = IPFSAuditTrail()
+
+    # Find badge by ID
+    badge_info = None
+    user_id = None
+
+    for uid, reg in nft_system.registry.get('users', {}).items():
+        if reg.get('badge_id') == badge_id:
+            badge_info = reg
+            user_id = uid
+            break
+
+    if not badge_info:
+        return render_template('verification_result.html',
+                               verified=False,
+                               message='Badge not found')
+
+    # Get trust score history
+    history = ipfs_audit.get_user_history(user_id, limit=10)
+
+    # Get current score
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+    except:
+        score_data = {'trust_score': 0, 'level': 'critical'}
+
+    return render_template('verification_result.html',
+                           verified=True,
+                           badge_id=badge_id,
+                           user_id=user_id,
+                           chain=badge_info.get('chain'),
+                           token_id=badge_info.get('token_id'),
+                           registered_at=badge_info.get('registered_at'),
+                           current_score=score_data.get('trust_score', 0),
+                           current_level=score_data.get('level', 'critical'),
+                           history_count=len(history),
+                           explorer_url=nft_system.SUPPORTED_CHAINS.get(badge_info.get('chain'), {}).get('explorer', ''))
+
+@app.route('/u/<username>')
+def public_profile(username):
+    """
+    Public profile page showing trust badge
+
+    This is what users link to from their Twitter bio.
+    """
+    from interface.badge_nft_system import DualVerificationSystem
+    from interface.badge_integrity import BadgeIntegrity
+
+    dual_system = DualVerificationSystem()
+    public_info = dual_system.get_public_verification(username)
+
+    # Generate signed badge URL
+    badge_url = BadgeIntegrity.generate_badge_url(username,
+                                                   base_url=request.host_url.rstrip('/'))
+
+    # Get current trust score
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+    except:
+        score_data = {'trust_score': 0, 'level': 'critical'}
+
+    return render_template('public_profile.html',
+                           username=username,
+                           has_badge=public_info.get('has_badge', False),
+                           badge_info=public_info,
+                           badge_url=badge_url,
+                           trust_score=score_data.get('trust_score', 0),
+                           trust_level=score_data.get('level', 'critical'))
+
+@app.route('/api/badge/url')
+def get_badge_url():
+    """Get a signed badge URL for embedding"""
+    from interface.badge_integrity import BadgeIntegrity
+
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'username required'}), 400
+
+    base_url = request.host_url.rstrip('/')
+    url = BadgeIntegrity.generate_badge_url(username, base_url)
+
+    return jsonify({
+        'url': url,
+        'embed_code': f'<img src="{url}" alt="ACU-METER" />',
+        'markdown': f'![ACU-METER]({url})',
+        'expires_in': '24 hours'
+    })
+
+@app.route('/api/ipfs/snapshot', methods=['POST'])
+def create_ipfs_snapshot():
+    """Create an IPFS snapshot of current trust score"""
+    from interface.badge_nft_system import IPFSAuditTrail
+
+    data = request.get_json()
+    user_id = data.get('user_id')
+
+    if not user_id:
+        return jsonify({'error': 'user_id required'}), 400
+
+    # Get current trust data
+    try:
+        from interface.trust_system import get_trust_score_for_display
+        score_data = get_trust_score_for_display()
+    except:
+        return jsonify({'error': 'Could not get trust score'}), 500
+
+    ipfs_audit = IPFSAuditTrail()
+    snapshot = ipfs_audit.create_snapshot(
+        user_id=user_id,
+        trust_score=score_data.get('trust_score', 0),
+        trust_level=score_data.get('level', 'critical'),
+        breakdown=score_data.get('breakdown', {})
+    )
+
+    return jsonify({
+        'success': True,
+        'snapshot': snapshot,
+        'message': 'Snapshot created (local storage - IPFS pinning requires service integration)'
+    })
+
+@app.route('/api/ipfs/history/<user_id>')
+def get_ipfs_history(user_id):
+    """Get trust score history from IPFS snapshots"""
+    from interface.badge_nft_system import IPFSAuditTrail
+
+    limit = request.args.get('limit', 30, type=int)
+
+    ipfs_audit = IPFSAuditTrail()
+    history = ipfs_audit.get_user_history(user_id, limit=limit)
+
+    return jsonify({
+        'user_id': user_id,
+        'snapshots': history,
+        'count': len(history)
+    })
+
+# ============================================================================
+# BADGE TIER UPGRADE ROUTES
+# ============================================================================
+
+@app.route('/upgrade-badge')
+def badge_upgrade_page():
+    """Badge tier selection and upgrade page"""
+    from interface.badge_tiers import BadgeTierSystem, get_tier_comparison
+
+    # Get current user info
+    user_db = UserConfigDB()
+    user = user_db.get_primary_user()
+    artist = user_db.get_current_artist() if user else None
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+
+    tier_system = BadgeTierSystem()
+    current_tier_info = tier_system.get_user_tier(user_id)
+
+    # Count current wallets from artist's minting addresses
+    wallets_used = 1
+    if artist:
+        addresses = user_db.get_minting_addresses(user.get('id'))
+        wallets_used = len(addresses) if addresses else 1
+
+    return render_template('badge_upgrade.html',
+                           current_tier=current_tier_info['tier'],
+                           current_tier_name=current_tier_info['tier_name'],
+                           wallet_limit=current_tier_info['wallet_limit'],
+                           wallets_used=wallets_used,
+                           tier_comparison=get_tier_comparison())
+
+@app.route('/setup/unlock-standard')
+def unlock_standard_page():
+    """Standard tier unlock flow - add link to Twitter bio"""
+    user_db = UserConfigDB()
+    artist = user_db.get_current_artist()
+    username = artist.get('display_name', 'your-username') if artist else 'your-username'
+
+    # Generate the profile URL they need to add
+    profile_url = f"{request.host_url.rstrip('/')}/u/{username}"
+
+    return render_template('public_profile_unlock.html',
+                           username=username,
+                           profile_url=profile_url,
+                           tier='standard')
+
+@app.route('/setup/unlock-ultra')
+def unlock_ultra_page():
+    """Accumeter Certified unlock flow - mint NFT"""
+    from interface.badge_nft_system import AccumeterNFT
+
+    user_db = UserConfigDB()
+    user = user_db.get_primary_user()
+    artist = user_db.get_current_artist()
+    username = artist.get('display_name', 'user') if artist else 'user'
+
+    # Get first wallet address
+    wallet = None
+    if user:
+        addresses = user_db.get_minting_addresses(user.get('id'))
+        if addresses:
+            wallet = addresses[0].get('address')
+
+    nft_system = AccumeterNFT()
+
+    return render_template('unlock_ultra.html',
+                           username=username,
+                           wallet_address=wallet,
+                           supported_chains=nft_system.SUPPORTED_CHAINS)
+
+@app.route('/setup/upgrade-enterprise', methods=['GET', 'POST'])
+def upgrade_enterprise_page():
+    """Enterprise tier upgrade - contact/agreement form"""
+    from interface.badge_tiers import BadgeTierSystem
+
+    user_db = UserConfigDB()
+    user = user_db.get_primary_user()
+    user_email = user.get('email') if user else None
+
+    submitted = False
+
+    if request.method == 'POST':
+        # Process contact form submission
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        company = request.form.get('company', '').strip()
+        message = request.form.get('message', '').strip()
+
+        if name and email:
+            # Log enterprise inquiry (in production, send email/store in DB)
+            logger.info(f"Enterprise inquiry: {name} ({email}) - {company}")
+
+            # Store inquiry locally for now
+            inquiry_file = Path("knowledge_base/enterprise_inquiries.json")
+            inquiry_file.parent.mkdir(parents=True, exist_ok=True)
+
+            inquiries = []
+            if inquiry_file.exists():
+                try:
+                    with open(inquiry_file, 'r') as f:
+                        inquiries = json.load(f)
+                except:
+                    inquiries = []
+
+            inquiries.append({
+                'name': name,
+                'email': email,
+                'company': company,
+                'message': message,
+                'submitted_at': datetime.now().isoformat()
+            })
+
+            with open(inquiry_file, 'w') as f:
+                json.dump(inquiries, f, indent=2)
+
+            submitted = True
+
+    return render_template('upgrade_enterprise.html',
+                           user_email=user_email,
+                           submitted=submitted)
+
+@app.route('/setup/upgrade-whiteglove')
+def upgrade_whiteglove_page():
+    """White Glove tier - redirects to self-hosted setup (required)"""
+    # White Glove requires self-hosted API, so we show info page
+    # that links to the self-hosted setup wizard
+    return render_template('upgrade_whiteglove.html')
+
+@app.route('/setup/self-hosted')
+def self_hosted_setup_page():
+    """Self-hosted API setup flow"""
+    from interface.badge_tiers import BadgeTierSystem
+
+    user_db = UserConfigDB()
+    artist = user_db.get_current_artist()
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+
+    tier_system = BadgeTierSystem()
+    is_self_hosted = tier_system.is_self_hosted(user_id)
+    current_endpoint = tier_system.get_api_endpoint(user_id)
+
+    return render_template('self_hosted_setup.html',
+                           is_self_hosted=is_self_hosted,
+                           current_endpoint=current_endpoint)
+
+@app.route('/api/self-hosted/test', methods=['POST'])
+def api_self_hosted_test():
+    """Test self-hosted API endpoint connectivity"""
+    import requests
+
+    data = request.get_json()
+    endpoint = data.get('endpoint', '').strip()
+
+    if not endpoint:
+        return jsonify({'success': False, 'error': 'Endpoint required'}), 400
+
+    # Validate URL format
+    if not endpoint.startswith('https://'):
+        return jsonify({'success': False, 'error': 'HTTPS required'}), 400
+
+    # Test endpoint connectivity
+    try:
+        test_url = endpoint.rstrip('/') + '/health'
+        response = requests.get(test_url, timeout=10)
+        if response.status_code == 200:
+            return jsonify({'success': True, 'message': 'Connection successful'})
+        else:
+            return jsonify({'success': False, 'error': f'Status {response.status_code}'})
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Connection timeout'})
+    except requests.exceptions.ConnectionError:
+        return jsonify({'success': False, 'error': 'Cannot reach endpoint'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/self-hosted/activate', methods=['POST'])
+def api_self_hosted_activate():
+    """Activate or deactivate self-hosted API"""
+    from interface.badge_tiers import BadgeTierSystem
+
+    data = request.get_json()
+    endpoint = data.get('endpoint', '').strip()
+    enabled = data.get('enabled', True)
+
+    if enabled and not endpoint:
+        return jsonify({'success': False, 'error': 'Endpoint required'}), 400
+
+    user_db = UserConfigDB()
+    artist = user_db.get_current_artist()
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+
+    tier_system = BadgeTierSystem()
+    result = tier_system.set_self_hosted(user_id, enabled, endpoint if enabled else None)
+
+    return jsonify(result)
+
+@app.route('/api/tier/upgrade-standard', methods=['POST'])
+def api_upgrade_standard():
+    """Verify Twitter bio and upgrade to Standard tier"""
+    from interface.badge_tiers import BadgeTierSystem
+
+    data = request.get_json()
+    twitter_handle = data.get('twitter_handle')
+
+    if not twitter_handle:
+        return jsonify({'error': 'twitter_handle required'}), 400
+
+    user_db = UserConfigDB()
+    artist = user_db.get_current_artist()
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+    expected_url = f"{request.host_url.rstrip('/')}/u/{user_id}"
+
+    # In production, we'd actually check Twitter API
+    # For now, we trust the client's verification claim
+    verification_proof = {
+        'twitter_handle': twitter_handle,
+        'expected_url': expected_url,
+        'verified_at': datetime.now().isoformat(),
+        'method': 'manual_claim'  # Would be 'api_verified' in production
+    }
+
+    tier_system = BadgeTierSystem()
+    result = tier_system.upgrade_to_standard(user_id, verification_proof)
+
+    return jsonify(result)
+
+@app.route('/api/tier/upgrade-ultra', methods=['POST'])
+def api_upgrade_ultra():
+    """Register NFT and upgrade to Accumeter Certified"""
+    from interface.badge_tiers import BadgeTierSystem
+    from interface.badge_nft_system import AccumeterNFT
+
+    data = request.get_json()
+    required = ['wallet_address', 'chain', 'token_id', 'tx_hash']
+
+    if not all(k in data for k in required):
+        return jsonify({'error': f'Missing required fields: {required}'}), 400
+
+    user_db = UserConfigDB()
+    artist = user_db.get_current_artist()
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+
+    # Register NFT first
+    nft_system = AccumeterNFT()
+    nft_result = nft_system.register_accumeter_nft(
+        user_id=user_id,
+        wallet_address=data['wallet_address'],
+        chain=data['chain'],
+        token_id=data['token_id'],
+        tx_hash=data['tx_hash']
+    )
+
+    if nft_result.get('error'):
+        return jsonify(nft_result), 400
+
+    # Upgrade tier
+    tier_system = BadgeTierSystem()
+    result = tier_system.upgrade_to_ultra(user_id, data)
+
+    result['badge_id'] = nft_result.get('badge_id')
+    return jsonify(result)
+
+@app.route('/api/tier/current')
+def api_current_tier():
+    """Get current user's tier info"""
+    from interface.badge_tiers import BadgeTierSystem
+
+    user_db = UserConfigDB()
+    user = user_db.get_primary_user()
+    artist = user_db.get_current_artist()
+    user_id = artist.get('display_name', 'user') if artist else 'user'
+
+    tier_system = BadgeTierSystem()
+    tier_info = tier_system.get_user_tier(user_id)
+
+    # Add wallet count from minting addresses
+    wallets_used = 1
+    if user:
+        addresses = user_db.get_minting_addresses(user.get('id'))
+        wallets_used = len(addresses) if addresses else 1
+
+    tier_info['wallets_used'] = wallets_used
+    tier_info['can_add_wallet'] = tier_system.can_add_wallet(
+        user_id,
+        wallets_used
+    )
+
+    return jsonify(tier_info)
+
+@app.route('/api/tier/comparison')
+def api_tier_comparison():
+    """Get tier comparison data for display"""
+    from interface.badge_tiers import get_tier_comparison
+    return jsonify(get_tier_comparison())
+
+# ============================================================================
+# LIVING WORKS API - Temporal NFT Tracking Endpoints
+# ============================================================================
+
+def _get_living_works_analyzer():
+    """
+    Get or initialize the LivingWorksAnalyzer.
+    Returns None if initialization fails.
+    """
+    try:
+        from collectors.living_works_tracker import LivingWorksAnalyzer
+        return LivingWorksAnalyzer()
+    except Exception as e:
+        logger.error(f"Failed to initialize LivingWorksAnalyzer: {e}")
+        return None
+
+def _get_nft_id_from_contract_token(contract: str, token_id: str):
+    """
+    Look up the internal nft_id from contract address and token_id.
+    Returns None if not found.
+    """
+    try:
+        from collectors.blockchain_db import get_db
+        db = get_db()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id FROM nft_mints
+            WHERE contract_address = ? AND token_id = ?
+        ''', (contract, str(token_id)))
+        result = cursor.fetchone()
+        conn.close()
+        return result['id'] if result else None
+    except Exception as e:
+        logger.error(f"Error looking up NFT ID: {e}")
+        return None
+
+@app.route('/api/nft/<contract>/<token_id>/history')
+def api_nft_history(contract, token_id):
+    """
+    Get historical states of an NFT.
+
+    Returns all tokenURI changes, reveals, and metadata updates over time.
+    Uses HistoricalStateTracker.get_token_uri_history()
+
+    Response: {success, states: [{block, timestamp, uri, metadata}]}
+    """
+    try:
+        from collectors.living_works_tracker import HistoricalStateTracker
+
+        tracker = HistoricalStateTracker()
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid token_id - must be an integer'
+            }), 400
+
+        # Get historical states
+        history = tracker.get_token_uri_history(contract, token_id_int)
+
+        # Format response
+        states = []
+        for state in history:
+            states.append({
+                'block': state.get('block_number'),
+                'timestamp': state.get('timestamp'),
+                'uri': state.get('token_uri'),
+                'metadata': state.get('metadata'),
+                'image': state.get('image'),
+                'state_type': state.get('state_type'),
+                'state_number': state.get('state_number')
+            })
+
+        return jsonify({
+            'success': True,
+            'contract': contract,
+            'token_id': token_id,
+            'states': states,
+            'total_states': len(states),
+            'is_mutable': len(states) > 1
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching NFT history for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nft/<contract>/<token_id>/events')
+def api_nft_events(contract, token_id):
+    """
+    Get future scheduled events for an NFT.
+
+    Detects timed reveals, phase changes, expirations, etc.
+    Uses FutureEventDetector.build_event_calendar() filtered to this NFT.
+
+    Response: {success, events: [{type, date, description}]}
+    """
+    try:
+        from collectors.living_works_tracker import FutureEventDetector
+
+        detector = FutureEventDetector()
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid token_id - must be an integer'
+            }), 400
+
+        # Analyze contract for time-based logic
+        contract_events = detector.analyze_contract_for_time_logic(contract)
+
+        # Get metadata from database to check for metadata-based events
+        metadata = {}
+        try:
+            from collectors.blockchain_db import get_db
+            db = get_db()
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT metadata_json FROM nft_mints
+                WHERE contract_address = ? AND token_id = ?
+            ''', (contract, str(token_id)))
+            result = cursor.fetchone()
+            conn.close()
+            if result and result['metadata_json']:
+                metadata = json.loads(result['metadata_json'])
+        except Exception as e:
+            logger.debug(f"Could not fetch metadata for event detection: {e}")
+
+        # Extract metadata events
+        metadata_events = detector.extract_metadata_time_events(metadata)
+
+        # Combine and filter to future events
+        events = []
+
+        # Add contract-level future events
+        for event in contract_events.get('future_events', []):
+            events.append({
+                'type': event.get('event_type', 'scheduled_time'),
+                'date': event.get('scheduled_time'),
+                'timestamp': event.get('timestamp'),
+                'description': f"Contract scheduled event at slot {event.get('slot', 'unknown')}",
+                'source': 'contract',
+                'countdown_seconds': event.get('countdown_seconds')
+            })
+
+        # Add metadata-level future events
+        for event in metadata_events:
+            if event.get('is_future'):
+                events.append({
+                    'type': event.get('event_type', 'scheduled_event'),
+                    'date': event.get('date'),
+                    'timestamp': event.get('timestamp'),
+                    'description': f"Metadata event: {event.get('field', 'unknown')}",
+                    'source': 'metadata'
+                })
+
+        # Sort by timestamp
+        events.sort(key=lambda x: x.get('timestamp', 0))
+
+        return jsonify({
+            'success': True,
+            'contract': contract,
+            'token_id': token_id,
+            'has_time_logic': contract_events.get('has_time_logic', False),
+            'events': events,
+            'total_events': len(events)
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching NFT events for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nft/<contract>/<token_id>/live')
+def api_nft_live_state(contract, token_id):
+    """
+    Get current live state for reactive/living NFTs.
+
+    Captures current state including oracle values, chain state, and metadata.
+    Uses LiveWorkTracker.capture_live_state()
+
+    Response: {success, state: {timestamp, metadata, inputs, screenshot_cid}}
+    """
+    try:
+        from collectors.living_works_tracker import LiveWorkTracker
+
+        tracker = LiveWorkTracker()
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid token_id - must be an integer'
+            }), 400
+
+        # Identify reactivity type first
+        reactivity = tracker.identify_reactivity_type(contract)
+
+        # Capture current live state
+        capture = tracker.capture_live_state(contract, token_id_int, trigger='api_request')
+
+        # Format response
+        state = {
+            'timestamp': capture.get('captured_at'),
+            'block_height': capture.get('block_height'),
+            'metadata': capture.get('metadata_snapshot'),
+            'token_uri': capture.get('token_uri'),
+            'inputs': {
+                'chain_state': capture.get('chain_state', {}),
+                'oracle_values': capture.get('oracle_values', {})
+            },
+            'capture_id': capture.get('capture_id'),
+            'screenshot_cid': None  # Would be populated if screenshot capture is implemented
+        }
+
+        return jsonify({
+            'success': True,
+            'contract': contract,
+            'token_id': token_id,
+            'is_reactive': reactivity.get('is_reactive', False),
+            'reactivity_types': reactivity.get('types', []),
+            'update_frequency': reactivity.get('update_frequency'),
+            'data_sources': reactivity.get('data_sources', []),
+            'state': state
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching live state for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/calendar')
+def api_nft_calendar():
+    """
+    Get all upcoming events across all tracked NFTs.
+
+    Builds a calendar of scheduled reveals, phase changes, expirations, etc.
+    Uses FutureEventDetector.build_event_calendar()
+
+    Response: {success, events: [{nft_id, contract, token_id, type, date, description}]}
+    """
+    try:
+        from collectors.living_works_tracker import FutureEventDetector
+
+        detector = FutureEventDetector()
+
+        # Get optional query parameters
+        include_past = request.args.get('include_past', 'false').lower() == 'true'
+        contracts_param = request.args.get('contracts')
+        contracts = contracts_param.split(',') if contracts_param else None
+
+        # Build event calendar
+        calendar = detector.build_event_calendar(
+            contracts=contracts,
+            include_past=include_past
+        )
+
+        # Flatten calendar into events list
+        events = []
+        for date, date_events in calendar.items():
+            for item in date_events:
+                nft = item.get('nft', {})
+                event = item.get('event', {})
+                events.append({
+                    'nft_id': None,  # Would need DB lookup
+                    'contract': nft.get('contract'),
+                    'token_id': nft.get('token_id'),
+                    'nft_name': nft.get('name'),
+                    'type': event.get('event_type', 'unknown'),
+                    'date': date,
+                    'timestamp': event.get('timestamp'),
+                    'description': event.get('description') or f"{event.get('event_type', 'Event')} for {nft.get('name', 'NFT')}",
+                    'source': event.get('source', 'unknown')
+                })
+
+        # Sort by timestamp
+        events.sort(key=lambda x: x.get('timestamp', 0))
+
+        # Group by date for display
+        events_by_date = {}
+        for event in events:
+            date = event.get('date', 'unknown')
+            if date not in events_by_date:
+                events_by_date[date] = []
+            events_by_date[date].append(event)
+
+        return jsonify({
+            'success': True,
+            'events': events,
+            'events_by_date': events_by_date,
+            'total_events': len(events),
+            'date_count': len(events_by_date)
+        })
+
+    except Exception as e:
+        logger.error(f"Error building event calendar: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nft/<contract>/<token_id>/capture', methods=['POST'])
+def api_nft_capture(contract, token_id):
+    """
+    Trigger a manual capture of current NFT state.
+
+    Captures and stores the current live state for archival purposes.
+    Uses LiveWorkTracker.capture_live_state() and stores result in nft_live_captures table.
+
+    Response: {success, capture_id, cid}
+    """
+    try:
+        from collectors.living_works_tracker import LiveWorkTracker
+
+        tracker = LiveWorkTracker()
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid token_id - must be an integer'
+            }), 400
+
+        # Get optional trigger description from request body
+        data = request.get_json() or {}
+        trigger = data.get('trigger', 'manual_api')
+
+        # Capture current state
+        capture = tracker.capture_live_state(contract, token_id_int, trigger=trigger)
+
+        # Look up internal NFT ID for database storage
+        nft_id = _get_nft_id_from_contract_token(contract, token_id)
+
+        # Store capture in database
+        capture_db_id = None
+        if nft_id:
+            try:
+                capture_db_id = tracker.save_live_capture(nft_id, capture)
+            except Exception as e:
+                logger.warning(f"Could not save capture to database: {e}")
+
+        # Generate a pseudo-CID (in production, this would be IPFS)
+        import hashlib
+        capture_json = json.dumps(capture, sort_keys=True, default=str)
+        pseudo_cid = 'bafk' + hashlib.sha256(capture_json.encode()).hexdigest()[:52]
+
+        return jsonify({
+            'success': True,
+            'contract': contract,
+            'token_id': token_id,
+            'capture_id': capture.get('capture_id'),
+            'db_id': capture_db_id,
+            'cid': pseudo_cid,
+            'captured_at': capture.get('captured_at'),
+            'block_height': capture.get('block_height'),
+            'trigger': trigger
+        })
+
+    except Exception as e:
+        logger.error(f"Error capturing state for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nft/<contract>/<token_id>/temporal')
+def api_nft_temporal_analysis(contract, token_id):
+    """
+    Get complete temporal analysis of an NFT.
+
+    Comprehensive analysis including past states, current reactivity, and future events.
+    Uses LivingWorksAnalyzer.analyze_nft()
+
+    Response: Full temporal analysis including past, present, future data
+    """
+    try:
+        analyzer = _get_living_works_analyzer()
+
+        if not analyzer:
+            return jsonify({
+                'success': False,
+                'error': 'LivingWorksAnalyzer not available'
+            }), 500
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid token_id - must be an integer'
+            }), 400
+
+        # Run complete temporal analysis
+        analysis = analyzer.analyze_nft(contract, token_id_int)
+
+        return jsonify({
+            'success': True,
+            'analysis': analysis
+        })
+
+    except Exception as e:
+        logger.error(f"Error analyzing NFT temporally {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nft/<contract>/<token_id>/captures')
+def api_nft_capture_history(contract, token_id):
+    """
+    Get capture history for an NFT.
+
+    Returns all previously captured live states.
+
+    Response: {success, captures: [...]}
+    """
+    try:
+        from collectors.living_works_tracker import LiveWorkTracker
+
+        tracker = LiveWorkTracker()
+
+        # Look up internal NFT ID
+        nft_id = _get_nft_id_from_contract_token(contract, token_id)
+
+        if not nft_id:
+            return jsonify({
+                'success': True,
+                'contract': contract,
+                'token_id': token_id,
+                'captures': [],
+                'message': 'NFT not found in database'
+            })
+
+        # Get limit from query params
+        limit = request.args.get('limit', 100, type=int)
+
+        # Get capture history
+        captures = tracker.get_capture_history(nft_id, limit=limit)
+
+        return jsonify({
+            'success': True,
+            'contract': contract,
+            'token_id': token_id,
+            'nft_id': nft_id,
+            'captures': captures,
+            'total': len(captures)
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching capture history for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ============================================================================
+# PROVENANCE CERTIFICATION API ENDPOINTS
+# ============================================================================
+
+# Try to import ProvenanceCertifier
+try:
+    from collectors.provenance_certifier import ProvenanceCertifier
+    PROVENANCE_CERTIFIER_AVAILABLE = True
+except ImportError:
+    PROVENANCE_CERTIFIER_AVAILABLE = False
+    print("Warning: ProvenanceCertifier not available")
+
+
+@app.route('/api/nft/<contract>/<token_id>/certify')
+def api_nft_certify(contract, token_id):
+    """
+    Get provenance certification for an NFT.
+
+    Checks:
+    - Mint origin (registered artist?)
+    - Platform verification (curated?)
+    - Registry match (in catalog?)
+
+    Response: {
+        success: bool,
+        status: "VERIFIED" | "LIKELY" | "UNVERIFIED",
+        score: 0-100,
+        factors: [...],
+        cached: bool,
+        cached_at: timestamp
+    }
+    """
+    if not PROVENANCE_CERTIFIER_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'ProvenanceCertifier not available',
+            'status': 'UNVERIFIED',
+            'score': 0,
+            'factors': []
+        }), 503
+
+    try:
+        from collectors.blockchain_db import get_db
+
+        db = get_db()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # Check cache first (24 hour expiry)
+        cache_key = f"{contract.lower()}:{token_id}"
+        cursor.execute('''
+            SELECT certification_data, cached_at
+            FROM certification_cache
+            WHERE cache_key = ?
+            AND datetime(cached_at, '+24 hours') > datetime('now')
+        ''', (cache_key,))
+
+        cached = cursor.fetchone()
+        if cached:
+            cert_data = json.loads(cached['certification_data'])
+            conn.close()
+            return jsonify({
+                'success': True,
+                'status': cert_data.get('certification_level', 'UNVERIFIED'),
+                'score': cert_data.get('total_score', 0),
+                'factors': cert_data.get('factors', []),
+                'cached': True,
+                'cached_at': cached['cached_at']
+            })
+
+        conn.close()
+
+        # Run certification
+        certifier = ProvenanceCertifier()
+        cert = certifier.certify_nft(contract, int(token_id))
+
+        # Cache the result
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # Ensure cache table exists
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS certification_cache (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cache_key TEXT UNIQUE NOT NULL,
+                contract_address TEXT,
+                token_id TEXT,
+                certification_data TEXT,
+                cached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_cert_cache_key
+            ON certification_cache(cache_key)
+        ''')
+
+        # Store in cache
+        cursor.execute('''
+            INSERT OR REPLACE INTO certification_cache
+            (cache_key, contract_address, token_id, certification_data, cached_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ''', (cache_key, contract.lower(), str(token_id), json.dumps(cert)))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'status': cert.get('certification_level', 'UNVERIFIED'),
+            'score': cert.get('total_score', 0),
+            'factors': cert.get('factors', []),
+            'cached': False,
+            'cached_at': datetime.utcnow().isoformat()
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'status': 'UNVERIFIED',
+            'score': 0,
+            'factors': []
+        }), 500
+
+
+@app.route('/api/document/<doc_id>/certify')
+def api_document_certify(doc_id):
+    """
+    Get provenance certification for a document by its doc_id.
+
+    Extracts blockchain metadata from the document and runs certification.
+
+    Response: Same as /api/nft/<contract>/<token_id>/certify
+    """
+    try:
+        # Find the document
+        kb_path = Path("knowledge_base/processed")
+
+        doc_file = None
+        doc_frontmatter = None
+
+        for md_file in kb_path.rglob("*.md"):
+            try:
+                frontmatter, _ = parse_markdown_file(md_file)
+                if frontmatter.get('id') == doc_id:
+                    doc_file = md_file
+                    doc_frontmatter = frontmatter
+                    break
+            except:
+                continue
+
+        if not doc_frontmatter:
+            return jsonify({
+                'success': False,
+                'message': 'Document not found',
+                'status': 'UNVERIFIED',
+                'score': 0,
+                'factors': []
+            })
+
+        # Extract blockchain metadata
+        blockchain_meta = extract_blockchain_metadata(doc_frontmatter)
+
+        if not blockchain_meta or not blockchain_meta.get('contract_address'):
+            return jsonify({
+                'success': False,
+                'message': 'No blockchain metadata found in document',
+                'status': 'UNVERIFIED',
+                'score': 0,
+                'factors': []
+            })
+
+        contract = blockchain_meta['contract_address']
+        token_ids = blockchain_meta.get('token_ids', [])
+
+        if not token_ids:
+            return jsonify({
+                'success': False,
+                'message': 'No token ID found in document',
+                'status': 'UNVERIFIED',
+                'score': 0,
+                'factors': []
+            })
+
+        # Use first token ID
+        token_id = token_ids[0]
+
+        # Redirect to the main certification endpoint
+        return api_nft_certify(contract, str(token_id))
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'status': 'UNVERIFIED',
+            'score': 0,
+            'factors': []
+        }), 500
+
+
+@app.route('/api/certification/invalidate', methods=['POST'])
+def api_invalidate_certification_cache():
+    """
+    Invalidate certification cache for an NFT or all NFTs.
+
+    Request body:
+    - contract: Optional contract address
+    - token_id: Optional token ID
+    - all: If true, clears entire cache
+
+    Response: {success, cleared_count}
+    """
+    try:
+        data = request.get_json() or {}
+
+        from collectors.blockchain_db import get_db
+
+        db = get_db()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        if data.get('all'):
+            cursor.execute('DELETE FROM certification_cache')
+            cleared = cursor.rowcount
+        elif data.get('contract'):
+            if data.get('token_id'):
+                cache_key = f"{data['contract'].lower()}:{data['token_id']}"
+                cursor.execute(
+                    'DELETE FROM certification_cache WHERE cache_key = ?',
+                    (cache_key,)
+                )
+            else:
+                cursor.execute(
+                    'DELETE FROM certification_cache WHERE contract_address = ?',
+                    (data['contract'].lower(),)
+                )
+            cleared = cursor.rowcount
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Must specify contract, contract+token_id, or all=true'
+            }), 400
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'cleared_count': cleared
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# NFT TEMPORAL DETAIL VIEW - Living Works UI
+# ============================================================================
+
+@app.route('/nft/<contract>/<token_id>/temporal')
+def nft_temporal_detail(contract, token_id):
+    """
+    Temporal detail view for an NFT.
+
+    Shows:
+    - Timeline of past states and future events
+    - State comparison view
+    - Live feed display for reactive works
+    - Reactivity profile and scheduled events
+    """
+    try:
+        from collectors.living_works_tracker import (
+            LivingWorksAnalyzer,
+            HistoricalStateTracker,
+            FutureEventDetector,
+            LiveWorkTracker
+        )
+        from collectors.blockchain_db import get_db
+
+        # Convert token_id to int
+        try:
+            token_id_int = int(token_id)
+        except ValueError:
+            return "Invalid token ID", 400
+
+        # Get NFT data from database
+        db = get_db()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT nm.*, ta.address, ta.label, ta.network
+            FROM nft_mints nm
+            LEFT JOIN tracked_addresses ta ON nm.address_id = ta.id
+            WHERE nm.contract_address = ? AND nm.token_id = ?
+        ''', (contract, str(token_id)))
+        nft_row = cursor.fetchone()
+        conn.close()
+
+        if not nft_row:
+            # Try to create a minimal NFT object
+            nft = {
+                'contract': contract,
+                'token_id': token_id_int,
+                'name': f'NFT #{token_id}',
+                'description': None,
+                'image': None,
+                'token_uri': None,
+                'network': 'ethereum',
+                'is_living': False,
+                'reactivity_types': []
+            }
+        else:
+            # Parse metadata if available
+            metadata = {}
+            if nft_row.get('metadata_json'):
+                try:
+                    metadata = json.loads(nft_row['metadata_json'])
+                except:
+                    pass
+
+            nft = {
+                'contract': contract,
+                'token_id': token_id_int,
+                'name': metadata.get('name') or nft_row.get('name') or f"NFT #{token_id}",
+                'description': metadata.get('description') or nft_row.get('description'),
+                'image': metadata.get('image') or nft_row.get('image_url'),
+                'token_uri': nft_row.get('token_uri'),
+                'network': nft_row.get('network', 'ethereum'),
+                'is_living': False,
+                'reactivity_types': []
+            }
+
+        # Get historical states
+        history = []
+        try:
+            tracker = HistoricalStateTracker()
+            history_raw = tracker.get_token_uri_history(contract, token_id_int)
+            for state in history_raw:
+                history.append({
+                    'state_number': state.get('state_number', 0),
+                    'state_type': state.get('state_type', 'unknown'),
+                    'timestamp': state.get('timestamp'),
+                    'image': state.get('image'),
+                    'token_uri': state.get('token_uri'),
+                    'metadata': state.get('metadata', {})
+                })
+        except Exception as e:
+            logger.debug(f"Could not fetch history: {e}")
+
+        # Get future events
+        events = []
+        try:
+            detector = FutureEventDetector()
+            contract_events = detector.analyze_contract_for_time_logic(contract)
+
+            for event in contract_events.get('future_events', []):
+                scheduled_time = event.get('date') or event.get('scheduled_time')
+                if scheduled_time:
+                    # Calculate countdown days
+                    from datetime import datetime
+                    if isinstance(scheduled_time, str):
+                        try:
+                            event_date = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00'))
+                            countdown_days = (event_date - datetime.now(event_date.tzinfo)).days
+                        except:
+                            countdown_days = 0
+                    else:
+                        countdown_days = 0
+
+                    events.append({
+                        'event_type': event.get('event_type', event.get('type', 'scheduled')),
+                        'scheduled_time': scheduled_time,
+                        'description': event.get('description'),
+                        'countdown_days': max(0, countdown_days)
+                    })
+        except Exception as e:
+            logger.debug(f"Could not fetch events: {e}")
+
+        # Check if this is a living work
+        live_data = None
+        try:
+            live_tracker = LiveWorkTracker()
+            reactivity = live_tracker.identify_reactivity_type(contract, nft.get('metadata', {}))
+            nft['is_living'] = reactivity.get('is_reactive', False)
+            nft['reactivity_types'] = reactivity.get('types', [])
+
+            if nft['is_living']:
+                # Get current live state
+                live_state = live_tracker.capture_live_state(contract, token_id_int)
+                live_data = {
+                    'last_capture': live_state.get('captured_at'),
+                    'feeds': [
+                        {
+                            'name': 'ETH Price',
+                            'type': 'price',
+                            'value': live_state.get('chain_state', {}).get('eth_price', '--'),
+                            'unit': 'USD',
+                            'change': 0,
+                            'active': True
+                        },
+                        {
+                            'name': 'Gas Price',
+                            'type': 'gas',
+                            'value': live_state.get('chain_state', {}).get('gas_price', '--'),
+                            'unit': 'gwei',
+                            'change': 0,
+                            'active': True
+                        },
+                        {
+                            'name': 'Block Height',
+                            'type': 'block',
+                            'value': live_state.get('block_height', '--'),
+                            'unit': '',
+                            'change': 0,
+                            'active': True
+                        }
+                    ]
+                }
+        except Exception as e:
+            logger.debug(f"Could not check reactivity: {e}")
+
+        return render_template('nft_temporal_detail.html',
+                             nft=nft,
+                             history=history,
+                             events=events,
+                             live_data=live_data)
+
+    except ImportError as e:
+        logger.warning(f"Living works tracker not available: {e}")
+        # Provide minimal fallback data
+        nft = {
+            'contract': contract,
+            'token_id': int(token_id) if token_id.isdigit() else 0,
+            'name': f'NFT #{token_id}',
+            'description': 'Living works tracker not available',
+            'image': None,
+            'token_uri': None,
+            'network': 'ethereum',
+            'is_living': False,
+            'reactivity_types': []
+        }
+        return render_template('nft_temporal_detail.html',
+                             nft=nft,
+                             history=[],
+                             events=[],
+                             live_data=None)
+
+    except Exception as e:
+        logger.error(f"Error loading temporal view for {contract}/{token_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Error loading temporal view: {e}", 500
+
+
+# ============================================================================
+
 def main():
     """Run the visual browser"""
     print("\n" + "="*60)
-    print("GiselX Knowledge Base - Visual Browser")
+    print("ARCHIV-IT by WEB3GISEL - Visual Browser")
     print("="*60)
 
     # Initialize embeddings

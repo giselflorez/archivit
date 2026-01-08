@@ -1,0 +1,252 @@
+# =============================================================================
+# ARCHIVIT PROTECTION LAYER - .gitattributes
+# Generated: 2026-01-08 by Security Audit
+# =============================================================================
+# This file reduces code visibility on GitHub by:
+# 1. Excluding proprietary code from language statistics (linguist-vendored)
+# 2. Hiding diffs for sensitive files in pull requests (linguist-generated)
+# 3. Marking code as vendored/generated (excluded from many tools)
+# 4. Preventing certain files from appearing in git archives (export-ignore)
+# 5. Binary marking prevents textual diff display entirely
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SECTION 1: CORE PYTHON CODE - MAXIMUM PROTECTION
+# These are proprietary algorithms and business logic
+# linguist-vendored: Excluded from language stats, marked as third-party
+# linguist-generated: Excluded from stats AND hidden from default PR diffs
+# binary: Prevents textual diff display entirely
+# -----------------------------------------------------------------------------
+
+# All Python source code - marked as vendored (appears as third-party)
+scripts/**/*.py linguist-vendored linguist-generated
+
+# Specific high-value modules with binary protection (no diffs shown at all)
+scripts/processors/*.py binary linguist-vendored linguist-generated
+scripts/collectors/*.py binary linguist-vendored linguist-generated
+scripts/protection/*.py binary linguist-vendored linguist-generated
+scripts/interface/*.py linguist-vendored linguist-generated
+scripts/analytics/*.py binary linguist-vendored linguist-generated
+scripts/api/*.py binary linguist-vendored linguist-generated
+scripts/export/*.py binary linguist-vendored linguist-generated
+scripts/collections/*.py binary linguist-vendored linguist-generated
+
+# Vision providers - AI/ML code
+scripts/processors/vision_providers/*.py binary linguist-vendored linguist-generated
+
+# Test files
+test_*.py linguist-vendored linguist-generated
+
+# -----------------------------------------------------------------------------
+# SECTION 2: SMART CONTRACTS - CRITICAL IP
+# Solidity contracts are extremely valuable intellectual property
+# -----------------------------------------------------------------------------
+
+# Solidity files - maximum protection
+contracts/*.sol binary linguist-vendored linguist-generated
+
+# Contract deployment scripts
+contracts/*.js binary linguist-vendored linguist-generated
+
+# All contract-related files
+contracts/** linguist-vendored linguist-generated export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 3: HTML TEMPLATES - UI/UX IP
+# Custom interface designs and components
+# -----------------------------------------------------------------------------
+
+# All HTML templates marked as generated
+scripts/interface/templates/*.html linguist-generated linguist-vendored
+scripts/interface/templates/**/*.html linguist-generated linguist-vendored
+scripts/interface/templates/components/*.html linguist-generated linguist-vendored
+scripts/interface/templates/point_cloud/*.html linguist-generated linguist-vendored
+
+# Root demo/test HTML files
+*.html linguist-generated linguist-documentation
+
+# -----------------------------------------------------------------------------
+# SECTION 4: CONFIGURATION FILES - SENSITIVE
+# Config files may contain API structures, feature flags, business logic
+# -----------------------------------------------------------------------------
+
+config/*.json binary linguist-vendored linguist-generated export-ignore
+config/*.key binary export-ignore
+config/*.example linguist-documentation
+
+# API config - very sensitive
+config/api_config.json binary export-ignore
+config/settings.json binary linguist-vendored
+
+# Credentials - should never show diffs
+config/*credentials*.json binary export-ignore
+config/*token*.json binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 5: KNOWLEDGE BASE - USER DATA
+# User-generated content and processed data - NEVER include in exports
+# -----------------------------------------------------------------------------
+
+knowledge_base/** binary linguist-vendored linguist-generated export-ignore
+knowledge_base/**/*.json binary export-ignore
+knowledge_base/**/*.md linguist-generated linguist-vendored export-ignore
+knowledge_base/media/** binary export-ignore
+knowledge_base/attachments/** binary export-ignore
+knowledge_base/raw/** binary export-ignore
+knowledge_base/processed/** binary export-ignore
+
+# Training data - extremely sensitive
+knowledge_base/training_data.json binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 6: DATABASE FILES
+# Database files should never show in diffs
+# -----------------------------------------------------------------------------
+
+db/** binary export-ignore
+*.db binary export-ignore
+*.sqlite binary export-ignore
+*.sqlite3 binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 7: SESSIONS AND STATE
+# Session data and state files
+# -----------------------------------------------------------------------------
+
+sessions/** binary linguist-generated export-ignore
+*.session binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 8: SHELL SCRIPTS - DEPLOYMENT LOGIC
+# Installation and deployment scripts
+# -----------------------------------------------------------------------------
+
+*.sh linguist-vendored linguist-generated
+install.sh binary linguist-vendored export-ignore
+start_server.sh linguist-vendored linguist-generated
+create_tester_package.sh binary linguist-vendored export-ignore
+process_uploads.sh linguist-vendored linguist-generated
+
+# CLI utility scripts
+scrape-nft linguist-vendored linguist-generated
+deduplicate-kb linguist-vendored linguist-generated
+
+# -----------------------------------------------------------------------------
+# SECTION 9: DOCUMENTATION - SELECTIVE VISIBILITY
+# Some docs can be visible, but internal ones should be hidden
+# -----------------------------------------------------------------------------
+
+# Internal documentation - hide from stats
+docs/BLOCKCHAIN_API.md linguist-documentation linguist-generated
+docs/DEEP_COST_SYSTEM.md linguist-documentation linguist-generated
+docs/INTELLIGENT_SCRAPER_SYSTEM.md linguist-documentation linguist-generated
+docs/SUPERRARE_SCRAPER.md linguist-documentation linguist-generated
+docs/DEEP_PROVENANCE_FRAMEWORK.md linguist-documentation linguist-generated
+docs/IP_LEGAL_FOUNDATION.md linguist-documentation linguist-generated
+docs/SPATIAL_SECURITY_THREAT_MODEL.md binary linguist-generated export-ignore
+docs/SECURITY_AUDIT_TRACKER.md binary linguist-generated export-ignore
+
+# Public-facing docs - allow visibility
+docs/GOOGLE_DRIVE_SETUP.md linguist-documentation
+docs/PRODUCT_OVERVIEW_PUBLIC.md linguist-documentation
+
+# All other docs default to documentation
+docs/*.md linguist-documentation
+docs/*.html linguist-generated linguist-documentation
+
+# Root markdown files
+PROJECT_STATE.md linguist-generated linguist-documentation
+AGENT_*.md linguist-generated linguist-vendored export-ignore
+CLAUDE_SESSIONS.md linguist-generated export-ignore
+*_SUMMARY.md linguist-generated linguist-documentation
+*_FIX.md linguist-generated linguist-documentation
+
+# -----------------------------------------------------------------------------
+# SECTION 10: LEGAL AND IP DOCUMENTATION
+# These files explicitly document IP - hide from crawlers
+# -----------------------------------------------------------------------------
+
+ARCHIV-IT_*.txt binary linguist-generated export-ignore
+*IP*.txt binary linguist-generated export-ignore
+*Legal*.txt binary linguist-generated export-ignore
+*Specification*.txt binary linguist-generated export-ignore
+LICENSE linguist-documentation
+
+# -----------------------------------------------------------------------------
+# SECTION 11: IMAGES AND MEDIA
+# Binary by nature, but explicitly marked
+# -----------------------------------------------------------------------------
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.svg binary linguist-vendored
+*.pdf binary
+
+# Screenshots - export ignore
+Screenshot*.png binary export-ignore
+debug_*.png binary export-ignore
+debug_*.html linguist-generated export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 12: BUILD AND PACKAGE ARTIFACTS
+# Compiled and packaged files
+# -----------------------------------------------------------------------------
+
+protected_build/** binary linguist-vendored linguist-generated export-ignore
+*.pyc binary linguist-generated export-ignore
+*.pyo binary linguist-generated export-ignore
+*.zip binary export-ignore
+*.tar.gz binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 13: ENVIRONMENT AND SECRETS
+# These should be in .gitignore, but belt-and-suspenders
+# -----------------------------------------------------------------------------
+
+.env binary export-ignore
+.env.* binary export-ignore
+*.secret binary export-ignore
+*.private binary export-ignore
+*.key binary export-ignore
+.obfuscate_config.json binary export-ignore
+
+# -----------------------------------------------------------------------------
+# SECTION 14: MISCELLANEOUS
+# -----------------------------------------------------------------------------
+
+# Log files
+*.log binary export-ignore
+server.log binary export-ignore
+
+# Temporary and test files
+test_*.html linguist-generated export-ignore
+filter_*.html linguist-generated export-ignore
+database_overview_demo.html linguist-generated export-ignore
+
+# Weird artifacts
+=1.0.0 binary export-ignore
+WEB3AUTOMATE-work binary export-ignore
+
+# Tester-related files (may contain sensitive info)
+*TESTER*.md linguist-generated linguist-documentation
+*TESTER*.html linguist-generated export-ignore
+*TESTER*.txt linguist-generated
+
+# -----------------------------------------------------------------------------
+# SECTION 15: EXPORT-IGNORE FOR RELEASES
+# Files that should NEVER be in git archive/release packages
+# -----------------------------------------------------------------------------
+
+.gitignore export-ignore
+.gitattributes export-ignore
+.claude/** export-ignore
+.env.example export-ignore
+
+# =============================================================================
+# END OF PROTECTION LAYER
+# Last Updated: 2026-01-08
+# =============================================================================

@@ -1,0 +1,558 @@
+# ============================================================================
+# ARCHIV-IT by WEB3GISEL - COMPREHENSIVE AI CRAWLER BLOCKING
+# Copyright 2026 WEB3GISEL - All Rights Reserved
+# Last Updated: January 2026
+# ============================================================================
+# This file instructs compliant web crawlers not to access this site.
+# IMPORTANT: This is a voluntary protocol - malicious actors may ignore it.
+# For comprehensive protection, combine with HTTP headers and server rules.
+# ============================================================================
+
+# ============================================================================
+# SECTION 1: OPENAI CRAWLERS
+# Company: OpenAI (ChatGPT, GPT-4, GPT-5, DALL-E)
+# Purpose: Training data collection, search, and user browsing
+# ============================================================================
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: OpenAI
+Disallow: /
+
+User-agent: ChatGPT Agent
+Disallow: /
+
+User-agent: Operator
+Disallow: /
+
+# ============================================================================
+# SECTION 2: ANTHROPIC CRAWLERS
+# Company: Anthropic (Claude AI)
+# Purpose: Training data collection and search
+# ============================================================================
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-User
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
+
+# ============================================================================
+# SECTION 3: GOOGLE AI CRAWLERS
+# Company: Google/Alphabet (Gemini, NotebookLM)
+# Purpose: AI training for Gemini, deep research, Firebase AI
+# ============================================================================
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GoogleOther
+Disallow: /
+
+User-agent: GoogleOther-Image
+Disallow: /
+
+User-agent: GoogleOther-Video
+Disallow: /
+
+User-agent: GoogleAgent-Mariner
+Disallow: /
+
+User-agent: Gemini-Deep-Research
+Disallow: /
+
+User-agent: Google-CloudVertexBot
+Disallow: /
+
+User-agent: CloudVertexBot
+Disallow: /
+
+User-agent: Google-Firebase
+Disallow: /
+
+User-agent: Google-NotebookLM
+Disallow: /
+
+User-agent: NotebookLM
+Disallow: /
+
+# ============================================================================
+# SECTION 4: META/FACEBOOK CRAWLERS
+# Company: Meta (Facebook, Instagram, Llama)
+# Purpose: AI training, external content indexing
+# ============================================================================
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+User-agent: meta-externalfetcher
+Disallow: /
+
+User-agent: meta-webindexer
+Disallow: /
+
+User-agent: Meta-WebIndexer
+Disallow: /
+
+# ============================================================================
+# SECTION 5: MICROSOFT/BING CRAWLERS
+# Company: Microsoft (Bing, Copilot)
+# Purpose: AI-enhanced search and Copilot training
+# ============================================================================
+User-agent: bingbot
+Disallow: /
+
+# ============================================================================
+# SECTION 6: AMAZON CRAWLERS
+# Company: Amazon (Alexa, Bedrock, Kendra)
+# Purpose: AI training, product search, enterprise AI
+# ============================================================================
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: AmazonBuyForMe
+Disallow: /
+
+User-agent: amazon-kendra
+Disallow: /
+
+User-agent: bedrockbot
+Disallow: /
+
+# ============================================================================
+# SECTION 7: APPLE CRAWLERS
+# Company: Apple (Siri, Spotlight, Apple Intelligence)
+# Purpose: AI assistant training and search indexing
+# ============================================================================
+User-agent: Applebot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# ============================================================================
+# SECTION 8: BYTEDANCE/TIKTOK CRAWLERS
+# Company: ByteDance (TikTok, Doubao)
+# Purpose: LLM training for Doubao and related models
+# ============================================================================
+User-agent: Bytespider
+Disallow: /
+
+User-agent: TikTokSpider
+Disallow: /
+
+# ============================================================================
+# SECTION 9: COMMON CRAWL
+# Organization: Common Crawl (non-profit)
+# Purpose: Open web archive used by many AI companies for training
+# ============================================================================
+User-agent: CCBot
+Disallow: /
+
+# ============================================================================
+# SECTION 10: PERPLEXITY AI
+# Company: Perplexity AI
+# Purpose: AI answer engine, real-time web data retrieval
+# NOTE: Has been flagged for bypassing robots.txt (Cloudflare 2025)
+# ============================================================================
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+
+# ============================================================================
+# SECTION 11: COHERE AI
+# Company: Cohere
+# Purpose: Enterprise AI training and search
+# ============================================================================
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: cohere-training-data-crawler
+Disallow: /
+
+# ============================================================================
+# SECTION 12: MISTRAL AI
+# Company: Mistral AI
+# Purpose: LLM training and user browsing
+# ============================================================================
+User-agent: MistralAI-User
+Disallow: /
+
+User-agent: MistralAI-User/1.0
+Disallow: /
+
+# ============================================================================
+# SECTION 13: DEEPSEEK
+# Company: DeepSeek
+# Purpose: Chinese LLM training
+# ============================================================================
+User-agent: DeepSeekBot
+Disallow: /
+
+# ============================================================================
+# SECTION 14: YOU.COM
+# Company: You.com
+# Purpose: AI search engine
+# ============================================================================
+User-agent: YouBot
+Disallow: /
+
+# ============================================================================
+# SECTION 15: DIFFBOT
+# Company: Diffbot
+# Purpose: AI-powered web scraping and data extraction
+# NOTE: Sells extracted data to third parties
+# ============================================================================
+User-agent: Diffbot
+Disallow: /
+
+# ============================================================================
+# SECTION 16: IMAGE TRAINING CRAWLERS
+# Purpose: Training image generation AI (Stable Diffusion, DALL-E, etc.)
+# CRITICAL: These directly target visual content like artwork
+# ============================================================================
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: imageSpider
+Disallow: /
+
+User-agent: img2dataset
+Disallow: /
+
+User-agent: laion-huggingface-processor
+Disallow: /
+
+User-agent: LAIONDownloader
+Disallow: /
+
+User-agent: ICC-Crawler
+Disallow: /
+
+# ============================================================================
+# SECTION 17: DATA AGGREGATORS & RESEARCH CRAWLERS
+# Purpose: Building datasets for AI training and research
+# ============================================================================
+User-agent: AI2Bot
+Disallow: /
+
+User-agent: AI2Bot-DeepResearchEval
+Disallow: /
+
+User-agent: Ai2Bot-Dolma
+Disallow: /
+
+User-agent: Crawlspace
+Disallow: /
+
+User-agent: Crawl4AI
+Disallow: /
+
+User-agent: FriendlyCrawler
+Disallow: /
+
+User-agent: omgili
+Disallow: /
+
+User-agent: omgilibot
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: Panscient
+Disallow: /
+
+User-agent: panscient.com
+Disallow: /
+
+User-agent: Scrapy
+Disallow: /
+
+# ============================================================================
+# SECTION 18: CHINESE AI CRAWLERS
+# Purpose: Training Chinese LLMs (Baidu, Tencent, Alibaba, etc.)
+# ============================================================================
+User-agent: ChatGLM-Spider
+Disallow: /
+
+User-agent: PanguBot
+Disallow: /
+
+User-agent: YaK
+Disallow: /
+
+# ============================================================================
+# SECTION 19: ENTERPRISE & MARKETING AI CRAWLERS
+# Purpose: AI-powered marketing, analytics, and business intelligence
+# ============================================================================
+User-agent: SemrushBot-OCOB
+Disallow: /
+
+User-agent: SemrushBot-SWA
+Disallow: /
+
+User-agent: aiHitBot
+Disallow: /
+
+User-agent: bigsur.ai
+Disallow: /
+
+User-agent: Brightbot 1.0
+Disallow: /
+
+User-agent: ISSCyberRiskCrawler
+Disallow: /
+
+User-agent: KlaviyoAIBot
+Disallow: /
+
+User-agent: QualifiedBot
+Disallow: /
+
+User-agent: Sidetrade indexer bot
+Disallow: /
+
+User-agent: VelenPublicWebCrawler
+Disallow: /
+
+User-agent: Webzio-Extended
+Disallow: /
+
+User-agent: webzio-extended
+Disallow: /
+
+User-agent: Factset_spyderbot
+Disallow: /
+
+# ============================================================================
+# SECTION 20: AI SEARCH & ANSWER ENGINES
+# Purpose: Powering AI-driven search and Q&A services
+# ============================================================================
+User-agent: Andibot
+Disallow: /
+
+User-agent: DuckAssistBot
+Disallow: /
+
+User-agent: iAskBot
+Disallow: /
+
+User-agent: iaskspider
+Disallow: /
+
+User-agent: iaskspider/2.0
+Disallow: /
+
+User-agent: LinerBot
+Disallow: /
+
+User-agent: LinkupBot
+Disallow: /
+
+User-agent: PhindBot
+Disallow: /
+
+User-agent: TavilyBot
+Disallow: /
+
+User-agent: Thinkbot
+Disallow: /
+
+User-agent: WRTNBot
+Disallow: /
+
+# ============================================================================
+# SECTION 21: AUTOMATION & AGENT CRAWLERS
+# Purpose: AI agents that browse and take actions
+# ============================================================================
+User-agent: Anomura
+Disallow: /
+
+User-agent: BuddyBot
+Disallow: /
+
+User-agent: Devin
+Disallow: /
+
+User-agent: FirecrawlAgent
+Disallow: /
+
+User-agent: Kangaroo Bot
+Disallow: /
+
+User-agent: Manus-User
+Disallow: /
+
+User-agent: NovaAct
+Disallow: /
+
+User-agent: TwinAgent
+Disallow: /
+
+# ============================================================================
+# SECTION 22: CONTENT & TEXT PROCESSING
+# Purpose: NLP, translation, and text analysis
+# ============================================================================
+User-agent: QuillBot
+Disallow: /
+
+User-agent: quillbot.com
+Disallow: /
+
+User-agent: Linguee Bot
+Disallow: /
+
+User-agent: Echobot Bot
+Disallow: /
+
+User-agent: EchoboxBot
+Disallow: /
+
+# ============================================================================
+# SECTION 23: MISCELLANEOUS AI CRAWLERS
+# Purpose: Various AI-related data collection
+# ============================================================================
+User-agent: AddSearchBot
+Disallow: /
+
+User-agent: atlassian-bot
+Disallow: /
+
+User-agent: Awario
+Disallow: /
+
+User-agent: Bravebot
+Disallow: /
+
+User-agent: Channel3Bot
+Disallow: /
+
+User-agent: Cloudflare-AutoRAG
+Disallow: /
+
+User-agent: Cotoyogi
+Disallow: /
+
+User-agent: Datenbank Crawler
+Disallow: /
+
+User-agent: IbouBot
+Disallow: /
+
+User-agent: KunatoCrawler
+Disallow: /
+
+User-agent: LCC
+Disallow: /
+
+User-agent: MyCentralAIScraperBot
+Disallow: /
+
+User-agent: netEstate Imprint Crawler
+Disallow: /
+
+User-agent: Poggio-Citations
+Disallow: /
+
+User-agent: Poseidon Research Crawler
+Disallow: /
+
+User-agent: SBIntuitionsBot
+Disallow: /
+
+User-agent: ShapBot
+Disallow: /
+
+User-agent: Spider
+Disallow: /
+
+User-agent: TerraCotta
+Disallow: /
+
+User-agent: WARDBot
+Disallow: /
+
+User-agent: wpbot
+Disallow: /
+
+User-agent: YandexAdditional
+Disallow: /
+
+User-agent: YandexAdditionalBot
+Disallow: /
+
+User-agent: ZanistaBot
+Disallow: /
+
+# ============================================================================
+# SECTION 24: CATCH-ALL FALLBACK
+# This blocks ALL bots from accessing ANY content
+# Place this at the END to catch unknown/new crawlers
+# ============================================================================
+User-agent: *
+Disallow: /
+
+# ============================================================================
+# SENSITIVE DIRECTORIES - EXPLICIT BLOCKS
+# Even if a bot ignores User-agent rules, these paths are protected
+# ============================================================================
+User-agent: *
+Disallow: /scripts/
+Disallow: /knowledge_base/
+Disallow: /config/
+Disallow: /contracts/
+Disallow: /docs/
+Disallow: /sessions/
+Disallow: /venv/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /api/
+Disallow: /admin/
+Disallow: /database/
+Disallow: /db/
+Disallow: /protected_build/
+
+# ============================================================================
+# AI TRAINING OPT-OUT DECLARATIONS
+# These are recognized by some ethical AI companies
+# ============================================================================
+# AI-Training-Opt-Out: true
+# No-AI-Training: true
+# X-Robots-Tag: noai, noimageai
+
+# ============================================================================
+# END OF ROBOTS.TXT
+# For updates, monitor: https://github.com/ai-robots-txt/ai.robots.txt
+# and https://darkvisitors.com/docs/robots-txt
+# Copyright 2026 WEB3GISEL - Proprietary and Confidential
+# ============================================================================

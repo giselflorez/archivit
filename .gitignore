@@ -1,11 +1,337 @@
+# ============================================================================
+# ARCHIV-IT SECURITY-HARDENED .gitignore
+# Generated: 2026-01-08 by Security Audit
+# CRITICAL: This file protects against credential exposure, PII leakage,
+#           and sensitive data exposure to sophisticated threat actors
+# ============================================================================
+
+# ============================================================================
+# SECTION 1: ENVIRONMENT VARIABLES & SECRETS
+# These files contain API keys, passwords, and authentication tokens
+# NEVER commit these - they grant full access to external services
+# ============================================================================
+
+# Environment files - NEVER commit
 .env
-node_modules/
+.env.*
+!.env.example
+*.env
+
+# ============================================================================
+# SECTION 2: OAUTH & API CREDENTIALS
+# Critical: OAuth tokens provide full account access
+# These were found committed in git history - MUST be purged
+# ============================================================================
+
+# Google OAuth credentials and tokens (CRITICAL - found exposed)
+**/google_drive_credentials.json
+**/google_drive_token.json
+**/gmail_credentials.json
+**/gmail_token.json
+**/credentials.json
+**/*_credentials.json
+**/*_token.json
+**/client_secret*.json
+
+# Generic credential patterns
+**/*credential*.json
+**/*token*.json
+!**/*token*.json.example
+
+# API authentication files
+**/archivit_auth.json
+**/*_auth.json
+
+# ============================================================================
+# SECTION 3: CONFIGURATION FILES WITH SENSITIVE DATA
+# These contain folder IDs, endpoints, internal settings, business logic
+# ============================================================================
+
+# Config directory - protect all JSON except examples
+config/*.json
+!config/*.json.example
+!config/ignored_drive_files.json.example
+
+# Specific sensitive configs found in audit
+config/google_drive_credentials.json
+config/google_drive_token.json
+config/settings.json
+config/api_config.json
+config/usage_tracking.json
+
+# Obfuscation and protection configs
+.obfuscate_config.json
+
+# ============================================================================
+# SECTION 4: CRYPTOGRAPHIC KEYS & SECRETS
+# Private keys, signing keys, certificates - found in two locations
+# ============================================================================
+
+# All key files (found: config/badge_secret.key, scripts/interface/config/badge_secret.key)
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Specific secret files
+**/badge_secret.key
+**/*_secret.key
+**/*.secret
+
+# Hardware binding files
+hardware_id.txt
+
+# License files (may contain user-specific data)
+license.key
+*.license
+
+# Scripts interface config directory (contains duplicate badge_secret.key)
+scripts/interface/config/
+
+# ============================================================================
+# SECTION 5: PERSONAL DATA & KNOWLEDGE BASE
+# User-generated content, PII, personal documents
+# CRITICAL: Found 53+ files with email, wallet, social handles exposed
+# ============================================================================
+
+# Entire knowledge base - contains extensive PII
+knowledge_base/
+
+# Training data (contains personal info, emails, profiles)
+**/training_data.json
+
+# Session logs (may contain conversation history)
+sessions/
+
+# ============================================================================
+# SECTION 6: DATABASES
+# All database files contain user data - already gitignored but reinforcing
+# ============================================================================
+
+# SQLite databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.db.backup*
+
+# Database directory
 db/
-venv/
-__pycache__/
+
+# Scan status with wallet addresses
+db/scan_status.json
+
+# Chroma vector DB
+**/chroma/
+
+# txtai index (contains embeddings of personal data)
+**/txtai_index/
+
+# Visual cache (may contain processed images)
+**/visual_cache/
+
+# ============================================================================
+# SECTION 7: BUILD ARTIFACTS & PROTECTED BUILDS
+# Compiled code, obfuscated builds
+# ============================================================================
+
+# Protected/obfuscated builds
+protected_build/
+
+# Compiled Python
 *.pyc
 *.pyo
 *.pyd
-.DS_Store
+__pycache__/
+*.so
+
+# Obfuscated JavaScript
+*.obfuscated.js
+
+# ============================================================================
+# SECTION 8: LOGS & DEBUG OUTPUT
+# May contain sensitive runtime information
+# ============================================================================
+
+# Log files
 *.log
-config/ignored_drive_files.json
+logs/
+**/server.log
+usage.log
+
+# Debug files (found: debug_foundation.html, debug_foundation_screenshot.png)
+debug_*.html
+debug_*.png
+debug_*.jpg
+debug_*.json
+
+# ============================================================================
+# SECTION 9: TEMPORARY & CACHE FILES
+# Runtime artifacts that should never be committed
+# ============================================================================
+
+# OS-specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-*
+
+# ============================================================================
+# SECTION 10: PACKAGE & DEPENDENCY DIRECTORIES
+# These are reproducible from requirements files
+# ============================================================================
+
+# Python virtual environment
+venv/
+env/
+.venv/
+.env/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ============================================================================
+# SECTION 11: DISTRIBUTION & ARCHIVES
+# May contain bundled secrets or builds
+# ============================================================================
+
+# Archive files (found: multiple .zip files with potentially sensitive content)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Distribution packages
+dist/
+build/
+*.egg-info/
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# ============================================================================
+# SECTION 12: EXPORT & OUTPUT DIRECTORIES
+# User-generated exports that may contain PII
+# ============================================================================
+
+# Export directories
+exports/
+**/press_kits/
+
+# Screenshot uploads (found: Screenshot*.png files)
+Screenshot*.png
+Screenshot*.jpg
+
+# ============================================================================
+# SECTION 13: SMART CONTRACT DEVELOPMENT
+# Deployment artifacts may contain private keys or addresses
+# ============================================================================
+
+# Hardhat/Truffle artifacts
+artifacts/
+cache/
+deployments/
+
+# Contract build outputs
+contracts/build/
+contracts/deployments/
+
+# Deployment logs (may contain wallet info)
+**/deploy*.log
+
+# ============================================================================
+# SECTION 14: TESTING & COVERAGE
+# Test artifacts
+# ============================================================================
+
+# Test databases
+**/test*.db
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# pytest
+.pytest_cache/
+.tox/
+
+# ============================================================================
+# SECTION 15: DEVELOPMENT SESSION LOGS
+# AI development history and agent instructions
+# ============================================================================
+
+# Claude/AI session files
+CLAUDE_SESSIONS.md
+AGENT_HANDOFF.md
+AGENT_INSTRUCTIONS.md
+PROJECT_BIBLE.md
+
+# ============================================================================
+# SECTION 16: MISCELLANEOUS SENSITIVE PATTERNS
+# Catch-all for common sensitive file patterns
+# ============================================================================
+
+# Anything with 'private' in the name
+*private*
+*PRIVATE*
+
+# Anything with 'secret' in the name
+*secret*
+*SECRET*
+
+# JSON files that might contain sensitive data
+**/scan_status.json
+**/scrape_queue.json
+**/orchestration_state.json
+
+# Weird artifacts found in audit
+=1.0.0
+WEB3AUTOMATE-work
+
+# ============================================================================
+# SECTION 17: EXPLICIT ALLOWLIST
+# Files that match above patterns but SHOULD be committed
+# ============================================================================
+
+# Example/template files (safe to commit)
+!*.example
+!**/*.example
+!.env.example
+!config/*.example
+
+# Documentation about secrets (not the secrets themselves)
+!docs/*SETUP*.md
+!docs/*GUIDE*.md
+
+# Public configuration templates
+!config/ignored_drive_files.json.example
+
+# ============================================================================
+# END OF SECURITY-HARDENED .gitignore
+# Last Updated: 2026-01-08
+# ============================================================================

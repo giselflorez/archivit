@@ -3,7 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GiselX Knowledge Archive{% endblock %}</title>
+
+    <!-- ============================================= -->
+    <!-- ANTI-AI CRAWLER META TAGS                     -->
+    <!-- Instructs compliant crawlers not to index     -->
+    <!-- Added: 2026-01-08 Security Audit              -->
+    <!-- ============================================= -->
+
+    <!-- Block all crawlers from indexing -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+
+    <!-- Block AI training specifically -->
+    <meta name="robots" content="noai, noimageai">
+
+    <!-- Block specific AI crawlers -->
+    <meta name="googlebot" content="noindex, nofollow, noai">
+    <meta name="bingbot" content="noindex, nofollow">
+    <meta name="GPTBot" content="noindex, nofollow">
+    <meta name="ClaudeBot" content="noindex, nofollow">
+    <meta name="anthropic-ai" content="noindex, nofollow">
+    <meta name="Google-Extended" content="noindex, nofollow">
+
+    <!-- Prevent content scraping -->
+    <meta name="generator" content="">
+    <meta http-equiv="X-Robots-Tag" content="noai, noimageai, noindex, nofollow">
+
+    <!-- Copyright assertion -->
+    <meta name="copyright" content="WEB3GISEL 2026 - All Rights Reserved">
+    <meta name="author" content="WEB3GISEL">
+
+    <title>{% block title %}ARCHIV-IT - Personal Archive for Artists{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -21,6 +50,140 @@
             --border-color: #2a2a2a;
             --shadow-subtle: 0 2px 12px rgba(0, 0, 0, 0.4);
             --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        /* ARCHIV-IT Proprietary Icon System - Icon Only, Text on Hover */
+        .nav-icon-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.6rem !important;
+        }
+
+        .nav-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--accent-dim);
+            fill: none;
+            stroke-width: 1.2;
+            filter: none;
+            transition: all 0.25s ease;
+        }
+
+        .nav-label {
+            position: absolute;
+            left: 50%;
+            top: calc(100% + 8px);
+            transform: translateX(-50%);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+        }
+
+        .nav-label::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid var(--border-color);
+        }
+
+        .nav-icon-link:hover .nav-label {
+            opacity: 1;
+            visibility: visible;
+            top: calc(100% + 4px);
+        }
+
+        .nav-icon-link:hover .nav-icon svg {
+            stroke: var(--accent-gold);
+            filter: drop-shadow(0 0 10px rgba(212, 165, 116, 1))
+                    drop-shadow(0 0 20px rgba(244, 162, 97, 0.7));
+        }
+
+        .nav-icon-link.active .nav-icon svg {
+            stroke: var(--accent-gold);
+            filter: drop-shadow(0 0 8px rgba(212, 165, 116, 0.95));
+        }
+
+        .nav-right-group {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            position: absolute;
+            top: 100%;
+            right: 2.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            z-index: 200;
+            box-shadow: var(--shadow-elevated);
+            min-width: 280px;
+        }
+
+        .filter-section {
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            width: 100%;
+            margin-bottom: 0.25rem;
+        }
+
+        .filter-section button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .filter-section button:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
         }
 
         * {
@@ -100,10 +263,24 @@
             font-weight: 300;
         }
 
+        .header-description {
+            font-size: 0.85rem !important;
+            color: var(--text-tertiary) !important;
+            text-transform: none !important;
+            letter-spacing: 0.02em !important;
+            font-weight: 400 !important;
+            margin-top: 1rem;
+            max-width: 600px;
+            line-height: 1.6;
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 1rem;
+            opacity: 0.8;
+        }
+
         .nav {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 0;
+            padding: 1rem 0;
             margin-bottom: 3rem;
             position: sticky;
             top: 0;
@@ -111,45 +288,49 @@
             backdrop-filter: blur(10px);
         }
 
-        .nav-links {
+        /* Row 1: Category Indicators (non-clickable) */
+        .nav-categories {
             display: flex;
-            gap: 2.5rem;
+            gap: 1.5rem;
             align-items: center;
             flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
 
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
+        .category-indicator {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
             font-weight: 400;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            transition: all 0.3s ease;
-            position: relative;
-            padding-bottom: 0.25rem;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            padding: 0.3rem 0;
+            border-left: 2px solid transparent;
+            padding-left: 0.5rem;
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--accent-gold);
-            transition: width 0.3s ease;
+        .category-indicator.active {
+            color: var(--text-primary);
+            border-left-color: var(--accent-gold);
         }
 
-        .nav-links a:hover {
-            color: var(--accent-gold);
-        }
+        /* Category color coding (matches Visual Grid) */
+        .category-indicator[data-category="blockchain"] { border-left-color: #d166ff; }
+        .category-indicator[data-category="article"] { border-left-color: #66b2ff; }
+        .category-indicator[data-category="research"] { border-left-color: #ffcc66; }
+        .category-indicator[data-category="media"] { border-left-color: #ff6699; }
+        .category-indicator[data-category="conversation"] { border-left-color: #66ffb2; }
+        .category-indicator[data-category="document"] { border-left-color: rgba(255, 255, 255, 0.3); }
 
-        .nav-links a:hover::after {
-            width: 100%;
+        /* Row 2: Icon Navigation */
+        .nav-icons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
         }
 
         .count-bubble {
@@ -165,17 +346,7 @@
             transition: all 0.3s ease;
         }
 
-        .nav-links a:hover .count-bubble {
-            background: var(--accent-gold);
-            color: var(--bg-primary);
-            border-color: var(--accent-gold);
-        }
-
-        .nav-links a.active {
-            color: var(--accent-gold);
-        }
-
-        .nav-links a.active .count-bubble {
+        .category-indicator.active .count-bubble {
             background: var(--accent-gold);
             color: var(--bg-primary);
             border-color: var(--accent-gold);
@@ -290,79 +461,306 @@
             letter-spacing: 0.05em;
         }
 
+        /* ============================================
+           PROVENANCE CERTIFICATION BADGE SYSTEM
+           NFT authenticity verification badges
+           ============================================ */
+
+        /* Base certification badge */
+        .cert-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .cert-badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* VERIFIED - High confidence (green) */
+        .cert-badge-verified {
+            background: rgba(104, 211, 145, 0.25);
+            color: #68d391;
+            border: 1px solid #68d391;
+            box-shadow: 0 0 12px rgba(104, 211, 145, 0.4);
+        }
+
+        .cert-badge-verified::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #68d391;
+            border-radius: 50%;
+            animation: cert-pulse-green 2s infinite;
+        }
+
+        @keyframes cert-pulse-green {
+            0%, 100% { box-shadow: 0 0 4px #68d391; opacity: 1; }
+            50% { box-shadow: 0 0 12px #68d391; opacity: 0.7; }
+        }
+
+        /* LIKELY - Moderate confidence (gold) */
+        .cert-badge-likely {
+            background: rgba(212, 165, 116, 0.25);
+            color: #d4a574;
+            border: 1px solid #d4a574;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+        }
+
+        .cert-badge-likely::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #d4a574;
+            border-radius: 2px;
+            transform: rotate(45deg) scale(0.7);
+        }
+
+        /* UNVERIFIED - Cannot verify (gray) */
+        .cert-badge-unverified {
+            background: rgba(106, 103, 98, 0.25);
+            color: #8a8784;
+            border: 1px solid #6a6762;
+            box-shadow: none;
+        }
+
+        .cert-badge-unverified::before {
+            content: '?';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 12px;
+            height: 12px;
+            font-size: 0.55rem;
+            font-weight: 800;
+            color: #6a6762;
+        }
+
+        /* Loading state */
+        .cert-badge-loading {
+            background: rgba(99, 179, 237, 0.15);
+            color: #63b3ed;
+            border: 1px solid rgba(99, 179, 237, 0.4);
+        }
+
+        .cert-badge-loading::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 2px solid #63b3ed;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: cert-spin 0.8s linear infinite;
+        }
+
+        @keyframes cert-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Certification tooltip */
+        .cert-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(10, 10, 10, 0.98);
+            border: 1px solid var(--accent-gold);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: normal;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            min-width: 180px;
+        }
+
+        .cert-badge:hover .cert-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        .cert-tooltip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cert-tooltip-score {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .cert-tooltip-status {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+        }
+
+        .cert-tooltip-status.verified { color: #68d391; }
+        .cert-tooltip-status.likely { color: #d4a574; }
+        .cert-tooltip-status.unverified { color: #8a8784; }
+
+        .cert-tooltip-reason {
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            line-height: 1.4;
+        }
+
+        /* Small badge variant for cards */
+        .cert-badge-sm {
+            padding: 0.15rem 0.35rem;
+            font-size: 0.5rem;
+        }
+
+        .cert-badge-sm::before {
+            width: 7px;
+            height: 7px;
+        }
+
+        /* Certification badge container for index cards */
+        .cert-badge-container {
+            position: absolute;
+            bottom: 0.4rem;
+            left: 0.4rem;
+            z-index: 10;
+        }
+
         {% block extra_styles %}{% endblock %}
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <header class="header">
         <div class="container">
-            <h1><strong>GiselX</strong> Knowledge Archive</h1>
-            <p>Personal Research Vault</p>
+            <h1><strong>ARCHIV-IT</strong> <span style="font-size: 0.5em; font-weight: 300; color: var(--text-tertiary); letter-spacing: 0.1em;">by WEB3GISEL</span></h1>
+            <p>Your Data. Your Output. Take Control.</p>
+            <p class="header-description">Navigate your body of work. Watch collector relationships unfold over time. Your blockchain art, indexed across chains. Runs locally, data stays yours.</p>
         </div>
     </header>
 
     <nav class="nav">
         <div class="container">
-            <div class="nav-links">
-                <a href="/" class="{% if current_filter == 'all' or not current_filter %}active{% endif %}">
+            <!-- Row 1: Category Indicators (non-clickable, matches Visual Grid) -->
+            <div class="nav-categories">
+                <span class="category-indicator active">
                     All
                     {% if source_counts %}<span class="count-bubble">{{ source_counts.get('all', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=instagram" class="{% if current_filter == 'instagram' %}active{% endif %}">
-                    Instagram
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('instagram', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=twitter" class="{% if current_filter == 'twitter' %}active{% endif %}">
-                    Twitter
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('twitter', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=perplexity" class="{% if current_filter == 'perplexity' %}active{% endif %}">
+                </span>
+                <span class="category-indicator" data-category="blockchain" title="NFTs and blockchain creations">
+                    Blockchain
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('blockchain', 0) }}</span>{% endif %}
+                </span>
+                <span class="category-indicator" data-category="article" title="Web articles and online content">
+                    Article
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('article', 0) }}</span>{% endif %}
+                </span>
+                <span class="category-indicator" data-category="research" title="Research, tutorials, and learning materials">
                     Research
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('perplexity', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=attachment" class="{% if current_filter == 'attachment' %}active{% endif %}">
-                    Files
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('attachment', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=ai_conversation" class="{% if current_filter == 'ai_conversation' %}active{% endif %}">
-                    AI
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('ai_conversation', 0) }}</span>{% endif %}
-                </a>
-                <a href="/?filter=visual" class="{% if current_filter == 'visual' %}active{% endif %}">
-                    Visual
-                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('visual', 0) }}</span>{% endif %}
-                </a>
-                <a href="/visual-translator">🔍 Visual Translator</a>
-                <a href="/tags">🕸️ Tag Network</a>
-                <span class="nav-divider">|</span>
-                <select id="sortSelect" class="sort-select" onchange="updateSort(this.value)">
-                    <option value="">⚡ Sort & Filter</option>
-                    <optgroup label="📅 BY DATE">
-                        <option value="date_desc">Newest First</option>
-                        <option value="date_asc">Oldest First</option>
-                    </optgroup>
-                    <optgroup label="🔤 BY TITLE">
-                        <option value="title_asc">A → Z</option>
-                        <option value="title_desc">Z → A</option>
-                    </optgroup>
-                    <optgroup label="📁 BY SOURCE">
-                        <option value="source">Group by Source</option>
-                    </optgroup>
-                    <optgroup label="🏷️ BY TAGS">
-                        <option value="tags">Most Tagged</option>
-                        <option value="untagged">Untagged First</option>
-                    </optgroup>
-                </select>
-                <a href="/sync-drive">📂 Sync Drive</a>
-                <a href="/add-content" style="background: var(--accent-gold); color: var(--bg-primary); padding: 0.5rem 1.25rem; border-radius: 2px; font-weight: 500;">+ Import</a>
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('research', 0) }}</span>{% endif %}
+                </span>
+                <span class="category-indicator" data-category="media" title="Images, video, and audio content">
+                    Media
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('media', 0) }}</span>{% endif %}
+                </span>
+                <span class="category-indicator" data-category="conversation" title="Discussions and collaborations">
+                    Conversation
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('conversation', 0) }}</span>{% endif %}
+                </span>
+                <span class="category-indicator" data-category="document" title="General documents and files">
+                    Document
+                    {% if source_counts %}<span class="count-bubble">{{ source_counts.get('document', 0) }}</span>{% endif %}
+                </span>
+            </div>
 
-                <form class="search-form" action="/search" method="get">
-                    <input type="text"
-                           name="q"
-                           class="search-input"
-                           placeholder="Search archive..."
-                           value="{{ query or '' }}">
-                </form>
+            <!-- Row 2: Icon Navigation -->
+            <div class="nav-icons">
+                <a href="/visual-translator" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></span>
+                    <span class="nav-label">Visual Analyzer</span>
+                </a>
+                <a href="/visual-translator-v2" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+                    <span class="nav-label">Visual Grid</span>
+                </a>
+                <span class="nav-divider">|</span>
+                <a href="/tags" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><line x1="6" y1="8" x2="12" y2="16"/><line x1="18" y1="8" x2="12" y2="16"/><line x1="8" y1="6" x2="16" y2="6"/></svg></span>
+                    <span class="nav-label">Tag Network</span>
+                </a>
+                <a href="/semantic-network" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="9" y1="9" x2="7" y2="7"/><line x1="15" y1="9" x2="17" y2="7"/><line x1="9" y1="15" x2="7" y2="17"/><line x1="15" y1="15" x2="17" y2="17"/></svg></span>
+                    <span class="nav-label">Semantic Network</span>
+                </a>
+                <span class="nav-divider">|</span>
+                <a href="/blockchain-tracker" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg></span>
+                    <span class="nav-label">Blockchain</span>
+                </a>
+                <a href="/edition-constellation" class="nav-icon-link" title="Edition Constellation - Collector distribution for multi-edition works">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="4" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="6" cy="6" r="1.5"/><circle cx="18" cy="6" r="1.5"/><circle cx="18" cy="18" r="1.5"/><circle cx="6" cy="18" r="1.5"/></svg></span>
+                    <span class="nav-label">Editions</span>
+                </a>
+                <a href="/sales-analytics" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="4" y2="14"/><line x1="9" y1="20" x2="9" y2="8"/><line x1="14" y1="20" x2="14" y2="12"/><line x1="19" y1="20" x2="19" y2="4"/></svg></span>
+                    <span class="nav-label">Analytics</span>
+                </a>
+                <a href="/collections" class="nav-icon-link">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/><rect x="10" y="10" width="4" height="4"/></svg></span>
+                    <span class="nav-label">Collections</span>
+                </a>
+                <span class="nav-divider">|</span>
+                <a href="#" class="nav-icon-link" onclick="toggleFilterPanel(event)" title="Sort & Filter">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><polygon points="22,3 2,3 10,12.5 10,19 14,21 14,12.5"/></svg></span>
+                    <span class="nav-label">Filter</span>
+                </a>
+                <a href="/search" class="nav-icon-link" title="Search">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/></svg></span>
+                    <span class="nav-label">Search</span>
+                </a>
+
+                <!-- Hidden Filter Panel -->
+                <div id="filterPanel" class="filter-panel" style="display: none;">
+                    <div class="filter-section">
+                        <span class="filter-label">Sort By</span>
+                        <button onclick="updateSort('date_desc')">Newest</button>
+                        <button onclick="updateSort('date_asc')">Oldest</button>
+                        <button onclick="updateSort('title_asc')">A-Z</button>
+                        <button onclick="updateSort('title_desc')">Z-A</button>
+                    </div>
+                    <div class="filter-section">
+                        <span class="filter-label">Group By</span>
+                        <button onclick="updateSort('source')">Source</button>
+                        <button onclick="updateSort('tags')">Most Tagged</button>
+                        <button onclick="updateSort('untagged')">Untagged</button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -373,11 +771,31 @@
 
     <footer class="footer">
         <div class="container">
-            <p>GiselX Archive — Curated Knowledge</p>
+            <p>ARCHIV-IT by WEB3GISEL — Your Data. Your Output. Take Control.</p>
         </div>
     </footer>
 
     <script>
+    // Toggle filter panel visibility
+    function toggleFilterPanel(event) {
+        event.preventDefault();
+        const panel = document.getElementById('filterPanel');
+        if (panel.style.display === 'none') {
+            panel.style.display = 'block';
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    // Close filter panel when clicking outside
+    document.addEventListener('click', function(event) {
+        const panel = document.getElementById('filterPanel');
+        const filterBtn = event.target.closest('[onclick*="toggleFilterPanel"]');
+        if (panel && !panel.contains(event.target) && !filterBtn) {
+            panel.style.display = 'none';
+        }
+    });
+
     function updateSort(sortValue) {
         if (!sortValue) return;
 
@@ -401,15 +819,6 @@
 
         window.location.href = newUrl;
     }
-
-    // Restore sort selection on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const sort = urlParams.get('sort');
-        if (sort) {
-            document.getElementById('sortSelect').value = sort;
-        }
-    });
     </script>
 </body>
 </html>
