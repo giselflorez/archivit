@@ -323,6 +323,128 @@ def check_csrf_token():
 
     return None
 
+# ============================================================================
+# SECURITY: Simple Site Password Protection
+# Set SITE_PASSWORD in .env to enable. Leave empty for no password.
+# ============================================================================
+
+SITE_PASSWORD = os.getenv('SITE_PASSWORD', '')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    """Simple password login page"""
+    if not SITE_PASSWORD:
+        return redirect('/')
+
+    error = None
+    if request.method == 'POST':
+        entered_password = request.form.get('password', '')
+        if entered_password == SITE_PASSWORD:
+            session['site_authenticated'] = True
+            return redirect('/')
+        else:
+            error = 'Incorrect password'
+
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>ARCHIV-IT - Login</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{
+                font-family: 'Inter', sans-serif;
+                background: #0a0a0f;
+                color: #e8e6e3;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }}
+            .login-box {{
+                background: #12121a;
+                border: 1px solid #2a2a2a;
+                border-radius: 12px;
+                padding: 3rem;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+            }}
+            h1 {{
+                color: #d4a574;
+                font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+            }}
+            p {{
+                color: rgba(232, 230, 227, 0.6);
+                font-size: 0.85rem;
+                margin-bottom: 2rem;
+            }}
+            input {{
+                width: 100%;
+                padding: 1rem;
+                background: #1a1a24;
+                border: 1px solid #2a2a2a;
+                border-radius: 6px;
+                color: #e8e6e3;
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }}
+            input:focus {{
+                outline: none;
+                border-color: #d4a574;
+            }}
+            button {{
+                width: 100%;
+                padding: 1rem;
+                background: #d4a574;
+                border: none;
+                border-radius: 6px;
+                color: #0a0a0f;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+            }}
+            button:hover {{
+                background: #e8b88a;
+            }}
+            .error {{
+                color: #ef4444;
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h1>ARCHIV-IT</h1>
+            <p>Beta Tester Access</p>
+            {"<div class='error'>" + error + "</div>" if error else ""}
+            <form method="POST">
+                <input type="password" name="password" placeholder="Enter password" autofocus>
+                <button type="submit">Enter</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.before_request
+def check_site_password():
+    """Require password if SITE_PASSWORD is set"""
+    if not SITE_PASSWORD:
+        return None
+
+    # Allow login page and static files
+    if request.path in ('/login', '/favicon.ico') or request.path.startswith('/static/'):
+        return None
+
+    # Check if authenticated
+    if not session.get('site_authenticated'):
+        return redirect('/login')
+
+    return None
+
 # Content Security Policy - prevents XSS and injection attacks
 @app.after_request
 def add_security_headers(response):
