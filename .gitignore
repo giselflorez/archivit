@@ -335,3 +335,11 @@ WEB3AUTOMATE-work
 # END OF SECURITY-HARDENED .gitignore
 # Last Updated: 2026-01-08
 # ============================================================================
+
+# Private proposals and drafts - DO NOT COMMIT
+docs/DATALAND_RESIDENCY_PROPOSAL.html
+docs/INTERNET_ARCHIVE_COLLABORATION_PROPOSAL.md
+docs/INTERNET_ARCHIVE_EMAIL.html
+docs/INTERNET_ARCHIVE_EMAIL_DRAFT.md
+docs/INTERNET_ARCHIVE_PROPOSAL.html
+docs/team_gallery_web3photo.html
