@@ -4,61 +4,135 @@
 
 {% block extra_styles %}
 <style>
+    /* ============================================
+       EDITION CONSTELLATION - Spatial Compute Visualization
+       Multidimensional swirling data streams with magnetic fields
+       ============================================ */
+
+    :root {
+        --field-rarity: #d166ff;
+        --field-volume: #66ffb2;
+        --field-time: #66b2ff;
+        --field-hold: #ffb366;
+        --field-edition: #ff6699;
+        --whale-color: #ffd700;
+        --diamond-color: #00ffff;
+        --flipper-color: #ff4444;
+    }
+
     .constellation-header {
-        text-align: center;
-        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid;
+        border-image: linear-gradient(90deg, var(--accent-gold), transparent) 1;
     }
 
     .constellation-header h1 {
         font-family: 'Crimson Pro', serif;
         font-size: 1.8rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
+        font-weight: 400;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
+        text-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        margin: 0;
     }
 
     .constellation-subtitle {
         color: var(--text-tertiary);
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
     }
+
+    /* Magnetic Field Controls */
+    .field-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .field-btn {
+        position: relative;
+        padding: 0.4rem 0.8rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        color: var(--text-tertiary);
+        font-size: 0.65rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-family: inherit;
+    }
+
+    .field-btn:hover {
+        border-color: var(--field-color, var(--accent-gold));
+        color: var(--field-color, var(--accent-gold));
+    }
+
+    .field-btn.active {
+        background: var(--field-color, var(--accent-gold));
+        color: var(--bg-primary);
+        border-color: var(--field-color, var(--accent-gold));
+        box-shadow: 0 0 15px var(--field-glow, rgba(212, 165, 116, 0.5));
+    }
+
+    .field-btn[data-field="rarity"] { --field-color: var(--field-rarity); --field-glow: rgba(209, 102, 255, 0.5); }
+    .field-btn[data-field="volume"] { --field-color: var(--field-volume); --field-glow: rgba(102, 255, 178, 0.5); }
+    .field-btn[data-field="time"] { --field-color: var(--field-time); --field-glow: rgba(102, 178, 255, 0.5); }
+    .field-btn[data-field="hold"] { --field-color: var(--field-hold); --field-glow: rgba(255, 179, 102, 0.5); }
+    .field-btn[data-field="edition"] { --field-color: var(--field-edition); --field-glow: rgba(255, 102, 153, 0.5); }
 
     /* Main Layout */
     .constellation-layout {
         display: grid;
-        grid-template-columns: 280px 1fr 300px;
+        grid-template-columns: 260px 1fr 280px;
         gap: 1rem;
-        height: calc(100vh - 250px);
-        min-height: 600px;
+        height: calc(100vh - 220px);
+        min-height: 550px;
     }
 
     /* Left Sidebar - Edition Selector */
     .edition-selector {
         background: var(--bg-secondary);
         border: 1px solid var(--border-color);
-        padding: 1rem;
+        border-radius: 8px;
+        padding: 0.75rem;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     .selector-title {
         font-family: 'Crimson Pro', serif;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: var(--accent-gold);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .edition-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
+        flex: 1;
+        overflow-y: auto;
     }
 
     .edition-item {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid var(--border-color);
-        padding: 0.75rem;
+        border-radius: 6px;
+        padding: 0.6rem;
         cursor: pointer;
         transition: all 0.2s ease;
     }
@@ -71,29 +145,33 @@
     .edition-item.active {
         border-color: var(--accent-gold);
         background: rgba(212, 165, 116, 0.1);
+        box-shadow: 0 0 10px rgba(212, 165, 116, 0.2);
     }
 
     .edition-item-title {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 500;
         color: var(--text-primary);
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .edition-item-meta {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         color: var(--text-tertiary);
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        align-items: center;
     }
 
     .edition-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
-        padding: 0.15rem 0.4rem;
-        font-size: 0.6rem;
-        font-weight: 500;
+        padding: 0.1rem 0.3rem;
+        font-size: 0.55rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         border-radius: 2px;
@@ -102,19 +180,18 @@
     .badge-1155 {
         background: rgba(209, 102, 255, 0.2);
         color: #d166ff;
-        border: 1px solid rgba(209, 102, 255, 0.4);
     }
 
     .badge-721 {
         background: rgba(102, 178, 255, 0.2);
         color: #66b2ff;
-        border: 1px solid rgba(102, 178, 255, 0.4);
     }
 
     /* Main Visualization Area */
     .constellation-view {
         background: var(--bg-secondary);
         border: 1px solid var(--border-color);
+        border-radius: 8px;
         position: relative;
         overflow: hidden;
     }
@@ -122,18 +199,63 @@
     #constellationCanvas {
         width: 100%;
         height: 100%;
+        background: radial-gradient(ellipse at center, rgba(20, 20, 30, 1) 0%, var(--bg-primary) 100%);
     }
 
-    /* Constellation Controls */
+    /* Particle Stream Background */
+    .particle-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    @keyframes particleSwirl {
+        0% { transform: rotate(0deg) translateX(0) scale(1); opacity: 0.3; }
+        25% { transform: rotate(90deg) translateX(20px) scale(1.1); opacity: 0.6; }
+        50% { transform: rotate(180deg) translateX(0) scale(1); opacity: 0.4; }
+        75% { transform: rotate(270deg) translateX(-20px) scale(0.9); opacity: 0.5; }
+        100% { transform: rotate(360deg) translateX(0) scale(1); opacity: 0.3; }
+    }
+
+    @keyframes fieldPulse {
+        0%, 100% { opacity: 0.2; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.02); }
+    }
+
+    /* Magnetic Field Indicator */
+    .field-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80%;
+        border-radius: 50%;
+        border: 1px dashed var(--field-color, var(--accent-gold));
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.5s ease;
+    }
+
+    .field-indicator.active {
+        opacity: 0.3;
+        animation: fieldPulse 3s ease-in-out infinite;
+    }
+
+    /* Controls Panel */
     .constellation-controls {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
+        top: 0.75rem;
+        right: 0.75rem;
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.2rem;
         z-index: 10;
-        opacity: 0.4;
+        opacity: 0.5;
         transition: opacity 0.3s ease;
     }
 
@@ -142,17 +264,19 @@
     }
 
     .const-btn {
-        background: rgba(22, 22, 22, 0.8);
+        background: rgba(10, 10, 15, 0.9);
         border: 1px solid var(--border-color);
         color: var(--text-tertiary);
-        padding: 0.3rem 0.6rem;
+        padding: 0.25rem 0.5rem;
         cursor: pointer;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 400;
         transition: all 0.2s ease;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         backdrop-filter: blur(5px);
+        font-family: inherit;
+        border-radius: 3px;
     }
 
     .const-btn:hover {
@@ -160,23 +284,37 @@
         color: var(--accent-gold);
     }
 
+    .const-btn.active {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
     /* Legend */
     .constellation-legend {
         position: absolute;
-        bottom: 1rem;
-        left: 1rem;
-        background: rgba(22, 22, 22, 0.95);
+        bottom: 0.75rem;
+        left: 0.75rem;
+        background: rgba(10, 10, 15, 0.95);
         border: 1px solid var(--border-color);
-        padding: 0.75rem;
-        font-size: 0.65rem;
+        border-radius: 6px;
+        padding: 0.6rem;
+        font-size: 0.6rem;
         backdrop-filter: blur(10px);
+    }
+
+    .legend-title {
+        font-size: 0.55rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
     }
 
     .legend-row {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.35rem;
+        gap: 0.4rem;
+        margin-bottom: 0.25rem;
         color: var(--text-tertiary);
     }
 
@@ -185,100 +323,188 @@
     }
 
     .legend-icon {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         flex-shrink: 0;
     }
 
     .legend-icon.artwork {
         background: radial-gradient(circle at 30% 30%, #d4a574, #8b7355);
-        box-shadow: 0 0 10px rgba(212, 165, 116, 0.6);
+        box-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
     }
+
+    .legend-icon.whale {
+        background: var(--whale-color);
+        box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+    }
+
+    .legend-icon.diamond {
+        background: var(--diamond-color);
+        box-shadow: 0 0 6px rgba(0, 255, 255, 0.5);
+    }
+
+    .legend-icon.flipper {
+        background: var(--flipper-color);
+    }
+
     .legend-icon.holder {
         background: rgba(102, 178, 255, 0.8);
-        border: 1px solid #66b2ff;
-    }
-    .legend-icon.active {
-        background: rgba(102, 255, 178, 0.8);
-        border: 1px solid #66ffb2;
-    }
-    .legend-icon.seller {
-        background: rgba(255, 102, 153, 0.8);
-        border: 1px solid #ff6699;
     }
 
     .legend-line {
-        width: 20px;
+        width: 16px;
         height: 2px;
         flex-shrink: 0;
     }
 
-    .legend-line.primary { background: rgba(212, 165, 116, 0.6); }
-    .legend-line.secondary { background: rgba(255, 255, 255, 0.2); }
+    .legend-line.primary {
+        background: rgba(212, 165, 116, 0.6);
+    }
 
-    /* Right Sidebar - Collector Details */
+    .legend-line.secondary {
+        background: rgba(255, 255, 255, 0.2);
+        background: repeating-linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) 3px, transparent 3px, transparent 6px);
+    }
+
+    /* Stats Panel */
+    .stats-overlay {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        background: rgba(10, 10, 15, 0.9);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.6rem;
+        backdrop-filter: blur(10px);
+        min-width: 140px;
+    }
+
+    .stats-title {
+        font-size: 0.55rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.6rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .stats-label {
+        color: var(--text-tertiary);
+    }
+
+    .stats-value {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Right Sidebar - Collector Panel */
     .collector-panel {
         background: var(--bg-secondary);
         border: 1px solid var(--border-color);
-        padding: 1rem;
+        border-radius: 8px;
+        padding: 0.75rem;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     .panel-title {
         font-family: 'Crimson Pro', serif;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: var(--accent-gold);
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
     }
 
-    .edition-stats {
-        background: rgba(212, 165, 116, 0.05);
-        border: 1px solid rgba(212, 165, 116, 0.2);
-        padding: 1rem;
-        margin-bottom: 1rem;
+    /* Collector Analysis Chips */
+    .analysis-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-bottom: 0.75rem;
     }
 
+    .analysis-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.4rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 3px;
+        font-size: 0.55rem;
+        color: var(--text-tertiary);
+    }
+
+    .chip-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .chip-dot.whale { background: var(--whale-color); }
+    .chip-dot.diamond { background: var(--diamond-color); }
+    .chip-dot.flipper { background: var(--flipper-color); }
+
+    /* Stats Grid */
     .stat-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
     }
 
     .stat-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 0.5rem;
         text-align: center;
     }
 
     .stat-value {
         font-family: 'Crimson Pro', serif;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--accent-gold);
+        text-shadow: 0 0 8px rgba(212, 165, 116, 0.3);
     }
 
     .stat-label {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         color: var(--text-tertiary);
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        margin-top: 0.15rem;
     }
 
     /* Collector List */
     .collector-list {
+        flex: 1;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.3rem;
     }
 
     .collector-item {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid var(--border-color);
-        padding: 0.75rem;
+        border-radius: 4px;
+        padding: 0.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        position: relative;
     }
 
     .collector-item:hover {
@@ -287,144 +513,82 @@
     }
 
     .collector-item.highlighted {
-        border-color: #66b2ff;
-        background: rgba(102, 178, 255, 0.1);
+        border-color: var(--accent-gold);
+        background: rgba(212, 165, 116, 0.1);
+        box-shadow: 0 0 10px rgba(212, 165, 116, 0.2);
     }
 
     .collector-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.4rem;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
     }
 
     .collector-address {
-        font-family: monospace;
         font-size: 0.7rem;
-        color: var(--text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-primary);
+    }
+
+    .collector-badges {
+        display: flex;
+        gap: 0.2rem;
+    }
+
+    .collector-badge {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.5rem;
+    }
+
+    .badge-whale {
+        background: rgba(255, 215, 0, 0.2);
+        color: var(--whale-color);
+        border: 1px solid var(--whale-color);
+    }
+
+    .badge-diamond {
+        background: rgba(0, 255, 255, 0.2);
+        color: var(--diamond-color);
+        border: 1px solid var(--diamond-color);
+    }
+
+    .badge-flipper {
+        background: rgba(255, 68, 68, 0.2);
+        color: var(--flipper-color);
+        border: 1px solid var(--flipper-color);
+    }
+
+    .collector-meta {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.55rem;
+        color: var(--text-tertiary);
     }
 
     .collector-editions {
-        font-size: 0.65rem;
-        font-weight: 600;
-        color: var(--accent-gold);
-        padding: 0.15rem 0.4rem;
-        background: rgba(212, 165, 116, 0.15);
-        border-radius: 2px;
-    }
-
-    .collector-metrics {
-        display: flex;
-        gap: 0.75rem;
-        font-size: 0.6rem;
-        color: var(--text-tertiary);
-    }
-
-    .metric {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
-    }
-
-    .metric-icon {
-        color: var(--accent-warm);
-        font-size: 0.55rem;
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--text-tertiary);
-    }
-
-    .empty-icon {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-        opacity: 0.3;
-    }
-
-    /* Node Styles in SVG */
-    .artwork-node {
-        cursor: pointer;
-    }
-
-    .collector-node {
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .collector-node:hover {
-        filter: brightness(1.3);
-    }
-
-    /* Glow Effects */
-    .glow-gold {
-        filter: drop-shadow(0 0 8px rgba(212, 165, 116, 0.6));
-    }
-
-    .glow-blue {
-        filter: drop-shadow(0 0 6px rgba(102, 178, 255, 0.5));
-    }
-
-    /* Transfer Flow Animation */
-    @keyframes flowPulse {
-        0% { stroke-dashoffset: 20; }
-        100% { stroke-dashoffset: 0; }
-    }
-
-    .flow-line {
-        stroke-dasharray: 5 5;
-        animation: flowPulse 1s linear infinite;
-    }
-
-    /* Provenance Timeline */
-    .provenance-section {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .provenance-title {
-        font-size: 0.75rem;
-        font-weight: 600;
+        gap: 0.15rem;
+        padding: 0.1rem 0.25rem;
+        background: rgba(212, 165, 116, 0.15);
         color: var(--accent-gold);
-        margin-bottom: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        border-radius: 2px;
+        font-weight: 600;
     }
 
-    .provenance-item {
-        display: flex;
-        gap: 0.75rem;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        font-size: 0.65rem;
-    }
-
-    .provenance-date {
-        color: var(--text-tertiary);
-        width: 70px;
-        flex-shrink: 0;
-    }
-
-    .provenance-event {
-        color: var(--text-secondary);
-        flex: 1;
-    }
-
-    .provenance-value {
-        color: var(--accent-warm);
-        font-weight: 500;
-    }
-
-    /* Value Trajectory Indicators */
+    /* Trajectory Indicators */
     .trajectory-indicator {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
-        font-size: 0.6rem;
-        padding: 0.15rem 0.35rem;
+        gap: 0.15rem;
+        font-size: 0.55rem;
+        padding: 0.1rem 0.25rem;
         border-radius: 2px;
     }
 
@@ -438,66 +602,280 @@
         color: #ff6699;
     }
 
-    .trajectory-stable {
-        background: rgba(255, 255, 255, 0.1);
+    /* Cluster Info Tooltip */
+    .cluster-tooltip {
+        position: absolute;
+        background: rgba(10, 10, 15, 0.95);
+        border: 1px solid var(--accent-gold);
+        border-radius: 6px;
+        padding: 0.6rem;
+        pointer-events: none;
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        min-width: 160px;
+    }
+
+    .cluster-tooltip.visible {
+        opacity: 1;
+    }
+
+    .cluster-tooltip-title {
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        margin-bottom: 0.3rem;
+    }
+
+    .cluster-tooltip-content {
+        font-size: 0.6rem;
+        color: var(--text-secondary);
+    }
+
+    /* Provenance Section */
+    .provenance-section {
+        border-top: 1px solid var(--border-color);
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .provenance-title {
+        font-size: 0.65rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.4rem;
+    }
+
+    .provenance-item {
+        display: flex;
+        align-items: center;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-size: 0.55rem;
+    }
+
+    .provenance-date {
         color: var(--text-tertiary);
+        width: 55px;
+        flex-shrink: 0;
+    }
+
+    .provenance-event {
+        color: var(--text-secondary);
+        flex: 1;
+    }
+
+    .provenance-value {
+        color: var(--accent-warm);
+        font-weight: 500;
+    }
+
+    /* Empty States */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: var(--text-tertiary);
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.3;
+    }
+
+    /* D3 Node Styling */
+    .artwork-node circle {
+        filter: drop-shadow(0 0 12px rgba(212, 165, 116, 0.6));
+    }
+
+    .collector-node circle {
+        transition: all 0.2s ease;
+    }
+
+    .collector-node:hover circle {
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .whale-node circle {
+        stroke: var(--whale-color) !important;
+        stroke-width: 3px;
+    }
+
+    .diamond-node circle {
+        stroke: var(--diamond-color) !important;
+    }
+
+    .flipper-node circle {
+        stroke: var(--flipper-color) !important;
+    }
+
+    /* Flow Animation */
+    @keyframes flowPulse {
+        0% { stroke-dashoffset: 0; opacity: 0.3; }
+        50% { opacity: 0.8; }
+        100% { stroke-dashoffset: -20; opacity: 0.3; }
+    }
+
+    .flow-line {
+        animation: flowPulse 1s linear infinite;
+    }
+
+    /* Swirl Background Effect */
+    .swirl-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0.15;
+    }
+
+    @keyframes swirlRotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .swirl-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid;
+        opacity: 0.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .constellation-layout {
+            grid-template-columns: 220px 1fr 240px;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .constellation-layout {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 400px auto;
+        }
+        .edition-selector, .collector-panel {
+            max-height: 200px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="constellation-header">
-    <h1>Edition Constellation</h1>
-    <p class="constellation-subtitle">Collector Distribution Network for Multi-Edition Works</p>
+    <div>
+        <h1>Edition Constellation</h1>
+        <p class="constellation-subtitle">Spatial Analysis of Multi-Edition Collector Networks</p>
+    </div>
+    <div class="field-controls">
+        <span style="font-size: 0.6rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.1em; margin-right: 0.5rem;">Magnetic Fields:</span>
+        <button class="field-btn" data-field="none" onclick="setMagneticField('none')">None</button>
+        <button class="field-btn" data-field="rarity" onclick="setMagneticField('rarity')">Rarity</button>
+        <button class="field-btn" data-field="volume" onclick="setMagneticField('volume')">Volume</button>
+        <button class="field-btn" data-field="time" onclick="setMagneticField('time')">Time</button>
+        <button class="field-btn" data-field="hold" onclick="setMagneticField('hold')">Hold</button>
+        <button class="field-btn" data-field="edition" onclick="setMagneticField('edition')">Edition #</button>
+    </div>
 </div>
 
 <div class="constellation-layout">
     <!-- Left: Edition Selector -->
     <div class="edition-selector">
-        <div class="selector-title">Edition Works</div>
+        <div class="selector-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="4"/>
+            </svg>
+            Edition Works
+        </div>
         <div class="edition-list" id="editionList">
             <div class="empty-state">
-                <div class="empty-icon">--</div>
-                <div>Loading edition works...</div>
+                <div class="empty-icon">&#9673;</div>
+                <div>Loading editions...</div>
             </div>
         </div>
     </div>
 
     <!-- Center: Constellation Visualization -->
     <div class="constellation-view">
+        <!-- Swirl Background -->
+        <div class="swirl-bg" id="swirlBg"></div>
+
+        <!-- Main Canvas -->
         <svg id="constellationCanvas"></svg>
+
+        <!-- Magnetic Field Indicator -->
+        <div class="field-indicator" id="fieldIndicator"></div>
+
+        <!-- Stats Overlay -->
+        <div class="stats-overlay" id="statsOverlay" style="display: none;">
+            <div class="stats-title">Distribution Analysis</div>
+            <div class="stats-row">
+                <span class="stats-label">Gini Index:</span>
+                <span class="stats-value" id="giniIndex">--</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Top 10%:</span>
+                <span class="stats-value" id="top10Pct">--</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Whales:</span>
+                <span class="stats-value" id="whaleCount">--</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label">Avg Hold:</span>
+                <span class="stats-value" id="avgHold">--</span>
+            </div>
+        </div>
 
         <div class="constellation-controls">
             <button class="const-btn" onclick="resetConstellation()">Reset</button>
-            <button class="const-btn" onclick="toggleLabels()">Labels</button>
+            <button class="const-btn" id="labelBtn" onclick="toggleLabels()">Labels</button>
             <button class="const-btn" onclick="animateFlow()">Flow</button>
+            <button class="const-btn" onclick="toggleClusters()">Clusters</button>
+            <button class="const-btn" onclick="explodeView()">Explode</button>
         </div>
 
         <div class="constellation-legend">
+            <div class="legend-title">Node Types</div>
             <div class="legend-row">
                 <div class="legend-icon artwork"></div>
-                <span>Artwork (Central)</span>
+                <span>Central Artwork</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-icon whale"></div>
+                <span>Whale (10+ eds)</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-icon diamond"></div>
+                <span>Diamond Hands (90+ days)</span>
+            </div>
+            <div class="legend-row">
+                <div class="legend-icon flipper"></div>
+                <span>Flipper (&lt;7 days)</span>
             </div>
             <div class="legend-row">
                 <div class="legend-icon holder"></div>
-                <span>Current Holder</span>
+                <span>Standard Holder</span>
             </div>
-            <div class="legend-row">
-                <div class="legend-icon active"></div>
-                <span>Active Collector</span>
-            </div>
-            <div class="legend-row">
-                <div class="legend-icon seller"></div>
-                <span>Previous Owner</span>
-            </div>
-            <div class="legend-row">
+            <div class="legend-row" style="margin-top: 0.3rem;">
                 <div class="legend-line primary"></div>
-                <span>Direct Ownership</span>
+                <span>Ownership</span>
             </div>
             <div class="legend-row">
                 <div class="legend-line secondary"></div>
                 <span>Transfer Path</span>
             </div>
+        </div>
+
+        <!-- Cluster Tooltip -->
+        <div class="cluster-tooltip" id="clusterTooltip">
+            <div class="cluster-tooltip-title"></div>
+            <div class="cluster-tooltip-content"></div>
         </div>
     </div>
 
@@ -505,32 +883,45 @@
     <div class="collector-panel">
         <div class="panel-title">Edition Distribution</div>
 
-        <div class="edition-stats" id="editionStats">
-            <div class="stat-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalEditions">--</div>
-                    <div class="stat-label">Total Editions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="uniqueHolders">--</div>
-                    <div class="stat-label">Unique Holders</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="avgHoldDays">--</div>
-                    <div class="stat-label">Avg Hold (days)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="totalVolume">--</div>
-                    <div class="stat-label">Volume (ETH)</div>
-                </div>
+        <div class="analysis-chips" id="analysisChips">
+            <div class="analysis-chip">
+                <span class="chip-dot whale"></span>
+                <span id="chipWhales">0 Whales</span>
+            </div>
+            <div class="analysis-chip">
+                <span class="chip-dot diamond"></span>
+                <span id="chipDiamonds">0 Diamond</span>
+            </div>
+            <div class="analysis-chip">
+                <span class="chip-dot flipper"></span>
+                <span id="chipFlippers">0 Flippers</span>
             </div>
         </div>
 
-        <div class="panel-title" style="margin-top: 1rem;">Collectors</div>
+        <div class="stat-grid" id="editionStats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalEditions">--</div>
+                <div class="stat-label">Total Editions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="uniqueHolders">--</div>
+                <div class="stat-label">Holders</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="avgHoldDays">--</div>
+                <div class="stat-label">Avg Hold (d)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalVolume">--</div>
+                <div class="stat-label">Volume (ETH)</div>
+            </div>
+        </div>
+
+        <div class="panel-title">Collectors</div>
         <div class="collector-list" id="collectorList">
             <div class="empty-state">
-                <div class="empty-icon">--</div>
-                <div>Select an edition work</div>
+                <div class="empty-icon">&#9673;</div>
+                <div>Select an edition</div>
             </div>
         </div>
 
@@ -543,17 +934,180 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-// Global state
+// ============================================
+// EDITION CONSTELLATION - Spatial Compute Engine
+// ============================================
+
+// Global State
 let editionData = null;
 let selectedEdition = null;
 let showLabels = true;
+let showClusters = false;
+let currentField = 'none';
 let simulation;
-let svg, g;
+let svg, g, zoom;
+let nodes = [];
+let links = [];
+
+// Collector Classification Thresholds
+const WHALE_THRESHOLD = 10;      // 10+ editions = whale
+const DIAMOND_THRESHOLD = 90;    // 90+ days hold = diamond hands
+const FLIPPER_THRESHOLD = 7;     // <7 days hold = flipper
+
+// Color Palette
+const COLORS = {
+    artwork: '#d4a574',
+    whale: '#ffd700',
+    diamond: '#00ffff',
+    flipper: '#ff4444',
+    holder: '#66b2ff',
+    seller: '#ff6699',
+    link: 'rgba(212, 165, 116, 0.4)',
+    transfer: 'rgba(255, 255, 255, 0.15)'
+};
+
+// Field Colors for Magnetic Sorting
+const FIELD_COLORS = {
+    rarity: '#d166ff',
+    volume: '#66ffb2',
+    time: '#66b2ff',
+    hold: '#ffb366',
+    edition: '#ff6699'
+};
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    initSwirlBackground();
     loadEditionWorks();
+    setMagneticField('none');
 });
+
+// Create swirling background effect
+function initSwirlBackground() {
+    const container = document.getElementById('swirlBg');
+    const rings = [
+        { size: 30, duration: 60, color: 'rgba(212, 165, 116, 0.1)' },
+        { size: 50, duration: 90, color: 'rgba(102, 178, 255, 0.08)' },
+        { size: 70, duration: 120, color: 'rgba(209, 102, 255, 0.05)' }
+    ];
+
+    rings.forEach((ring, i) => {
+        const el = document.createElement('div');
+        el.className = 'swirl-ring';
+        el.style.cssText = `
+            width: ${ring.size}%;
+            height: ${ring.size}%;
+            top: ${50 - ring.size/2}%;
+            left: ${50 - ring.size/2}%;
+            border-color: ${ring.color};
+            animation: swirlRotate ${ring.duration}s linear infinite ${i % 2 ? 'reverse' : ''};
+        `;
+        container.appendChild(el);
+    });
+}
+
+// Set Magnetic Field for sorting
+function setMagneticField(field) {
+    currentField = field;
+
+    // Update button states
+    document.querySelectorAll('.field-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.field === field);
+    });
+
+    // Update field indicator
+    const indicator = document.getElementById('fieldIndicator');
+    if (field !== 'none') {
+        indicator.classList.add('active');
+        indicator.style.borderColor = FIELD_COLORS[field];
+    } else {
+        indicator.classList.remove('active');
+    }
+
+    // Re-apply forces if simulation exists
+    if (simulation && editionData) {
+        applyMagneticField(field);
+    }
+}
+
+// Apply magnetic field forces to simulation
+function applyMagneticField(field) {
+    if (!simulation || !nodes.length) return;
+
+    const container = document.getElementById('constellationCanvas');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    if (field === 'none') {
+        // Reset to center force
+        simulation
+            .force('x', d3.forceX(centerX).strength(0.05))
+            .force('y', d3.forceY(centerY).strength(0.05))
+            .alpha(0.5)
+            .restart();
+        return;
+    }
+
+    // Calculate positions based on field
+    nodes.forEach(node => {
+        if (node.type === 'artwork') return;
+
+        let angle, radius;
+
+        switch(field) {
+            case 'rarity':
+                // Rarer editions (fewer held) closer to center
+                const rarityScore = 1 / (node.editions + 1);
+                radius = 80 + (1 - rarityScore) * 200;
+                angle = (node.index / nodes.length) * Math.PI * 2;
+                break;
+
+            case 'volume':
+                // Higher volume = outer ring
+                const maxVol = Math.max(...nodes.filter(n => n.type !== 'artwork').map(n => n.volumeEth || 0));
+                const volRatio = (node.volumeEth || 0) / (maxVol || 1);
+                radius = 80 + volRatio * 200;
+                angle = (node.index / nodes.length) * Math.PI * 2;
+                break;
+
+            case 'time':
+                // Earlier acquisitions at top, recent at bottom
+                const now = Date.now() / 1000;
+                const age = now - (node.firstAcquired || now);
+                const maxAge = Math.max(...nodes.filter(n => n.type !== 'artwork').map(n => now - (n.firstAcquired || now)));
+                const timeRatio = age / (maxAge || 1);
+                angle = -Math.PI/2 + timeRatio * Math.PI; // Top to bottom
+                radius = 120;
+                break;
+
+            case 'hold':
+                // Diamond hands center, flippers outer
+                const holdRatio = Math.min(node.holdDays / DIAMOND_THRESHOLD, 1);
+                radius = 200 - holdRatio * 120;
+                angle = (node.index / nodes.length) * Math.PI * 2;
+                break;
+
+            case 'edition':
+                // Spiral based on edition number
+                const editionNum = node.editionNumber || node.index;
+                angle = editionNum * 0.5;
+                radius = 80 + (editionNum % 50) * 3;
+                break;
+        }
+
+        node.targetX = centerX + Math.cos(angle) * radius;
+        node.targetY = centerY + Math.sin(angle) * radius;
+    });
+
+    // Apply position forces
+    simulation
+        .force('x', d3.forceX(d => d.targetX || centerX).strength(0.3))
+        .force('y', d3.forceY(d => d.targetY || centerY).strength(0.3))
+        .alpha(0.8)
+        .restart();
+}
 
 // Load edition works from API
 async function loadEditionWorks() {
@@ -580,10 +1134,10 @@ function renderEditionList(editions) {
     if (editions.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">--</div>
-                <div>No edition works found</div>
-                <div style="font-size: 0.65rem; margin-top: 0.5rem; color: var(--text-tertiary);">
-                    ERC-1155 tokens will appear here
+                <div class="empty-icon">&#9673;</div>
+                <div>No edition works tracked</div>
+                <div style="font-size: 0.6rem; margin-top: 0.5rem; color: var(--text-tertiary);">
+                    ERC-1155 multi-editions appear here
                 </div>
             </div>
         `;
@@ -593,26 +1147,28 @@ function renderEditionList(editions) {
     container.innerHTML = editions.map((edition, index) => `
         <div class="edition-item" onclick="selectEdition('${edition.contract}', ${edition.token_id})"
              data-contract="${edition.contract}" data-token="${edition.token_id}">
-            <div class="edition-item-title">${edition.title || 'Untitled Edition'}</div>
+            <div class="edition-item-title">${edition.title || 'Untitled Edition #' + edition.token_id}</div>
             <div class="edition-item-meta">
                 <span class="edition-badge ${edition.token_standard === 'ERC-1155' ? 'badge-1155' : 'badge-721'}">
                     ${edition.token_standard || 'ERC-1155'}
                 </span>
-                <span>${edition.total_supply || '?'} editions</span>
-                <span>${edition.unique_holders || '?'} holders</span>
+                <span>${edition.total_supply || 0} eds</span>
+                <span>${edition.unique_holders || 0} holders</span>
             </div>
         </div>
     `).join('');
 }
 
-// Select an edition to visualize
+// Select an edition
 async function selectEdition(contract, tokenId) {
-    // Update UI selection state
-    document.querySelectorAll('.edition-item').forEach(el => el.classList.remove('active'));
-    const selected = document.querySelector(`.edition-item[data-contract="${contract}"][data-token="${tokenId}"]`);
-    if (selected) selected.classList.add('active');
+    // Update UI
+    document.querySelectorAll('.edition-item').forEach(el => {
+        const isActive = el.dataset.contract === contract && parseInt(el.dataset.token) === tokenId;
+        el.classList.toggle('active', isActive);
+    });
 
-    // Load edition data
+    selectedEdition = { contract, tokenId };
+
     try {
         const response = await fetch(`/api/edition-constellation/${contract}/${tokenId}`);
         const data = await response.json();
@@ -623,27 +1179,23 @@ async function selectEdition(contract, tokenId) {
         }
 
         editionData = data;
-        selectedEdition = { contract, tokenId };
-
-        // Update stats
         updateStats(data);
-
-        // Render collector list
+        updateAnalysisChips(data.collectors || []);
         renderCollectorList(data.collectors || []);
-
-        // Render constellation visualization
+        renderProvenance(data.recent_activity || []);
         renderConstellation(data);
 
-        // Show provenance
-        renderProvenance(data.recent_activity || []);
+        // Show stats overlay
+        document.getElementById('statsOverlay').style.display = 'block';
+        calculateDistributionMetrics(data.collectors || []);
 
     } catch (error) {
-        console.error('Failed to load edition data:', error);
-        showError('collectorList', 'Failed to load constellation data');
+        console.error('Failed to load edition:', error);
+        showError('collectorList', 'Failed to load edition data');
     }
 }
 
-// Update edition stats
+// Update stats display
 function updateStats(data) {
     document.getElementById('totalEditions').textContent = data.total_supply || '--';
     document.getElementById('uniqueHolders').textContent = data.unique_holders || '--';
@@ -651,44 +1203,96 @@ function updateStats(data) {
     document.getElementById('totalVolume').textContent = data.total_volume_eth ? data.total_volume_eth.toFixed(2) : '--';
 }
 
+// Update analysis chips
+function updateAnalysisChips(collectors) {
+    const whales = collectors.filter(c => c.editions_held >= WHALE_THRESHOLD).length;
+    const diamonds = collectors.filter(c => c.hold_days >= DIAMOND_THRESHOLD).length;
+    const flippers = collectors.filter(c => c.hold_days < FLIPPER_THRESHOLD && !c.is_current_holder).length;
+
+    document.getElementById('chipWhales').textContent = `${whales} Whale${whales !== 1 ? 's' : ''}`;
+    document.getElementById('chipDiamonds').textContent = `${diamonds} Diamond`;
+    document.getElementById('chipFlippers').textContent = `${flippers} Flipper${flippers !== 1 ? 's' : ''}`;
+}
+
+// Calculate distribution metrics
+function calculateDistributionMetrics(collectors) {
+    if (!collectors.length) return;
+
+    // Sort by editions held
+    const sorted = [...collectors].sort((a, b) => (b.editions_held || 0) - (a.editions_held || 0));
+    const total = sorted.reduce((sum, c) => sum + (c.editions_held || 0), 0);
+
+    // Gini coefficient (simplified)
+    let sumDiffs = 0;
+    for (let i = 0; i < sorted.length; i++) {
+        for (let j = 0; j < sorted.length; j++) {
+            sumDiffs += Math.abs((sorted[i].editions_held || 0) - (sorted[j].editions_held || 0));
+        }
+    }
+    const gini = sumDiffs / (2 * sorted.length * total || 1);
+
+    // Top 10% holdings
+    const top10Count = Math.max(1, Math.floor(sorted.length * 0.1));
+    const top10Holdings = sorted.slice(0, top10Count).reduce((sum, c) => sum + (c.editions_held || 0), 0);
+    const top10Pct = ((top10Holdings / total) * 100).toFixed(1);
+
+    // Whale count
+    const whales = collectors.filter(c => c.editions_held >= WHALE_THRESHOLD).length;
+
+    // Average hold
+    const avgHold = collectors.reduce((sum, c) => sum + (c.hold_days || 0), 0) / collectors.length;
+
+    document.getElementById('giniIndex').textContent = gini.toFixed(2);
+    document.getElementById('top10Pct').textContent = top10Pct + '%';
+    document.getElementById('whaleCount').textContent = whales;
+    document.getElementById('avgHold').textContent = Math.round(avgHold) + 'd';
+}
+
 // Render collector list
 function renderCollectorList(collectors) {
     const container = document.getElementById('collectorList');
 
-    if (collectors.length === 0) {
+    if (!collectors.length) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">--</div>
-                <div>No collector data available</div>
+                <div class="empty-icon">&#9673;</div>
+                <div>No collectors found</div>
             </div>
         `;
         return;
     }
 
-    container.innerHTML = collectors.map(collector => {
-        const shortAddr = `${collector.address.substring(0, 6)}...${collector.address.substring(collector.address.length - 4)}`;
-        const trajectory = collector.value_change > 0 ? 'up' : collector.value_change < 0 ? 'down' : 'stable';
-        const trajectoryIcon = trajectory === 'up' ? '+' : trajectory === 'down' ? '-' : '=';
+    // Sort by editions held
+    const sorted = [...collectors].sort((a, b) => (b.editions_held || 0) - (a.editions_held || 0));
+
+    container.innerHTML = sorted.map(collector => {
+        const isWhale = collector.editions_held >= WHALE_THRESHOLD;
+        const isDiamond = collector.hold_days >= DIAMOND_THRESHOLD;
+        const isFlipper = collector.hold_days < FLIPPER_THRESHOLD && !collector.is_current_holder;
+
+        const badges = [];
+        if (isWhale) badges.push('<span class="collector-badge badge-whale" title="Whale">&#9830;</span>');
+        if (isDiamond) badges.push('<span class="collector-badge badge-diamond" title="Diamond Hands">&#9670;</span>');
+        if (isFlipper) badges.push('<span class="collector-badge badge-flipper" title="Flipper">&#9679;</span>');
+
+        const trajectory = collector.value_change > 0 ? 'up' : collector.value_change < 0 ? 'down' : '';
+        const trajectoryHtml = trajectory ? `
+            <span class="trajectory-indicator trajectory-${trajectory}">
+                ${trajectory === 'up' ? '&#9650;' : '&#9660;'} ${Math.abs(collector.value_change).toFixed(1)}%
+            </span>
+        ` : '';
 
         return `
-            <div class="collector-item" onclick="highlightCollector('${collector.address}')"
-                 data-address="${collector.address}">
+            <div class="collector-item" data-address="${collector.address}" onclick="highlightCollector('${collector.address}')">
                 <div class="collector-header">
-                    <span class="collector-address">${shortAddr}</span>
-                    <span class="collector-editions">${collector.editions_held} ed.</span>
+                    <span class="collector-address">${collector.address.substring(0, 6)}...${collector.address.substring(38)}</span>
+                    <div class="collector-badges">${badges.join('')}</div>
                 </div>
-                <div class="collector-metrics">
-                    <span class="metric">
-                        <span class="metric-icon">H</span>
-                        ${collector.hold_days || 0}d
-                    </span>
-                    <span class="metric">
-                        <span class="metric-icon">V</span>
-                        ${collector.volume_eth ? collector.volume_eth.toFixed(3) : '0'}
-                    </span>
-                    <span class="trajectory-indicator trajectory-${trajectory}">
-                        ${trajectoryIcon}${Math.abs(collector.value_change || 0).toFixed(1)}%
-                    </span>
+                <div class="collector-meta">
+                    <span class="collector-editions">${collector.editions_held || 0} ed${collector.editions_held !== 1 ? 's' : ''}</span>
+                    <span>${collector.hold_days || 0}d hold</span>
+                    <span>${(collector.volume_eth || 0).toFixed(2)} ETH</span>
+                    ${trajectoryHtml}
                 </div>
             </div>
         `;
@@ -700,13 +1304,13 @@ function renderProvenance(activity) {
     const section = document.getElementById('provenanceSection');
     const container = document.getElementById('provenanceList');
 
-    if (activity.length === 0) {
+    if (!activity.length) {
         section.style.display = 'none';
         return;
     }
 
     section.style.display = 'block';
-    container.innerHTML = activity.slice(0, 10).map(event => `
+    container.innerHTML = activity.slice(0, 8).map(event => `
         <div class="provenance-item">
             <span class="provenance-date">${formatDate(event.timestamp)}</span>
             <span class="provenance-event">${event.type}</span>
@@ -729,7 +1333,7 @@ function renderConstellation(data) {
         .attr('width', width)
         .attr('height', height);
 
-    // Define gradients
+    // Define gradients and filters
     const defs = svg.append('defs');
 
     // Artwork glow gradient
@@ -740,9 +1344,23 @@ function renderConstellation(data) {
     artworkGradient.append('stop').attr('offset', '0%').attr('stop-color', '#d4a574');
     artworkGradient.append('stop').attr('offset', '100%').attr('stop-color', '#8b7355');
 
+    // Glow filter
+    const glowFilter = defs.append('filter')
+        .attr('id', 'glow')
+        .attr('x', '-50%')
+        .attr('y', '-50%')
+        .attr('width', '200%')
+        .attr('height', '200%');
+    glowFilter.append('feGaussianBlur')
+        .attr('stdDeviation', '3')
+        .attr('result', 'coloredBlur');
+    const feMerge = glowFilter.append('feMerge');
+    feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
     // Add zoom behavior
-    const zoom = d3.zoom()
-        .scaleExtent([0.3, 5])
+    zoom = d3.zoom()
+        .scaleExtent([0.2, 8])
         .on('zoom', (event) => {
             g.attr('transform', event.transform);
         });
@@ -753,63 +1371,91 @@ function renderConstellation(data) {
     g = svg.append('g');
 
     // Build nodes and links
-    const nodes = buildNodes(data);
-    const links = buildLinks(data, nodes);
+    nodes = buildNodes(data);
+    links = buildLinks(data, nodes);
 
     // Create force simulation
     simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.distance || 100))
-        .force('charge', d3.forceManyBody().strength(-200))
+        .force('charge', d3.forceManyBody().strength(d => d.type === 'artwork' ? -400 : -150))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => d.radius + 10));
+        .force('collision', d3.forceCollide().radius(d => d.radius + 8))
+        .force('x', d3.forceX(width / 2).strength(0.05))
+        .force('y', d3.forceY(height / 2).strength(0.05));
 
     // Create links
     const link = g.append('g')
+        .attr('class', 'links')
         .selectAll('line')
         .data(links)
         .join('line')
-        .attr('stroke', d => d.type === 'ownership' ? 'rgba(212, 165, 116, 0.4)' : 'rgba(255, 255, 255, 0.15)')
+        .attr('stroke', d => d.type === 'ownership' ? COLORS.link : COLORS.transfer)
         .attr('stroke-width', d => d.type === 'ownership' ? 2 : 1)
         .attr('stroke-dasharray', d => d.type === 'transfer' ? '3 3' : 'none');
 
-    // Create nodes
+    // Create node groups
     const node = g.append('g')
+        .attr('class', 'nodes')
         .selectAll('g')
         .data(nodes)
         .join('g')
-        .attr('class', d => d.type === 'artwork' ? 'artwork-node' : 'collector-node')
+        .attr('class', d => {
+            let classes = d.type === 'artwork' ? 'artwork-node' : 'collector-node';
+            if (d.isWhale) classes += ' whale-node';
+            if (d.isDiamond) classes += ' diamond-node';
+            if (d.isFlipper) classes += ' flipper-node';
+            return classes;
+        })
         .call(drag(simulation))
         .on('click', (event, d) => {
             if (d.type === 'collector') {
                 highlightCollector(d.address);
             }
-        });
+        })
+        .on('mouseover', (event, d) => {
+            if (d.type === 'collector') {
+                showTooltip(event, d);
+            }
+        })
+        .on('mouseout', hideTooltip);
 
-    // Artwork central node (larger, glowing)
+    // Artwork central node
     node.filter(d => d.type === 'artwork')
         .append('circle')
-        .attr('r', 30)
+        .attr('r', 35)
         .attr('fill', 'url(#artworkGlow)')
-        .attr('class', 'glow-gold');
+        .attr('filter', 'url(#glow)');
 
     // Collector nodes
     node.filter(d => d.type === 'collector')
         .append('circle')
-        .attr('r', d => Math.max(8, Math.min(20, 8 + d.editions * 3)))
-        .attr('fill', d => d.isHolder ? 'rgba(102, 178, 255, 0.6)' : 'rgba(255, 102, 153, 0.4)')
-        .attr('stroke', d => d.isHolder ? '#66b2ff' : '#ff6699')
+        .attr('r', d => d.radius)
+        .attr('fill', d => {
+            if (d.isWhale) return COLORS.whale;
+            if (d.isDiamond) return COLORS.diamond;
+            if (d.isFlipper) return COLORS.flipper;
+            return d.isHolder ? COLORS.holder : COLORS.seller;
+        })
+        .attr('fill-opacity', d => d.isHolder ? 0.7 : 0.4)
+        .attr('stroke', d => {
+            if (d.isWhale) return COLORS.whale;
+            if (d.isDiamond) return COLORS.diamond;
+            if (d.isFlipper) return COLORS.flipper;
+            return d.isHolder ? COLORS.holder : COLORS.seller;
+        })
         .attr('stroke-width', 2);
 
     // Labels
     const label = g.append('g')
+        .attr('class', 'labels')
         .selectAll('text')
         .data(nodes)
         .join('text')
-        .text(d => d.type === 'artwork' ? d.title.substring(0, 15) : `${d.address.substring(0, 6)}...`)
-        .attr('font-size', d => d.type === 'artwork' ? 11 : 9)
-        .attr('fill', d => d.type === 'artwork' ? 'var(--accent-gold)' : 'var(--text-tertiary)')
+        .text(d => d.type === 'artwork' ? (d.title || '').substring(0, 12) : `${d.address.substring(0, 6)}...`)
+        .attr('font-size', d => d.type === 'artwork' ? 10 : 8)
+        .attr('fill', d => d.type === 'artwork' ? COLORS.artwork : 'var(--text-tertiary)')
         .attr('text-anchor', 'middle')
-        .attr('dy', d => d.type === 'artwork' ? 45 : -15)
+        .attr('dy', d => d.type === 'artwork' ? 50 : -d.radius - 5)
         .style('pointer-events', 'none')
         .style('display', showLabels ? 'block' : 'none');
 
@@ -827,25 +1473,33 @@ function renderConstellation(data) {
             .attr('x', d => d.x)
             .attr('y', d => d.y);
     });
+
+    // Apply current magnetic field
+    if (currentField !== 'none') {
+        setTimeout(() => applyMagneticField(currentField), 500);
+    }
 }
 
 // Build nodes from edition data
 function buildNodes(data) {
-    const nodes = [];
+    const nodeList = [];
 
     // Central artwork node
-    nodes.push({
+    nodeList.push({
         id: 'artwork',
         type: 'artwork',
         title: data.title || 'Edition Work',
-        radius: 30,
-        fx: null,
-        fy: null
+        radius: 35,
+        index: 0
     });
 
     // Collector nodes
-    (data.collectors || []).forEach(collector => {
-        nodes.push({
+    (data.collectors || []).forEach((collector, idx) => {
+        const isWhale = collector.editions_held >= WHALE_THRESHOLD;
+        const isDiamond = collector.hold_days >= DIAMOND_THRESHOLD;
+        const isFlipper = collector.hold_days < FLIPPER_THRESHOLD && !collector.is_current_holder;
+
+        nodeList.push({
             id: collector.address,
             type: 'collector',
             address: collector.address,
@@ -853,71 +1507,102 @@ function buildNodes(data) {
             isHolder: collector.is_current_holder,
             holdDays: collector.hold_days || 0,
             volumeEth: collector.volume_eth || 0,
-            radius: Math.max(8, Math.min(20, 8 + (collector.editions_held || 1) * 3))
+            firstAcquired: collector.first_acquired,
+            editionNumber: collector.edition_number || idx,
+            valueChange: collector.value_change || 0,
+            isWhale,
+            isDiamond,
+            isFlipper,
+            radius: Math.max(8, Math.min(25, 8 + (collector.editions_held || 1) * 2)),
+            index: idx + 1
         });
     });
 
-    return nodes;
+    return nodeList;
 }
 
 // Build links from edition data
-function buildLinks(data, nodes) {
-    const links = [];
-    const nodeIds = new Set(nodes.map(n => n.id));
+function buildLinks(data, nodeList) {
+    const linkList = [];
+    const nodeIds = new Set(nodeList.map(n => n.id));
 
-    // Create ownership links from artwork to current holders
+    // Ownership links from artwork to current holders
     (data.collectors || []).forEach(collector => {
         if (collector.is_current_holder && nodeIds.has(collector.address)) {
-            links.push({
+            linkList.push({
                 source: 'artwork',
                 target: collector.address,
                 type: 'ownership',
-                distance: 80
+                distance: 70 + Math.random() * 30
             });
         }
     });
 
-    // Create transfer links between collectors
+    // Transfer links between collectors
     (data.transfers || []).forEach(transfer => {
         if (nodeIds.has(transfer.from) && nodeIds.has(transfer.to)) {
-            links.push({
+            linkList.push({
                 source: transfer.from,
                 target: transfer.to,
                 type: 'transfer',
-                distance: 120
+                distance: 100 + Math.random() * 40
             });
         }
     });
 
-    return links;
+    return linkList;
 }
 
 // Drag behavior
-function drag(simulation) {
-    function dragstarted(event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-
-    function dragged(event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-    }
-
-    function dragended(event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-    }
-
+function drag(sim) {
     return d3.drag()
-        .on('start', dragstarted)
-        .on('drag', dragged)
-        .on('end', dragended);
+        .on('start', (event, d) => {
+            if (!event.active) sim.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        })
+        .on('drag', (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
+        })
+        .on('end', (event, d) => {
+            if (!event.active) sim.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        });
 }
 
-// Highlight a collector in both list and visualization
+// Tooltip functions
+function showTooltip(event, d) {
+    const tooltip = document.getElementById('clusterTooltip');
+    tooltip.querySelector('.cluster-tooltip-title').textContent =
+        `${d.address.substring(0, 8)}...${d.address.substring(38)}`;
+
+    let badges = [];
+    if (d.isWhale) badges.push('Whale');
+    if (d.isDiamond) badges.push('Diamond Hands');
+    if (d.isFlipper) badges.push('Flipper');
+
+    tooltip.querySelector('.cluster-tooltip-content').innerHTML = `
+        ${badges.length ? `<div style="color: var(--accent-gold); margin-bottom: 0.2rem;">${badges.join(' | ')}</div>` : ''}
+        <div>Editions: ${d.editions}</div>
+        <div>Hold: ${d.holdDays} days</div>
+        <div>Volume: ${d.volumeEth.toFixed(3)} ETH</div>
+        ${d.valueChange ? `<div style="color: ${d.valueChange > 0 ? '#66ffb2' : '#ff6699'}">
+            ${d.valueChange > 0 ? '+' : ''}${d.valueChange.toFixed(1)}%
+        </div>` : ''}
+    `;
+
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY - 10) + 'px';
+    tooltip.classList.add('visible');
+}
+
+function hideTooltip() {
+    document.getElementById('clusterTooltip').classList.remove('visible');
+}
+
+// Highlight collector
 function highlightCollector(address) {
     // Update list
     document.querySelectorAll('.collector-item').forEach(el => {
@@ -930,7 +1615,7 @@ function highlightCollector(address) {
             return d.address === address ? 4 : 2;
         })
         .attr('filter', function(d) {
-            return d.address === address ? 'drop-shadow(0 0 8px rgba(102, 178, 255, 0.8))' : 'none';
+            return d.address === address ? 'url(#glow)' : 'none';
         });
 }
 
@@ -938,30 +1623,56 @@ function highlightCollector(address) {
 function resetConstellation() {
     svg.transition()
         .duration(750)
-        .call(d3.zoom().transform, d3.zoomIdentity);
+        .call(zoom.transform, d3.zoomIdentity);
 }
 
 function toggleLabels() {
     showLabels = !showLabels;
-    g.selectAll('text').style('display', showLabels ? 'block' : 'none');
+    g.selectAll('.labels text').style('display', showLabels ? 'block' : 'none');
+    document.getElementById('labelBtn').classList.toggle('active', showLabels);
+}
+
+function toggleClusters() {
+    showClusters = !showClusters;
+    // Cluster mode would aggregate small holders into cluster nodes
+    // For now, toggle collision strength
+    if (simulation) {
+        simulation.force('collision', d3.forceCollide().radius(d =>
+            showClusters ? d.radius + 20 : d.radius + 8
+        ));
+        simulation.alpha(0.5).restart();
+    }
 }
 
 function animateFlow() {
-    // Add flow animation to transfer lines
-    g.selectAll('line')
+    g.selectAll('.links line')
         .filter(d => d.type === 'transfer')
         .classed('flow-line', true);
 
     setTimeout(() => {
-        g.selectAll('line').classed('flow-line', false);
+        g.selectAll('.links line').classed('flow-line', false);
     }, 5000);
+}
+
+function explodeView() {
+    if (!simulation) return;
+
+    // Push all nodes outward
+    simulation.force('charge', d3.forceManyBody().strength(-500));
+    simulation.alpha(1).restart();
+
+    setTimeout(() => {
+        simulation.force('charge', d3.forceManyBody().strength(d =>
+            d.type === 'artwork' ? -400 : -150
+        ));
+    }, 2000);
 }
 
 // Utility functions
 function showError(containerId, message) {
     document.getElementById(containerId).innerHTML = `
         <div class="empty-state">
-            <div class="empty-icon">--</div>
+            <div class="empty-icon">&#9888;</div>
             <div style="color: #ff6699;">${message}</div>
         </div>
     `;
