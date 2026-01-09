@@ -422,6 +422,18 @@ def register_setup_routes(app):
         if user_db.is_setup_complete():
             return redirect('/')
 
+        # Check if ToS was accepted - redirect to terms if not
+        if not session.get('tos_accepted'):
+            # Also check database for persistent ToS acceptance
+            try:
+                conn = user_db.conn
+                cursor = conn.cursor()
+                cursor.execute('SELECT tos_accepted FROM user_config WHERE tos_accepted = 1 LIMIT 1')
+                if not cursor.fetchone():
+                    return redirect('/terms-of-service')
+            except:
+                return redirect('/terms-of-service')
+
         # Determine current step - use get_any_user to resume incomplete setups
         user = user_db.get_any_user()
         if user:

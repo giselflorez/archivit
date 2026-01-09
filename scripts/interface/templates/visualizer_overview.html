@@ -1,0 +1,1097 @@
+{% extends "base.html" %}
+
+{% block title %}Spatial Vision - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* ============================================
+       ARCHIVE VIEWS - Interactive Preview Gallery
+       Click to preview, double-click to open
+       ============================================ */
+
+    body { overflow: hidden; }
+
+    .main-content {
+        height: calc(100vh - 80px);
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .views-container {
+        display: flex;
+        height: 100%;
+        gap: 0;
+    }
+
+    /* ============================================
+       SIDEBAR - Navigation
+       ============================================ */
+
+    .views-sidebar {
+        width: 220px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        overflow-y: auto;
+    }
+
+    .views-sidebar-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .views-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--accent-gold);
+        margin-bottom: 0.15rem;
+    }
+
+    .views-subtitle {
+        font-size: 0.6rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Nav items */
+    .nav-section {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-section:last-child { border-bottom: none; }
+
+    .nav-label {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-tertiary);
+        padding: 0 1rem;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .nav-label::before {
+        content: '';
+        width: 2px;
+        height: 8px;
+        background: var(--accent-gold);
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border-left: 2px solid transparent;
+    }
+
+    .nav-item:hover {
+        background: rgba(212, 165, 116, 0.05);
+    }
+
+    .nav-item.active {
+        background: rgba(212, 165, 116, 0.1);
+        border-left-color: var(--accent-gold);
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        background: rgba(212, 165, 116, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.15s ease;
+    }
+
+    .nav-item.active .nav-icon {
+        background: rgba(212, 165, 116, 0.2);
+    }
+
+    .nav-icon svg {
+        width: 12px;
+        height: 12px;
+        stroke: var(--text-tertiary);
+        fill: none;
+        stroke-width: 2;
+        transition: all 0.15s ease;
+    }
+
+    .nav-item.active .nav-icon svg {
+        stroke: var(--accent-gold);
+    }
+
+    .nav-text {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        transition: all 0.15s ease;
+    }
+
+    .nav-item.active .nav-text {
+        color: var(--text-primary);
+    }
+
+    /* ============================================
+       MAIN PREVIEW AREA
+       ============================================ */
+
+    .preview-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-primary);
+        overflow: hidden;
+    }
+
+    /* ============================================
+       WHY PANEL - Right side explanation
+       ============================================ */
+
+    .preview-main {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+    }
+
+    .preview-canvas-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        position: relative;
+    }
+
+    .why-panel {
+        width: 280px;
+        background: var(--bg-secondary);
+        border-left: 1px solid var(--border-color);
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .why-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .why-label {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.4rem;
+    }
+
+    .why-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.1rem;
+        color: var(--accent-gold);
+        font-weight: 400;
+    }
+
+    .why-problem {
+        margin-bottom: 1.5rem;
+    }
+
+    .why-section-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .why-section-label::before {
+        content: '';
+        width: 8px;
+        height: 1px;
+        background: var(--accent-gold);
+    }
+
+    .why-problem-text {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-style: italic;
+    }
+
+    .why-solution {
+        margin-bottom: 1.5rem;
+    }
+
+    .why-solution-text {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .why-quote {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .why-quote-text {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        font-style: italic;
+        line-height: 1.5;
+    }
+
+    .why-quote-text::before {
+        content: '"';
+        color: var(--accent-gold);
+        font-size: 1rem;
+    }
+
+    .why-quote-text::after {
+        content: '"';
+        color: var(--accent-gold);
+        font-size: 1rem;
+    }
+
+    /* Preview header */
+    .preview-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-secondary);
+    }
+
+    .preview-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .preview-icon-large {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(212, 165, 116, 0.1);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .preview-icon-large svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--accent-gold);
+        fill: none;
+        stroke-width: 1.5;
+    }
+
+    .preview-titles h2 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.3rem;
+        font-weight: 400;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .preview-tagline {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .preview-question {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        padding: 0.4rem 0.8rem;
+        background: rgba(212, 165, 116, 0.05);
+        border-left: 2px solid var(--accent-gold);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .preview-open-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--accent-gold);
+        border: none;
+        border-radius: 4px;
+        color: var(--bg-primary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preview-open-btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+    }
+
+    /* Individual preview animations */
+    .preview-demo {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .preview-demo.active {
+        display: flex;
+    }
+
+    /* ============================================
+       DEMO: Grid (Visual Translator)
+       ============================================ */
+
+    .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 60px);
+        grid-template-rows: repeat(4, 60px);
+        gap: 8px;
+        padding: 2rem;
+    }
+
+    .demo-grid-item {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        animation: gridPulse 2s ease-in-out infinite;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .demo-grid-item::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), transparent);
+        border-radius: 2px;
+    }
+
+    .demo-grid-item:nth-child(odd) { animation-delay: 0.2s; }
+    .demo-grid-item:nth-child(3n) { animation-delay: 0.4s; }
+    .demo-grid-item:nth-child(4n) { animation-delay: 0.6s; }
+
+    @keyframes gridPulse {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.02); }
+    }
+
+    /* ============================================
+       DEMO: Network (Semantic)
+       ============================================ */
+
+    .demo-network {
+        position: relative;
+        width: 400px;
+        height: 300px;
+    }
+
+    .demo-node {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: var(--accent-gold);
+        border-radius: 50%;
+        animation: nodeFloat 3s ease-in-out infinite;
+    }
+
+    .demo-node:nth-child(1) { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; }
+    .demo-node:nth-child(2) { top: 20%; left: 30%; animation-delay: 0.3s; }
+    .demo-node:nth-child(3) { top: 25%; left: 70%; animation-delay: 0.6s; }
+    .demo-node:nth-child(4) { top: 70%; left: 25%; animation-delay: 0.9s; }
+    .demo-node:nth-child(5) { top: 75%; left: 65%; animation-delay: 1.2s; }
+    .demo-node:nth-child(6) { top: 45%; left: 15%; animation-delay: 0.5s; width: 14px; height: 14px; }
+    .demo-node:nth-child(7) { top: 40%; left: 85%; animation-delay: 0.8s; width: 14px; height: 14px; }
+
+    .demo-line {
+        position: absolute;
+        height: 1px;
+        background: var(--accent-gold);
+        opacity: 0.3;
+        transform-origin: left center;
+    }
+
+    @keyframes nodeFloat {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+        50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    /* ============================================
+       DEMO: Spatial (3D particles)
+       ============================================ */
+
+    .demo-spatial {
+        position: relative;
+        width: 400px;
+        height: 300px;
+        perspective: 600px;
+    }
+
+    .demo-spatial-inner {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        animation: spatialRotate 20s linear infinite;
+    }
+
+    .demo-particle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: var(--accent-gold);
+        border-radius: 50%;
+        opacity: 0.6;
+    }
+
+    @keyframes spatialRotate {
+        from { transform: rotateY(0deg) rotateX(10deg); }
+        to { transform: rotateY(360deg) rotateX(10deg); }
+    }
+
+    /* ============================================
+       DEMO: Constellation (radial)
+       ============================================ */
+
+    .demo-constellation {
+        position: relative;
+        width: 300px;
+        height: 300px;
+    }
+
+    .demo-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        background: rgba(212, 165, 116, 0.3);
+        border: 2px solid var(--accent-gold);
+        border-radius: 50%;
+        animation: centerPulse 2s ease-in-out infinite;
+    }
+
+    .demo-orbit {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(212, 165, 116, 0.15);
+        border-radius: 50%;
+    }
+
+    .demo-orbit-1 { width: 120px; height: 120px; }
+    .demo-orbit-2 { width: 200px; height: 200px; }
+    .demo-orbit-3 { width: 280px; height: 280px; }
+
+    .demo-collector {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background: var(--accent-gold);
+        border-radius: 50%;
+        animation: orbitMove 8s linear infinite;
+    }
+
+    @keyframes centerPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(212, 165, 116, 0.4); }
+        50% { box-shadow: 0 0 20px 10px rgba(212, 165, 116, 0.1); }
+    }
+
+    @keyframes orbitMove {
+        from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+    }
+
+    /* ============================================
+       DEMO: Timeline
+       ============================================ */
+
+    .demo-timeline {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        padding: 2rem;
+    }
+
+    .demo-timeline-line {
+        height: 2px;
+        width: 60px;
+        background: linear-gradient(90deg, var(--accent-gold), rgba(212, 165, 116, 0.3));
+    }
+
+    .demo-timeline-node {
+        width: 24px;
+        height: 24px;
+        background: var(--bg-secondary);
+        border: 2px solid var(--accent-gold);
+        border-radius: 50%;
+        animation: timelinePop 2s ease-in-out infinite;
+    }
+
+    .demo-timeline-node:nth-child(2) { animation-delay: 0.3s; }
+    .demo-timeline-node:nth-child(4) { animation-delay: 0.6s; }
+    .demo-timeline-node:nth-child(6) { animation-delay: 0.9s; }
+    .demo-timeline-node:nth-child(8) { animation-delay: 1.2s; }
+
+    @keyframes timelinePop {
+        0%, 100% { transform: scale(1); background: var(--bg-secondary); }
+        50% { transform: scale(1.2); background: rgba(212, 165, 116, 0.2); }
+    }
+
+    /* ============================================
+       DEMO: Blockchain bars
+       ============================================ */
+
+    .demo-blockchain {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 2rem;
+        height: 200px;
+    }
+
+    .demo-bar {
+        width: 40px;
+        background: linear-gradient(to top, var(--accent-gold), rgba(212, 165, 116, 0.3));
+        border-radius: 4px 4px 0 0;
+        animation: barGrow 2s ease-in-out infinite;
+    }
+
+    .demo-bar:nth-child(1) { height: 60%; animation-delay: 0s; }
+    .demo-bar:nth-child(2) { height: 80%; animation-delay: 0.2s; }
+    .demo-bar:nth-child(3) { height: 45%; animation-delay: 0.4s; }
+    .demo-bar:nth-child(4) { height: 90%; animation-delay: 0.6s; }
+    .demo-bar:nth-child(5) { height: 55%; animation-delay: 0.8s; }
+    .demo-bar:nth-child(6) { height: 70%; animation-delay: 1s; }
+
+    @keyframes barGrow {
+        0%, 100% { opacity: 0.5; transform: scaleY(1); }
+        50% { opacity: 1; transform: scaleY(1.05); }
+    }
+
+    /* ============================================
+       DEMO: Analytics wave
+       ============================================ */
+
+    .demo-analytics {
+        padding: 2rem;
+    }
+
+    .demo-analytics svg {
+        width: 350px;
+        height: 150px;
+    }
+
+    .demo-wave {
+        fill: none;
+        stroke: var(--accent-gold);
+        stroke-width: 2;
+        stroke-dasharray: 500;
+        stroke-dashoffset: 500;
+        animation: drawWave 3s ease-in-out infinite;
+    }
+
+    .demo-wave-fill {
+        fill: rgba(212, 165, 116, 0.1);
+        stroke: none;
+        opacity: 0;
+        animation: fillFade 3s ease-in-out infinite;
+    }
+
+    @keyframes drawWave {
+        0% { stroke-dashoffset: 500; }
+        50%, 100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes fillFade {
+        0%, 40% { opacity: 0; }
+        60%, 100% { opacity: 1; }
+    }
+
+    /* ============================================
+       DEMO: Tags floating
+       ============================================ */
+
+    .demo-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 2rem;
+        max-width: 400px;
+        justify-content: center;
+    }
+
+    .demo-tag {
+        padding: 0.4rem 0.8rem;
+        background: rgba(212, 165, 116, 0.1);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 20px;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        animation: tagFloat 3s ease-in-out infinite;
+    }
+
+    .demo-tag:nth-child(1) { font-size: 1rem; }
+    .demo-tag:nth-child(2) { font-size: 0.85rem; animation-delay: 0.2s; }
+    .demo-tag:nth-child(3) { animation-delay: 0.4s; }
+    .demo-tag:nth-child(4) { font-size: 0.9rem; animation-delay: 0.6s; }
+    .demo-tag:nth-child(5) { animation-delay: 0.8s; }
+    .demo-tag:nth-child(6) { font-size: 0.8rem; animation-delay: 1s; }
+
+    @keyframes tagFloat {
+        0%, 100% { transform: translateY(0); opacity: 0.6; }
+        50% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* ============================================
+       DEMO: Point cloud scatter
+       ============================================ */
+
+    .demo-pointcloud {
+        position: relative;
+        width: 350px;
+        height: 250px;
+    }
+
+    .demo-point {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: var(--accent-gold);
+        border-radius: 50%;
+        animation: pointScatter 4s ease-in-out infinite;
+    }
+
+    @keyframes pointScatter {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50% { transform: scale(1.3); opacity: 0.9; }
+    }
+
+    /* ============================================
+       DEMO: Database stack
+       ============================================ */
+
+    .demo-database {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 2rem;
+    }
+
+    .demo-db-layer {
+        width: 200px;
+        height: 30px;
+        background: linear-gradient(90deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.05));
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 15px;
+        animation: dbPulse 2s ease-in-out infinite;
+    }
+
+    .demo-db-layer:nth-child(1) { animation-delay: 0s; }
+    .demo-db-layer:nth-child(2) { animation-delay: 0.3s; width: 180px; margin-left: 10px; }
+    .demo-db-layer:nth-child(3) { animation-delay: 0.6s; width: 160px; margin-left: 20px; }
+
+    @keyframes dbPulse {
+        0%, 100% { opacity: 0.5; transform: scaleX(1); }
+        50% { opacity: 1; transform: scaleX(1.02); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="views-container">
+    <!-- Sidebar Navigation -->
+    <div class="views-sidebar">
+        <div class="views-sidebar-header">
+            <h1 class="views-title">Spatial Vision</h1>
+            <p class="views-subtitle">Descriptors for new understandings</p>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">Browse</div>
+            <div class="nav-item active" data-view="translator" data-url="/visual-translator-v2" data-name="Visual Translator" data-tagline="Lightroom for your archive" data-question="What do I have?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+                <span class="nav-text">Visual Translator</span>
+            </div>
+            <div class="nav-item" data-view="tags" data-url="/tag-cloud" data-name="Tag Cloud" data-tagline="Your vocabulary" data-question="What themes emerge?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M7 7h10M5 12h14M8 17h8"/></svg></div>
+                <span class="nav-text">Tag Cloud</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">Connect</div>
+            <div class="nav-item" data-view="network" data-url="/semantic-network" data-name="Semantic Network" data-tagline="Connected ideas" data-question="How does it connect?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><line x1="8" y1="8" x2="10" y2="10"/><line x1="14" y1="14" x2="16" y2="16"/></svg></div>
+                <span class="nav-text">Semantic Network</span>
+            </div>
+            <div class="nav-item" data-view="spatial" data-url="/spatial-canvas" data-name="Spatial Canvas" data-tagline="Spatial structures" data-question="What does it look like?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="6" cy="6" r="1.5"/><circle cx="18" cy="6" r="1.5"/><circle cx="6" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></svg></div>
+                <span class="nav-text">Spatial Canvas</span>
+            </div>
+            <div class="nav-item" data-view="pointcloud" data-url="/point-cloud" data-name="Point Cloud" data-tagline="Five paradigms" data-question="What patterns emerge?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="5" cy="5" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="19" cy="5" r="1.5"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="5" cy="19" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/></svg></div>
+                <span class="nav-text">Point Cloud</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">Track</div>
+            <div class="nav-item" data-view="blockchain" data-url="/blockchain-tracker" data-name="Blockchain Tracker" data-tagline="All chains unified" data-question="Where have I minted?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="5" height="8" rx="1"/><rect x="10" y="5" width="5" height="14" rx="1"/><rect x="17" y="10" width="5" height="6" rx="1"/></svg></div>
+                <span class="nav-text">Blockchain Tracker</span>
+            </div>
+            <div class="nav-item" data-view="constellation" data-url="/edition-constellation" data-name="Edition Constellation" data-tagline="Collector networks" data-question="Which editions do you have?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="1.5"/><circle cx="20" cy="12" r="1.5"/><circle cx="12" cy="20" r="1.5"/><circle cx="4" cy="12" r="1.5"/></svg></div>
+                <span class="nav-text">Editions</span>
+            </div>
+            <div class="nav-item" data-view="timeline" data-url="/nft-temporal" data-name="Timeline" data-tagline="Provenance story" data-question="What's the history?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="7" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="17" cy="12" r="2"/></svg></div>
+                <span class="nav-text">Timeline</span>
+            </div>
+            <div class="nav-item" data-view="analytics" data-url="/sales-analytics" data-name="Sales Analytics" data-tagline="Market story" data-question="When did collectors respond?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="4 14 8 10 12 13 16 8 20 11"/><line x1="4" y1="18" x2="20" y2="18"/></svg></div>
+                <span class="nav-text">Analytics</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-label">Manage</div>
+            <div class="nav-item" data-view="database" data-url="/data-sources" data-name="Data Sources" data-tagline="Archive health" data-question="Is my archive healthy?">
+                <div class="nav-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
+                <span class="nav-text">Data Sources</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Area -->
+    <div class="preview-area">
+        <div class="preview-header">
+            <div class="preview-info">
+                <div class="preview-icon-large" id="previewIcon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                </div>
+                <div class="preview-titles">
+                    <h2 id="previewName">Visual Translator</h2>
+                    <div class="preview-tagline" id="previewTagline">Lightroom for your archive</div>
+                </div>
+                <div class="preview-question" id="previewQuestion">"What do I have?"</div>
+            </div>
+            <a href="/visual-translator-v2" class="preview-open-btn" id="previewOpenBtn">
+                Open View <span>&rarr;</span>
+            </a>
+        </div>
+
+        <div class="preview-main">
+            <div class="preview-canvas-wrapper">
+                <!-- Grid Demo -->
+                <div class="preview-demo active" id="demo-translator">
+                    <div class="demo-grid">
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                        <div class="demo-grid-item"></div><div class="demo-grid-item"></div><div class="demo-grid-item"></div>
+                    </div>
+                </div>
+
+                <!-- Network Demo -->
+                <div class="preview-demo" id="demo-network">
+                    <div class="demo-network">
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                        <div class="demo-node"></div>
+                    </div>
+                </div>
+
+                <!-- Spatial Demo -->
+                <div class="preview-demo" id="demo-spatial">
+                    <div class="demo-spatial">
+                        <div class="demo-spatial-inner" id="spatialInner"></div>
+                    </div>
+                </div>
+
+                <!-- Constellation Demo -->
+                <div class="preview-demo" id="demo-constellation">
+                    <div class="demo-constellation">
+                        <div class="demo-orbit demo-orbit-1"></div>
+                        <div class="demo-orbit demo-orbit-2"></div>
+                        <div class="demo-orbit demo-orbit-3"></div>
+                        <div class="demo-center"></div>
+                        <div class="demo-collector" style="top: 50%; left: 50%;"></div>
+                        <div class="demo-collector" style="top: 50%; left: 50%; animation-delay: -2s; animation-duration: 6s;"></div>
+                        <div class="demo-collector" style="top: 50%; left: 50%; animation-delay: -4s; animation-duration: 10s;"></div>
+                    </div>
+                </div>
+
+                <!-- Timeline Demo -->
+                <div class="preview-demo" id="demo-timeline">
+                    <div class="demo-timeline">
+                        <div class="demo-timeline-node"></div>
+                        <div class="demo-timeline-line"></div>
+                        <div class="demo-timeline-node"></div>
+                        <div class="demo-timeline-line"></div>
+                        <div class="demo-timeline-node"></div>
+                        <div class="demo-timeline-line"></div>
+                        <div class="demo-timeline-node"></div>
+                        <div class="demo-timeline-line"></div>
+                        <div class="demo-timeline-node"></div>
+                    </div>
+                </div>
+
+                <!-- Blockchain Demo -->
+                <div class="preview-demo" id="demo-blockchain">
+                    <div class="demo-blockchain">
+                        <div class="demo-bar"></div>
+                        <div class="demo-bar"></div>
+                        <div class="demo-bar"></div>
+                        <div class="demo-bar"></div>
+                        <div class="demo-bar"></div>
+                        <div class="demo-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Demo -->
+                <div class="preview-demo" id="demo-analytics">
+                    <div class="demo-analytics">
+                        <svg viewBox="0 0 350 150">
+                            <path class="demo-wave-fill" d="M0 150 L0 100 Q50 60 100 80 T200 70 T300 90 T350 60 L350 150 Z"/>
+                            <path class="demo-wave" d="M0 100 Q50 60 100 80 T200 70 T300 90 T350 60"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Tags Demo -->
+                <div class="preview-demo" id="demo-tags">
+                    <div class="demo-tags">
+                        <span class="demo-tag">light</span>
+                        <span class="demo-tag">waves</span>
+                        <span class="demo-tag">organic</span>
+                        <span class="demo-tag">time</span>
+                        <span class="demo-tag">nature</span>
+                        <span class="demo-tag">pattern</span>
+                        <span class="demo-tag">texture</span>
+                        <span class="demo-tag">form</span>
+                    </div>
+                </div>
+
+                <!-- Point Cloud Demo -->
+                <div class="preview-demo" id="demo-pointcloud">
+                    <div class="demo-pointcloud" id="pointcloudContainer"></div>
+                </div>
+
+                <!-- Database Demo -->
+                <div class="preview-demo" id="demo-database">
+                    <div class="demo-database">
+                        <div class="demo-db-layer"></div>
+                        <div class="demo-db-layer"></div>
+                        <div class="demo-db-layer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WHY PANEL -->
+            <div class="why-panel" id="whyPanel">
+                <div class="why-header">
+                    <div class="why-label">Why this exists</div>
+                    <div class="why-title" id="whyTitle">The First Unified View</div>
+                </div>
+
+                <div class="why-problem">
+                    <div class="why-section-label">The invisible problem</div>
+                    <p class="why-problem-text" id="whyProblem">
+                        Your creative journey exists in pieces. Mint history across wallets tells a story no one can easily read. Your artistic journey is invisible — even to you.
+                    </p>
+                </div>
+
+                <div class="why-solution">
+                    <div class="why-section-label">What this reveals</div>
+                    <p class="why-solution-text" id="whySolution">
+                        See everything at once. Filter by date, platform, medium. Finally understand the full scope of your practice.
+                    </p>
+                </div>
+
+                <div class="why-quote">
+                    <p class="why-quote-text" id="whyQuote">
+                        Technology should reveal, not obscure.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// WHY CONTENT DATA - The reason each view exists
+const whyContent = {
+    translator: {
+        title: 'The First Unified View',
+        problem: 'Your creative journey exists in pieces. Mint history across wallets tells a story no one can easily read. Your artistic journey is invisible — even to you.',
+        solution: 'See everything at once. Filter by date, platform, medium. Finally understand the full scope of your practice.',
+        quote: 'Technology should reveal, not obscure.'
+    },
+    tags: {
+        title: 'Your Creative Vocabulary',
+        problem: 'The words that define your work are hidden in individual pieces. You can\'t see the patterns in your own language.',
+        solution: 'Watch themes emerge. See which concepts recur, which fade, which define entire periods of your practice.',
+        quote: 'Your vocabulary reveals your evolution.'
+    },
+    network: {
+        title: 'The Invisible Threads',
+        problem: 'Ideas don\'t exist in isolation. Your works connect in ways you may not consciously see.',
+        solution: 'Discover relationships between pieces. See how themes weave through time. Find unexpected connections.',
+        quote: 'Understanding your path helps you see where to go.'
+    },
+    spatial: {
+        title: 'Beyond Flat Lists',
+        problem: 'Traditional galleries hide relationships. Everything is linear when your practice is dimensional.',
+        solution: 'Navigate your archive as a 3D space. Proximity reveals meaning. Distance shows distinction.',
+        quote: 'Space reveals what lists cannot.'
+    },
+    pointcloud: {
+        title: 'Patterns in Density',
+        problem: 'When your archive grows, patterns hide in the volume. You can\'t see the forest for the trees.',
+        solution: 'Five paradigms of viewing — find clusters, outliers, and evolution. See what emerges when you zoom out.',
+        quote: 'The whole is more than the sum of its parts.'
+    },
+    blockchain: {
+        title: 'Multi-Chain Chaos Solved',
+        problem: 'Ethereum, Tezos, Solana, Ordinals — your work exists across chains with no unified view.',
+        solution: 'One dashboard across all chains. Your complete minting history. Every transaction, every collector.',
+        quote: 'Your history belongs to you.'
+    },
+    constellation: {
+        title: 'Collector Networks Revealed',
+        problem: 'Editions scatter. Collectors form networks you can\'t see. Who holds your work? How does it move?',
+        solution: 'See your work at the center, collectors orbiting outward. Understand how your editions distribute.',
+        quote: 'Your community is visible here.'
+    },
+    timeline: {
+        title: 'Provenance is History',
+        problem: 'Every work has a story — creation, sales, transfers. That story is invisible until you look.',
+        solution: 'See the temporal journey of any piece. From mint to now. Every moment recorded.',
+        quote: 'Provenance is the art\'s autobiography.'
+    },
+    analytics: {
+        title: 'Market Response Patterns',
+        problem: 'Sales happen. But when? Why? You can\'t see how collectors respond to your work over time.',
+        solution: 'Visualize engagement patterns. See when collectors respond. Understand your market story.',
+        quote: 'Data tells the story numbers alone cannot.'
+    },
+    database: {
+        title: 'Archive Health Check',
+        problem: 'Data comes from many sources — scrapes, APIs, uploads. You don\'t know what\'s current, what\'s stale.',
+        solution: 'Monitor every data source. See sync status, freshness, coverage. Keep your archive healthy.',
+        quote: 'Your archive is only as good as its data.'
+    }
+};
+
+// Generate spatial particles
+const spatialInner = document.getElementById('spatialInner');
+for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'demo-particle';
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.top = (Math.random() * 100) + '%';
+    p.style.transform = `translateZ(${(Math.random() - 0.5) * 100}px)`;
+    p.style.animationDelay = (Math.random() * 2) + 's';
+    spatialInner.appendChild(p);
+}
+
+// Generate point cloud
+const pcContainer = document.getElementById('pointcloudContainer');
+for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'demo-point';
+    p.style.left = (Math.random() * 90 + 5) + '%';
+    p.style.top = (Math.random() * 90 + 5) + '%';
+    p.style.animationDelay = (Math.random() * 4) + 's';
+    p.style.opacity = 0.3 + Math.random() * 0.5;
+    pcContainer.appendChild(p);
+}
+
+// Update why panel content
+function updateWhyPanel(view) {
+    const content = whyContent[view];
+    if (content) {
+        document.getElementById('whyTitle').textContent = content.title;
+        document.getElementById('whyProblem').textContent = content.problem;
+        document.getElementById('whySolution').textContent = content.solution;
+        document.getElementById('whyQuote').textContent = content.quote;
+    }
+}
+
+// Navigation click handlers
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function() {
+        // Update active state
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+
+        // Update preview header
+        const view = this.dataset.view;
+        const url = this.dataset.url;
+        const name = this.dataset.name;
+        const tagline = this.dataset.tagline;
+        const question = this.dataset.question;
+
+        document.getElementById('previewName').textContent = name;
+        document.getElementById('previewTagline').textContent = tagline;
+        document.getElementById('previewQuestion').textContent = '"' + question + '"';
+        document.getElementById('previewOpenBtn').href = url;
+
+        // Update icon
+        const iconSvg = this.querySelector('.nav-icon').innerHTML;
+        document.getElementById('previewIcon').innerHTML = iconSvg;
+
+        // Switch demo
+        document.querySelectorAll('.preview-demo').forEach(d => d.classList.remove('active'));
+        const demo = document.getElementById('demo-' + view);
+        if (demo) demo.classList.add('active');
+
+        // Update why panel
+        updateWhyPanel(view);
+    });
+
+    // Double-click to open
+    item.addEventListener('dblclick', function() {
+        window.location.href = this.dataset.url;
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}Twitter Verification - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* ============================================
+       TWITTER VERIFICATION - Connection Flow
+       Echoes Twitter blue when connected
+       ============================================ */
+
+    :root {
+        --twitter-blue: #1da1f2;
+        --twitter-blue-light: #71c9f8;
+        --twitter-blue-dark: #0c85d0;
+        --twitter-glow: rgba(29, 161, 242, 0.4);
+    }
+
+    .verify-container {
+        max-width: 480px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .verify-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid;
+        border-image: linear-gradient(90deg, transparent, var(--accent-gold), transparent) 1;
+    }
+
+    .verify-header h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+    }
+
+    .verify-header p {
+        color: var(--text-tertiary);
+        font-size: 0.8rem;
+    }
+
+    /* Connection Card */
+    .connection-card {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.5s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .connection-card.connected {
+        border-color: var(--twitter-blue);
+        box-shadow:
+            0 0 30px var(--twitter-glow),
+            inset 0 0 60px rgba(29, 161, 242, 0.05);
+    }
+
+    .connection-card.connected::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg,
+            transparent,
+            var(--twitter-blue-light),
+            var(--twitter-blue),
+            var(--twitter-blue-light),
+            transparent);
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+
+    /* Twitter Icon */
+    .twitter-icon-large {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(29, 161, 242, 0.1);
+        border: 2px solid rgba(29, 161, 242, 0.3);
+        transition: all 0.5s ease;
+    }
+
+    .twitter-icon-large svg {
+        width: 40px;
+        height: 40px;
+        fill: var(--text-tertiary);
+        transition: all 0.5s ease;
+    }
+
+    .connected .twitter-icon-large {
+        background: rgba(29, 161, 242, 0.2);
+        border-color: var(--twitter-blue);
+        box-shadow: 0 0 20px var(--twitter-glow);
+        animation: pulse-twitter 2s ease-in-out infinite;
+    }
+
+    .connected .twitter-icon-large svg {
+        fill: var(--twitter-blue);
+    }
+
+    @keyframes pulse-twitter {
+        0%, 100% {
+            box-shadow: 0 0 20px var(--twitter-glow);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 35px var(--twitter-glow);
+            transform: scale(1.02);
+        }
+    }
+
+    /* Status Text */
+    .connection-status {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.5rem;
+    }
+
+    .status-value {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        transition: color 0.5s ease;
+    }
+
+    .connected .status-value {
+        color: var(--twitter-blue);
+        text-shadow: 0 0 10px var(--twitter-glow);
+    }
+
+    /* Username Display */
+    .username-display {
+        display: none;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: rgba(29, 161, 242, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(29, 161, 242, 0.3);
+    }
+
+    .connected .username-display {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .username-at {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    .username-handle {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--twitter-blue);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .verified-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.5rem;
+        padding: 0.25rem 0.6rem;
+        background: var(--twitter-blue);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .verified-badge svg {
+        width: 12px;
+        height: 12px;
+        fill: white;
+    }
+
+    /* Connect Button */
+    .connect-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--twitter-blue), var(--twitter-blue-dark));
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .connect-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px var(--twitter-glow);
+    }
+
+    .connect-btn:active {
+        transform: translateY(0);
+    }
+
+    .connect-btn.disconnect {
+        background: transparent;
+        border: 1px solid var(--twitter-blue);
+        color: var(--twitter-blue);
+    }
+
+    .connect-btn.disconnect:hover {
+        background: rgba(29, 161, 242, 0.1);
+    }
+
+    /* Profile Preview */
+    .profile-preview {
+        display: none;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: var(--bg-tertiary);
+        border-radius: 8px;
+    }
+
+    .connected .profile-preview {
+        display: block;
+    }
+
+    .preview-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.75rem;
+    }
+
+    .preview-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .preview-stat-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--twitter-blue);
+        font-family: 'Crimson Pro', serif;
+    }
+
+    .preview-stat-label {
+        font-size: 0.6rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* What You'll Get Section */
+    .benefits-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+    }
+
+    .benefits-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-gold);
+        margin-bottom: 1rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .benefit-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .benefit-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(29, 161, 242, 0.15);
+        border-radius: 4px;
+        color: var(--twitter-blue);
+        font-size: 0.7rem;
+    }
+
+    /* Demo Controls */
+    .demo-controls {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(212, 165, 116, 0.1);
+        border: 1px dashed var(--accent-gold);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .demo-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-gold);
+        margin-bottom: 0.75rem;
+    }
+
+    .demo-btn {
+        padding: 0.5rem 1rem;
+        background: var(--accent-gold);
+        border: none;
+        border-radius: 4px;
+        color: var(--bg-primary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        margin: 0 0.25rem;
+    }
+
+    .demo-btn:hover {
+        filter: brightness(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verify-container">
+    <div class="verify-header">
+        <h1>Connect Twitter</h1>
+        <p>Verify your identity and import your creative history</p>
+    </div>
+
+    <div class="connection-card" id="connectionCard">
+        <!-- Twitter Icon -->
+        <div class="twitter-icon-large">
+            <svg viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div class="status-label">Connection Status</div>
+            <div class="status-value" id="statusValue">Not Connected</div>
+        </div>
+
+        <!-- Username Display (shown when connected) -->
+        <div class="username-display">
+            <div class="username-at">@</div>
+            <div class="username-handle" id="usernameHandle">web3gisel</div>
+            <div class="verified-badge">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                Verified
+            </div>
+        </div>
+
+        <!-- Profile Preview (shown when connected) -->
+        <div class="profile-preview">
+            <div class="preview-label">Account Stats</div>
+            <div class="preview-stats">
+                <div>
+                    <div class="preview-stat-value">2.4K</div>
+                    <div class="preview-stat-label">Tweets</div>
+                </div>
+                <div>
+                    <div class="preview-stat-value">847</div>
+                    <div class="preview-stat-label">Media</div>
+                </div>
+                <div>
+                    <div class="preview-stat-value">12.1K</div>
+                    <div class="preview-stat-label">Followers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connect/Disconnect Button -->
+        <button class="connect-btn" id="connectBtn" onclick="toggleConnection()">
+            Connect with Twitter
+        </button>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="benefits-section">
+        <div class="benefits-title">What You'll Get</div>
+        <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>Import your entire tweet archive including media</span>
+        </div>
+        <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>Verified identity badge on your public profile</span>
+        </div>
+        <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>Auto-sync new posts to your archive</span>
+        </div>
+        <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>Cross-reference NFT provenance with social history</span>
+        </div>
+    </div>
+
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+        <div class="demo-label">Demo Controls (for testing)</div>
+        <button class="demo-btn" onclick="simulateConnect()">Simulate Connect</button>
+        <button class="demo-btn" onclick="simulateDisconnect()">Simulate Disconnect</button>
+    </div>
+</div>
+
+<script>
+let isConnected = false;
+
+function toggleConnection() {
+    if (isConnected) {
+        simulateDisconnect();
+    } else {
+        simulateConnect();
+    }
+}
+
+function simulateConnect() {
+    const card = document.getElementById('connectionCard');
+    const btn = document.getElementById('connectBtn');
+    const status = document.getElementById('statusValue');
+
+    // Add connected state
+    card.classList.add('connected');
+    btn.textContent = 'Disconnect';
+    btn.classList.add('disconnect');
+    status.textContent = 'Connected';
+    isConnected = true;
+
+    // Trigger glow animation
+    card.style.animation = 'none';
+    card.offsetHeight; // Trigger reflow
+    card.style.animation = null;
+}
+
+function simulateDisconnect() {
+    const card = document.getElementById('connectionCard');
+    const btn = document.getElementById('connectBtn');
+    const status = document.getElementById('statusValue');
+
+    // Remove connected state
+    card.classList.remove('connected');
+    btn.textContent = 'Connect with Twitter';
+    btn.classList.remove('disconnect');
+    status.textContent = 'Not Connected';
+    isConnected = false;
+}
+</script>
+{% endblock %}

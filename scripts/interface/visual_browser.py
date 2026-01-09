@@ -694,6 +694,17 @@ def terms_of_service():
     """Terms of Service page"""
     return render_template('terms_of_service.html')
 
+@app.route('/twitter-verify')
+def twitter_verify():
+    """Twitter verification page"""
+    return render_template('twitter_verify.html')
+
+@app.route('/archive-views')
+@app.route('/spatial-vision')
+def archive_views():
+    """Spatial Vision - Descriptors for new understandings"""
+    return render_template('visualizer_overview.html')
+
 @app.route('/setup/accept-terms', methods=['POST'])
 def accept_terms():
     """Process ToS acceptance"""
@@ -727,7 +738,9 @@ def accept_terms():
         except:
             pass
 
-        return redirect(url_for('training_layers'))
+        # Go to setup wizard first (email, wallet input, etc.)
+        # Training layers come after setup is complete
+        return redirect(url_for('setup_wizard'))
     else:
         return redirect(url_for('terms_of_service'))
 

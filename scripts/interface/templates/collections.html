@@ -278,15 +278,40 @@
 {% block content %}
 <div style="margin-bottom: 3rem;">
     <h1 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem;">
-        <strong style="font-weight: 600; color: var(--accent-gold);">Art History</strong> Collections
+        <strong style="font-weight: 600; color: var(--accent-gold);">Collections</strong>
     </h1>
     <p style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.15em;">
-        Hierarchical organization with creative period detection
+        Organize your archive into meaningful groups
+    </p>
+    <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: 0.5rem; max-width: 600px;">
+        Group related works across time, theme, or series. As your archive grows, the system detects
+        creative periods automatically, revealing patterns in your practice you may not have seen.
     </p>
 </div>
 
 <div style="text-align: center; margin-bottom: 3rem;">
-    <button class="btn" onclick="alert('Collection creation coming soon!')">+ Create New Collection</button>
+    <button class="btn" id="createCollectionBtn">+ Create New Collection</button>
+</div>
+
+<!-- Collection Creation Modal -->
+<div id="collectionModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 2rem; max-width: 480px; width: 90%; position: relative;">
+        <button onclick="closeModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-tertiary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 style="font-family: 'Crimson Pro', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text-primary);">Create Collection</h3>
+        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 1.5rem;">Group related works to reveal patterns in your practice</p>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-tertiary); margin-bottom: 0.4rem;">Collection Name</label>
+            <input type="text" id="collectionName" placeholder="e.g., Light Studies 2023" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit;">
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-tertiary); margin-bottom: 0.4rem;">Description (optional)</label>
+            <textarea id="collectionDesc" rows="3" placeholder="What connects these works?" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button onclick="closeModal()" style="padding: 0.6rem 1.2rem; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-family: inherit;">Cancel</button>
+            <button onclick="saveCollection()" style="padding: 0.6rem 1.2rem; background: var(--accent-gold); border: none; border-radius: 4px; color: var(--bg-primary); cursor: pointer; font-family: inherit; font-weight: 500;">Create Collection</button>
+        </div>
+    </div>
 </div>
 
 <!-- Creative Periods Timeline -->
@@ -317,8 +342,12 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <div class="empty-state-icon">⏳</div>
-        <p>No creative periods detected yet. Add more works to enable automatic period detection.</p>
+        <div class="empty-state-icon" style="font-size: 2rem; opacity: 0.4;">◐</div>
+        <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">No creative periods detected yet</p>
+        <p style="font-size: 0.75rem; color: var(--text-tertiary); max-width: 400px; margin: 0 auto;">
+            As you add more works to your archive, the system identifies distinct creative periods:
+            shifts in subject matter, technique, or theme that mark your artistic evolution.
+        </p>
     </div>
     {% endif %}
 </div>
@@ -378,17 +407,77 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <div class="empty-state-icon">📁</div>
-        <p>No collections yet. Create your first collection to organize your work.</p>
+        <div class="empty-state-icon" style="font-size: 2rem; opacity: 0.4;">◫</div>
+        <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">No collections yet</p>
+        <p style="font-size: 0.75rem; color: var(--text-tertiary); max-width: 400px; margin: 0 auto;">
+            Create your first collection to group related works. Collections help you see
+            how your practice has developed across time, medium, and concept.
+        </p>
     </div>
     {% endif %}
 </div>
 
 <script>
-function viewCollection(collectionId) {
-    console.log('Viewing collection:', collectionId);
-    // TODO: Load collection works
-    alert('Collection viewer coming soon!');
+// Modal controls
+const modal = document.getElementById('collectionModal');
+const createBtn = document.getElementById('createCollectionBtn');
+
+createBtn.addEventListener('click', function() {
+    modal.style.display = 'flex';
+});
+
+function closeModal() {
+    modal.style.display = 'none';
+    document.getElementById('collectionName').value = '';
+    document.getElementById('collectionDesc').value = '';
 }
+
+function saveCollection() {
+    const name = document.getElementById('collectionName').value.trim();
+    const desc = document.getElementById('collectionDesc').value.trim();
+
+    if (!name) {
+        document.getElementById('collectionName').style.borderColor = 'var(--accent-warm)';
+        return;
+    }
+
+    // Save collection via API
+    fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, description: desc })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal();
+            window.location.reload();
+        } else {
+            console.error('Failed to create collection:', data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Error creating collection:', err);
+    });
+}
+
+function viewCollection(collectionId) {
+    // Navigate to collection detail view
+    window.location.href = '/collection/' + collectionId;
+}
+
+// Close modal on outside click
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+    }
+});
 </script>
 {% endblock %}
