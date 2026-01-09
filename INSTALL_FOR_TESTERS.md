@@ -111,6 +111,55 @@ Contact Gisel directly.
 
 ---
 
+## iPad / Mobile Testing
+
+ARCHIV-IT can be accessed from iPad or other devices on your local network.
+
+### Setup
+
+1. Start the server on your Mac:
+   ```bash
+   ./start_server.sh
+   ```
+
+2. Note the **NETWORK** URL shown in the terminal:
+   ```
+   NETWORK: http://192.168.x.x:5001
+   ```
+
+3. On your iPad, open Safari and enter that URL.
+
+### Requirements
+
+- iPad and Mac must be on the **same WiFi network**
+- Mac firewall must allow incoming connections on port 5001
+- Keep the Mac terminal running while testing
+
+### Best Features for iPad
+
+| Feature | Why it works well |
+|---------|-------------------|
+| `/semantic-network` | Touch to rotate 3D graph |
+| `/edition-constellation` | Spatial visualization designed for touch |
+| `/point-cloud` | Immersive 3D experience |
+| `/visual-translator-v2` | Visual Grid with swipe navigation |
+
+### Touch Controls
+
+- **Drag** - Rotate 3D views
+- **Pinch** - Zoom in/out
+- **Tap** - Select nodes or items
+- **Swipe** - Navigate between items
+
+### Troubleshooting iPad Connection
+
+**Can't connect?**
+1. Check both devices are on same WiFi
+2. Try disabling Mac firewall temporarily
+3. Verify the IP address is correct (run `ipconfig getifaddr en0` on Mac)
+
+---
+
 ## After Testing
 
 Please fill out **TESTER_FEEDBACK.md** with your experience.
