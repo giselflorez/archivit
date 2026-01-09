@@ -2448,6 +2448,75 @@ def visual_translator():
 
                                 all_images.append(img_data)
 
+    # === FIX: Include documents WITHOUT media files ===
+    # Scan knowledge_base/processed/ for documents not already in all_images
+    existing_doc_ids = set(img['doc_id'] for img in all_images)
+    kb_path = Path("knowledge_base/processed")
+
+    if kb_path.exists():
+        for md_file in kb_path.rglob("*.md"):
+            try:
+                frontmatter, body = parse_markdown_file(md_file)
+                doc_id = frontmatter.get('id')
+
+                # Skip if this document already has media entries
+                if doc_id and doc_id not in existing_doc_ids:
+                    # Create a text-only entry for documents without media
+                    source = frontmatter.get('source', 'unknown')
+
+                    # Classify cognitive type
+                    if doc_id not in cognitive_cache:
+                        cognitive_cache[doc_id] = {
+                            'type': classify_document_cognitive_type({
+                                'title': frontmatter.get('title', ''),
+                                'source': source,
+                                'tags': frontmatter.get('tags', []),
+                                'has_images': frontmatter.get('has_images', False),
+                                'image_count': frontmatter.get('image_count', 0),
+                                'word_count': len(body.split()) if body else 0,
+                                'domain': frontmatter.get('domain', ''),
+                                'body': body[:500] if body else ''
+                            }),
+                            'blockchain': False
+                        }
+
+                    # Create text-only document entry
+                    text_entry = {
+                        'path': str(md_file),
+                        'filename': f"{frontmatter.get('title', 'Untitled')[:30]}...",
+                        'doc_id': doc_id,
+                        'source': source,
+                        'source_type': 'written',
+                        'source_types': None,
+                        'is_merged': frontmatter.get('is_merged', False),
+                        'automation_ready': False,
+                        'analyzed': 'visual_analysis_date' in frontmatter,
+                        'has_text': True,
+                        'vision_desc': frontmatter.get('vision_description', '')[:100] if frontmatter.get('vision_description') else None,
+                        'cognitive_type': cognitive_cache[doc_id]['type'],
+                        'blockchain_metadata': None,
+                        'domain': frontmatter.get('domain'),
+                        'file_size': 0,
+                        'file_size_human': '0 B',
+                        'dimensions': None,
+                        'width': 0,
+                        'height': 0,
+                        'relationship_count': 0,
+                        'doc_frontmatter': frontmatter,
+                        'original_date': frontmatter.get('original_date'),
+                        'created_at': frontmatter.get('created_at'),
+                        'doc_body': body[:300] if body else None,
+                        'source_urls': [],
+                        'is_text_only': True  # Flag for template to handle differently
+                    }
+
+                    all_images.append(text_entry)
+                    existing_doc_ids.add(doc_id)
+
+            except Exception as e:
+                continue
+    # === END FIX ===
+
     # Calculate stats BEFORE filtering
     total = len(all_images)
     analyzed = len([img for img in all_images if img['analyzed']])
@@ -4215,7 +4284,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'export'))
 from collectors.address_registry import AddressRegistry
 from collectors.ethereum_tracker import EthereumTracker
 from analytics.sales_db import get_sales_db
-from export.press_kit_generator import PressKitGenerator
+try:
+    from export.press_kit_generator import PressKitGenerator
+except ImportError:
+    PressKitGenerator = None  # WeasyPrint not available
 
 # Import collections_db directly to avoid conflict with built-in collections module
 import importlib.util

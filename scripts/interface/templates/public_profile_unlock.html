@@ -1,0 +1,620 @@
+{% extends "base.html" %}
+
+{% block title %}ARCHIV-IT | Unlock Multi-Wallet{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --accent-gold: #d4a574;
+        --accent-warm: #f4a261;
+        --text-primary: #e8e6e3;
+        --text-muted: rgba(232, 230, 227, 0.5);
+        --success: #68d391;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Geist Sans', -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+
+    .unlock-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+
+    .unlock-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .unlock-header h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .unlock-header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    /* Current status */
+    .current-status {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .status-info h3 {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .status-info p {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .wallet-count {
+        text-align: right;
+    }
+
+    .wallet-count .number {
+        font-size: 2rem;
+        font-weight: 300;
+        color: var(--accent-gold);
+    }
+
+    .wallet-count .label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Unlock card */
+    .unlock-card {
+        background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), rgba(244, 162, 97, 0.05));
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 4px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .unlock-card h2 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .unlock-card h2 .badge {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.6rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .unlock-benefits {
+        margin-bottom: 1.5rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .benefit-icon {
+        color: var(--success);
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .benefit-text {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+
+    .benefit-text span {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    /* Steps */
+    .unlock-steps {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .step:last-child {
+        margin-bottom: 0;
+    }
+
+    .step-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(212, 165, 116, 0.2);
+        color: var(--accent-gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .step.completed .step-number {
+        background: var(--success);
+        color: var(--bg-primary);
+    }
+
+    .step-content h4 {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .step-content p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Copy box */
+    .copy-box {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        border-radius: 2px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .copy-box code {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--accent-gold);
+        word-break: break-all;
+    }
+
+    .copy-btn {
+        background: transparent;
+        border: 1px solid rgba(212, 165, 116, 0.4);
+        color: var(--text-muted);
+        padding: 0.4rem 0.75rem;
+        font-size: 0.7rem;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .copy-btn.copied {
+        background: var(--success);
+        border-color: var(--success);
+        color: var(--bg-primary);
+    }
+
+    /* Badge preview */
+    .badge-preview {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .badge-preview h3 {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+    }
+
+    .badge-preview-image {
+        background: #15202b;
+        border-radius: 8px;
+        padding: 1rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .twitter-mock {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .twitter-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+    }
+
+    .twitter-info {
+        text-align: left;
+    }
+
+    .twitter-name {
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .twitter-handle {
+        color: #8899a6;
+        font-size: 14px;
+    }
+
+    /* Trust orb in twitter mock */
+    .mini-orb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(30, 30, 40, 0.8);
+        border: 2px solid rgba(104, 211, 145, 0.8);
+        box-shadow: 0 0 8px rgba(104, 211, 145, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mini-orb-fill {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 75%;
+        background: linear-gradient(to top, #68d391, #9ae6b4);
+        animation: mini-wave 2s ease-in-out infinite;
+    }
+
+    @keyframes mini-wave {
+        0%, 100% { transform: translateY(1px); }
+        50% { transform: translateY(-1px); }
+    }
+
+    /* Verify button */
+    .verify-section {
+        text-align: center;
+        padding: 2rem;
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+    }
+
+    .verify-section p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .btn-verify {
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+        border: none;
+        color: var(--bg-primary);
+        padding: 0.9rem 2.5rem;
+        font-size: 0.9rem;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 2px;
+        box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.5);
+    }
+
+    .verify-note {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    /* Why public section */
+    .why-public {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .why-public h3 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+    }
+
+    .why-public p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+
+    .why-public em {
+        color: var(--accent-gold);
+        font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="unlock-container">
+    <div class="unlock-header">
+        <h1>UNLOCK MULTI-WALLET</h1>
+        <p>Connect all your chains. Go public with your trust.</p>
+    </div>
+
+    <!-- Current Status -->
+    <div class="current-status">
+        <div class="status-info">
+            <h3>Current Plan</h3>
+            <p>{{ 'Public Profile Active' if is_public else 'Single Wallet (Free)' }}</p>
+        </div>
+        <div class="wallet-count">
+            <div class="number">{{ wallet_limit }}</div>
+            <div class="label">wallet{{ 's' if wallet_limit != 1 else '' }} allowed</div>
+        </div>
+    </div>
+
+    {% if not is_public %}
+    <!-- Unlock Card -->
+    <div class="unlock-card">
+        <h2>
+            Go Public
+            <span class="badge">Unlock Unlimited</span>
+        </h2>
+
+        <div class="unlock-benefits">
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <div class="benefit-text">
+                    Up to 3 wallet addresses
+                    <span>— ETH, Tezos, Solana, Bitcoin, and more</span>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <div class="benefit-text">
+                    Public profile page
+                    <span>— shareable link showing your trust indicator</span>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <div class="benefit-text">
+                    Dynamic badge image
+                    <span>— live-updating trust orb for your Twitter bio</span>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <div class="benefit-text">
+                    Ecosystem visibility
+                    <span>— appear in collector/artist networks</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="unlock-steps">
+            <div class="step" id="step-1">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Copy your profile link</h4>
+                    <p>This is your public ARCHIV-IT profile with live trust indicator</p>
+                    <div class="copy-box">
+                        <code id="profile-url">{{ profile_url }}</code>
+                        <button class="copy-btn" onclick="copyToClipboard('profile-url', this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step-2">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Add to your Twitter/X bio</h4>
+                    <p>Paste the link in your bio so others can verify your trust</p>
+                    <div class="copy-box">
+                        <code>🔮 archivit.web3photo.com/u/{{ username }}</code>
+                        <button class="copy-btn" onclick="copyText('🔮 archivit.web3photo.com/u/{{ username }}', this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step-3">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Verify & unlock</h4>
+                    <p>We'll verify and unlock more wallets</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badge Preview -->
+    <div class="badge-preview">
+        <h3>Preview: How it looks on Twitter</h3>
+        <div class="badge-preview-image">
+            <div class="twitter-mock">
+                <div class="twitter-avatar"></div>
+                <div class="twitter-info">
+                    <div class="twitter-name">
+                        {{ display_name or 'Your Name' }}
+                        <div class="mini-orb">
+                            <div class="mini-orb-fill"></div>
+                        </div>
+                    </div>
+                    <div class="twitter-handle">@{{ username or 'username' }}</div>
+                </div>
+            </div>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted);">Your trust orb updates in real-time as your data consistency changes</p>
+    </div>
+
+    <!-- Verify Section -->
+    <div class="verify-section">
+        <p>Added the link to your Twitter bio?</p>
+        <button class="btn-verify" onclick="verifyTwitter()">Verify & Unlock Wallets</button>
+        <p class="verify-note">We'll check for your ARCHIV-IT link in your Twitter bio</p>
+    </div>
+
+    {% else %}
+    <!-- Already Public -->
+    <div class="unlock-card" style="text-align: center;">
+        <h2 style="justify-content: center;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--success)" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            You're Public!
+        </h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">3 wallets unlocked. Your trust indicator is live.</p>
+
+        <div style="margin-bottom: 1rem;">
+            <div class="copy-box" style="display: inline-flex;">
+                <code>{{ profile_url }}</code>
+                <button class="copy-btn" onclick="copyToClipboard('profile-url', this)">Copy</button>
+            </div>
+        </div>
+
+        <p style="font-size: 0.75rem; color: var(--text-muted);">
+            <a href="{{ profile_url }}" target="_blank" style="color: var(--accent-gold);">View your public profile →</a>
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Why Public -->
+    <div class="why-public">
+        <h3>Why require going public?</h3>
+        <p>
+            ARCHIV-IT is built to protect artists and collectors. By requiring a public trust indicator
+            to unlock multi-wallet support, we ensure that <em>bad actors self-select out</em>.
+        </p>
+        <p>
+            Copycats and scammers won't publicly link themselves to a transparency tool.
+            Only legitimate artists and collectors benefit from showing their data consistency to the world.
+        </p>
+        <p>
+            <em>Your trust orb speaks for itself.</em>
+        </p>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(elementId, button) {
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = 'Copy';
+            button.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+function copyText(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = 'Copy';
+            button.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+async function verifyTwitter() {
+    const btn = event.target;
+    btn.textContent = 'Verifying...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/verify-public-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ twitter_username: '{{ twitter_username }}' })
+        });
+
+        const data = await response.json();
+
+        if (data.verified) {
+            btn.textContent = 'Verified! Redirecting...';
+            btn.style.background = 'var(--success)';
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            btn.textContent = 'Not Found - Try Again';
+            btn.disabled = false;
+            setTimeout(() => {
+                btn.textContent = 'Verify & Unlock Wallets';
+            }, 3000);
+        }
+    } catch (e) {
+        btn.textContent = 'Error - Try Again';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

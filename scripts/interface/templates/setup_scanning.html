@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT — Scanning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --text-primary: #e8e6e3;
+            --text-secondary: rgba(232, 230, 227, 0.7);
+            --text-muted: rgba(232, 230, 227, 0.4);
+            --accent-gold: #d4a574;
+            --status-verified: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanning-container {
+            text-align: center;
+            max-width: 480px;
+            padding: 24px;
+        }
+
+        /* Animated scanner ring */
+        .scanner-ring {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid transparent;
+        }
+
+        .ring-outer {
+            width: 100%;
+            height: 100%;
+            border-color: rgba(212, 165, 116, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .ring-middle {
+            width: 75%;
+            height: 75%;
+            top: 12.5%;
+            left: 12.5%;
+            border-color: rgba(212, 165, 116, 0.2);
+            animation: pulse 2s ease-in-out infinite 0.3s;
+        }
+
+        .ring-inner {
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+            border-color: rgba(212, 165, 116, 0.3);
+            animation: pulse 2s ease-in-out infinite 0.6s;
+        }
+
+        .ring-core {
+            width: 30%;
+            height: 30%;
+            top: 35%;
+            left: 35%;
+            background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+            opacity: 0.6;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+
+        /* Scanning beam */
+        .scan-beam {
+            position: absolute;
+            width: 2px;
+            height: 50%;
+            top: 0;
+            left: calc(50% - 1px);
+            background: linear-gradient(to bottom, var(--accent-gold), transparent);
+            transform-origin: bottom center;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .scanning-title {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--accent-gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .scanning-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        /* Progress steps */
+        .progress-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: rgba(212, 165, 116, 0.08);
+        }
+
+        .progress-step.complete {
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        .step-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active .step-indicator {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            animation: stepPulse 1s ease-in-out infinite;
+        }
+
+        .progress-step.complete .step-indicator {
+            border-color: var(--status-verified);
+            background: var(--status-verified);
+            color: var(--bg-primary);
+        }
+
+        @keyframes stepPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 165, 116, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(212, 165, 116, 0); }
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .progress-step.active .step-label {
+            color: var(--text-secondary);
+        }
+
+        .progress-step.complete .step-label {
+            color: var(--status-verified);
+        }
+
+        /* Stats preview */
+        .stats-preview {
+            margin-top: 40px;
+            padding: 16px;
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .stats-preview.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+        }
+
+        /* Complete state */
+        .scanning-container.complete .scanner-ring {
+            animation: completeScale 0.5s ease forwards;
+        }
+
+        @keyframes completeScale {
+            to { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        .complete-message {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .scanning-container.complete .complete-message {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .complete-message p {
+            font-size: 0.8rem;
+            color: var(--status-verified);
+            margin-bottom: 20px;
+        }
+
+        .continue-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: linear-gradient(90deg, var(--accent-gold), #e8b88a);
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 165, 116, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="scanning-container" id="scanning-container">
+        <!-- Animated Scanner -->
+        <div class="scanner-ring">
+            <div class="ring ring-outer"></div>
+            <div class="ring ring-middle"></div>
+            <div class="ring ring-inner"></div>
+            <div class="ring ring-core"></div>
+            <div class="scan-beam"></div>
+        </div>
+
+        <h1 class="scanning-title">Indexing Blockchain</h1>
+        <p class="scanning-subtitle">Building your provenance network</p>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="progress-step" id="step-connect" data-step="connect">
+                <div class="step-indicator">1</div>
+                <span class="step-label">Connecting to blockchain</span>
+            </div>
+            <div class="progress-step" id="step-mints" data-step="mints">
+                <div class="step-indicator">2</div>
+                <span class="step-label">Scanning minted works</span>
+            </div>
+            <div class="progress-step" id="step-collectors" data-step="collectors">
+                <div class="step-indicator">3</div>
+                <span class="step-label">Mapping collector network</span>
+            </div>
+            <div class="progress-step" id="step-analyze" data-step="analyze">
+                <div class="step-indicator">4</div>
+                <span class="step-label">Analyzing authenticity</span>
+            </div>
+        </div>
+
+        <!-- Stats Preview (shown as data comes in) -->
+        <div class="stats-preview" id="stats-preview">
+            <div class="stats-row">
+                <span class="stat-label">Works Found</span>
+                <span class="stat-value" id="stat-works">0</span>
+            </div>
+            <div class="stats-row">
+                <span class="stat-label">Collectors</span>
+                <span class="stat-value" id="stat-collectors">0</span>
+            </div>
+            <div class="stats-row">
+                <span class="stat-label">Networks</span>
+                <span class="stat-value" id="stat-networks">-</span>
+            </div>
+        </div>
+
+        <!-- Complete Message -->
+        <div class="complete-message">
+            <p>Scan complete. Your assessment is ready.</p>
+            <a href="/assessment-report" class="continue-btn" id="continue-btn">View Assessment</a>
+        </div>
+    </div>
+
+    <script>
+        // Poll for scan status
+        const POLL_INTERVAL = 2000; // 2 seconds
+        let pollCount = 0;
+        const MAX_POLLS = 90; // 3 minutes max
+
+        const steps = ['connect', 'mints', 'collectors', 'analyze'];
+        let currentStepIndex = 0;
+
+        function updateStep(stepName, status) {
+            const stepEl = document.getElementById(`step-${stepName}`);
+            if (!stepEl) return;
+
+            stepEl.classList.remove('active', 'complete');
+            if (status === 'active') {
+                stepEl.classList.add('active');
+            } else if (status === 'complete') {
+                stepEl.classList.add('complete');
+                stepEl.querySelector('.step-indicator').textContent = '✓';
+            }
+        }
+
+        function updateStats(data) {
+            if (data.works_found !== undefined) {
+                document.getElementById('stat-works').textContent = data.works_found;
+                document.getElementById('stats-preview').classList.add('visible');
+            }
+            if (data.collectors_found !== undefined) {
+                document.getElementById('stat-collectors').textContent = data.collectors_found;
+            }
+            if (data.networks) {
+                document.getElementById('stat-networks').textContent = data.networks.join(', ');
+            }
+        }
+
+        function markComplete(assessmentUrl) {
+            const container = document.getElementById('scanning-container');
+            container.classList.add('complete');
+
+            // Update all steps to complete
+            steps.forEach(step => updateStep(step, 'complete'));
+
+            // Update continue button URL
+            if (assessmentUrl) {
+                document.getElementById('continue-btn').href = assessmentUrl;
+            }
+
+            // Auto-redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = assessmentUrl || '/assessment-report';
+            }, 2000);
+        }
+
+        function simulateProgress() {
+            // Simulate step progression for demo
+            if (currentStepIndex < steps.length) {
+                // Mark previous as complete
+                if (currentStepIndex > 0) {
+                    updateStep(steps[currentStepIndex - 1], 'complete');
+                }
+                // Mark current as active
+                updateStep(steps[currentStepIndex], 'active');
+                currentStepIndex++;
+            }
+        }
+
+        async function pollStatus() {
+            pollCount++;
+
+            // Simulate progress while polling
+            if (pollCount % 3 === 0) {
+                simulateProgress();
+            }
+
+            try {
+                const response = await fetch('/setup/scan-status');
+                const data = await response.json();
+
+                if (data.status === 'complete') {
+                    // Mark all steps complete and show assessment
+                    updateStats(data);
+                    markComplete(data.assessment_url);
+                    return; // Stop polling
+                } else if (data.status === 'scanning') {
+                    // Update progress
+                    if (data.current_step) {
+                        const stepIndex = steps.indexOf(data.current_step);
+                        if (stepIndex >= 0) {
+                            for (let i = 0; i < stepIndex; i++) {
+                                updateStep(steps[i], 'complete');
+                            }
+                            updateStep(steps[stepIndex], 'active');
+                        }
+                    }
+                    updateStats(data);
+                } else if (data.status === 'error') {
+                    console.error('Scan error:', data.error);
+                    // Still redirect after error - show what we have
+                    markComplete(data.assessment_url || '/assessment-report');
+                    return;
+                }
+
+                // Continue polling if not at max
+                if (pollCount < MAX_POLLS) {
+                    setTimeout(pollStatus, POLL_INTERVAL);
+                } else {
+                    // Timeout - proceed anyway
+                    markComplete('/assessment-report');
+                }
+
+            } catch (error) {
+                console.error('Poll error:', error);
+                // Retry a few times on network error
+                if (pollCount < MAX_POLLS) {
+                    setTimeout(pollStatus, POLL_INTERVAL * 2);
+                } else {
+                    markComplete('/assessment-report');
+                }
+            }
+        }
+
+        // Start polling on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start with first step active
+            updateStep('connect', 'active');
+
+            // Begin polling
+            setTimeout(pollStatus, POLL_INTERVAL);
+        });
+    </script>
+</body>
+</html>

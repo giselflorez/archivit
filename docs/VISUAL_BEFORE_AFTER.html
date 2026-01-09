@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT | Visual Before/After Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0f;
+            color: #e8e6e3;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #d4a574;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .comparison-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #d4a574;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: #12121a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-header.before {
+            background: #3d1f1f;
+            color: #f87171;
+        }
+
+        .panel-header.after {
+            background: #1f3d1f;
+            color: #4ade80;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        /* NAVIGATION DEMO */
+        .nav-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .nav-item {
+            background: #1a1a24;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #e8e6e3;
+            border: 1px solid #2a2a3a;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            border-color: #d4a574;
+            color: #d4a574;
+        }
+
+        .nav-item:hover .glow-icon {
+            color: #d4a574;
+            text-shadow: 0 0 12px rgba(212, 165, 116, 0.8);
+        }
+
+        .glow-icon {
+            margin-right: 6px;
+            color: #8b7355;
+            text-shadow: 0 0 8px rgba(212, 165, 116, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.old {
+            background: #1a1a24;
+        }
+
+        /* BADGE DEMO */
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge.source {
+            background: #2a2a3a;
+            color: #aaa;
+        }
+
+        .badge.ipfs {
+            background: #1e3a5f;
+            color: #60a5fa;
+        }
+
+        .badge.nft {
+            background: #3d1f5f;
+            color: #c084fc;
+        }
+
+        /* CARD DEMO */
+        .doc-card {
+            background: #1a1a24;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .doc-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .doc-meta {
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .doc-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* LINK INDICATORS */
+        .link-indicators {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .link-ind {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: #2a2a3a;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .link-ind:hover {
+            background: #3a3a4a;
+            color: #d4a574;
+        }
+
+        .link-ind.text {
+            width: auto;
+            padding: 0 8px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-icon.text {
+            font-size: 24px;
+            color: #444;
+            font-weight: 300;
+        }
+
+        /* VERDICT */
+        .verdict-box {
+            background: #1a1a24;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 40px;
+        }
+
+        .verdict-title {
+            font-size: 16px;
+            color: #d4a574;
+            margin-bottom: 16px;
+        }
+
+        .verdict-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .verdict-item {
+            text-align: center;
+        }
+
+        .verdict-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .verdict-value {
+            font-size: 14px;
+        }
+
+        .verdict-value.good { color: #4ade80; }
+        .verdict-value.bad { color: #f87171; }
+        .verdict-value.neutral { color: #fbbf24; }
+
+        .note-box {
+            background: #1f2937;
+            border-left: 3px solid #d4a574;
+            padding: 16px 20px;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #d4a574;
+            color: #0a0a0f;
+        }
+
+        .btn-primary:hover {
+            background: #e8b887;
+        }
+
+        .btn-secondary {
+            background: #2a2a3a;
+            color: #e8e6e3;
+            border: 1px solid #3a3a4a;
+        }
+
+        .btn-secondary:hover {
+            border-color: #d4a574;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ARCHIV-IT Visual Before/After</h1>
+<p class="subtitle">Interactive comparison of aesthetic changes</p>
+
+<!-- NAVIGATION -->
+<div class="comparison-section">
+    <div class="section-title">Navigation Bar</div>
+    <div class="side-by-side">
+        <div class="panel">
+            <div class="panel-header before">Before (With Emoji)</div>
+            <div class="panel-content">
+                <div class="nav-demo">
+                    <div class="nav-item">🔍 Visual Analyzer</div>
+                    <div class="nav-item">📸 Visual Grid</div>
+                    <div class="nav-item">🏷️ Tags</div>
+                    <div class="nav-item">☁️ Point Cloud</div>
+                    <div class="nav-item">🌀 IT-R8</div>
+                    <div class="nav-item">📚 Training</div>
+                    <div class="nav-item">⛓️ Blockchain</div>
+                    <div class="nav-item">📊 Analytics</div>
+                    <div class="nav-item">🎨 Collections</div>
+                    <div class="nav-item">📂 Sync Drive</div>
+                    <div class="nav-item">⚙️ API Settings</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header after">After (Glowing Icons)</div>
+            <div class="panel-content">
+                <div class="nav-demo">
+                    <div class="nav-item"><span class="glow-icon">◎</span>Visual Analyzer</div>
+                    <div class="nav-item"><span class="glow-icon">▦</span>Visual Grid</div>
+                    <div class="nav-item"><span class="glow-icon">◈</span>Tag Network</div>
+                    <div class="nav-item"><span class="glow-icon">◉</span>Semantic Network</div>
+                    <div class="nav-item"><span class="glow-icon">⬡</span>Blockchain</div>
+                    <div class="nav-item"><span class="glow-icon">◧</span>Analytics</div>
+                    <div class="nav-item"><span class="glow-icon">◫</span>Collections</div>
+                    <div class="nav-item"><span class="glow-icon">◇</span>Sync Drive</div>
+                    <div class="nav-item"><span class="glow-icon">◆</span>Settings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SOURCE BADGES -->
+<div class="comparison-section">
+    <div class="section-title">Source Type Badges</div>
+    <div class="side-by-side">
+        <div class="panel">
+            <div class="panel-header before">Before</div>
+            <div class="panel-content">
+                <div class="badge-row">
+                    <span class="badge source">📄 Attachment</span>
+                    <span class="badge source">🌐 Web Import</span>
+                    <span class="badge source">💾 Google Drive</span>
+                    <span class="badge nft">🎨 NFT</span>
+                    <span class="badge source">📰 Article</span>
+                    <span class="badge ipfs">🔗 IPFS</span>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header after">After (Glowing Icons)</div>
+            <div class="panel-content">
+                <div class="badge-row">
+                    <span class="badge source"><span class="glow-icon">◇</span>Attachment</span>
+                    <span class="badge source"><span class="glow-icon">◎</span>Web Import</span>
+                    <span class="badge source"><span class="glow-icon">◆</span>Drive</span>
+                    <span class="badge nft"><span class="glow-icon">⬡</span>NFT</span>
+                    <span class="badge source"><span class="glow-icon">◧</span>Article</span>
+                    <span class="badge ipfs"><span class="glow-icon">◈</span>IPFS</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DOCUMENT CARDS -->
+<div class="comparison-section">
+    <div class="section-title">Document Cards</div>
+    <div class="side-by-side">
+        <div class="panel">
+            <div class="panel-header before">Before</div>
+            <div class="panel-content">
+                <div class="doc-card">
+                    <div class="doc-title">Transmissions of Light I</div>
+                    <div class="doc-meta">
+                        <span>🎨 NFT</span>
+                        <span>⛓️ ETH</span>
+                        <span>📅 2019-11-15</span>
+                    </div>
+                    <div class="link-indicators">
+                        <div class="link-ind">🔗</div>
+                        <div class="link-ind">🔗</div>
+                        <div class="link-ind">🔗</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header after">After (Glowing Icons)</div>
+            <div class="panel-content">
+                <div class="doc-card">
+                    <div class="doc-title">Transmissions of Light I</div>
+                    <div class="doc-meta">
+                        <span><span class="glow-icon">⬡</span>NFT</span>
+                        <span><span class="glow-icon">◈</span>ETH</span>
+                        <span>2019-11-15</span>
+                    </div>
+                    <div class="link-indicators">
+                        <div class="link-ind text"><span class="glow-icon">◎</span>M</div>
+                        <div class="link-ind text"><span class="glow-icon">◈</span>IPFS</div>
+                        <div class="link-ind text"><span class="glow-icon">◫</span>IMG</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EMPTY STATES -->
+<div class="comparison-section">
+    <div class="section-title">Empty States</div>
+    <div class="side-by-side">
+        <div class="panel">
+            <div class="panel-header before">Before</div>
+            <div class="panel-content">
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div>No results found</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header after">After</div>
+            <div class="panel-content">
+                <div class="empty-state">
+                    <div class="empty-icon text">--</div>
+                    <div>No results found</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VISUAL TRANSLATOR SOURCE TYPES -->
+<div class="comparison-section">
+    <div class="section-title">Visual Translator - Source Types</div>
+    <div class="side-by-side">
+        <div class="panel">
+            <div class="panel-header before">Before</div>
+            <div class="panel-content">
+                <div class="badge-row">
+                    <span class="badge source">📸 Visual Memos</span>
+                    <span class="badge source">🌐 Website Scrapes</span>
+                    <span class="badge nft">⛓️ Blockchain NFTs</span>
+                    <span class="badge source">🎙️ Audio</span>
+                    <span class="badge source">🎬 Video</span>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header after">After (Glowing Icons)</div>
+            <div class="panel-content">
+                <div class="badge-row">
+                    <span class="badge source"><span class="glow-icon">◎</span>Visual Memos</span>
+                    <span class="badge source"><span class="glow-icon">◉</span>Website Scrapes</span>
+                    <span class="badge nft"><span class="glow-icon">⬡</span>Blockchain</span>
+                    <span class="badge source"><span class="glow-icon">◧</span>Audio</span>
+                    <span class="badge source"><span class="glow-icon">◫</span>Video</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VERDICT BOX -->
+<div class="verdict-box">
+    <div class="verdict-title">Your Decision</div>
+    <div class="verdict-grid">
+        <div class="verdict-item">
+            <div class="verdict-label">Cleaner Look</div>
+            <div class="verdict-value good">After wins</div>
+        </div>
+        <div class="verdict-item">
+            <div class="verdict-label">Visual Scanning</div>
+            <div class="verdict-value neutral">Emoji faster to spot</div>
+        </div>
+        <div class="verdict-item">
+            <div class="verdict-label">Professional Feel</div>
+            <div class="verdict-value good">After wins</div>
+        </div>
+    </div>
+</div>
+
+<div class="note-box">
+    <strong>Note:</strong> The "After" version follows your aesthetic guidelines (no emoji, clean typography).
+    If you prefer the emoji version for certain elements (like navigation icons), we can selectively restore them.
+    The current live server shows the "After" version.
+</div>
+
+<div class="action-buttons">
+    <button class="btn btn-primary" onclick="window.open('http://localhost:5001', '_blank')">View Live App (After)</button>
+    <button class="btn btn-secondary" onclick="alert('Specify which emoji to restore and where')">Request Selective Restore</button>
+</div>
+
+</body>
+</html>

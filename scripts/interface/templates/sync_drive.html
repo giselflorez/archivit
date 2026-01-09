@@ -977,6 +977,29 @@
 </div>
 
 <script>
+// SA-004 FIX: Validate file IDs to prevent injection attacks
+// Google Drive file IDs are alphanumeric with underscores and hyphens
+function isValidFileId(fileId) {
+    if (!fileId || typeof fileId !== 'string') return false;
+    return /^[a-zA-Z0-9_-]+$/.test(fileId);
+}
+
+function sanitizeFileId(fileId) {
+    if (!isValidFileId(fileId)) {
+        console.warn('Invalid file ID detected:', fileId);
+        return null;
+    }
+    return fileId;
+}
+
+// Escape HTML entities to prevent XSS
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 let driveFiles = {
     new: [],
     similar: [],
@@ -1113,16 +1136,23 @@ function displayFileSection(listId, sectionId, files, showSimilarity = false, hi
             }
         }
 
+        // SA-004 FIX: Validate file ID before using in DOM
+        const safeFileId = sanitizeFileId(file.id);
+        if (!safeFileId) {
+            console.warn('Skipping file with invalid ID');
+            return; // Skip this file if ID is invalid
+        }
+
         item.innerHTML = `
             ${!hideCheckbox ? `
                 <input type="checkbox"
                        class="file-checkbox"
-                       data-file-id="${file.id}"
+                       data-file-id="${safeFileId}"
                        onchange="updateSelection()">
             ` : '<div style="width: 20px;"></div>'}
 
             <div class="file-info" style="flex: 1;">
-                <div class="file-name">${file.name}</div>
+                <div class="file-name">${escapeHtml(file.name)}</div>
                 <div class="file-meta">
                     <span>${fileSize}</span>
                     <span>Modified: ${new Date(file.modifiedTime).toLocaleDateString()}</span>
@@ -1133,7 +1163,7 @@ function displayFileSection(listId, sectionId, files, showSimilarity = false, hi
             <div class="file-tag ${fileExt}">${fileExt.toUpperCase()}</div>
 
             ${showSimilarity && file.similar_to ? `
-                <div class="match-indicator ${matchLevel}" onclick="toggleComparisonPopup('${file.id}', event)" title="Click to view comparison">
+                <div class="match-indicator ${matchLevel}" data-file-id="${safeFileId}" title="Click to view comparison">
                     ⚠️
                 </div>
             ` : hideCheckbox ? `
@@ -1142,6 +1172,18 @@ function displayFileSection(listId, sectionId, files, showSimilarity = false, hi
                 </div>
             ` : ''}
         `;
+
+        // SA-004 FIX: Use event delegation instead of inline onclick
+        const matchIndicator = item.querySelector('.match-indicator');
+        if (matchIndicator) {
+            matchIndicator.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const fileId = event.currentTarget.dataset.fileId;
+                if (isValidFileId(fileId)) {
+                    toggleComparisonPopup(fileId, event);
+                }
+            });
+        }
 
         // Add popup if similar file
         if (showSimilarity && file.similar_to) {
@@ -1279,7 +1321,7 @@ function createComparisonPopup(file, matchLevel, matchText) {
 
             <div class="comparison-grid">
                 <div class="comparison-column new">
-                    <div class="comparison-label new">📁 New File (Drive)</div>
+                    <div class="comparison-label new">New File (Drive)</div>
                     <div class="comparison-value">${file.name}</div>
                     <div class="comparison-meta">
                         ${newSize} ${sizeIndicator}<br>
@@ -1288,7 +1330,7 @@ function createComparisonPopup(file, matchLevel, matchText) {
                 </div>
 
                 <div class="comparison-column existing">
-                    <div class="comparison-label existing">📚 Existing (Archive)</div>
+                    <div class="comparison-label existing">Existing (Archive)</div>
                     <div class="comparison-value">${existingFile.title || 'Untitled'}</div>
                     <div class="comparison-meta">
                         ${existingSize}<br>
@@ -1310,7 +1352,7 @@ function createComparisonPopup(file, matchLevel, matchText) {
             </div>
 
             <div style="padding: 0.75rem 1rem; font-size: 0.75rem; color: var(--text-tertiary); border-top: 1px solid rgba(244, 162, 97, 0.1);">
-                💡 ${recommendation}
+                Tip: ${recommendation}
             </div>
         </div>
     `;

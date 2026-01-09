@@ -2,13 +2,39 @@
 
 {% block extra_styles %}
 <style>
+    /* ============================================
+       VISUAL TRANSLATOR - DATA SOURCE DISTINCTIONS
+       Intricate utility-focused design with visual clarity
+       ============================================ */
+
     .vt-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        display: flex !important;
+        justify-content: flex-start;
+        align-items: baseline !important;
+        flex-wrap: nowrap !important;
         margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid;
+        border-image: linear-gradient(90deg, var(--accent-gold), transparent) 1;
+        position: relative;
+    }
+
+    .vt-header > * {
+        display: inline-block !important;
+    }
+
+    .vt-header::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg,
+            var(--accent-gold) 0%,
+            rgba(212, 165, 116, 0.3) 50%,
+            transparent 100%);
+        filter: blur(2px);
     }
 
     .vt-title {
@@ -18,64 +44,367 @@
         margin: 0;
         color: var(--accent-gold);
         letter-spacing: -0.02em;
+        text-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-transform: uppercase;
+        line-height: 1;
     }
 
+    /* Data Asset Stats Dashboard */
     .vt-stats {
         display: flex;
-        gap: 2rem;
+        align-items: baseline;
+        gap: 0.6rem;
         font-size: 0.85rem;
+        white-space: nowrap;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .vt-stat {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.6rem;
     }
 
     .vt-stat-number {
         font-family: 'Crimson Pro', serif;
-        font-size: 1.8rem;
+        font-size: 2.2rem;
         font-weight: 600;
         color: var(--accent-gold);
+        text-shadow: 0 0 10px rgba(212, 165, 116, 0.4);
+        line-height: 1;
     }
 
     .vt-stat-label {
-        color: var(--text-tertiary);
+        color: var(--accent-gold);
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        font-size: 0.7rem;
-    }
-
-    .vt-filters {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .filter-btn {
-        padding: 0.6rem 1.25rem;
-        border: 1px solid var(--border-color);
-        background: transparent;
-        color: var(--text-secondary);
-        cursor: pointer;
         font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    /* Source Type Stats (New Section) */
+    .vt-source-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .vt-source-stat-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        padding-bottom: 1.5rem;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .vt-source-stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    /* Source Type Colors */
+    .vt-source-stat-card[data-source="audio"] { --glow-color: #b794f6; }
+    .vt-source-stat-card[data-source="video"] { --glow-color: #fc8181; }
+    .vt-source-stat-card[data-source="visual-ai"] { --glow-color: #4fd1c5; }
+    .vt-source-stat-card[data-source="web-scrape"] { --glow-color: #63b3ed; }
+    .vt-source-stat-card[data-source="file-upload"] { --glow-color: #d4a574; }
+    .vt-source-stat-card[data-source="written"] { --glow-color: #68d391; }
+    .vt-source-stat-card[data-source="blockchain"] { --glow-color: #d166ff; }
+
+    .vt-source-icon {
+        font-size: 1.5rem;
+        margin-right: 0.4rem;
+    }
+
+    .vt-source-count {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--glow-color, var(--accent-gold));
+        text-shadow: 0 0 8px var(--glow-color, var(--accent-gold));
+    }
+
+    .vt-source-top {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.2rem;
+    }
+
+    .vt-source-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-tertiary);
+        font-weight: 600;
+    }
+
+    .vt-automation-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.55rem;
+        color: #68d391;
+        margin-top: 0.35rem;
+    }
+
+    /* Multi-Tier Filtering System - Dial Controls */
+    .vt-filter-system {
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        padding: 1rem;
+        border-radius: 12px;
+        position: sticky;
+        top: 100px;
+        z-index: 50;
+        backdrop-filter: blur(10px);
+        scroll-margin-top: 0;
+    }
+
+    .dial-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        padding: 0;
+    }
+
+    .dial-control {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dial-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .dial-wheel {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(20, 20, 20, 0.9), rgba(212, 165, 116, 0.1));
+        border: 2px solid var(--border-color);
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .dial-wheel:hover {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        transform: scale(1.05);
+    }
+
+    .dial-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 10;
+        background: var(--bg-secondary);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dial-value {
+        font-size: 1rem;
+        color: var(--accent-gold);
+        font-weight: 600;
+    }
+
+    .dial-subtext {
+        font-size: 0.55rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+    }
+
+    .dial-chart {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .dial-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        width: 100%;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    .dial-control:hover .dial-options {
+        max-height: 500px;
+        opacity: 1;
+    }
+
+    .dial-option {
+        padding: 0.4rem 0.8rem;
+        background: rgba(212, 165, 116, 0.05);
+        border: 1px solid transparent;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-secondary);
+    }
+
+    .dial-option:hover {
+        background: rgba(212, 165, 116, 0.15);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .dial-option.active {
+        background: rgba(212, 165, 116, 0.25);
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        font-weight: 600;
+    }
+
+    .dial-option-count {
+        opacity: 0.6;
+        font-size: 0.6rem;
+    }
+
+    /* Selection Queue System */
+    .vt-selection-queue {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--bg-secondary);
+        border: 2px solid var(--accent-gold);
+        padding: 1.5rem;
+        min-width: 300px;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        display: none;
+    }
+
+    .vt-selection-queue.active {
+        display: block;
+    }
+
+    .vt-queue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vt-queue-title {
+        font-size: 0.85rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .filter-btn:hover {
-        border-color: var(--accent-gold);
         color: var(--accent-gold);
     }
 
-    .filter-btn.active {
+    .vt-queue-count {
         background: var(--accent-gold);
         color: var(--bg-primary);
-        border-color: var(--accent-gold);
+        padding: 0.2rem 0.6rem;
+        border-radius: 2px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .vt-queue-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .vt-queue-btn {
+        padding: 0.6rem 1rem;
+        background: transparent;
+        border: 1px solid var(--accent-gold);
+        color: var(--accent-gold);
+        cursor: pointer;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+    }
+
+    .vt-queue-btn:hover {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    /* Image Selection Checkbox */
+    .vt-select-checkbox {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .vt-image-card:hover .vt-select-checkbox {
+        opacity: 1;
+    }
+
+    .vt-select-checkbox.selected {
+        opacity: 1;
+    }
+
+    .vt-checkbox-visual {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--accent-gold);
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+
+    .vt-checkbox-visual.checked {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
     }
 
     .vt-grid {
@@ -86,17 +415,159 @@
 
     .vt-image-card {
         background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
+        border: 2px solid var(--border-color);
         overflow: hidden;
         position: relative;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         aspect-ratio: 4/3;
+        border-radius: 4px;
     }
 
+    /* Data Source Type Visual Distinctions */
+
+    /* Audio Transcripts - Pulsing Purple Glow */
+    .vt-image-card[data-source-type="audio"] {
+        border-color: #b794f6;
+        box-shadow: 0 0 0 0 rgba(183, 148, 246, 0.7);
+        animation: pulse-audio 2s infinite;
+        border-radius: 12px;
+    }
+
+    @keyframes pulse-audio {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(183, 148, 246, 0.7),
+                        0 0 20px rgba(183, 148, 246, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(183, 148, 246, 0),
+                        0 0 30px rgba(183, 148, 246, 0.5);
+        }
+    }
+
+    /* Video Content - Animated Red Glow */
+    .vt-image-card[data-source-type="video"] {
+        border-color: #fc8181;
+        box-shadow: 0 0 25px rgba(252, 129, 129, 0.4);
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    }
+
+    .vt-image-card[data-source-type="video"]::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(45deg, #fc8181, transparent, #fc8181);
+        opacity: 0.3;
+        z-index: -1;
+        animation: rotate-border 3s linear infinite;
+    }
+
+    @keyframes rotate-border {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Visual Memos (AI-Analyzed) - Cyan Scanner Effect */
+    .vt-image-card[data-source-type="visual-ai"] {
+        border-color: #4fd1c5;
+        box-shadow: 0 0 20px rgba(79, 209, 197, 0.3);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .vt-image-card[data-source-type="visual-ai"]::after {
+        content: '';
+        position: absolute;
+        top: -100%;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom,
+            transparent,
+            rgba(79, 209, 197, 0.3) 50%,
+            transparent);
+        animation: scanner 3s ease-in-out infinite;
+    }
+
+    @keyframes scanner {
+        to { top: 100%; }
+    }
+
+    /* Website Scrapes - Blue Electric Glow */
+    .vt-image-card[data-source-type="web-scrape"] {
+        border-color: #63b3ed;
+        border-style: dashed;
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(99, 179, 237, 0.3),
+                    inset 0 0 15px rgba(99, 179, 237, 0.1);
+    }
+
+    /* Direct Uploads - Gold Angular Glow */
+    .vt-image-card[data-source-type="file-upload"] {
+        border-color: #d4a574;
+        box-shadow: 0 0 20px rgba(212, 165, 116, 0.4);
+        clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+
+    .vt-image-card[data-source-type="file-upload"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(135deg, #d4a574, transparent);
+        border-bottom-right-radius: 4px;
+    }
+
+    /* Written Content - Green Subtle Glow */
+    .vt-image-card[data-source-type="written"] {
+        border-color: #68d391;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(104, 211, 145, 0.25);
+    }
+
+    /* Blockchain NFTs - Purple Prismatic Glow */
+    .vt-image-card[data-source-type="blockchain"] {
+        border-color: #d166ff;
+        box-shadow: 0 0 25px rgba(209, 102, 255, 0.4);
+        border-radius: 4px;
+        position: relative;
+    }
+
+    .vt-image-card[data-source-type="blockchain"]::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        background: linear-gradient(90deg,
+            #d166ff 0%,
+            #b794f6 25%,
+            #4fd1c5 50%,
+            #b794f6 75%,
+            #d166ff 100%);
+        background-size: 200% 100%;
+        opacity: 0.3;
+        z-index: -1;
+        border-radius: 4px;
+        animation: prism 4s linear infinite;
+    }
+
+    @keyframes prism {
+        to { background-position: 200% 0; }
+    }
+
+    /* Hover State - Intensify All Effects */
     .vt-image-card:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+
+    /* Default Cards (No Specific Type) */
+    .vt-image-card:not([data-source-type]) {
+        border-color: var(--border-color);
+    }
+
+    .vt-image-card:not([data-source-type]):hover {
         border-color: var(--accent-gold);
-        box-shadow: var(--shadow-subtle);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .vt-image-wrapper {
@@ -122,20 +593,175 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
         font-weight: 500;
-        border-radius: 2px;
+        border-radius: 4px;
         backdrop-filter: blur(10px);
+        z-index: 10;
     }
 
     .vt-badge-analyzed {
         background: rgba(212, 165, 116, 0.2);
         color: var(--accent-gold);
         border: 1px solid var(--accent-gold);
+        box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
     }
 
     .vt-badge-pending {
         background: rgba(106, 103, 98, 0.2);
         color: var(--text-tertiary);
         border: 1px solid var(--border-color);
+    }
+
+    /* Source Type Badges Container (Top-Left Corner) */
+    .vt-source-badges-container {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        z-index: 10;
+    }
+
+    /* Source Type Badge */
+    .vt-source-type-badge {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border-radius: 6px;
+        backdrop-filter: blur(15px);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    /* Stacked badges (multiple source types) */
+    .vt-badge-stacked {
+        margin-top: -0.2rem;  /* Slight overlap for compact look */
+        opacity: 0.95;
+    }
+
+    .vt-source-type-badge:hover {
+        transform: scale(1.05);
+        opacity: 1;
+        z-index: 11;
+    }
+
+    /* Hover effect for container - expand stacked badges */
+    .vt-source-badges-container:hover .vt-badge-stacked {
+        margin-top: 0;  /* Expand spacing on hover */
+    }
+
+    /* Source Type Badge Colors */
+    .vt-source-badge-audio {
+        background: rgba(183, 148, 246, 0.25);
+        color: #b794f6;
+        border: 1px solid #b794f6;
+        box-shadow: 0 0 12px rgba(183, 148, 246, 0.4);
+    }
+
+    .vt-source-badge-video {
+        background: rgba(252, 129, 129, 0.25);
+        color: #fc8181;
+        border: 1px solid #fc8181;
+        box-shadow: 0 0 12px rgba(252, 129, 129, 0.4);
+    }
+
+    .vt-source-badge-visual-ai {
+        background: rgba(79, 209, 197, 0.25);
+        color: #4fd1c5;
+        border: 1px solid #4fd1c5;
+        box-shadow: 0 0 12px rgba(79, 209, 197, 0.4);
+    }
+
+    .vt-source-badge-web-scrape {
+        background: rgba(99, 179, 237, 0.25);
+        color: #63b3ed;
+        border: 1px solid #63b3ed;
+        box-shadow: 0 0 12px rgba(99, 179, 237, 0.4);
+    }
+
+    .vt-source-badge-file-upload {
+        background: rgba(212, 165, 116, 0.25);
+        color: #d4a574;
+        border: 1px solid #d4a574;
+        box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+    }
+
+    .vt-source-badge-written {
+        background: rgba(104, 211, 145, 0.25);
+        color: #68d391;
+        border: 1px solid #68d391;
+        box-shadow: 0 0 12px rgba(104, 211, 145, 0.4);
+    }
+
+    .vt-source-badge-blockchain {
+        background: rgba(209, 102, 255, 0.25);
+        color: #d166ff;
+        border: 1px solid #d166ff;
+        box-shadow: 0 0 12px rgba(209, 102, 255, 0.4);
+    }
+
+    /* Collected Badge (Bottom-Right) */
+    .vt-collected-badge {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        background: rgba(104, 211, 145, 0.2);
+        color: #68d391;
+        border: 1px solid #68d391;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border-radius: 6px;
+        backdrop-filter: blur(15px);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        z-index: 10;
+        box-shadow: 0 0 12px rgba(104, 211, 145, 0.4);
+        animation: pulse-green 2s infinite;
+        cursor: pointer;
+    }
+
+    .vt-collected-tooltip {
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        margin-bottom: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid #68d391;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: normal;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        z-index: 20;
+    }
+
+    .vt-collected-badge:hover .vt-collected-tooltip {
+        opacity: 1;
+    }
+
+    @keyframes pulse-green {
+        0%, 100% {
+            box-shadow: 0 0 12px rgba(104, 211, 145, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(104, 211, 145, 0.6);
+        }
     }
 
     .vt-text-badge {
@@ -153,37 +779,525 @@
         backdrop-filter: blur(10px);
     }
 
-    .vt-overlay {
+    /* EXIF-Style Photographer Info Panel - Apple Glass Effect */
+    .vt-exif-overlay {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(to top, rgba(10, 10, 10, 0.95), transparent);
-        padding: 1rem;
+        background: linear-gradient(to bottom,
+            rgba(20, 20, 20, 0.4) 0%,
+            rgba(15, 15, 15, 0.5) 50%,
+            rgba(10, 10, 10, 0.6) 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow:
+            0 -4px 20px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        padding: 0.75rem;
         transform: translateY(100%);
-        transition: transform 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.7rem;
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        max-height: 85%;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-gold) rgba(255, 255, 255, 0.1);
     }
 
-    .vt-image-card:hover .vt-overlay {
+    .vt-exif-overlay::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .vt-exif-overlay::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+
+    .vt-exif-overlay::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        transition: background 0.2s;
+    }
+
+    .vt-exif-overlay::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Article content scrollbar styling */
+    .exif-description div::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .exif-description div::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+    }
+
+    .exif-description div::-webkit-scrollbar-thumb {
+        background: rgba(212, 165, 116, 0.5);
+        border-radius: 2px;
+        transition: background 0.2s;
+    }
+
+    .exif-description div::-webkit-scrollbar-thumb:hover {
+        background: rgba(212, 165, 116, 0.8);
+    }
+
+    .vt-image-card:hover .vt-exif-overlay {
         transform: translateY(0);
     }
 
-    .vt-source {
-        font-size: 0.7rem;
-        color: var(--text-tertiary);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.25rem;
+    /* EXIF Badges */
+    .exif-badges {
+        display: flex;
+        gap: 0.4rem;
+        margin-bottom: 0.6rem;
+        flex-wrap: wrap;
     }
 
-    .vt-desc {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        line-height: 1.4;
+    .exif-badge {
+        padding: 0.2rem 0.5rem;
+        border-radius: 2px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        text-decoration: none;
+        display: inline-block;
+        cursor: default;  /* Non-clickable badges */
+    }
+
+    .exif-badge-blockchain {
+        background: rgba(139, 115, 85, 0.2);
+        color: #d4a574;
+        border-color: #d4a574;
+    }
+
+    .exif-badge-eth {
+        background: rgba(98, 126, 234, 0.3);
+        color: rgba(98, 126, 234, 1);
+        border-color: rgba(98, 126, 234, 0.5);
+    }
+
+    .exif-badge-btc {
+        background: rgba(247, 147, 26, 0.3);
+        color: rgba(247, 147, 26, 1);
+        border-color: rgba(247, 147, 26, 0.5);
+    }
+
+    .exif-badge-sol {
+        background: rgba(140, 229, 193, 0.3);
+        color: rgba(140, 229, 193, 1);
+        border-color: rgba(140, 229, 193, 0.5);
+    }
+
+    .exif-badge-platform {
+        background: rgba(244, 162, 97, 0.2);
+        color: #f4a261;
+        border-color: #f4a261;
+    }
+
+    .exif-badge-ipfs {
+        background: rgba(186, 143, 224, 0.2);
+        color: #ba8fe0;
+        border-color: #ba8fe0;
+    }
+
+    /* Source Links with Numbered Icons */
+    .exif-source-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.45rem;
+        background: rgba(99, 179, 237, 0.15);
+        border: 1px solid rgba(99, 179, 237, 0.4);
+        border-radius: 3px;
+        font-size: 0.55rem;
+        text-decoration: none;
+        color: #63b3ed;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .exif-source-link:hover {
+        background: rgba(99, 179, 237, 0.25);
+        border-color: #63b3ed;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(99, 179, 237, 0.3);
+    }
+
+    .source-link-number {
+        background: rgba(99, 179, 237, 0.3);
+        color: #a0d8f7;
+        font-weight: 700;
+        padding: 0.1rem 0.3rem;
+        border-radius: 2px;
+        font-size: 0.5rem;
+        line-height: 1;
+        font-family: 'Monaco', 'Courier New', monospace;
+    }
+
+    .source-link-domain {
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+
+    .source-link-hd {
+        background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(244, 162, 97, 0.3));
+        color: var(--accent-gold);
+        font-weight: 700;
+        padding: 0.1rem 0.25rem;
+        border-radius: 2px;
+        font-size: 0.45rem;
+        line-height: 1;
+        border: 1px solid rgba(212, 165, 116, 0.5);
+        letter-spacing: 0.05em;
+    }
+
+    /* EXIF Metadata Grid */
+    .exif-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem 0.75rem;
+        margin-bottom: 0.6rem;
+        font-family: 'Courier New', monospace;
+        cursor: default;  /* No pointer cursor on metadata */
+    }
+
+    .exif-row {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.65rem;
+        cursor: default;  /* No pointer cursor */
+    }
+
+    .exif-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+        flex-shrink: 0;
+        cursor: default;
+    }
+
+    .exif-value {
+        color: rgba(255, 255, 255, 0.95);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+        cursor: default;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* EXIF Description */
+    .exif-description {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.3;
+        margin-bottom: 0.6rem;
+        font-family: 'Work Sans', sans-serif;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        font-style: italic;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* EXIF Footer */
+    .exif-footer {
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .exif-type-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 2px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        border: 1px solid;
+    }
+
+    .exif-type-blockchain {
+        background: rgba(212, 165, 116, 0.15);
+        color: #d4a574;
+        border-color: #d4a574;
+    }
+
+    .exif-type-web_article {
+        background: rgba(184, 181, 176, 0.15);
+        color: #b8b5b0;
+        border-color: #b8b5b0;
+    }
+
+    .exif-type-media {
+        background: rgba(244, 162, 97, 0.15);
+        color: #f4a261;
+        border-color: #f4a261;
+    }
+
+    .exif-type-research {
+        background: rgba(124, 179, 246, 0.15);
+        color: #7cb3f6;
+        border-color: #7cb3f6;
+    }
+
+    .exif-type-conversation {
+        background: rgba(152, 195, 121, 0.15);
+        color: #98c379;
+        border-color: #98c379;
+    }
+
+    .exif-type-unknown {
+        background: rgba(106, 103, 98, 0.15);
+        color: var(--text-tertiary);
+        border-color: var(--border-color);
+    }
+
+    /* IPFS Indicator Badge */
+    .exif-ipfs-indicator {
+        font-size: 0.55rem;
+        padding: 0.2rem 0.45rem;
+        border-radius: 2px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        background: rgba(140, 229, 193, 0.2);
+        color: rgba(140, 229, 193, 1);
+        border: 1px solid rgba(140, 229, 193, 0.5);
+    }
+
+    /* EXIF Clickable Circle Icons */
+    .exif-action-icons {
+        display: flex;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .exif-icon-link {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 0.9rem;
+        border: 2px solid;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        cursor: pointer;  /* Clearly clickable */
+    }
+
+    .exif-icon-link:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+
+    .exif-icon-link:active {
+        transform: scale(1.05);
+    }
+
+    /* Source platform icon */
+    .exif-icon-source {
+        background: rgba(244, 162, 97, 0.2);
+        color: #f4a261;
+        border-color: #f4a261;
+    }
+
+    .exif-icon-source:hover {
+        background: rgba(244, 162, 97, 0.4);
+        border-color: #f4a261;
+    }
+
+    /* IPFS icon */
+    .exif-icon-ipfs {
+        background: rgba(186, 143, 224, 0.2);
+        color: #ba8fe0;
+        border-color: #ba8fe0;
+    }
+
+    .exif-icon-ipfs:hover {
+        background: rgba(186, 143, 224, 0.4);
+        border-color: #ba8fe0;
+    }
+
+    /* Blockchain explorer icons */
+    .exif-icon-explorer {
+        background: rgba(212, 165, 116, 0.2);
+        border-color: #d4a574;
+    }
+
+    .exif-icon-explorer.eth {
+        color: rgba(98, 126, 234, 1);
+        border-color: rgba(98, 126, 234, 1);
+        background: rgba(98, 126, 234, 0.2);
+    }
+
+    .exif-icon-explorer.btc {
+        color: rgba(247, 147, 26, 1);
+        border-color: rgba(247, 147, 26, 1);
+        background: rgba(247, 147, 26, 0.2);
+    }
+
+    .exif-icon-explorer.sol {
+        color: rgba(140, 229, 193, 1);
+        border-color: rgba(140, 229, 193, 1);
+        background: rgba(140, 229, 193, 0.2);
+    }
+
+    .exif-icon-explorer:hover {
+        filter: brightness(1.3);
+    }
+
+    /* Full Image Modal */
+    .full-image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .full-image-modal.active {
+        display: flex;
+    }
+
+    .full-image-container {
+        position: relative;
+        max-width: 95vw;
+        max-height: 90vh;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .full-image-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        max-width: 70vw;
+    }
+
+    .full-image-container img {
+        max-width: 100%;
+        max-height: 75vh;
+        object-fit: contain;
+        border: 1px solid var(--accent-gold);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .full-image-container img:hover {
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.4);
+    }
+
+    .full-image-toolbar {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(10, 10, 10, 0.9);
+        border: 1px solid var(--border-color);
+    }
+
+    .full-image-btn {
+        padding: 0.6rem 1.25rem;
+        background: transparent;
+        border: 1px solid var(--accent-gold);
+        color: var(--accent-gold);
+        cursor: pointer;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .full-image-btn:hover {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .full-image-close {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 3rem;
+        height: 3rem;
+        background: rgba(10, 10, 10, 0.9);
+        border: 1px solid var(--accent-gold);
+        color: var(--accent-gold);
+        cursor: pointer;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+
+    .full-image-close:hover {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    /* Modal Metadata Panel */
+    .modal-metadata-panel {
+        width: 340px;
+        max-height: 80vh;
+        overflow-y: auto;
+        background: linear-gradient(145deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.92));
+        border: 1px solid rgba(212, 165, 116, 0.4);
+        border-radius: 8px;
+        padding: 1.2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(20px);
+    }
+
+    .modal-metadata-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-metadata-panel::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 3px;
+    }
+
+    .modal-metadata-panel::-webkit-scrollbar-thumb {
+        background: var(--accent-gold);
+        border-radius: 3px;
+    }
+
+    .full-image-title {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+        text-align: center;
     }
 
     .vt-empty {
@@ -240,66 +1354,763 @@
 
 {% block content %}
 <div class="vt-header">
-    <h1 class="vt-title">Visual Translator</h1>
+    <h1 class="vt-title">Visual Analyzer</h1>
     <div class="vt-stats">
         <div class="vt-stat">
             <div class="vt-stat-number">{{ total }}</div>
-            <div class="vt-stat-label">Total</div>
-        </div>
-        <div class="vt-stat">
-            <div class="vt-stat-number">{{ analyzed }}</div>
-            <div class="vt-stat-label">Analyzed</div>
-        </div>
-        <div class="vt-stat">
-            <div class="vt-stat-number">{{ pending }}</div>
-            <div class="vt-stat-label">Pending</div>
-        </div>
-        <div class="vt-stat">
-            <div class="vt-stat-number">{{ with_text }}</div>
-            <div class="vt-stat-label">With Text</div>
+            <div class="vt-stat-label">Data Asset Inventory</div>
         </div>
     </div>
 </div>
 
-<div class="vt-filters">
-    <a href="/visual-translator?filter=all" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">
-        All
-    </a>
-    <a href="/visual-translator?filter=analyzed" class="filter-btn {% if current_filter == 'analyzed' %}active{% endif %}">
-        Analyzed
-    </a>
-    <a href="/visual-translator?filter=pending" class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">
-        Pending
-    </a>
-    <a href="/visual-translator?filter=has_text" class="filter-btn {% if current_filter == 'has_text' %}active{% endif %}">
-        With Text
-    </a>
+<!-- Data Asset Inventory Dashboard -->
+<div class="vt-source-stats">
+    <div class="vt-source-stat-card" data-source="audio" onclick="filterBySourceType('audio')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">AUD</div>
+            <div class="vt-source-count" id="count-audio">0</div>
+        </div>
+        <div class="vt-source-label">Audio</div>
+    </div>
+
+    <div class="vt-source-stat-card" data-source="video" onclick="filterBySourceType('video')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">VID</div>
+            <div class="vt-source-count" id="count-video">0</div>
+        </div>
+        <div class="vt-source-label">Video</div>
+    </div>
+
+    <div class="vt-source-stat-card" data-source="visual-ai" onclick="filterBySourceType('visual-ai')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">IMG</div>
+            <div class="vt-source-count" id="count-visual-ai">0</div>
+        </div>
+        <div class="vt-source-label">Images</div>
+    </div>
+
+    <div class="vt-source-stat-card" data-source="web-scrape" onclick="filterBySourceType('web-scrape')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">WEB</div>
+            <div class="vt-source-count" id="count-web-scrape">0</div>
+        </div>
+        <div class="vt-source-label">Web Scrapes</div>
+    </div>
+
+    <div class="vt-source-stat-card" data-source="written" onclick="filterBySourceType('written')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">TXT</div>
+            <div class="vt-source-count" id="count-written">0</div>
+        </div>
+        <div class="vt-source-label">Written</div>
+    </div>
+
+    <div class="vt-source-stat-card" data-source="blockchain" onclick="filterBySourceType('blockchain')">
+        <div class="vt-source-top">
+            <div class="vt-source-icon" style="font-weight: bold; font-size: 0.9rem;">NFT</div>
+            <div class="vt-source-count" id="count-blockchain">0</div>
+        </div>
+        <div class="vt-source-label">NFTs</div>
+    </div>
+</div>
+
+<script>
+// Count and display source types
+function updateSourceTypeCounts() {
+    const cards = document.querySelectorAll('.vt-image-card[data-source-type]');
+    const counts = {
+        'audio': 0,
+        'video': 0,
+        'visual-ai': 0,
+        'web-scrape': 0,
+        'file-upload': 0,
+        'written': 0,
+        'blockchain': 0
+    };
+
+    cards.forEach(card => {
+        const sourceType = card.getAttribute('data-source-type');
+        if (sourceType && counts.hasOwnProperty(sourceType)) {
+            counts[sourceType]++;
+        }
+    });
+
+    // Update counts in UI
+    Object.keys(counts).forEach(type => {
+        const el = document.getElementById(`count-${type}`);
+        if (el) el.textContent = counts[type];
+    });
+}
+
+// Filter by source type
+function filterBySourceType(type) {
+    const allCards = document.querySelectorAll('.vt-image-card');
+    allCards.forEach(card => {
+        const cardType = card.getAttribute('data-source-type');
+        if (cardType === type) {
+            card.style.display = 'block';
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+}
+
+// Disable browser scroll restoration
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', updateSourceTypeCounts);
+
+// Mark when a filter is clicked
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.dial-option').forEach(link => {
+        link.addEventListener('click', function(e) {
+            sessionStorage.setItem('filterWasClicked', 'true');
+        });
+    });
+});
+
+// Only scroll to filters if user clicked a filter (not on initial page load)
+window.addEventListener('load', function() {
+    const filterWasClicked = sessionStorage.getItem('filterWasClicked');
+
+    if (filterWasClicked === 'true') {
+        const filterSystem = document.querySelector('.vt-filter-system');
+        if (filterSystem) {
+            setTimeout(() => {
+                const filterTop = filterSystem.getBoundingClientRect().top + window.scrollY;
+                // Scroll to show filter dials with labels (Platform, Network, etc.)
+                window.scrollTo({ top: Math.max(0, filterTop), behavior: 'instant' });
+            }, 0);
+        }
+        sessionStorage.removeItem('filterWasClicked');
+    }
+});
+</script>
+
+<!-- Multi-Tier Filter System - Dial Controls -->
+<div class="vt-filter-system" id="filters">
+    <!-- Reset All Filters Button -->
+    {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' or current_filter != 'all' %}
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <a href="/visual-translator" class="reset-filters-btn" style="
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(238, 90, 36, 0.3);
+        ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+            </svg>
+            Reset All Filters
+        </a>
+    </div>
+    {% endif %}
+    <div class="dial-container">
+        <!-- Platform Dial -->
+        <div class="dial-control">
+            <div class="dial-label">
+                Platform
+            </div>
+            <div class="dial-wheel">
+                <svg class="dial-chart" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                            stroke-dasharray="125.6 314" transform="rotate(-90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(54 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                            stroke-dasharray="62.8 314" transform="rotate(144 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                            stroke-dasharray="31.4 314" transform="rotate(216 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#ed8936" stroke-width="20"
+                            stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                </svg>
+                <div class="dial-center">
+                    <div class="dial-value">
+                        {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' %}
+                            {{ images|length }}/{{ total }}
+                        {% else %}
+                            {{ total }}
+                        {% endif %}
+                    </div>
+                    <div class="dial-subtext">assets</div>
+                </div>
+            </div>
+            <div class="dial-options">
+                <a href="/visual-translator?platform=all" class="dial-option {% if platform_filter == 'all' %}active{% endif %}">
+                    <span>All Platforms</span>
+                    <span class="dial-option-count">{{ total }}</span>
+                </a>
+                {% if platform_counts.get('SuperRare', 0) > 0 %}
+                <a href="/visual-translator?platform=SuperRare" class="dial-option {% if platform_filter == 'SuperRare' %}active{% endif %}">
+                    <span>SuperRare</span>
+                    <span class="dial-option-count">{{ platform_counts['SuperRare'] }}</span>
+                </a>
+                {% endif %}
+                {% if platform_counts.get('Foundation', 0) > 0 %}
+                <a href="/visual-translator?platform=Foundation" class="dial-option {% if platform_filter == 'Foundation' %}active{% endif %}">
+                    <span>Foundation</span>
+                    <span class="dial-option-count">{{ platform_counts['Foundation'] }}</span>
+                </a>
+                {% endif %}
+                {% if platform_counts.get('OpenSea', 0) > 0 %}
+                <a href="/visual-translator?platform=OpenSea" class="dial-option {% if platform_filter == 'OpenSea' %}active{% endif %}">
+                    <span>OpenSea</span>
+                    <span class="dial-option-count">{{ platform_counts['OpenSea'] }}</span>
+                </a>
+                {% endif %}
+                {% if platform_counts.get('1stDibs NFT', 0) > 0 %}
+                <a href="/visual-translator?platform=1stDibs NFT" class="dial-option {% if platform_filter == '1stDibs NFT' %}active{% endif %}">
+                    <span>1stDibs</span>
+                    <span class="dial-option-count">{{ platform_counts['1stDibs NFT'] }}</span>
+                </a>
+                {% endif %}
+                {% if platform_counts.get('Zora', 0) > 0 %}
+                <a href="/visual-translator?platform=Zora" class="dial-option {% if platform_filter == 'Zora' %}active{% endif %}">
+                    <span>Zora</span>
+                    <span class="dial-option-count">{{ platform_counts['Zora'] }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Network Dial -->
+        <div class="dial-control">
+            <div class="dial-label">
+                Network
+            </div>
+            <div class="dial-wheel">
+                <svg class="dial-chart" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#627eea" stroke-width="20"
+                            stroke-dasharray="219.8 314" transform="rotate(-90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#2c7df7" stroke-width="20"
+                            stroke-dasharray="47.1 314" transform="rotate(162 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#14f195" stroke-width="20"
+                            stroke-dasharray="31.4 314" transform="rotate(216 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#f7931a" stroke-width="20"
+                            stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                </svg>
+                <div class="dial-center">
+                    <div class="dial-value">
+                        {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' %}
+                            {{ images|length }}/{{ total }}
+                        {% else %}
+                            {{ total }}
+                        {% endif %}
+                    </div>
+                    <div class="dial-subtext">assets</div>
+                </div>
+            </div>
+            <div class="dial-options">
+                <a href="/visual-translator?network=all" class="dial-option {% if network_filter == 'all' %}active{% endif %}">
+                    <span>All Networks</span>
+                    <span class="dial-option-count">{{ total }}</span>
+                </a>
+                {% if network_counts.get('ethereum', 0) > 0 %}
+                <a href="/visual-translator?network=ethereum" class="dial-option {% if network_filter == 'ethereum' %}active{% endif %}">
+                    <span>Ethereum</span>
+                    <span class="dial-option-count">{{ network_counts['ethereum'] }}</span>
+                </a>
+                {% endif %}
+                {% if network_counts.get('bitcoin', 0) > 0 %}
+                <a href="/visual-translator?network=bitcoin" class="dial-option {% if network_filter == 'bitcoin' %}active{% endif %}">
+                    <span>Bitcoin</span>
+                    <span class="dial-option-count">{{ network_counts['bitcoin'] }}</span>
+                </a>
+                {% endif %}
+                {% if network_counts.get('solana', 0) > 0 %}
+                <a href="/visual-translator?network=solana" class="dial-option {% if network_filter == 'solana' %}active{% endif %}">
+                    <span>Solana</span>
+                    <span class="dial-option-count">{{ network_counts['solana'] }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Content Type Dial -->
+        <div class="dial-control">
+            <div class="dial-label">
+                Content Type
+            </div>
+            <div class="dial-wheel">
+                <svg class="dial-chart" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                            stroke-dasharray="172.7 314" transform="rotate(-90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(108 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                            stroke-dasharray="47.1 314" transform="rotate(198 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                            stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                </svg>
+                <div class="dial-center">
+                    <div class="dial-value">
+                        {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' %}
+                            {{ images|length }}/{{ total }}
+                        {% else %}
+                            {{ total }}
+                        {% endif %}
+                    </div>
+                    <div class="dial-subtext">assets</div>
+                </div>
+            </div>
+            <div class="dial-options">
+                <a href="/visual-translator?type=all" class="dial-option {% if type_filter == 'all' %}active{% endif %}">
+                    <span>All Types</span>
+                    <span class="dial-option-count">{{ total }}</span>
+                </a>
+                {% if type_counts.get('blockchain', 0) > 0 %}
+                <a href="/visual-translator?type=blockchain" class="dial-option {% if type_filter == 'blockchain' %}active{% endif %}">
+                    <span>Blockchain Art</span>
+                    <span class="dial-option-count">{{ type_counts['blockchain'] }}</span>
+                </a>
+                {% endif %}
+                {% if type_counts.get('web_article', 0) > 0 %}
+                <a href="/visual-translator?type=web_article" class="dial-option {% if type_filter == 'web_article' %}active{% endif %}">
+                    <span>Web Content</span>
+                    <span class="dial-option-count">{{ type_counts['web_article'] }}</span>
+                </a>
+                {% endif %}
+                {% if type_counts.get('media', 0) > 0 %}
+                <a href="/visual-translator?type=media" class="dial-option {% if type_filter == 'media' %}active{% endif %}">
+                    <span>Media Files</span>
+                    <span class="dial-option-count">{{ type_counts['media'] }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quality Dial -->
+        <div class="dial-control">
+            <div class="dial-label">
+                Quality
+            </div>
+            <div class="dial-wheel">
+                <svg class="dial-chart" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                            stroke-dasharray="141.3 314" transform="rotate(-90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                            stroke-dasharray="109.9 314" transform="rotate(72 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                            stroke-dasharray="47.1 314" transform="rotate(198 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                            stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                </svg>
+                <div class="dial-center">
+                    <div class="dial-value">
+                        {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' %}
+                            {{ images|length }}/{{ total }}
+                        {% else %}
+                            {{ total }}
+                        {% endif %}
+                    </div>
+                    <div class="dial-subtext">assets</div>
+                </div>
+            </div>
+            <div class="dial-options">
+                <a href="/visual-translator?quality=all" class="dial-option {% if quality_filter == 'all' %}active{% endif %}">
+                    <span>All Quality</span>
+                    <span class="dial-option-count">{{ total }}</span>
+                </a>
+                {% if quality_counts.get('high', 0) > 0 %}
+                <a href="/visual-translator?quality=high" class="dial-option {% if quality_filter == 'high' %}active{% endif %}">
+                    <span>High-Res</span>
+                    <span class="dial-option-count">{{ quality_counts['high'] }}</span>
+                </a>
+                {% endif %}
+                {% if quality_counts.get('medium', 0) > 0 %}
+                <a href="/visual-translator?quality=medium" class="dial-option {% if quality_filter == 'medium' %}active{% endif %}">
+                    <span>Medium-Res</span>
+                    <span class="dial-option-count">{{ quality_counts['medium'] }}</span>
+                </a>
+                {% endif %}
+                {% if quality_counts.get('low', 0) > 0 %}
+                <a href="/visual-translator?quality=low" class="dial-option {% if quality_filter == 'low' %}active{% endif %}">
+                    <span>Low-Res</span>
+                    <span class="dial-option-count">{{ quality_counts['low'] }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Timeline Sorting Dial -->
+        <div class="dial-control">
+            <div class="dial-label">
+                Sort By
+            </div>
+            <div class="dial-wheel">
+                <svg class="dial-chart" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(-90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(0 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(90 60 60)" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                            stroke-dasharray="78.5 314" transform="rotate(180 60 60)" />
+                </svg>
+                <div class="dial-center">
+                    <div class="dial-value">
+                        {% if platform_filter != 'all' or network_filter != 'all' or type_filter != 'all' or quality_filter != 'all' %}
+                            {{ images|length }}/{{ total }}
+                        {% else %}
+                            {{ total }}
+                        {% endif %}
+                    </div>
+                    <div class="dial-subtext">assets</div>
+                </div>
+            </div>
+            <div class="dial-options">
+                <a href="/visual-translator?sort=default" class="dial-option {% if sort_by == 'default' %}active{% endif %}">
+                    <span>Default</span>
+                </a>
+                <a href="/visual-translator?sort=original_date" class="dial-option {% if sort_by == 'original_date' %}active{% endif %}">
+                    <span>Newest First</span>
+                </a>
+                <a href="/visual-translator?sort=oldest_first" class="dial-option {% if sort_by == 'oldest_first' %}active{% endif %}">
+                    <span>Oldest First</span>
+                </a>
+                <a href="/visual-translator?sort=created_date" class="dial-option {% if sort_by == 'created_date' %}active{% endif %}">
+                    <span>Import Date</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% if images %}
 <div class="vt-grid">
     {% for img in images %}
-    <div class="vt-image-card" onclick="window.location.href='/visual-translator/image/{{ img.doc_id }}'">
+    <div class="vt-image-card"
+         onclick="openFullImage({{ loop.index0 }})"
+         data-img-id="{{ img.doc_id }}-{{ loop.index }}"
+         data-source-type="{{ img.source_type }}">
         <div class="vt-image-wrapper">
+            <!-- Selection Checkbox for Queuing -->
+            <div class="vt-select-checkbox" onclick="event.stopPropagation(); toggleImageSelection('{{ img.doc_id }}-{{ loop.index }}', this)">
+                <div class="vt-checkbox-visual">
+                    <span class="check-icon">✓</span>
+                </div>
+            </div>
+
+            <!-- Source Type Badges (Top-Left) - Multiple badges for merged queries -->
+            <div class="vt-source-badges-container">
+                {% if img.source_types %}
+                    <!-- Multiple source types (merged query) -->
+                    {% for source_type in img.source_types %}
+                    <div class="vt-source-type-badge vt-source-badge-{{ source_type }} {% if loop.index > 1 %}vt-badge-stacked{% endif %}">
+                        {% if source_type == 'audio' %}
+                            <span>Audio</span>
+                        {% elif source_type == 'video' %}
+                            <span>Video</span>
+                        {% elif source_type == 'visual-ai' %}
+                            <span>AI Vision</span>
+                        {% elif source_type == 'web-scrape' %}
+                            <span>Web</span>
+                        {% elif source_type == 'file-upload' %}
+                            <span>Upload</span>
+                        {% elif source_type == 'written' %}
+                            <span>Text</span>
+                        {% elif source_type == 'blockchain' %}
+                            <span>NFT</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% elif img.source_type %}
+                    <!-- Single source type (non-merged query) -->
+                    <div class="vt-source-type-badge vt-source-badge-{{ img.source_type }}">
+                        {% if img.source_type == 'audio' %}
+                            <span>Audio</span>
+                        {% elif img.source_type == 'video' %}
+                            <span>Video</span>
+                        {% elif img.source_type == 'visual-ai' %}
+                            <span>AI Vision</span>
+                        {% elif img.source_type == 'web-scrape' %}
+                            <span>Web</span>
+                        {% elif img.source_type == 'file-upload' %}
+                            <span>Upload</span>
+                        {% elif img.source_type == 'written' %}
+                            <span>Text</span>
+                        {% elif img.source_type == 'blockchain' %}
+                            <span>NFT</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
             <img src="/media/{{ img.path }}" alt="{{ img.filename }}">
 
-            {% if img.analyzed %}
-                <div class="vt-badge vt-badge-analyzed">✓ Analyzed</div>
-            {% else %}
-                <div class="vt-badge vt-badge-pending">Pending</div>
-            {% endif %}
-
             {% if img.has_text %}
-                <div class="vt-text-badge">📝 Text Detected</div>
+                <div class="vt-text-badge">Text Detected</div>
             {% endif %}
 
-            <div class="vt-overlay">
-                <div class="vt-source">{{ img.source }}</div>
-                {% if img.vision_desc %}
-                    <div class="vt-desc">{{ img.vision_desc }}</div>
-                {% else %}
-                    <div class="vt-desc" style="opacity: 0.5;">No analysis yet</div>
+            {% if img.is_collected %}
+                <div class="vt-collected-badge">
+                    <span>✓</span>
+                    <span>COLLECTED</span>
+                    <div class="vt-collected-tooltip">
+                        <div style="font-weight: 600; margin-bottom: 0.3rem; color: #68d391;">
+                            Current Owner
+                        </div>
+                        <div style="font-size: 0.55rem; color: var(--text-secondary); word-break: break-all; font-family: monospace; line-height: 1.4;">
+                            {{ img.current_owner if img.current_owner else 'Unknown' }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- EXIF-Style Photographer Info Panel -->
+            <div class="vt-exif-overlay" onclick="event.stopPropagation()">
+                <!-- Document Title Header -->
+                {% if img.doc_frontmatter.title %}
+                <div style="font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); margin-bottom: 0.6rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 165, 116, 0.3); line-height: 1.3;">
+                    {{ img.doc_frontmatter.title[:60] }}{% if img.doc_frontmatter.title|length > 60 %}...{% endif %}
+                </div>
                 {% endif %}
+
+                <!-- Non-Clickable Info Badges (Square) -->
+                <div class="exif-badges">
+                    {% if img.blockchain_metadata and img.blockchain_metadata.platforms %}
+                        {% for platform in img.blockchain_metadata.platforms[:2] %}
+                            <span class="exif-badge exif-badge-platform">🏪 {{ platform }}</span>
+                        {% endfor %}
+                        {% if img.blockchain_metadata.platforms|length > 2 %}
+                            <span class="exif-badge exif-badge-platform">+{{ img.blockchain_metadata.platforms|length - 2 }}</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if img.blockchain_metadata and img.blockchain_metadata.token_ids %}
+                        <span class="exif-badge exif-badge-platform">🎫 Token #{{ img.blockchain_metadata.token_ids[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Current Owner Display (Always shown for blockchain NFTs) -->
+                {% if img.current_owner %}
+                <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="font-size: 0.65rem; color: var(--text-tertiary); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Current Holder
+                    </div>
+                    <div style="font-size: 0.6rem; color: var(--text-secondary); font-family: monospace; word-break: break-all; line-height: 1.4;">
+                        {{ img.current_owner }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Clickable Action Icons (Circles) -->
+                <div class="exif-action-icons">
+                    {# Source platform link #}
+                    {% if img.doc_frontmatter.url %}
+                        <a href="{{ img.doc_frontmatter.url }}" target="_blank" class="exif-icon-link exif-icon-source" onclick="event.stopPropagation()" title="View on {{ img.blockchain_metadata.platforms[0] if img.blockchain_metadata and img.blockchain_metadata.platforms else 'Source' }}">
+                            🔗
+                        </a>
+                    {% endif %}
+
+                    {# IPFS gateway link #}
+                    {% if img.blockchain_metadata and img.blockchain_metadata.ipfs_hashes %}
+                        <a href="https://ipfs.io/ipfs/{{ img.blockchain_metadata.ipfs_hashes[0].replace('ipfs://', '') }}" target="_blank" class="exif-icon-link exif-icon-ipfs" onclick="event.stopPropagation()" title="View on IPFS">
+                            IPFS
+                        </a>
+                    {% endif %}
+
+                    {# Blockchain explorer link #}
+                    {% if img.blockchain_metadata and img.blockchain_metadata.explorer_url %}
+                        {% if img.blockchain_metadata.blockchain_network == 'ethereum' %}
+                            <a href="{{ img.blockchain_metadata.explorer_url }}" target="_blank" class="exif-icon-link exif-icon-explorer eth" onclick="event.stopPropagation()" title="View on Etherscan">
+                                ETH
+                            </a>
+                        {% elif img.blockchain_metadata.blockchain_network == 'bitcoin' %}
+                            <a href="{{ img.blockchain_metadata.explorer_url }}" target="_blank" class="exif-icon-link exif-icon-explorer btc" onclick="event.stopPropagation()" title="View on Bitcoin Explorer">
+                                BTC
+                            </a>
+                        {% elif img.blockchain_metadata.blockchain_network == 'solana' %}
+                            <a href="{{ img.blockchain_metadata.explorer_url }}" target="_blank" class="exif-icon-link exif-icon-explorer sol" onclick="event.stopPropagation()" title="View on Solscan">
+                                SOL
+                            </a>
+                        {% else %}
+                            <a href="{{ img.blockchain_metadata.explorer_url }}" target="_blank" class="exif-icon-link exif-icon-explorer" onclick="event.stopPropagation()" title="View on Blockchain Explorer">
+                                BC
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Metadata Grid -->
+                <div class="exif-grid">
+                    <!-- Semantic filename with current as tooltip -->
+                    <div class="exif-row" style="grid-column: 1 / -1;">
+                        <span class="exif-label">File</span>
+                        <span class="exif-value" title="Current: {{ img.filename }}" style="font-weight: 600; color: var(--accent-gold);">
+                            {{ img.suggested_filename[:35] if img.suggested_filename else img.filename[:35] }}{% if (img.suggested_filename|length if img.suggested_filename else img.filename|length) > 35 %}...{% endif %}
+                        </span>
+                    </div>
+
+                    <!-- PRIORITY: Blockchain Transaction Data -->
+                    {% if img.blockchain_metadata %}
+                        {% if img.blockchain_metadata.mint_date %}
+                        <div class="exif-row" style="grid-column: 1 / -1; border-top: 1px solid rgba(212, 165, 116, 0.3); padding-top: 0.5rem; margin-top: 0.5rem;">
+                            <span class="exif-label">Mint</span>
+                            <span class="exif-value" style="color: var(--accent-gold); font-weight: 600;" title="Blockchain mint date">Minted: {{ img.blockchain_metadata.mint_date }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if img.blockchain_metadata.transaction_hash %}
+                        <div class="exif-row" style="grid-column: 1 / -1;">
+                            <span class="exif-label">Tx</span>
+                            <span class="exif-value" style="font-family: monospace; font-size: 0.6rem;" title="{{ img.blockchain_metadata.transaction_hash }}">
+                                Tx: {{ img.blockchain_metadata.transaction_hash[:10] }}...{{ img.blockchain_metadata.transaction_hash[-8:] }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if img.blockchain_metadata.block_number %}
+                        <div class="exif-row">
+                            <span class="exif-label">Block</span>
+                            <span class="exif-value" title="Block number">Block #{{ img.blockchain_metadata.block_number }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if img.blockchain_metadata.contract_address %}
+                        <div class="exif-row" style="grid-column: 1 / -1;">
+                            <span class="exif-label">Addr</span>
+                            <span class="exif-value" style="font-family: monospace; font-size: 0.6rem;" title="{{ img.blockchain_metadata.contract_address }}">
+                                Contract: {{ img.blockchain_metadata.contract_address[:8] }}...{{ img.blockchain_metadata.contract_address[-6:] }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Dimensions: Local vs Original -->
+                    {% if img.dimensions %}
+                    <div class="exif-row">
+                        <span class="exif-label">Size</span>
+                        <span class="exif-value" title="Local saved size">{{ img.dimensions }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if img.original_dimensions %}
+                    <div class="exif-row">
+                        <span class="exif-label">Orig</span>
+                        <span class="exif-value" title="Original source size" style="color: var(--accent-warm);">{{ img.original_dimensions }}</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- File size -->
+                    {% if img.file_size_human %}
+                    <div class="exif-row">
+                        <span class="exif-label">Data</span>
+                        <span class="exif-value">{{ img.file_size_human }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="exif-row">
+                        <span class="exif-label">Tags</span>
+                        <span class="exif-value">{{ img.doc_frontmatter.tags|length }} tags</span>
+                    </div>
+
+                    <div class="exif-row">
+                        <span class="exif-label">Links</span>
+                        <span class="exif-value">{{ img.relationship_count }} links</span>
+                    </div>
+
+                    {% if img.domain %}
+                    <div class="exif-row">
+                        <span class="exif-label">Web</span>
+                        <span class="exif-value" title="{{ img.domain }}">{{ img.domain[:15] }}{% if img.domain|length > 15 %}...{% endif %}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if img.blockchain_metadata %}
+                        {% if img.blockchain_metadata.token_ids %}
+                        <div class="exif-row">
+                            <span class="exif-label">Token</span>
+                            <span class="exif-value">Token #{{ img.blockchain_metadata.token_ids[0] }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if img.blockchain_metadata.addresses %}
+                        <div class="exif-row">
+                            <span class="exif-label">Wallet</span>
+                            <span class="exif-value">{{ img.blockchain_metadata.addresses|length }} addr</span>
+                        </div>
+                        {% endif %}
+
+                        {% if img.blockchain_metadata.original_date %}
+                        <div class="exif-row">
+                            <span class="exif-label">Date</span>
+                            <span class="exif-value">{{ img.blockchain_metadata.original_date }}</span>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Article/Document Content -->
+                {% if img.doc_body %}
+                <div class="exif-description" style="background: linear-gradient(135deg, rgba(212, 165, 116, 0.12) 0%, rgba(212, 165, 116, 0.06) 100%); padding: 0.6rem; border: 1px solid rgba(212, 165, 116, 0.25); border-radius: 6px; margin-bottom: 0.6rem; font-style: normal; backdrop-filter: blur(10px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);">
+                    <div style="font-size: 0.6rem; color: rgba(212, 165, 116, 1); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">Article Content</div>
+                    <div style="font-size: 0.7rem; line-height: 1.4; color: rgba(255, 255, 255, 0.95); max-height: 120px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(212, 165, 116, 0.5) rgba(255, 255, 255, 0.05); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">
+                        {{ img.doc_body }}{% if img.doc_body|length >= 300 %}...{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Vision Description -->
+                {% if img.vision_desc %}
+                <div class="exif-description">
+                    <div style="font-size: 0.6rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; font-weight: 600;">AI Vision Analysis</div>
+                    {{ img.vision_desc }}
+                </div>
+                {% endif %}
+
+                <!-- Cognitive Type Footer with IPFS Indicator and Certification Badge -->
+                <div class="exif-footer">
+                    <span class="exif-type-badge exif-type-{{ img.cognitive_type }}">
+                        {% if img.cognitive_type == 'blockchain' %}
+                            NFT
+                        {% elif img.cognitive_type == 'web_article' %}
+                            ARTICLE
+                        {% elif img.cognitive_type == 'media' %}
+                            MEDIA
+                        {% elif img.cognitive_type == 'unknown' %}
+                            {% if img.domain %}
+                                {{ img.domain[:10]|upper }}
+                            {% elif img.doc_frontmatter.url %}
+                                {# Extract domain from URL if domain field not set #}
+                                {{ img.doc_frontmatter.url.split('/')[2][:10]|upper if '/' in img.doc_frontmatter.url else img.doc_frontmatter.url[:10]|upper }}
+                            {% else %}
+                                MEDIA
+                            {% endif %}
+                        {% else %}
+                            {{ img.cognitive_type|upper|replace('_', ' ') }}
+                        {% endif %}
+                    </span>
+                    {% if img.blockchain_metadata and img.blockchain_metadata.ipfs_hashes %}
+                        <span class="exif-ipfs-indicator" title="{{ img.blockchain_metadata.ipfs_hashes|length }} IPFS hash(es)">
+                            IPFS
+                        </span>
+                    {% endif %}
+                    {# Provenance Certification Badge for blockchain/NFT content #}
+                    {% if img.cognitive_type == 'blockchain' or img.blockchain_metadata %}
+                    <div class="vt-cert-badge-wrapper"
+                         data-contract="{{ img.blockchain_metadata.contract_address if img.blockchain_metadata else '' }}"
+                         data-token-id="{{ img.blockchain_metadata.token_ids[0] if img.blockchain_metadata and img.blockchain_metadata.token_ids else '' }}"
+                         data-doc-id="{{ img.doc_id }}"
+                         style="display: inline-block;">
+                        <span class="cert-badge cert-badge-sm cert-badge-loading" title="Checking provenance...">
+                            <span class="cert-badge-text">...</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -323,7 +2134,609 @@
     </div>
 </div>
 
+<!-- Full Image/Media Modal -->
+<div class="full-image-modal" id="fullImageModal" onclick="closeFullImage()">
+    <button class="full-image-close" onclick="closeFullImage()">✕</button>
+    <div class="full-image-container" onclick="event.stopPropagation()">
+        <!-- Main Image/Media Content -->
+        <div class="full-image-content">
+            <img id="fullImageSrc" src="" alt="" style="display: none;" onclick="window.open(this.src, '_blank')" title="Click to open full-size in new tab">
+            <video id="fullVideoSrc" controls style="display: none; max-width: 90vw; max-height: 75vh;"></video>
+            <audio id="fullAudioSrc" controls style="display: none; width: 600px;"></audio>
+            <div class="full-image-title" id="fullImageTitle"></div>
+            <div class="full-image-toolbar">
+                <button class="full-image-btn" onclick="downloadImage()">
+                    💾 Download
+                </button>
+                <button class="full-image-btn" onclick="copyLocalUrl()">
+                    📋 Copy Local URL
+                </button>
+                <button class="full-image-btn" id="copyOriginBtn" onclick="copyOriginUrl()" style="display: none;">
+                    🔗 Copy Origin URL
+                </button>
+                <button class="full-image-btn" id="describeImageBtn" onclick="describeImage()" style="display: none;">
+                    🤖 AI Describe
+                </button>
+            </div>
+        </div>
+
+        <!-- Metadata Panel (Right Side) -->
+        <div class="modal-metadata-panel" id="modalMetadataPanel">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Selection Queue Panel for Agent Automation -->
+<div class="vt-selection-queue" id="selectionQueue">
+    <div class="vt-queue-header">
+        <span class="vt-queue-title">Selection Queue</span>
+        <span class="vt-queue-count" id="queueCount">0</span>
+    </div>
+    <div class="vt-queue-actions">
+        <button class="vt-queue-btn" onclick="exportQueueForAgent()">
+            Export for Agent
+        </button>
+        <button class="vt-queue-btn" onclick="downloadQueueMetadata()">
+            Download Metadata JSON
+        </button>
+        <button class="vt-queue-btn" onclick="downloadQueueImages()">
+            Download All Images
+        </button>
+        <button class="vt-queue-btn" onclick="clearQueue()">
+            Clear Queue
+        </button>
+    </div>
+</div>
+
 <script>
+// SA-006 FIX: URL validation helper for safe link generation
+const SafeUrlHelper = {
+    isValidUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+        try {
+            const parsed = new URL(url);
+            if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+            if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) return false;
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    // Validate IPFS hash (alphanumeric base58/base32)
+    isValidIpfsHash(hash) {
+        if (!hash || typeof hash !== 'string') return false;
+        return /^[a-zA-Z0-9]{46,59}$/.test(hash);
+    },
+
+    getSafeUrlHtml(url, text, className = '', extraAttrs = '') {
+        if (!this.isValidUrl(url)) {
+            return `<span class="${this.escapeHtml(className)}">${this.escapeHtml(text)}</span>`;
+        }
+        return `<a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="${this.escapeHtml(className)}" ${extraAttrs}>${this.escapeHtml(text)}</a>`;
+    },
+
+    getSafeIpfsUrl(hash) {
+        const cleanHash = hash.replace('ipfs://', '');
+        if (!this.isValidIpfsHash(cleanHash)) return null;
+        return `https://ipfs.io/ipfs/${cleanHash}`;
+    }
+};
+Object.freeze(SafeUrlHelper);
+
+// Store all image data for modal access
+const imagesData = {{ images | tojson | safe }};
+
+// Current image data for modal
+let currentImageData = {
+    src: '',
+    filename: '',
+    docId: '',
+    fullData: null
+};
+
+// Media type detection
+const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'];
+const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac'];
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+// Get media type from filename
+function getMediaType(filename) {
+    const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    if (VIDEO_EXTENSIONS.includes(ext)) return 'video';
+    if (AUDIO_EXTENSIONS.includes(ext)) return 'audio';
+    if (IMAGE_EXTENSIONS.includes(ext)) return 'image';
+    return 'unknown';
+}
+
+// Check if file is transcribable (video/audio)
+function isTranscribable(filename) {
+    const type = getMediaType(filename);
+    return type === 'video' || type === 'audio';
+}
+
+// Open full-size media modal (image/video/audio)
+function openFullImage(imageIndex) {
+    const imgData = imagesData[imageIndex];
+    if (!imgData) return;
+
+    const imageSrc = '/media/' + imgData.path;
+    const filename = imgData.filename;
+    const docId = imgData.doc_id;
+
+    currentImageData = { src: imageSrc, filename, docId, fullData: imgData };
+
+    const modal = document.getElementById('fullImageModal');
+    const img = document.getElementById('fullImageSrc');
+    const video = document.getElementById('fullVideoSrc');
+    const audio = document.getElementById('fullAudioSrc');
+    const title = document.getElementById('fullImageTitle');
+    const copyOriginBtn = document.getElementById('copyOriginBtn');
+    const describeImageBtn = document.getElementById('describeImageBtn');
+    const metadataPanel = document.getElementById('modalMetadataPanel');
+
+    // Hide all players first
+    img.style.display = 'none';
+    video.style.display = 'none';
+    audio.style.display = 'none';
+
+    // Detect media type and show appropriate player
+    const mediaType = getMediaType(filename);
+
+    if (mediaType === 'video') {
+        video.src = imageSrc;
+        video.style.display = 'block';
+        describeImageBtn.style.display = 'flex';  // Show AI describe for video
+    } else if (mediaType === 'audio') {
+        audio.src = imageSrc;
+        audio.style.display = 'block';
+        describeImageBtn.style.display = 'flex';  // Show AI describe for audio
+    } else {
+        img.src = imageSrc;
+        img.style.display = 'block';
+        describeImageBtn.style.display = 'flex';  // Show AI describe for images
+    }
+
+    // Show/hide Copy Origin URL button based on availability
+    const hasOriginUrl = (imgData.doc_frontmatter && imgData.doc_frontmatter.url) ||
+                         (imgData.source_urls && imgData.source_urls.length > 0) ||
+                         (imgData.blockchain_metadata && imgData.blockchain_metadata.ipfs_hashes && imgData.blockchain_metadata.ipfs_hashes.length > 0);
+
+    copyOriginBtn.style.display = hasOriginUrl ? 'flex' : 'none';
+
+    title.textContent = filename;
+
+    // Populate metadata panel
+    populateMetadataPanel(imgData, metadataPanel);
+
+    modal.classList.add('active');
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+// Populate the metadata panel with image data
+function populateMetadataPanel(imgData, panel) {
+    let html = '';
+
+    // Document Title Header
+    if (imgData.doc_frontmatter && imgData.doc_frontmatter.title) {
+        const title = imgData.doc_frontmatter.title;
+        const truncatedTitle = title.length > 60 ? title.substring(0, 60) + '...' : title;
+        html += `
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--accent-gold); margin-bottom: 0.6rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 165, 116, 0.3); line-height: 1.3;">
+                ${truncatedTitle}
+            </div>
+        `;
+    }
+
+    // Non-Clickable Info Badges
+    if (imgData.blockchain_metadata && imgData.blockchain_metadata.platforms) {
+        html += '<div class="exif-badges">';
+        const platforms = imgData.blockchain_metadata.platforms;
+        for (let i = 0; i < Math.min(2, platforms.length); i++) {
+            html += `<span class="exif-badge exif-badge-platform">${platforms[i]}</span>`;
+        }
+        if (platforms.length > 2) {
+            html += `<span class="exif-badge exif-badge-platform">+${platforms.length - 2}</span>`;
+        }
+        html += '</div>';
+    }
+
+    if (imgData.blockchain_metadata && imgData.blockchain_metadata.token_ids) {
+        html += `<span class="exif-badge exif-badge-platform">Token #${imgData.blockchain_metadata.token_ids[0]}</span>`;
+    }
+
+    // Clickable Action Icons (SA-006 FIX: All URLs validated before insertion)
+    html += '<div class="exif-action-icons">';
+
+    if (imgData.doc_frontmatter && imgData.doc_frontmatter.url) {
+        const platformName = (imgData.blockchain_metadata && imgData.blockchain_metadata.platforms)
+            ? SafeUrlHelper.escapeHtml(imgData.blockchain_metadata.platforms[0])
+            : 'Source';
+        // SA-006 FIX: Validate source URL before creating link
+        if (SafeUrlHelper.isValidUrl(imgData.doc_frontmatter.url)) {
+            html += SafeUrlHelper.getSafeUrlHtml(
+                imgData.doc_frontmatter.url,
+                'SRC',
+                'exif-icon-link exif-icon-source',
+                `onclick="event.stopPropagation()" title="View on ${platformName}"`
+            );
+        }
+    }
+
+    if (imgData.blockchain_metadata && imgData.blockchain_metadata.ipfs_hashes && imgData.blockchain_metadata.ipfs_hashes.length > 0) {
+        // SA-006 FIX: Validate IPFS hash before creating URL
+        const ipfsUrl = SafeUrlHelper.getSafeIpfsUrl(imgData.blockchain_metadata.ipfs_hashes[0]);
+        if (ipfsUrl) {
+            html += SafeUrlHelper.getSafeUrlHtml(
+                ipfsUrl,
+                'IPFS',
+                'exif-icon-link exif-icon-ipfs',
+                'onclick="event.stopPropagation()" title="View on IPFS"'
+            );
+        }
+    }
+
+    if (imgData.blockchain_metadata && imgData.blockchain_metadata.explorer_url) {
+        const network = imgData.blockchain_metadata.blockchain_network || '';
+        const networkClass = network === 'ethereum' ? 'eth' : network === 'bitcoin' ? 'btc' : network === 'solana' ? 'sol' : '';
+        const explorerName = network === 'ethereum' ? 'Etherscan' : network === 'bitcoin' ? 'Bitcoin Explorer' : network === 'solana' ? 'Solscan' : 'Blockchain Explorer';
+        const networkLabel = network === 'ethereum' ? 'ETH' : network === 'bitcoin' ? 'BTC' : network === 'solana' ? 'SOL' : 'BC';
+        // SA-006 FIX: Validate explorer URL before creating link
+        if (SafeUrlHelper.isValidUrl(imgData.blockchain_metadata.explorer_url)) {
+            html += SafeUrlHelper.getSafeUrlHtml(
+                imgData.blockchain_metadata.explorer_url,
+                networkLabel,
+                `exif-icon-link exif-icon-explorer ${SafeUrlHelper.escapeHtml(networkClass)}`,
+                `onclick="event.stopPropagation()" title="View on ${SafeUrlHelper.escapeHtml(explorerName)}"`
+            );
+        }
+    }
+
+    html += '</div>';
+
+    // Metadata Grid
+    html += '<div class="exif-grid">';
+
+    // Semantic filename
+    const displayFilename = imgData.suggested_filename || imgData.filename;
+    const truncatedFilename = displayFilename.length > 35 ? displayFilename.substring(0, 35) + '...' : displayFilename;
+    html += `
+        <div class="exif-row" style="grid-column: 1 / -1;">
+            <span class="exif-label">File</span>
+            <span class="exif-value" title="Current: ${imgData.filename}" style="font-weight: 600; color: var(--accent-gold);">
+                ${truncatedFilename}
+            </span>
+        </div>
+    `;
+
+    // Blockchain metadata (if available)
+    if (imgData.blockchain_metadata) {
+        if (imgData.blockchain_metadata.mint_date) {
+            html += `
+                <div class="exif-row" style="grid-column: 1 / -1; border-top: 1px solid rgba(212, 165, 116, 0.3); padding-top: 0.5rem; margin-top: 0.5rem;">
+                    <span class="exif-label">Mint</span>
+                    <span class="exif-value" style="color: var(--accent-gold); font-weight: 600;" title="Blockchain mint date">Minted: ${imgData.blockchain_metadata.mint_date}</span>
+                </div>
+            `;
+        }
+
+        if (imgData.blockchain_metadata.transaction_hash) {
+            const txHash = imgData.blockchain_metadata.transaction_hash;
+            html += `
+                <div class="exif-row" style="grid-column: 1 / -1;">
+                    <span class="exif-label">Tx</span>
+                    <span class="exif-value" style="font-family: monospace; font-size: 0.6rem;" title="${txHash}">
+                        Tx: ${txHash.substring(0, 10)}...${txHash.substring(txHash.length - 8)}
+                    </span>
+                </div>
+            `;
+        }
+
+        if (imgData.blockchain_metadata.block_number) {
+            html += `
+                <div class="exif-row">
+                    <span class="exif-label">Block</span>
+                    <span class="exif-value" title="Block number">Block #${imgData.blockchain_metadata.block_number}</span>
+                </div>
+            `;
+        }
+    }
+
+    // Dimensions
+    if (imgData.width && imgData.height) {
+        html += `
+            <div class="exif-row">
+                <span class="exif-label">Size</span>
+                <span class="exif-value">${imgData.width} × ${imgData.height}</span>
+            </div>
+        `;
+    }
+
+    // File size
+    if (imgData.size_kb) {
+        const sizeDisplay = imgData.size_kb < 1024 ? `${imgData.size_kb} KB` : `${(imgData.size_kb / 1024).toFixed(2)} MB`;
+        html += `
+            <div class="exif-row">
+                <span class="exif-label">Data</span>
+                <span class="exif-value">${sizeDisplay}</span>
+            </div>
+        `;
+    }
+
+    // Creation date
+    if (imgData.doc_frontmatter && imgData.doc_frontmatter.created_at) {
+        html += `
+            <div class="exif-row" style="grid-column: 1 / -1;">
+                <span class="exif-label">Date</span>
+                <span class="exif-value">${imgData.doc_frontmatter.created_at}</span>
+            </div>
+        `;
+    }
+
+    html += '</div>'; // Close exif-grid
+
+    // Transcript/Description section (if available)
+    if (imgData.doc_frontmatter && imgData.doc_frontmatter.transcript) {
+        // Determine transcript type from source or metadata
+        const isAudioTranscript = imgData.source_type === 'audio' ||
+                                   (imgData.doc_frontmatter.transcript_type === 'audio_transcription');
+        const transcriptTypeLabel = isAudioTranscript ? 'Audio Transcription' : 'Visual Interpretation';
+
+        html += `
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span>Transcript</span>
+                </div>
+                <div style="font-size: 0.55rem; color: var(--accent-gold); margin-bottom: 0.4rem; font-weight: 600;">
+                    Type: ${transcriptTypeLabel}
+                </div>
+                <div style="font-size: 0.65rem; line-height: 1.5; color: var(--text-secondary); max-height: 200px; overflow-y: auto; padding: 0.7rem; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    ${imgData.doc_frontmatter.transcript.replace(/\n/g, '<br>')}
+                </div>
+            </div>
+        `;
+    }
+    // Alternative: Check for transcript in doc_body
+    else if (imgData.doc_body && imgData.doc_body.includes('Transcript')) {
+        const isAudioTranscript = imgData.source_type === 'audio';
+        const transcriptTypeLabel = isAudioTranscript ? 'Audio Transcription' : 'Visual Interpretation';
+
+        html += `
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span>Transcript</span>
+                </div>
+                <div style="font-size: 0.55rem; color: var(--accent-gold); margin-bottom: 0.4rem; font-weight: 600;">
+                    Type: ${transcriptTypeLabel}
+                </div>
+                <div style="font-size: 0.65rem; line-height: 1.5; color: var(--text-secondary); max-height: 200px; overflow-y: auto; padding: 0.7rem; background: rgba(0, 0, 0, 0.3); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    ${imgData.doc_body.replace(/\n/g, '<br>')}
+                </div>
+            </div>
+        `;
+    }
+
+    panel.innerHTML = html;
+}
+
+// Close full image/media modal
+function closeFullImage() {
+    const modal = document.getElementById('fullImageModal');
+    const video = document.getElementById('fullVideoSrc');
+    const audio = document.getElementById('fullAudioSrc');
+
+    // Stop any playing media
+    if (video.src) {
+        video.pause();
+        video.src = '';
+    }
+    if (audio.src) {
+        audio.pause();
+        audio.src = '';
+    }
+
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Download image for promotional use
+function downloadImage() {
+    const link = document.createElement('a');
+    link.href = currentImageData.src;
+    link.download = currentImageData.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Copy image URL to clipboard
+async function copyLocalUrl() {
+    const fullUrl = window.location.origin + currentImageData.src;
+    try {
+        await navigator.clipboard.writeText(fullUrl);
+        alert('Local URL copied to clipboard!');
+    } catch (err) {
+        // Fallback for older browsers
+        const input = document.createElement('input');
+        input.value = fullUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert('Local URL copied to clipboard!');
+    }
+}
+
+async function copyOriginUrl() {
+    // Get origin URL from current image data
+    const imgData = currentImageData.fullData;
+    if (!imgData) {
+        alert('No origin URL available');
+        return;
+    }
+
+    // Try to get origin URL from multiple sources
+    let originUrl = null;
+
+    // Priority 1: Document frontmatter URL
+    if (imgData.doc_frontmatter && imgData.doc_frontmatter.url) {
+        originUrl = imgData.doc_frontmatter.url;
+    }
+    // Priority 2: First source URL
+    else if (imgData.source_urls && imgData.source_urls.length > 0) {
+        originUrl = imgData.source_urls[0].url;
+    }
+    // Priority 3: IPFS gateway
+    else if (imgData.blockchain_metadata && imgData.blockchain_metadata.ipfs_hashes && imgData.blockchain_metadata.ipfs_hashes.length > 0) {
+        const ipfsHash = imgData.blockchain_metadata.ipfs_hashes[0].replace('ipfs://', '');
+        originUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+    }
+
+    if (!originUrl) {
+        alert('No origin URL available for this asset');
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(originUrl);
+        alert('Origin URL copied to clipboard!');
+    } catch (err) {
+        // Fallback for older browsers
+        const input = document.createElement('input');
+        input.value = originUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert('Origin URL copied to clipboard!');
+    }
+}
+
+// Generate AI analysis for images/videos/audio
+async function describeImage() {
+    const describeBtn = document.getElementById('describeImageBtn');
+    const originalText = describeBtn.innerHTML;
+
+    // Get current media data
+    const imgData = currentImageData.fullData;
+    if (!imgData) {
+        alert('No media data available');
+        return;
+    }
+
+    // Detect media type
+    const mediaType = getMediaType(currentImageData.filename);
+    const isAudio = mediaType === 'audio';
+    const isVideo = mediaType === 'video';
+
+    try {
+        describeBtn.innerHTML = isAudio ? '⏳ Transcribing...' : '⏳ Analyzing...';
+        describeBtn.disabled = true;
+
+        const response = await fetch('/api/analyze-visual', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_path: imgData.path,
+                doc_id: imgData.doc_id,
+                filename: imgData.filename,
+                media_type: mediaType,
+                is_audio_transcript: isAudio,
+                is_visual_description: !isAudio,
+                // Preserve metadata for semantic network mapping
+                source_type: imgData.source_type,
+                source_types: imgData.source_types,
+                blockchain_metadata: imgData.blockchain_metadata,
+                doc_frontmatter: imgData.doc_frontmatter,
+                // Flag for semantic network integration
+                enable_semantic_mapping: true
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to analyze ${mediaType}`);
+        }
+
+        const result = await response.json();
+
+        const successMessage = isAudio
+            ? '✓ Audio Transcript added to query!\n\nTranscript type: Audio Transcription\n\nReload the page to see the updated transcript.'
+            : '✓ AI Description added to query!\n\nTranscript type: Visual Interpretation\n\nReload the page to see the updated description.';
+
+        alert(successMessage);
+
+        describeBtn.innerHTML = isAudio ? '✓ Transcribed' : '✓ Described';
+        setTimeout(() => {
+            describeBtn.innerHTML = originalText;
+            describeBtn.disabled = false;
+        }, 2000);
+
+    } catch (error) {
+        console.error(`Error analyzing ${mediaType}:`, error);
+        alert(`Failed to generate ${isAudio ? 'transcript' : 'description'}. Please try again.`);
+        describeBtn.innerHTML = originalText;
+        describeBtn.disabled = false;
+    }
+}
+
+// Transcribe audio/video media and save to knowledge base
+async function transcribeMedia() {
+    const transcriptBtn = document.getElementById('transcriptBtn');
+    const originalText = transcriptBtn.innerHTML;
+
+    // Show loading state
+    transcriptBtn.innerHTML = '⏳ Transcribing...';
+    transcriptBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/transcribe-media', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                media_path: currentImageData.src,
+                filename: currentImageData.filename,
+                doc_id: currentImageData.docId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`✓ Transcription complete!\n\nSaved as: ${result.title}\n\nWord count: ${result.word_count}\n\nNew document ID: ${result.new_doc_id}`);
+            closeFullImage();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error transcribing media: ' + error);
+    } finally {
+        // Reset button
+        transcriptBtn.innerHTML = originalText;
+        transcriptBtn.disabled = false;
+    }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeFullImage();
+    }
+});
+
 // API call to analyze single image
 async function analyzeImage(docId, skipVision = false) {
     const loading = document.getElementById('vtLoading');
@@ -355,5 +2768,285 @@ async function analyzeImage(docId, skipVision = false) {
         loading.classList.remove('active');
     }
 }
+
+// ============================================
+// Selection Queue System for Agent Automation
+// ============================================
+let selectedImages = new Set();
+const selectionQueue = document.getElementById('selectionQueue');
+const queueCount = document.getElementById('queueCount');
+
+// Toggle image selection
+function toggleImageSelection(imgId, checkboxElem) {
+    const card = document.querySelector(`[data-img-id="${imgId}"]`);
+    const checkVisual = checkboxElem.querySelector('.vt-checkbox-visual');
+
+    if (selectedImages.has(imgId)) {
+        // Deselect
+        selectedImages.delete(imgId);
+        checkboxElem.classList.remove('selected');
+        checkVisual.classList.remove('checked');
+    } else {
+        // Select
+        selectedImages.add(imgId);
+        checkboxElem.classList.add('selected');
+        checkVisual.classList.add('checked');
+    }
+
+    updateQueueDisplay();
+}
+
+// Update queue display
+function updateQueueDisplay() {
+    queueCount.textContent = selectedImages.size;
+
+    if (selectedImages.size > 0) {
+        selectionQueue.classList.add('active');
+    } else {
+        selectionQueue.classList.remove('active');
+    }
+}
+
+// Export queue for automation agent (structured JSON)
+function exportQueueForAgent() {
+    if (selectedImages.size === 0) {
+        alert('No images selected. Select images using the checkboxes.');
+        return;
+    }
+
+    const exportData = {
+        export_date: new Date().toISOString(),
+        selection_count: selectedImages.size,
+        images: []
+    };
+
+    // Collect metadata for each selected image
+    selectedImages.forEach(imgId => {
+        const card = document.querySelector(`[data-img-id="${imgId}"]`);
+        const img = card.querySelector('img');
+
+        // Extract all metadata from data attributes and content
+        const imageData = {
+            id: imgId,
+            src: img.src,
+            filename: img.alt || 'unknown',
+            url: window.location.origin + img.getAttribute('src')
+        };
+
+        exportData.images.push(imageData);
+    });
+
+    // Download as JSON
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `agent-export-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert(`✓ Exported ${selectedImages.size} images for automation agent`);
+}
+
+// Download metadata JSON
+function downloadQueueMetadata() {
+    if (selectedImages.size === 0) {
+        alert('No images selected.');
+        return;
+    }
+
+    exportQueueForAgent();
+}
+
+// Download all selected images as ZIP (future enhancement)
+function downloadQueueImages() {
+    if (selectedImages.size === 0) {
+        alert('No images selected.');
+        return;
+    }
+
+    alert('Batch download coming soon! For now, use "Export for Agent" to get URLs.');
+}
+
+// Clear selection queue
+function clearQueue() {
+    if (selectedImages.size === 0) return;
+
+    if (confirm(`Clear ${selectedImages.size} selected image(s)?`)) {
+        // Remove visual checkmarks
+        selectedImages.forEach(imgId => {
+            const card = document.querySelector(`[data-img-id="${imgId}"]`);
+            if (card) {
+                const checkbox = card.querySelector('.vt-select-checkbox');
+                const checkVisual = checkbox.querySelector('.vt-checkbox-visual');
+                checkbox.classList.remove('selected');
+                checkVisual.classList.remove('checked');
+            }
+        });
+
+        selectedImages.clear();
+        updateQueueDisplay();
+    }
+}
+
+// ============================================
+// PROVENANCE CERTIFICATION SYSTEM
+// Fetches and displays NFT authenticity badges
+// ============================================
+
+class VTProvenanceCertificationManager {
+    constructor() {
+        this.certCache = new Map();
+        this.init();
+    }
+
+    init() {
+        // Find all certification badge wrappers in Visual Translator
+        const wrappers = document.querySelectorAll('.vt-cert-badge-wrapper');
+        wrappers.forEach(wrapper => this.fetchCertification(wrapper));
+    }
+
+    async fetchCertification(wrapper) {
+        const docId = wrapper.dataset.docId;
+        const contract = wrapper.dataset.contract;
+        const tokenId = wrapper.dataset.tokenId;
+
+        // Check if we have contract info - if not, try to get it from the doc
+        if (!contract || !tokenId) {
+            // Try to get certification by doc ID instead
+            await this.fetchCertificationByDocId(wrapper, docId);
+            return;
+        }
+
+        // Check cache
+        const cacheKey = `${contract}-${tokenId}`;
+        if (this.certCache.has(cacheKey)) {
+            this.updateBadge(wrapper, this.certCache.get(cacheKey));
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}/certify`);
+
+            if (!response.ok) {
+                throw new Error('Certification failed');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.certCache.set(cacheKey, data);
+                this.updateBadge(wrapper, data);
+            } else {
+                this.showUnverified(wrapper, 'No certification data');
+            }
+        } catch (error) {
+            console.warn(`Certification error for ${docId}:`, error);
+            this.showUnverified(wrapper, 'Could not verify');
+        }
+    }
+
+    async fetchCertificationByDocId(wrapper, docId) {
+        try {
+            const response = await fetch(`/api/document/${docId}/certify`);
+
+            if (!response.ok) {
+                throw new Error('Certification failed');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateBadge(wrapper, data);
+            } else {
+                this.showUnverified(wrapper, data.message || 'No certification data');
+            }
+        } catch (error) {
+            console.warn(`Certification error for doc ${docId}:`, error);
+            this.showUnverified(wrapper, 'Could not verify');
+        }
+    }
+
+    updateBadge(wrapper, data) {
+        const badge = wrapper.querySelector('.cert-badge');
+        if (!badge) return;
+
+        const status = data.status.toLowerCase();
+        const score = data.score || 0;
+        const reason = this.getPrimaryReason(data.factors || []);
+
+        // Remove loading class
+        badge.classList.remove('cert-badge-loading');
+
+        // Add appropriate status class
+        badge.classList.add(`cert-badge-${status}`);
+
+        // Update badge content with simplified display
+        badge.innerHTML = `
+            <span class="cert-badge-text">${this.getStatusIcon(status)}</span>
+            <div class="cert-tooltip">
+                <div class="cert-tooltip-header">
+                    <span class="cert-tooltip-score">${score}/100</span>
+                    <span class="cert-tooltip-status ${status}">${status.toUpperCase()}</span>
+                </div>
+                <div class="cert-tooltip-reason">${reason}</div>
+            </div>
+        `;
+
+        badge.title = `${status.toUpperCase()}: ${score}/100 - ${reason}`;
+    }
+
+    showUnverified(wrapper, reason) {
+        const badge = wrapper.querySelector('.cert-badge');
+        if (!badge) return;
+
+        badge.classList.remove('cert-badge-loading');
+        badge.classList.add('cert-badge-unverified');
+
+        badge.innerHTML = `
+            <span class="cert-badge-text">?</span>
+            <div class="cert-tooltip">
+                <div class="cert-tooltip-header">
+                    <span class="cert-tooltip-score">--</span>
+                    <span class="cert-tooltip-status unverified">UNVERIFIED</span>
+                </div>
+                <div class="cert-tooltip-reason">${reason}</div>
+            </div>
+        `;
+
+        badge.title = `UNVERIFIED: ${reason}`;
+    }
+
+    getStatusIcon(status) {
+        switch(status) {
+            case 'verified': return '✓';
+            case 'likely': return '◐';
+            case 'unverified': return '?';
+            default: return '?';
+        }
+    }
+
+    getPrimaryReason(factors) {
+        if (!factors || factors.length === 0) {
+            return 'No verification factors available';
+        }
+
+        // Find the highest-scoring verified factor
+        const verifiedFactor = factors.find(f => f.status === 'verified');
+        if (verifiedFactor) {
+            return verifiedFactor.detail;
+        }
+
+        // Or the first factor's detail
+        return factors[0].detail || 'Provenance checked';
+    }
+}
+
+// Initialize certification manager on page load
+document.addEventListener('DOMContentLoaded', () => {
+    window.vtCertManager = new VTProvenanceCertificationManager();
+});
 </script>
 {% endblock %}

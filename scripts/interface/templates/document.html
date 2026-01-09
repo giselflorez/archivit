@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ frontmatter.get('title', 'Document') }} - GiselX Knowledge Base{% endblock %}
+{% block title %}{{ frontmatter.get('title', 'Document') }} - ARCHIV-IT{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -504,24 +504,49 @@ function renderTagsEdit() {
     const tagsSection = document.getElementById('tagsSection');
     const tagsList = document.getElementById('tagsList');
 
-    const tagsHtml = originalTags.map(tag => `
-        <span class="tag-edit-item">
-            <span>#${tag}</span>
-            <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
-        </span>
-    `).join('');
+    // SA-003 FIX: Build DOM elements instead of innerHTML with onclick injection
+    const tagsEditDiv = document.createElement('div');
+    tagsEditDiv.className = 'tags-edit';
 
-    tagsList.innerHTML = `
-        <div class="tags-edit">
-            ${tagsHtml}
-            <input type="text" class="tag-add-input" id="tagInput" placeholder="Add tag..." onkeypress="handleTagInput(event)">
-        </div>
-    `;
+    originalTags.forEach(tag => {
+        const tagItem = document.createElement('span');
+        tagItem.className = 'tag-edit-item';
+
+        const tagText = document.createElement('span');
+        tagText.textContent = '#' + tag;
+        tagItem.appendChild(tagText);
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'tag-remove';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => removeTag(tag));
+        tagItem.appendChild(removeBtn);
+
+        tagsEditDiv.appendChild(tagItem);
+    });
+
+    const tagInput = document.createElement('input');
+    tagInput.type = 'text';
+    tagInput.className = 'tag-add-input';
+    tagInput.id = 'tagInput';
+    tagInput.placeholder = 'Add tag...';
+    tagInput.addEventListener('keypress', handleTagInput);
+    tagsEditDiv.appendChild(tagInput);
+
+    tagsList.innerHTML = '';
+    tagsList.appendChild(tagsEditDiv);
 }
 
 function renderTagsView() {
     const tagsList = document.getElementById('tagsList');
-    tagsList.innerHTML = originalTags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+    // SA-003 FIX: Use DOM methods instead of innerHTML
+    tagsList.innerHTML = '';
+    originalTags.forEach(tag => {
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'tag';
+        tagSpan.textContent = '#' + tag;
+        tagsList.appendChild(tagSpan);
+    });
 }
 
 function removeTag(tag) {

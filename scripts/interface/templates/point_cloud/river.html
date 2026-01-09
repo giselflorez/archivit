@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative River - Point Cloud Paradigm 04</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #000;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .ui-overlay * { pointer-events: auto; }
+
+        .header {
+            top: 20px;
+            left: 20px;
+        }
+
+        .title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: #6bceff;
+            margin-bottom: 5px;
+        }
+
+        .paradigm-name {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .controls {
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a2a3e;
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(107, 206, 255, 0.1);
+            border: 1px solid #6bceff;
+            color: #6bceff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover { background: rgba(107, 206, 255, 0.2); }
+        .control-btn.active { background: #6bceff; color: #000; }
+
+        .period-nav {
+            position: fixed;
+            left: 50%;
+            bottom: 80px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .period-btn {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a2a3e;
+            color: #6bceff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .period-btn:hover, .period-btn.active {
+            background: #6bceff;
+            color: #000;
+        }
+
+        .timeline-slider {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a2a3e;
+            border-radius: 8px;
+            padding: 15px 20px;
+            z-index: 100;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .slider-track {
+            position: relative;
+            height: 6px;
+            background: #1a2a3e;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #6bceff, #4ea8de);
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: -5px;
+            width: 16px;
+            height: 16px;
+            background: #6bceff;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            box-shadow: 0 0 10px #6bceff;
+        }
+
+        .period-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .period-marker {
+            font-size: 0.6rem;
+            color: #444;
+            text-align: center;
+        }
+
+        .info-panel {
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #1a2a3e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .info-panel.visible { display: block; }
+
+        .info-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .info-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(107, 206, 255, 0.2);
+            display: none;
+        }
+
+        .info-thumbnail.visible { display: block; }
+
+        .info-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .info-source {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .info-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #6bceff;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .pivotal-badge {
+            display: inline-block;
+            background: rgba(255, 107, 157, 0.2);
+            border: 1px solid #ff6b9d;
+            color: #ff6b9d;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            margin-left: 8px;
+        }
+
+        .stats {
+            bottom: 120px;
+            right: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a2a3e;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.7rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { color: #666; }
+        .stat-value { color: #6bceff; }
+
+        .legend {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a2a3e;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.main-river { background: #6bceff; }
+        .legend-dot.tributary { background: #4ea8de; opacity: 0.6; }
+        .legend-dot.pivotal { background: #ff6b9d; box-shadow: 0 0 8px #ff6b9d; }
+        .legend-dot.current { border: 2px solid #fff; background: transparent; }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            z-index: 200;
+        }
+
+        .back-link:hover { color: #6bceff; }
+            .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .top-nav a:hover { color: #d4a574; }
+        .top-nav .active { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div id="canvas-container"></div>
+
+    <a href="/point-cloud" class="back-link">← All Paradigms</a>
+
+    <div class="ui-overlay header">
+        <div class="title">PARADIGM 04</div>
+        <div class="paradigm-name">Creative River</div>
+    </div>
+
+    <div class="ui-overlay controls">
+        <div class="control-group">
+            <div class="control-label">FLOW</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-flow="pause">Pause</button>
+                <button class="control-btn active" data-flow="normal">Normal</button>
+                <button class="control-btn" data-flow="fast">Rapids</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">VIEW</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-view="river">Full River</button>
+                <button class="control-btn" data-view="tributaries">Tributaries</button>
+                <button class="control-btn" data-view="pivotal">Pivotal Works</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">COLOR BY</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-color="period">Period</button>
+                <button class="control-btn" data-color="velocity">Velocity</button>
+                <button class="control-btn" data-color="depth">Depth</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="period-nav" id="period-nav"></div>
+
+    <div class="timeline-slider">
+        <div class="slider-labels">
+            <span>Early Work (2019)</span>
+            <span>Present</span>
+        </div>
+        <div class="slider-track" id="slider-track">
+            <div class="slider-fill" id="slider-fill" style="width: 100%"></div>
+            <div class="slider-handle" id="slider-handle" style="left: 100%"></div>
+        </div>
+        <div class="period-markers" id="period-markers"></div>
+    </div>
+
+    <div class="ui-overlay info-panel" id="info-panel">
+        <button class="info-close" onclick="hideInfoPanel()">×</button>
+        <img class="info-thumbnail" id="info-thumbnail" alt="Work thumbnail">
+        <div class="info-title" id="info-title">Work Title</div>
+        <div class="info-source" id="info-source"></div>
+
+        <div class="info-section">
+            <div class="info-section-title">POSITION IN JOURNEY</div>
+            <div class="info-text" id="info-position">Period: Early Work | Year 2 of practice</div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">CREATIVE CONTEXT</div>
+            <div class="info-text" id="info-context">Created during exploration of generative systems...</div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">FLOW CHARACTERISTICS</div>
+            <div class="info-text" id="info-flow">
+                Velocity: Normal | Depth: Central | Series: Main River
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">CONNECTED WORKS</div>
+            <div class="info-text" id="info-connections">
+                Upstream: Work #23 | Downstream: Work #45, #46
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-overlay stats">
+        <div class="stat-row">
+            <span class="stat-label">Total Works</span>
+            <span class="stat-value" id="stat-works">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Periods</span>
+            <span class="stat-value" id="stat-periods">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Tributaries</span>
+            <span class="stat-value" id="stat-tributaries">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Pivotal Works</span>
+            <span class="stat-value" id="stat-pivotal">0</span>
+        </div>
+    </div>
+
+    <div class="ui-overlay legend">
+        <div class="legend-item">
+            <div class="legend-dot main-river"></div>
+            <span>Main River</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot tributary"></div>
+            <span>Tributary (Series)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot pivotal"></div>
+            <span>Pivotal Work</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot current"></div>
+            <span>Current Focus</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // ============================================
+        // CREATIVE RIVER - POINT CLOUD PARADIGM 04
+        // ============================================
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x040810);
+        scene.fog = new THREE.FogExp2(0x040810, 0.003);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 150, 200);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 600;
+        controls.minDistance = 50;
+
+        // Artistic periods
+        const PERIODS = [
+            { name: 'Early Experiments', years: '2019-2020', color: 0x4a6fa5, yStart: -200, yEnd: -120 },
+            { name: 'Code Botanica', years: '2020-2021', color: 0x00ff88, yStart: -120, yEnd: -40 },
+            { name: 'Algorithmic Landscapes', years: '2021-2022', color: 0x6bceff, yStart: -40, yEnd: 60 },
+            { name: 'Temporal Investigations', years: '2022-2023', color: 0xc77dff, yStart: 60, yEnd: 140 },
+            { name: 'Current Explorations', years: '2023-Present', color: 0xffd93d, yStart: 140, yEnd: 220 }
+        ];
+
+        // Tributaries (series that branch off)
+        const TRIBUTARIES = [
+            { name: 'Glitch Experiments', parentPeriod: 1, branchPoint: -80, length: 60, angle: -0.4 },
+            { name: 'Data Portraits', parentPeriod: 2, branchPoint: 20, length: 80, angle: 0.5 },
+            { name: 'Collaborative Works', parentPeriod: 3, branchPoint: 100, length: 50, angle: -0.3 }
+        ];
+
+        // State
+        let works = [];
+        let workMeshes = [];
+        let riverParticles = null;
+        let riverBed = null;
+        let tributaryMeshes = [];
+        let flowSpeed = 1;
+        let currentTimePosition = 1.0; // 0-1, 1 = present
+        let colorMode = 'period';
+        let viewMode = 'river';
+
+        // Generate sample works
+        function generateWorks() {
+            const data = [];
+            let workId = 0;
+
+            // Generate works for each period
+            PERIODS.forEach((period, periodIdx) => {
+                const periodLength = period.yEnd - period.yStart;
+                const worksInPeriod = 15 + Math.floor(Math.random() * 10);
+
+                for (let i = 0; i < worksInPeriod; i++) {
+                    const yPosition = period.yStart + (i / worksInPeriod) * periodLength;
+
+                    // River meander
+                    const meander = Math.sin(yPosition * 0.02) * 30;
+
+                    // Depth in river (central vs edge)
+                    const depth = Math.random();
+                    const depthOffset = (depth - 0.5) * 40;
+
+                    // Is this a pivotal work?
+                    const isPivotal = Math.random() > 0.9;
+
+                    // Velocity (productivity rate at this point)
+                    const velocity = 0.5 + Math.random() * 0.5;
+
+                    data.push({
+                        id: `work_${workId++}`,
+                        name: `${period.name} #${i + 1}`,
+                        period: periodIdx,
+                        periodName: period.name,
+                        position: new THREE.Vector3(
+                            meander + depthOffset,
+                            yPosition,
+                            (Math.random() - 0.5) * 20
+                        ),
+                        basePosition: new THREE.Vector3(meander + depthOffset, yPosition, 0),
+                        depth: depth,
+                        velocity: velocity,
+                        isPivotal: isPivotal,
+                        isMainRiver: true,
+                        tributaryIdx: -1,
+                        upstream: workId > 1 ? workId - 2 : null,
+                        downstream: []
+                    });
+
+                    // Add downstream connections
+                    if (workId > 1) {
+                        data[workId - 2].downstream.push(workId - 1);
+                    }
+                }
+            });
+
+            // Generate works for tributaries
+            TRIBUTARIES.forEach((trib, tribIdx) => {
+                const worksInTrib = 5 + Math.floor(Math.random() * 5);
+
+                for (let i = 0; i < worksInTrib; i++) {
+                    const t = i / worksInTrib;
+                    const yPos = trib.branchPoint + t * trib.length;
+                    const xOffset = Math.sin(trib.angle) * t * trib.length * 0.5;
+                    const zOffset = Math.cos(trib.angle) * t * trib.length * 0.3;
+
+                    const meander = Math.sin(yPos * 0.03) * 20;
+
+                    data.push({
+                        id: `work_${workId++}`,
+                        name: `${trib.name} #${i + 1}`,
+                        period: trib.parentPeriod,
+                        periodName: PERIODS[trib.parentPeriod].name,
+                        position: new THREE.Vector3(
+                            50 + xOffset + meander,
+                            yPos,
+                            zOffset + (Math.random() - 0.5) * 10
+                        ),
+                        basePosition: new THREE.Vector3(50 + xOffset + meander, yPos, zOffset),
+                        depth: 0.5,
+                        velocity: 0.7,
+                        isPivotal: Math.random() > 0.95,
+                        isMainRiver: false,
+                        tributaryIdx: tribIdx,
+                        tributaryName: trib.name,
+                        upstream: null,
+                        downstream: []
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        // Create river bed (flowing particles)
+        function createRiverBed() {
+            if (riverParticles) scene.remove(riverParticles);
+            if (riverBed) scene.remove(riverBed);
+
+            // River bed shape
+            const shape = new THREE.Shape();
+            shape.moveTo(-60, -220);
+            shape.quadraticCurveTo(-80, -100, -40, 0);
+            shape.quadraticCurveTo(0, 100, 30, 220);
+            shape.lineTo(70, 220);
+            shape.quadraticCurveTo(50, 100, 40, 0);
+            shape.quadraticCurveTo(20, -100, 60, -220);
+            shape.lineTo(-60, -220);
+
+            const extrudeSettings = {
+                steps: 1,
+                depth: 5,
+                bevelEnabled: false
+            };
+
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            geometry.rotateX(-Math.PI / 2);
+
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x0a1525,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            riverBed = new THREE.Mesh(geometry, material);
+            riverBed.position.set(0, 0, 0);
+            riverBed.rotation.x = Math.PI / 2;
+            scene.add(riverBed);
+
+            // Flowing particles
+            const particleCount = 2000;
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                const y = (Math.random() - 0.5) * 440;
+                const meander = Math.sin(y * 0.02) * 30;
+                const x = meander + (Math.random() - 0.5) * 60;
+                const z = (Math.random() - 0.5) * 10 - 2;
+
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+
+                velocities.push(0.3 + Math.random() * 0.5);
+            }
+
+            const particleGeom = new THREE.BufferGeometry();
+            particleGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particleMat = new THREE.PointsMaterial({
+                color: 0x6bceff,
+                size: 1,
+                transparent: true,
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+
+            riverParticles = new THREE.Points(particleGeom, particleMat);
+            riverParticles.userData.velocities = velocities;
+            scene.add(riverParticles);
+
+            // Add period region markers
+            PERIODS.forEach(period => {
+                const regionGeom = new THREE.PlaneGeometry(150, period.yEnd - period.yStart);
+                const regionMat = new THREE.MeshBasicMaterial({
+                    color: period.color,
+                    transparent: true,
+                    opacity: 0.05,
+                    side: THREE.DoubleSide
+                });
+                const region = new THREE.Mesh(regionGeom, regionMat);
+                region.position.set(0, (period.yStart + period.yEnd) / 2, -10);
+                region.rotation.x = Math.PI / 2;
+                scene.add(region);
+            });
+        }
+
+        // Create work nodes
+        function createWorkNodes() {
+            workMeshes.forEach(m => scene.remove(m));
+            workMeshes = [];
+
+            works.forEach((work, index) => {
+                let color;
+                if (colorMode === 'period') {
+                    color = PERIODS[work.period]?.color || 0x6bceff;
+                } else if (colorMode === 'velocity') {
+                    color = new THREE.Color().setHSL(0.5 + work.velocity * 0.3, 0.8, 0.5).getHex();
+                } else if (colorMode === 'depth') {
+                    color = new THREE.Color().setHSL(0.55, 0.8, 0.3 + work.depth * 0.4).getHex();
+                }
+
+                const size = work.isPivotal ? 4 : 2;
+                const geometry = new THREE.SphereGeometry(size, 12, 12);
+                const material = new THREE.MeshBasicMaterial({
+                    color: work.isPivotal ? 0xff6b9d : color,
+                    transparent: true,
+                    opacity: work.isMainRiver ? 0.9 : 0.6
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(work.position);
+                mesh.userData = { workIndex: index };
+
+                // Pivotal works glow
+                if (work.isPivotal) {
+                    const glowGeom = new THREE.SphereGeometry(size * 2, 12, 12);
+                    const glowMat = new THREE.MeshBasicMaterial({
+                        color: 0xff6b9d,
+                        transparent: true,
+                        opacity: 0.2
+                    });
+                    const glow = new THREE.Mesh(glowGeom, glowMat);
+                    mesh.add(glow);
+                }
+
+                scene.add(mesh);
+                workMeshes.push(mesh);
+            });
+
+            updateStats();
+        }
+
+        // Create period navigation
+        function createPeriodNav() {
+            const nav = document.getElementById('period-nav');
+            nav.innerHTML = PERIODS.map((period, i) =>
+                `<button class="period-btn" data-period="${i}">${period.name}</button>`
+            ).join('');
+
+            nav.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const periodIdx = parseInt(btn.dataset.period);
+                    navigateToPeriod(periodIdx);
+                });
+            });
+
+            // Period markers on slider
+            const markers = document.getElementById('period-markers');
+            markers.innerHTML = PERIODS.map(p =>
+                `<div class="period-marker">${p.years.split('-')[0]}</div>`
+            ).join('');
+        }
+
+        // Navigate to period
+        function navigateToPeriod(periodIdx) {
+            const period = PERIODS[periodIdx];
+            const targetY = (period.yStart + period.yEnd) / 2;
+
+            // Animate camera
+            const targetPos = new THREE.Vector3(
+                camera.position.x,
+                targetY + 50,
+                camera.position.z
+            );
+
+            // Simple lerp animation
+            const startPos = camera.position.clone();
+            const startTime = Date.now();
+            const duration = 1000;
+
+            function animateCamera() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const easeT = t * t * (3 - 2 * t); // Smoothstep
+
+                camera.position.lerpVectors(startPos, targetPos, easeT);
+                controls.target.set(0, targetY, 0);
+
+                if (t < 1) {
+                    requestAnimationFrame(animateCamera);
+                }
+            }
+
+            animateCamera();
+
+            // Update button states
+            document.querySelectorAll('.period-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === periodIdx);
+            });
+        }
+
+        // Update river flow
+        function updateRiverFlow(delta) {
+            if (!riverParticles || flowSpeed === 0) return;
+
+            const positions = riverParticles.geometry.attributes.position.array;
+            const velocities = riverParticles.userData.velocities;
+
+            for (let i = 0; i < positions.length / 3; i++) {
+                // Move particle along Y (downstream)
+                positions[i * 3 + 1] += velocities[i] * flowSpeed * delta * 30;
+
+                // Reset at end
+                if (positions[i * 3 + 1] > 220) {
+                    positions[i * 3 + 1] = -220;
+                    const meander = Math.sin(-220 * 0.02) * 30;
+                    positions[i * 3] = meander + (Math.random() - 0.5) * 60;
+                }
+
+                // Update X based on meander
+                const y = positions[i * 3 + 1];
+                const targetMeander = Math.sin(y * 0.02) * 30;
+                positions[i * 3] += (targetMeander - positions[i * 3]) * 0.01;
+            }
+
+            riverParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // Timeline slider interaction
+        function setupTimelineSlider() {
+            const track = document.getElementById('slider-track');
+            const handle = document.getElementById('slider-handle');
+            const fill = document.getElementById('slider-fill');
+
+            let isDragging = false;
+
+            function updateSlider(e) {
+                const rect = track.getBoundingClientRect();
+                let x = (e.clientX - rect.left) / rect.width;
+                x = Math.max(0, Math.min(1, x));
+
+                currentTimePosition = x;
+                handle.style.left = `${x * 100}%`;
+                fill.style.width = `${x * 100}%`;
+
+                // Update camera position based on timeline
+                const targetY = -200 + x * 420;
+                camera.position.y = targetY + 100;
+                controls.target.set(0, targetY, 0);
+
+                // Fade works based on time position
+                workMeshes.forEach((mesh, i) => {
+                    const work = works[i];
+                    const workProgress = (work.position.y + 200) / 420;
+
+                    if (workProgress > currentTimePosition) {
+                        mesh.material.opacity = 0.1;
+                    } else {
+                        mesh.material.opacity = work.isMainRiver ? 0.9 : 0.6;
+                    }
+                });
+            }
+
+            track.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                updateSlider(e);
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging) updateSlider(e);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+        }
+
+        // Animation
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const elapsed = clock.getElapsedTime();
+
+            // Update river flow
+            updateRiverFlow(delta);
+
+            // Animate work positions (subtle floating)
+            workMeshes.forEach((mesh, i) => {
+                const work = works[i];
+                mesh.position.z = work.basePosition.z + Math.sin(elapsed + i * 0.3) * 2;
+
+                // Pivotal works pulse
+                if (work.isPivotal) {
+                    const scale = 1 + Math.sin(elapsed * 2) * 0.15;
+                    mesh.scale.setScalar(scale);
+                }
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(workMeshes);
+
+            if (intersects.length > 0) {
+                const work = works[intersects[0].object.userData.workIndex];
+                showInfoPanel(work);
+            }
+        }
+
+        function showInfoPanel(work) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            // Show thumbnail if available from original API data
+            const thumbnail = document.getElementById('info-thumbnail');
+            const imgPath = work.originalData?.image_path ||
+                work.originalData?.media_files?.[0] ||
+                work.originalData?.images?.[0] ||
+                work.originalData?.image_url;
+
+            if (imgPath) {
+                thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+                thumbnail.classList.add('visible');
+                thumbnail.onerror = () => { thumbnail.classList.remove('visible'); };
+            } else {
+                thumbnail.classList.remove('visible');
+            }
+
+            let title = work.name;
+            if (work.isPivotal) {
+                title += '<span class="pivotal-badge">PIVOTAL</span>';
+            }
+            document.getElementById('info-title').innerHTML = title;
+
+            // Show source
+            const sourceEl = document.getElementById('info-source');
+            sourceEl.textContent = work.source || work.cognitiveType || '';
+
+            document.getElementById('info-position').textContent =
+                `Period: ${work.periodName} | ${work.isMainRiver ? 'Main River' : 'Tributary: ' + work.tributaryName}`;
+
+            document.getElementById('info-context').textContent =
+                `Created during the ${work.periodName.toLowerCase()} phase of the artist's practice.`;
+
+            document.getElementById('info-flow').textContent =
+                `Velocity: ${work.velocity > 0.7 ? 'Fast' : work.velocity > 0.4 ? 'Normal' : 'Slow'} | ` +
+                `Depth: ${work.depth > 0.7 ? 'Central' : work.depth > 0.3 ? 'Mid-stream' : 'Edge'} | ` +
+                `Stream: ${work.isMainRiver ? 'Main River' : 'Tributary'}`;
+
+            let connections = '';
+            if (work.upstream !== null) {
+                connections += `Upstream: ${works[work.upstream]?.name || 'Unknown'} | `;
+            }
+            if (work.downstream.length > 0) {
+                connections += `Downstream: ${work.downstream.map(d => works[d]?.name || 'Unknown').join(', ')}`;
+            }
+            document.getElementById('info-connections').textContent = connections || 'No direct connections';
+        }
+
+        function hideInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-works').textContent = works.length;
+            document.getElementById('stat-periods').textContent = PERIODS.length;
+            document.getElementById('stat-tributaries').textContent = TRIBUTARIES.length;
+            document.getElementById('stat-pivotal').textContent = works.filter(w => w.isPivotal).length;
+        }
+
+        // Control handlers
+        document.querySelectorAll('[data-flow]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-flow]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                switch(btn.dataset.flow) {
+                    case 'pause': flowSpeed = 0; break;
+                    case 'normal': flowSpeed = 1; break;
+                    case 'fast': flowSpeed = 3; break;
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-view]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                viewMode = btn.dataset.view;
+
+                workMeshes.forEach((mesh, i) => {
+                    const work = works[i];
+                    switch(viewMode) {
+                        case 'river':
+                            mesh.visible = true;
+                            break;
+                        case 'tributaries':
+                            mesh.visible = !work.isMainRiver;
+                            break;
+                        case 'pivotal':
+                            mesh.visible = work.isPivotal;
+                            break;
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('[data-color]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-color]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                colorMode = btn.dataset.color;
+                createWorkNodes();
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onMouseClick);
+
+        // Load data from API or fall back to sample data
+        async function loadNetworkData() {
+            try {
+                const response = await fetch('/api/point-cloud/data');
+                const result = await response.json();
+
+                if (result.success && result.nodes && result.nodes.length > 0) {
+                    // Transform API nodes to creative river visualization format
+                    const nodes = result.nodes.filter(n => n.type === 'nft' || n.type === 'document');
+                    const data = [];
+
+                    // Distribute nodes across periods based on creation date or index
+                    nodes.forEach((node, index) => {
+                        // Calculate which period based on index distribution
+                        const periodIdx = Math.floor((index / nodes.length) * PERIODS.length);
+                        const period = PERIODS[Math.min(periodIdx, PERIODS.length - 1)];
+
+                        // Calculate Y position within period
+                        const periodProgress = (index % Math.ceil(nodes.length / PERIODS.length)) / Math.ceil(nodes.length / PERIODS.length);
+                        const yPosition = period.yStart + periodProgress * (period.yEnd - period.yStart);
+
+                        // Check if this should be in a tributary
+                        const inTributary = Math.random() < 0.2;
+                        let tributaryIdx = null;
+                        let tributaryName = null;
+                        let xPosition = (Math.random() - 0.5) * 30; // Main river width
+
+                        if (inTributary && TRIBUTARIES.length > 0) {
+                            tributaryIdx = Math.floor(Math.random() * TRIBUTARIES.length);
+                            const trib = TRIBUTARIES[tributaryIdx];
+                            tributaryName = trib.name;
+                            // Position in tributary
+                            const tribProgress = Math.random();
+                            xPosition = 40 + Math.sin(trib.angle) * trib.length * tribProgress;
+                        }
+
+                        data.push({
+                            id: node.id,
+                            name: node.data?.name || node.data?.title || `Item #${index}`,
+                            period: periodIdx,
+                            periodName: period.name,
+                            position: new THREE.Vector3(
+                                xPosition,
+                                yPosition,
+                                (Math.random() - 0.5) * 20
+                            ),
+                            depth: Math.random(), // Position in channel depth
+                            velocity: 0.5 + Math.random() * 0.5,
+                            isPivotal: Math.random() > 0.9,
+                            isMainRiver: !inTributary,
+                            tributaryIdx: tributaryIdx,
+                            tributaryName: tributaryName,
+                            upstream: index > 0 ? index - 1 : null,
+                            downstream: [],
+                            color: parseInt(node.color?.replace('#', '0x') || '0x22c55e'),
+                            data: node.data
+                        });
+
+                        // Link downstream
+                        if (index > 0) {
+                            data[index - 1].downstream.push(index);
+                        }
+                    });
+
+                    works = data;
+                    console.log(`Loaded ${works.length} works for creative river`);
+                } else {
+                    console.log('No data from API, using sample data');
+                    works = generateWorks();
+                }
+            } catch (error) {
+                console.error('Failed to load network data:', error);
+                works = generateWorks();
+            }
+
+            createRiverBed();
+            createWorkNodes();
+            createPeriodNav();
+            setupTimelineSlider();
+        }
+
+        // Initialize
+        loadNetworkData();
+        animate();
+
+        console.log('Creative River visualization loaded');
+    </script>
+</body>
+</html>

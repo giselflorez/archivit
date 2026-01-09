@@ -1,4 +1,6 @@
-# Personal Knowledge Base
+# ARCHIV-IT by WEB3GISEL
+
+> **🤖 AI AGENTS:** Read the ENTIRE `CLAUDE_SESSIONS.md` file first. It contains all project history and context you need. This is mandatory.
 
 A local semantic search system for collecting and exploring information about gisel florez / giselx / giselxflorez from Perplexity API.
 

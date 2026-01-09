@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stewardship Constellation - Point Cloud Paradigm 03</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #000;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .ui-overlay * { pointer-events: auto; }
+
+        .header {
+            top: 20px;
+            left: 20px;
+        }
+
+        .title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: #ffd93d;
+            margin-bottom: 5px;
+        }
+
+        .paradigm-name {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .controls {
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #3d2e1a;
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(255, 217, 61, 0.1);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover { background: rgba(255, 217, 61, 0.2); }
+        .control-btn.active { background: #ffd93d; color: #000; }
+
+        .info-panel {
+            top: 20px;
+            right: 20px;
+            width: 340px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #3d2e1a;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .info-panel.visible { display: block; }
+
+        .info-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .info-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 217, 61, 0.2);
+            display: none;
+        }
+
+        .info-thumbnail.visible { display: block; }
+
+        .info-title {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .info-subtitle {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .info-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #ffd93d;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .witness-meter {
+            background: #1a1a1a;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .witness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd93d, #ff9f1c);
+            transition: width 0.3s;
+        }
+
+        .collection-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .collection-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.75rem;
+        }
+
+        .collection-item-name {
+            color: #ccc;
+        }
+
+        .collection-item-duration {
+            color: #ffd93d;
+        }
+
+        .taste-dna {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .taste-segment {
+            flex: 1;
+            height: 20px;
+            border-radius: 2px;
+        }
+
+        .stats {
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #3d2e1a;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.7rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { color: #666; }
+        .stat-value { color: #ffd93d; }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #3d2e1a;
+            border-radius: 8px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-star {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-star.bright {
+            background: #ffd93d;
+            box-shadow: 0 0 10px #ffd93d, 0 0 20px #ffd93d;
+        }
+        .legend-star.medium {
+            background: #ffd93d;
+            opacity: 0.6;
+        }
+        .legend-star.dim {
+            background: #555;
+        }
+        .legend-star.work {
+            background: #4a90a4;
+            width: 8px;
+            height: 8px;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            z-index: 200;
+        }
+
+        .back-link:hover { color: #ffd93d; }
+            .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .top-nav a:hover { color: #d4a574; }
+        .top-nav .active { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div id="canvas-container"></div>
+
+    <a href="/point-cloud" class="back-link">← All Paradigms</a>
+
+    <div class="ui-overlay header">
+        <div class="title">PARADIGM 03</div>
+        <div class="paradigm-name">Stewardship Constellation</div>
+    </div>
+
+    <div class="ui-overlay controls">
+        <div class="control-group">
+            <div class="control-label">VIEW MODE</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-mode="all">All Collectors</button>
+                <button class="control-btn" data-mode="deep">Deep Stewards</button>
+                <button class="control-btn" data-mode="super">Super Collectors</button>
+                <button class="control-btn" data-mode="flippers">Flippers</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">CONNECTIONS</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-visual="orbits">Work Orbits</button>
+                <button class="control-btn" data-visual="taste">Taste Links</button>
+                <button class="control-btn" data-visual="provenance">Provenance</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">ANIMATION</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-anim="pause">Pause</button>
+                <button class="control-btn active" data-anim="play">Play</button>
+                <button class="control-btn" data-anim="fast">Fast</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-overlay info-panel" id="info-panel">
+        <button class="info-close" onclick="hideInfoPanel()">×</button>
+        <img class="info-thumbnail" id="info-thumbnail" alt="Work thumbnail">
+        <div class="info-title" id="info-title">Collector Name</div>
+        <div class="info-subtitle" id="info-address">0x...</div>
+
+        <div class="info-section">
+            <div class="info-section-title">WITNESS DEPTH SCORE</div>
+            <div class="info-text" id="info-score">85/100</div>
+            <div class="witness-meter">
+                <div class="witness-fill" id="info-meter" style="width: 85%"></div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">STEWARDSHIP PROFILE</div>
+            <div class="info-text" id="info-profile">
+                Avg Hold: 847 days | Works: 12 | Artists: 3
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">TASTE DNA</div>
+            <div class="taste-dna" id="info-taste-dna"></div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">COLLECTION</div>
+            <div class="collection-list" id="info-collection"></div>
+        </div>
+    </div>
+
+    <div class="ui-overlay stats">
+        <div class="stat-row">
+            <span class="stat-label">Collectors</span>
+            <span class="stat-value" id="stat-collectors">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Deep Stewards</span>
+            <span class="stat-value" id="stat-deep">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Total Works</span>
+            <span class="stat-value" id="stat-works">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Avg Hold Time</span>
+            <span class="stat-value" id="stat-hold">0 days</span>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-star bright"></div>
+            <span>Deep Steward</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-star medium"></div>
+            <span>Collector</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-star dim"></div>
+            <span>Flipper</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-star work"></div>
+            <span>Artwork</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // ================================================
+        // STEWARDSHIP CONSTELLATION - POINT CLOUD PARADIGM 03
+        // ================================================
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020208);
+
+        // Starfield background
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = new Float32Array(3000 * 3);
+        for (let i = 0; i < 3000; i++) {
+            starPositions[i * 3] = (Math.random() - 0.5) * 2000;
+            starPositions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+            starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0x444466, size: 0.5 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+        camera.position.set(0, 100, 300);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 800;
+        controls.minDistance = 50;
+
+        // State
+        let collectors = [];
+        let works = [];
+        let collectorMeshes = [];
+        let workMeshes = [];
+        let orbitLines = [];
+        let tasteLinks = [];
+        let provenanceLines = [];
+        let animSpeed = 1;
+        let showOrbits = true;
+        let showTaste = false;
+        let showProvenance = false;
+        let currentMode = 'all';
+
+        // Taste categories for DNA visualization
+        const TASTE_CATEGORIES = [
+            { name: 'generative', color: '#00ff88' },
+            { name: 'photography', color: '#ff6b9d' },
+            { name: 'abstract', color: '#6bceff' },
+            { name: 'figurative', color: '#ffd93d' },
+            { name: 'conceptual', color: '#c77dff' }
+        ];
+
+        // Generate sample data
+        function generateSampleData() {
+            const collectorData = [];
+            const workData = [];
+
+            // Generate collectors
+            for (let i = 0; i < 25; i++) {
+                const witnessDepth = Math.random();
+                const isDeep = witnessDepth > 0.7;
+                const isFlipper = witnessDepth < 0.2;
+                const isSuper = Math.random() > 0.85; // Spans multiple artists
+
+                // Generate taste DNA (how much they like each category)
+                const tasteDNA = TASTE_CATEGORIES.map(cat => ({
+                    category: cat.name,
+                    color: cat.color,
+                    weight: Math.random()
+                }));
+                // Normalize
+                const totalWeight = tasteDNA.reduce((sum, t) => sum + t.weight, 0);
+                tasteDNA.forEach(t => t.weight /= totalWeight);
+
+                collectorData.push({
+                    id: `collector_${i}`,
+                    name: `Collector ${String.fromCharCode(65 + i)}`,
+                    address: `0x${Math.random().toString(16).slice(2, 10)}...`,
+                    position: new THREE.Vector3(
+                        (Math.random() - 0.5) * 400,
+                        (Math.random() - 0.5) * 200,
+                        (Math.random() - 0.5) * 400
+                    ),
+                    witnessDepth: witnessDepth,
+                    isDeep: isDeep,
+                    isFlipper: isFlipper,
+                    isSuper: isSuper,
+                    avgHoldDays: isFlipper ? Math.floor(Math.random() * 30) :
+                                 isDeep ? 365 + Math.floor(Math.random() * 1000) :
+                                 Math.floor(Math.random() * 365),
+                    worksHeld: [],
+                    artistsCollected: isSuper ? Math.floor(Math.random() * 5) + 3 : Math.floor(Math.random() * 3) + 1,
+                    tasteDNA: tasteDNA,
+                    publicEngagement: Math.random()
+                });
+            }
+
+            // Generate works and assign to collectors
+            for (let i = 0; i < 80; i++) {
+                // Assign to a collector (bias toward deep collectors)
+                const collectorWeights = collectorData.map(c => c.witnessDepth + 0.3);
+                const totalWeight = collectorWeights.reduce((a, b) => a + b, 0);
+                let rand = Math.random() * totalWeight;
+                let collectorIdx = 0;
+                for (let j = 0; j < collectorWeights.length; j++) {
+                    rand -= collectorWeights[j];
+                    if (rand <= 0) {
+                        collectorIdx = j;
+                        break;
+                    }
+                }
+
+                const collector = collectorData[collectorIdx];
+                const holdDays = collector.isFlipper ?
+                    Math.floor(Math.random() * 14) + 1 :
+                    Math.floor(Math.random() * collector.avgHoldDays) + 30;
+
+                const work = {
+                    id: `work_${i}`,
+                    name: `Artwork #${i + 1}`,
+                    collectorId: collector.id,
+                    collectorIdx: collectorIdx,
+                    holdDays: holdDays,
+                    orbitRadius: 20 + Math.random() * 30,
+                    orbitSpeed: 0.5 + Math.random() * 1.5,
+                    orbitPhase: Math.random() * Math.PI * 2,
+                    orbitTilt: (Math.random() - 0.5) * 0.5,
+                    previousOwners: []
+                };
+
+                // Generate provenance (previous owners)
+                if (Math.random() > 0.5) {
+                    const numPrevious = Math.floor(Math.random() * 3) + 1;
+                    for (let p = 0; p < numPrevious; p++) {
+                        const prevIdx = Math.floor(Math.random() * collectorData.length);
+                        if (prevIdx !== collectorIdx) {
+                            work.previousOwners.push(prevIdx);
+                        }
+                    }
+                }
+
+                workData.push(work);
+                collector.worksHeld.push(i);
+            }
+
+            return { collectors: collectorData, works: workData };
+        }
+
+        // Create collector stars
+        function createCollectorStars() {
+            collectorMeshes.forEach(m => scene.remove(m));
+            collectorMeshes = [];
+
+            collectors.forEach((collector, index) => {
+                // Star size based on witness depth
+                const baseSize = 3 + collector.witnessDepth * 8;
+                const geometry = new THREE.SphereGeometry(baseSize, 16, 16);
+
+                // Color intensity based on depth
+                const brightness = 0.3 + collector.witnessDepth * 0.7;
+                const color = new THREE.Color(0xffd93d);
+                color.multiplyScalar(brightness);
+
+                const material = new THREE.MeshBasicMaterial({
+                    color: collector.isFlipper ? 0x555555 : color,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(collector.position);
+                mesh.userData = { collectorIndex: index, type: 'collector' };
+
+                // Add glow for deep stewards
+                if (collector.isDeep) {
+                    const glowGeometry = new THREE.SphereGeometry(baseSize * 2, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffd93d,
+                        transparent: true,
+                        opacity: 0.15
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    mesh.add(glow);
+                }
+
+                // Add corona for super collectors
+                if (collector.isSuper) {
+                    const ringGeometry = new THREE.RingGeometry(baseSize * 1.5, baseSize * 2, 32);
+                    const ringMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xff9f1c,
+                        transparent: true,
+                        opacity: 0.4,
+                        side: THREE.DoubleSide
+                    });
+                    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                    ring.rotation.x = Math.PI / 2;
+                    mesh.add(ring);
+                }
+
+                scene.add(mesh);
+                collectorMeshes.push(mesh);
+            });
+        }
+
+        // Create work planets
+        function createWorkPlanets() {
+            workMeshes.forEach(m => scene.remove(m));
+            workMeshes = [];
+
+            works.forEach((work, index) => {
+                const geometry = new THREE.SphereGeometry(1.5, 8, 8);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0x4a90a4,
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+
+                // Initial position in orbit
+                const collector = collectors[work.collectorIdx];
+                mesh.position.copy(collector.position);
+
+                mesh.userData = { workIndex: index, type: 'work' };
+                scene.add(mesh);
+                workMeshes.push(mesh);
+            });
+        }
+
+        // Create orbit visualization
+        function createOrbits() {
+            orbitLines.forEach(l => scene.remove(l));
+            orbitLines = [];
+
+            if (!showOrbits) return;
+
+            works.forEach((work, index) => {
+                const collector = collectors[work.collectorIdx];
+
+                // Create orbit ring
+                const curve = new THREE.EllipseCurve(
+                    0, 0,
+                    work.orbitRadius, work.orbitRadius * 0.8,
+                    0, 2 * Math.PI,
+                    false, 0
+                );
+
+                const points = curve.getPoints(50);
+                const points3D = points.map(p => new THREE.Vector3(p.x, 0, p.y));
+                const geometry = new THREE.BufferGeometry().setFromPoints(points3D);
+
+                const material = new THREE.LineBasicMaterial({
+                    color: 0x4a90a4,
+                    transparent: true,
+                    opacity: 0.1
+                });
+
+                const orbit = new THREE.Line(geometry, material);
+                orbit.position.copy(collector.position);
+                orbit.rotation.x = work.orbitTilt;
+                orbit.rotation.y = work.orbitPhase;
+
+                scene.add(orbit);
+                orbitLines.push(orbit);
+            });
+        }
+
+        // Create taste similarity links
+        function createTasteLinks() {
+            tasteLinks.forEach(l => scene.remove(l));
+            tasteLinks = [];
+
+            if (!showTaste) return;
+
+            // Compare all collector pairs
+            for (let i = 0; i < collectors.length; i++) {
+                for (let j = i + 1; j < collectors.length; j++) {
+                    const similarity = calculateTasteSimilarity(collectors[i], collectors[j]);
+
+                    if (similarity > 0.7) {
+                        const geometry = new THREE.BufferGeometry().setFromPoints([
+                            collectors[i].position,
+                            collectors[j].position
+                        ]);
+
+                        const material = new THREE.LineBasicMaterial({
+                            color: 0xffd93d,
+                            transparent: true,
+                            opacity: (similarity - 0.7) * 2 // 0 to 0.6
+                        });
+
+                        const line = new THREE.Line(geometry, material);
+                        scene.add(line);
+                        tasteLinks.push(line);
+                    }
+                }
+            }
+        }
+
+        function calculateTasteSimilarity(c1, c2) {
+            let similarity = 0;
+            for (let i = 0; i < c1.tasteDNA.length; i++) {
+                similarity += Math.min(c1.tasteDNA[i].weight, c2.tasteDNA[i].weight);
+            }
+            return similarity;
+        }
+
+        // Create provenance trails
+        function createProvenanceTrails() {
+            provenanceLines.forEach(l => scene.remove(l));
+            provenanceLines = [];
+
+            if (!showProvenance) return;
+
+            works.forEach(work => {
+                if (work.previousOwners.length === 0) return;
+
+                const currentCollector = collectors[work.collectorIdx];
+                let prevPos = currentCollector.position.clone();
+
+                work.previousOwners.forEach((prevIdx, i) => {
+                    const prevCollector = collectors[prevIdx];
+                    if (!prevCollector) return;
+
+                    // Create curved provenance line
+                    const mid = prevPos.clone().lerp(prevCollector.position, 0.5);
+                    mid.y += 30;
+
+                    const curve = new THREE.QuadraticBezierCurve3(
+                        prevCollector.position,
+                        mid,
+                        prevPos
+                    );
+
+                    const points = curve.getPoints(20);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+                    const material = new THREE.LineDashedMaterial({
+                        color: 0xff6b9d,
+                        transparent: true,
+                        opacity: 0.3,
+                        dashSize: 3,
+                        gapSize: 2
+                    });
+
+                    const line = new THREE.Line(geometry, material);
+                    line.computeLineDistances();
+                    scene.add(line);
+                    provenanceLines.push(line);
+
+                    prevPos = prevCollector.position.clone();
+                });
+            });
+        }
+
+        // Update work positions (orbital motion)
+        function updateOrbits(elapsed) {
+            works.forEach((work, index) => {
+                const mesh = workMeshes[index];
+                if (!mesh || !mesh.visible) return;
+
+                const collector = collectors[work.collectorIdx];
+                const angle = work.orbitPhase + elapsed * work.orbitSpeed * 0.5 * animSpeed;
+
+                // Calculate orbital position
+                const x = Math.cos(angle) * work.orbitRadius;
+                const z = Math.sin(angle) * work.orbitRadius * 0.8;
+                const y = Math.sin(angle) * work.orbitRadius * work.orbitTilt;
+
+                mesh.position.set(
+                    collector.position.x + x,
+                    collector.position.y + y,
+                    collector.position.z + z
+                );
+            });
+        }
+
+        // Filter by mode
+        function applyFilter(mode) {
+            currentMode = mode;
+
+            collectorMeshes.forEach((mesh, i) => {
+                const collector = collectors[i];
+                let visible = true;
+
+                switch(mode) {
+                    case 'deep':
+                        visible = collector.isDeep;
+                        break;
+                    case 'super':
+                        visible = collector.isSuper;
+                        break;
+                    case 'flippers':
+                        visible = collector.isFlipper;
+                        break;
+                }
+
+                mesh.visible = visible;
+
+                // Also hide/show associated works
+                works.forEach((work, wi) => {
+                    if (work.collectorIdx === i) {
+                        workMeshes[wi].visible = visible;
+                    }
+                });
+            });
+
+            // Recreate connections
+            createOrbits();
+            createTasteLinks();
+            createProvenanceTrails();
+            updateStats();
+        }
+
+        // Animation
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsed = clock.getElapsedTime();
+
+            // Update orbital positions
+            updateOrbits(elapsed);
+
+            // Animate collector stars (twinkle)
+            collectorMeshes.forEach((mesh, i) => {
+                const collector = collectors[i];
+                if (collector.isDeep) {
+                    const twinkle = 0.9 + Math.sin(elapsed * 2 + i) * 0.1;
+                    mesh.material.opacity = twinkle;
+                }
+            });
+
+            // Rotate background stars slowly
+            stars.rotation.y = elapsed * 0.01;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([...collectorMeshes, ...workMeshes]);
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                if (mesh.userData.type === 'collector') {
+                    showCollectorInfo(collectors[mesh.userData.collectorIndex]);
+                } else if (mesh.userData.type === 'work') {
+                    const work = works[mesh.userData.workIndex];
+                    showCollectorInfo(collectors[work.collectorIdx]);
+                }
+            }
+        }
+
+        function showCollectorInfo(collector) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            // Show thumbnail from first work if available
+            const thumbnail = document.getElementById('info-thumbnail');
+            let imgPath = null;
+
+            if (collector.worksHeld && collector.worksHeld.length > 0) {
+                const firstWork = works[collector.worksHeld[0]];
+                imgPath = firstWork?.originalData?.image_path ||
+                    firstWork?.originalData?.media_files?.[0] ||
+                    firstWork?.originalData?.images?.[0] ||
+                    firstWork?.originalData?.image_url;
+            }
+
+            if (imgPath) {
+                thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+                thumbnail.classList.add('visible');
+                thumbnail.onerror = () => { thumbnail.classList.remove('visible'); };
+            } else {
+                thumbnail.classList.remove('visible');
+            }
+
+            document.getElementById('info-title').textContent = collector.name;
+            document.getElementById('info-address').textContent = collector.address;
+
+            const score = Math.round(collector.witnessDepth * 100);
+            document.getElementById('info-score').textContent = `${score}/100`;
+            document.getElementById('info-meter').style.width = `${score}%`;
+
+            document.getElementById('info-profile').textContent =
+                `Avg Hold: ${collector.avgHoldDays} days | Works: ${collector.worksHeld.length} | Artists: ${collector.artistsCollected}`;
+
+            // Taste DNA
+            const tasteEl = document.getElementById('info-taste-dna');
+            tasteEl.innerHTML = collector.tasteDNA.map(t =>
+                `<div class="taste-segment" style="background: ${t.color}; flex: ${t.weight}" title="${t.category}: ${Math.round(t.weight * 100)}%"></div>`
+            ).join('');
+
+            // Collection list
+            const collectionEl = document.getElementById('info-collection');
+            collectionEl.innerHTML = collector.worksHeld.slice(0, 10).map(wi => {
+                const work = works[wi];
+                return `<div class="collection-item">
+                    <span class="collection-item-name">${work.name}</span>
+                    <span class="collection-item-duration">${work.holdDays} days</span>
+                </div>`;
+            }).join('');
+
+            if (collector.worksHeld.length > 10) {
+                collectionEl.innerHTML += `<div class="collection-item">
+                    <span class="collection-item-name">... and ${collector.worksHeld.length - 10} more</span>
+                </div>`;
+            }
+        }
+
+        function hideInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        function updateStats() {
+            const visibleCollectors = collectorMeshes.filter(m => m.visible).length;
+            const deepCount = collectors.filter(c => c.isDeep && collectorMeshes[collectors.indexOf(c)]?.visible).length;
+            const visibleWorks = workMeshes.filter(m => m.visible).length;
+            const avgHold = Math.round(
+                collectors.reduce((sum, c) => sum + c.avgHoldDays, 0) / collectors.length
+            );
+
+            document.getElementById('stat-collectors').textContent = visibleCollectors;
+            document.getElementById('stat-deep').textContent = deepCount;
+            document.getElementById('stat-works').textContent = visibleWorks;
+            document.getElementById('stat-hold').textContent = `${avgHold} days`;
+        }
+
+        // Control handlers
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                applyFilter(btn.dataset.mode);
+            });
+        });
+
+        document.querySelectorAll('[data-visual]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                switch(btn.dataset.visual) {
+                    case 'orbits':
+                        showOrbits = btn.classList.contains('active');
+                        createOrbits();
+                        break;
+                    case 'taste':
+                        showTaste = btn.classList.contains('active');
+                        createTasteLinks();
+                        break;
+                    case 'provenance':
+                        showProvenance = btn.classList.contains('active');
+                        createProvenanceTrails();
+                        break;
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-anim]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-anim]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                switch(btn.dataset.anim) {
+                    case 'pause': animSpeed = 0; break;
+                    case 'play': animSpeed = 1; break;
+                    case 'fast': animSpeed = 3; break;
+                }
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onMouseClick);
+
+        // Load data from API or fall back to sample data
+        async function loadNetworkData() {
+            try {
+                const response = await fetch('/api/point-cloud/data');
+                const result = await response.json();
+
+                if (result.success && result.nodes && result.nodes.length > 0) {
+                    // Transform API nodes to stewardship visualization format
+                    const collectorData = [];
+                    const workData = [];
+
+                    // Create a virtual collector for each unique source/tag combination
+                    const sourceGroups = {};
+                    result.nodes
+                        .filter(n => n.type === 'nft' || n.type === 'document')
+                        .forEach((node, index) => {
+                            const source = node.data?.source || 'unknown';
+                            if (!sourceGroups[source]) {
+                                sourceGroups[source] = {
+                                    nodes: [],
+                                    witnessDepth: Math.random() * 0.5 + 0.3
+                                };
+                            }
+                            sourceGroups[source].nodes.push(node);
+                        });
+
+                    // Create collectors from source groups
+                    Object.entries(sourceGroups).forEach(([source, group], idx) => {
+                        const witnessDepth = group.witnessDepth;
+                        collectorData.push({
+                            id: `collector_${idx}`,
+                            name: source.replace('_', ' ').toUpperCase(),
+                            address: `source:${source}`,
+                            position: new THREE.Vector3(
+                                (Math.random() - 0.5) * 400,
+                                (Math.random() - 0.5) * 200,
+                                (Math.random() - 0.5) * 400
+                            ),
+                            witnessDepth: witnessDepth,
+                            isDeep: witnessDepth > 0.7,
+                            isFlipper: witnessDepth < 0.2,
+                            isSuper: group.nodes.length > 5,
+                            avgHoldDays: Math.floor(Math.random() * 365) + 30,
+                            worksHeld: [],
+                            artistsCollected: 1,
+                            tasteDNA: TASTE_CATEGORIES.map(cat => ({
+                                category: cat.name,
+                                color: cat.color,
+                                weight: Math.random()
+                            })),
+                            publicEngagement: Math.random()
+                        });
+                    });
+
+                    // Create works from nodes and assign to collectors
+                    let collectorIdx = 0;
+                    result.nodes
+                        .filter(n => n.type === 'nft' || n.type === 'document')
+                        .forEach((node, index) => {
+                            const source = node.data?.source || 'unknown';
+                            const collector = collectorData.find(c => c.address === `source:${source}`);
+                            if (collector) collectorIdx = collectorData.indexOf(collector);
+
+                            workData.push({
+                                id: node.id,
+                                name: node.data?.name || node.data?.title || `Item #${index}`,
+                                collectorIdx: collectorIdx,
+                                position: new THREE.Vector3(),
+                                orbitRadius: 30 + Math.random() * 20,
+                                orbitSpeed: 0.0005 + Math.random() * 0.001,
+                                orbitPhase: Math.random() * Math.PI * 2,
+                                color: parseInt(node.color?.replace('#', '0x') || '0x22c55e'),
+                                data: node.data
+                            });
+
+                            collectorData[collectorIdx].worksHeld.push(index);
+                        });
+
+                    collectors = collectorData;
+                    works = workData;
+                    console.log(`Loaded ${collectors.length} collectors, ${works.length} works from API`);
+                } else {
+                    console.log('No data from API, using sample data');
+                    const data = generateSampleData();
+                    collectors = data.collectors;
+                    works = data.works;
+                }
+            } catch (error) {
+                console.error('Failed to load network data:', error);
+                const data = generateSampleData();
+                collectors = data.collectors;
+                works = data.works;
+            }
+
+            createCollectorStars();
+            createWorkPlanets();
+            createOrbits();
+            updateStats();
+        }
+
+        // Initialize
+        loadNetworkData();
+        animate();
+
+        console.log('Stewardship Constellation visualization loaded');
+    </script>
+</body>
+</html>

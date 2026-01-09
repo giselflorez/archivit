@@ -1,0 +1,1055 @@
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+DATA ORB MODULES - Visual Data Analysis Components
+ARCHIV-IT Design System v1.0
+
+Three module variants using the Petri Dish visual language:
+1. PORTFOLIO PULSE - Asset composition & holdings visualization
+2. TRANSACTION FLOW - Real-time activity monitoring
+3. PROVENANCE ORBIT - Historical ownership timeline
+
+Design Principles:
+- Circular containment creates bounded data spaces
+- Segmented rings show proportional relationships
+- Glow effects provide depth and hierarchy
+- 3D perspective (8° tilt) adds subtle dimensionality
+- Physics-driven animations create organic data representation
+- Micro-typography for information density
+- Dark backdrop maximizes contrast for glowing elements
+═══════════════════════════════════════════════════════════════════════════════
+-->
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATA ORB DESIGN SYSTEM - Core Tokens & Variables
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ─── Geometry Tokens ─── */
+    --orb-core-size: 100px;           /* Inner element diameter */
+    --orb-ring-size: 130px;           /* Outer ring diameter */
+    --orb-glow-size: 140px;           /* Glow effect diameter */
+    --orb-ring-stroke: 8px;           /* Ring segment thickness */
+    --orb-ring-gap: 2deg;             /* Gap between segments */
+    --orb-perspective: 400px;         /* 3D perspective depth */
+    --orb-tilt: 8deg;                 /* X-axis rotation */
+    --orb-hover-tilt: 4deg;           /* Hover state tilt */
+    --orb-hover-scale: 1.05;          /* Hover scale factor */
+
+    /* ─── Color Palette: Token Colors ─── */
+    --orb-color-gold: #c9a227;        /* DOGE, BTC-adjacent */
+    --orb-color-orange: #ff5722;      /* SHIB, warning states */
+    --orb-color-green: #4caf50;       /* PEPE, success states */
+    --orb-color-amber: #ff9800;       /* BONK, pending states */
+    --orb-color-pink: #e91e63;        /* WIF, highlight states */
+    --orb-color-brown: #8d6e63;       /* FLOKI, neutral */
+    --orb-color-blue: #1976d2;        /* TRUMP, primary */
+    --orb-color-cyan: #2196f3;        /* BRETT, info states */
+    --orb-color-purple: #9c27b0;      /* ETH-adjacent */
+    --orb-color-teal: #009688;        /* XTZ-adjacent */
+
+    /* ─── Background & Surface Colors ─── */
+    --orb-bg-primary: rgba(15, 15, 20, 0.99);
+    --orb-bg-secondary: rgba(25, 25, 35, 0.98);
+    --orb-bg-tertiary: rgba(60, 60, 80, 0.95);
+    --orb-bg-glass: rgba(255, 255, 255, 0.03);
+    --orb-border-subtle: rgba(255, 255, 255, 0.08);
+    --orb-border-hover: rgba(212, 165, 116, 0.3);
+
+    /* ─── Glow & Shadow System ─── */
+    --orb-glow-blur: 12px;
+    --orb-glow-opacity: 0.4;
+    --orb-shadow-depth: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --orb-shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --orb-shadow-inset-light: inset 0 2px 15px rgba(255, 255, 255, 0.03);
+    --orb-shadow-inset-dark: inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+
+    /* ─── Typography Scale ─── */
+    --orb-font-micro: 5px;            /* Amount labels */
+    --orb-font-tiny: 6px;             /* Address snippets */
+    --orb-font-small: 7px;            /* Section labels */
+    --orb-font-base: 8px;             /* Primary labels */
+    --orb-font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    --orb-font-display: 'Crimson Pro', Georgia, serif;
+    --orb-letter-spacing: 0.3px;
+    --orb-label-spacing: 1.5px;
+
+    /* ─── Animation Timing ─── */
+    --orb-transition-fast: 0.15s ease-out;
+    --orb-transition-base: 0.2s ease;
+    --orb-transition-slow: 0.3s ease;
+    --orb-animation-pulse: 6s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE ORB CONTAINER - Shared structure for all modules
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.data-orb {
+    position: relative;
+    width: var(--orb-ring-size);
+    height: var(--orb-ring-size);
+    perspective: var(--orb-perspective);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+}
+
+/* Core circular element */
+.data-orb__core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateX(var(--orb-tilt));
+    width: var(--orb-core-size);
+    height: var(--orb-core-size);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 30% 25%,
+        var(--orb-bg-tertiary) 0%,
+        var(--orb-bg-secondary) 40%,
+        var(--orb-bg-primary) 100%);
+    border: 2px solid var(--orb-border-subtle);
+    box-shadow: var(--orb-shadow-depth), var(--orb-shadow-soft),
+                var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--orb-transition-slow);
+    transform-style: preserve-3d;
+    z-index: 10;
+}
+
+.data-orb__core:hover {
+    transform: translate(-50%, -50%) rotateX(var(--orb-hover-tilt)) scale(var(--orb-hover-scale));
+    border-color: var(--orb-border-hover);
+}
+
+/* Glass reflection overlay */
+.data-orb__glass {
+    position: absolute;
+    top: 8%;
+    left: 12%;
+    width: 35%;
+    height: 18%;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(1px);
+}
+
+/* Secondary glass highlight */
+.data-orb__core::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    right: 20%;
+    width: 12%;
+    height: 8%;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+/* Segmented ring container */
+.data-orb__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--orb-ring-size);
+    height: var(--orb-ring-size);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.data-orb__ring svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Ring segment styling */
+.data-orb__segment {
+    fill: none;
+    stroke-width: var(--orb-ring-stroke);
+    stroke-linecap: butt;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    transition: stroke-width var(--orb-transition-base), filter var(--orb-transition-base);
+    pointer-events: auto;
+}
+
+.data-orb__segment:hover {
+    stroke-width: 11px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+
+/* Glow effect behind ring */
+.data-orb__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--orb-glow-size);
+    height: var(--orb-glow-size);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 4;
+    opacity: var(--orb-glow-opacity);
+    filter: blur(var(--orb-glow-blur));
+}
+
+/* Data labels around ring */
+.data-orb__label {
+    position: absolute;
+    font-family: var(--orb-font-mono);
+    font-size: var(--orb-font-tiny);
+    letter-spacing: var(--orb-letter-spacing);
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    pointer-events: auto;
+    cursor: default;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    transition: all var(--orb-transition-base);
+}
+
+.data-orb__label:hover {
+    color: #fff;
+    font-size: var(--orb-font-small);
+    z-index: 100;
+}
+
+.data-orb__label-amount {
+    display: block;
+    font-size: var(--orb-font-micro);
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 1px;
+}
+
+/* Module title label */
+.data-orb__title {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--orb-font-small);
+    text-transform: uppercase;
+    letter-spacing: var(--orb-label-spacing);
+    color: rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* Pulse animation for core */
+@keyframes orb-pulse {
+    0%, 100% {
+        box-shadow: var(--orb-shadow-depth), var(--orb-shadow-soft),
+                    var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(212, 165, 116, 0.12), var(--orb-shadow-soft),
+                    var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    }
+}
+
+.data-orb__core {
+    animation: orb-pulse var(--orb-animation-pulse);
+    animation-fill-mode: both;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE 1: PORTFOLIO PULSE - Asset Composition Visualizer
+   Shows wallet holdings with animated token particles forming chain logos
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.portfolio-pulse {
+    --module-accent: var(--orb-color-gold);
+}
+
+/* Animated token particle */
+.portfolio-pulse__particle {
+    position: absolute;
+    border-radius: 50%;
+    background-size: 70% 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+    user-select: none;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    transition: transform var(--orb-transition-fast), box-shadow var(--orb-transition-fast);
+}
+
+/* 3D candy shine effect */
+.portfolio-pulse__particle::before {
+    content: '';
+    position: absolute;
+    top: 5%;
+    left: 15%;
+    width: 35%;
+    height: 25%;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.portfolio-pulse__particle::after {
+    content: '';
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    width: 20%;
+    height: 15%;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    filter: blur(1px);
+}
+
+/* Formation indicator glow */
+.portfolio-pulse.forming .data-orb__core {
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.portfolio-pulse.forming .data-orb__core::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 60%, rgba(255, 215, 0, 0.1) 100%);
+    animation: formation-pulse 1s ease-in-out infinite;
+}
+
+/* Chain logo display */
+.portfolio-pulse__chain-label {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--orb-font-display);
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 20px currentColor;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.portfolio-pulse.forming .portfolio-pulse__chain-label {
+    opacity: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE 2: TRANSACTION FLOW - Real-time Activity Monitor
+   Shows transaction streams with directional flow particles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.transaction-flow {
+    --module-accent: var(--orb-color-cyan);
+}
+
+/* Flow particle - represents a transaction */
+.transaction-flow__particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 8px currentColor, 0 0 4px currentColor;
+}
+
+/* Particle trail effect */
+.transaction-flow__particle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, currentColor, transparent);
+    transform-origin: left center;
+    opacity: 0.6;
+}
+
+/* Inbound transaction (green) */
+.transaction-flow__particle--inbound {
+    color: var(--orb-color-green);
+}
+
+/* Outbound transaction (orange) */
+.transaction-flow__particle--outbound {
+    color: var(--orb-color-orange);
+}
+
+/* Internal/swap transaction (purple) */
+.transaction-flow__particle--internal {
+    color: var(--orb-color-purple);
+}
+
+/* Activity pulse in center */
+.transaction-flow__heartbeat {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--orb-color-cyan) 0%, transparent 70%);
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+/* Transaction counter display */
+.transaction-flow__counter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--orb-font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px var(--orb-color-cyan);
+}
+
+.transaction-flow__counter-label {
+    display: block;
+    font-size: var(--orb-font-tiny);
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* Ring segments show transaction types */
+.transaction-flow .data-orb__segment--sends { stroke: var(--orb-color-orange); }
+.transaction-flow .data-orb__segment--receives { stroke: var(--orb-color-green); }
+.transaction-flow .data-orb__segment--swaps { stroke: var(--orb-color-purple); }
+.transaction-flow .data-orb__segment--contracts { stroke: var(--orb-color-cyan); }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE 3: PROVENANCE ORBIT - Historical Ownership Timeline
+   Shows NFT ownership history as orbital rings with time-based positioning
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.provenance-orbit {
+    --module-accent: var(--orb-color-purple);
+}
+
+/* Orbital ring for each owner */
+.provenance-orbit__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border: 1px solid;
+    opacity: 0.3;
+    transform: translate(-50%, -50%) rotateX(60deg);
+    transition: opacity var(--orb-transition-base);
+}
+
+.provenance-orbit__ring:hover {
+    opacity: 0.6;
+}
+
+/* Ring sizes for ownership depth */
+.provenance-orbit__ring--current { width: 40px; height: 40px; border-color: var(--orb-color-gold); opacity: 0.8; }
+.provenance-orbit__ring--prev-1 { width: 60px; height: 60px; border-color: var(--orb-color-cyan); }
+.provenance-orbit__ring--prev-2 { width: 80px; height: 80px; border-color: var(--orb-color-purple); }
+.provenance-orbit__ring--prev-3 { width: 100px; height: 100px; border-color: var(--orb-color-pink); }
+.provenance-orbit__ring--origin { width: 120px; height: 120px; border-color: var(--orb-color-green); border-style: dashed; }
+
+/* Owner marker on orbital path */
+.provenance-orbit__marker {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform var(--orb-transition-base);
+}
+
+.provenance-orbit__marker:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+/* Current owner highlight */
+.provenance-orbit__marker--current {
+    color: var(--orb-color-gold);
+    width: 14px;
+    height: 14px;
+    animation: owner-pulse 2s ease-in-out infinite;
+}
+
+@keyframes owner-pulse {
+    0%, 100% { box-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+    50% { box-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor; }
+}
+
+/* Time indicator line */
+.provenance-orbit__timeline {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--orb-color-gold), transparent);
+    transform-origin: top center;
+    opacity: 0.4;
+}
+
+/* Central NFT thumbnail */
+.provenance-orbit__artwork {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--orb-border-subtle);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Ownership duration label */
+.provenance-orbit__duration {
+    position: absolute;
+    font-family: var(--orb-font-mono);
+    font-size: var(--orb-font-tiny);
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATION KEYFRAMES - Shared animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes formation-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes particle-pop {
+    0% { transform: scale(1) translateZ(0); }
+    50% { transform: scale(1.15) translateZ(5px); }
+    100% { transform: scale(1) translateZ(0); }
+}
+
+@keyframes flow-particle {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+    20% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.5); }
+}
+
+@keyframes orbit-rotate {
+    from { transform: translate(-50%, -50%) rotateX(60deg) rotateZ(0deg); }
+    to { transform: translate(-50%, -50%) rotateX(60deg) rotateZ(360deg); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    :root {
+        --orb-core-size: 80px;
+        --orb-ring-size: 110px;
+        --orb-glow-size: 120px;
+        --orb-ring-stroke: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --orb-core-size: 60px;
+        --orb-ring-size: 90px;
+        --orb-glow-size: 100px;
+        --orb-ring-stroke: 5px;
+        --orb-font-tiny: 5px;
+        --orb-font-small: 6px;
+    }
+}
+</style>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     HTML TEMPLATES FOR EACH MODULE
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- MODULE 1: Portfolio Pulse Template -->
+<template id="template-portfolio-pulse">
+    <div class="data-orb portfolio-pulse" data-module="portfolio-pulse">
+        <div class="data-orb__glow"></div>
+        <div class="data-orb__ring">
+            <svg viewBox="0 0 130 130">
+                <g class="data-orb__segments"></g>
+            </svg>
+            <div class="data-orb__labels"></div>
+        </div>
+        <div class="data-orb__core">
+            <div class="data-orb__glass"></div>
+            <div class="portfolio-pulse__chain-label"></div>
+            <!-- Particles injected by JS -->
+        </div>
+        <div class="data-orb__title">holdings</div>
+    </div>
+</template>
+
+<!-- MODULE 2: Transaction Flow Template -->
+<template id="template-transaction-flow">
+    <div class="data-orb transaction-flow" data-module="transaction-flow">
+        <div class="data-orb__glow"></div>
+        <div class="data-orb__ring">
+            <svg viewBox="0 0 130 130">
+                <g class="data-orb__segments"></g>
+            </svg>
+            <div class="data-orb__labels"></div>
+        </div>
+        <div class="data-orb__core">
+            <div class="data-orb__glass"></div>
+            <div class="transaction-flow__heartbeat"></div>
+            <div class="transaction-flow__counter">
+                <span class="transaction-flow__counter-value">0</span>
+                <span class="transaction-flow__counter-label">tx/min</span>
+            </div>
+            <!-- Flow particles injected by JS -->
+        </div>
+        <div class="data-orb__title">activity</div>
+    </div>
+</template>
+
+<!-- MODULE 3: Provenance Orbit Template -->
+<template id="template-provenance-orbit">
+    <div class="data-orb provenance-orbit" data-module="provenance-orbit">
+        <div class="data-orb__glow"></div>
+        <div class="data-orb__ring">
+            <svg viewBox="0 0 130 130">
+                <g class="data-orb__segments"></g>
+            </svg>
+            <div class="data-orb__labels"></div>
+        </div>
+        <div class="data-orb__core">
+            <div class="data-orb__glass"></div>
+            <!-- Orbital rings -->
+            <div class="provenance-orbit__ring provenance-orbit__ring--origin"></div>
+            <div class="provenance-orbit__ring provenance-orbit__ring--prev-3"></div>
+            <div class="provenance-orbit__ring provenance-orbit__ring--prev-2"></div>
+            <div class="provenance-orbit__ring provenance-orbit__ring--prev-1"></div>
+            <div class="provenance-orbit__ring provenance-orbit__ring--current"></div>
+            <!-- Markers injected by JS -->
+            <img class="provenance-orbit__artwork" src="" alt="NFT">
+        </div>
+        <div class="data-orb__title">provenance</div>
+    </div>
+</template>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATA ORB MODULE SYSTEM - JavaScript Controllers
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Base class for all Data Orb modules
+ * Provides shared functionality for ring rendering, glow effects, and labels
+ */
+class DataOrbModule {
+    constructor(container, options = {}) {
+        this.container = container;
+        this.options = {
+            cx: 65,
+            cy: 65,
+            radius: 57,
+            strokeWidth: 8,
+            gap: 2,
+            ...options
+        };
+
+        this.segmentsGroup = container.querySelector('.data-orb__segments');
+        this.labelsContainer = container.querySelector('.data-orb__labels');
+        this.glowElement = container.querySelector('.data-orb__glow');
+        this.core = container.querySelector('.data-orb__core');
+
+        this.data = [];
+        this.colors = {};
+    }
+
+    // Polar to cartesian conversion
+    polarToCartesian(angle) {
+        const { cx, cy, radius } = this.options;
+        const rad = (angle - 90) * Math.PI / 180;
+        return {
+            x: cx + radius * Math.cos(rad),
+            y: cy + radius * Math.sin(rad)
+        };
+    }
+
+    // Create SVG arc path
+    createArcPath(startAngle, endAngle) {
+        const { cx, cy, radius } = this.options;
+        const start = this.polarToCartesian(endAngle);
+        const end = this.polarToCartesian(startAngle);
+        const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+        return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y}`;
+    }
+
+    // Format large numbers
+    formatNumber(num) {
+        if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+        if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+        if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    // Render ring segments
+    renderRing(segments) {
+        if (!this.segmentsGroup) return;
+        this.segmentsGroup.innerHTML = '';
+
+        const { gap } = this.options;
+        const totalGap = gap * segments.length;
+        const availableAngle = 360 - totalGap;
+        let currentAngle = 0;
+        const gradientStops = [];
+
+        segments.forEach((seg, i) => {
+            const segAngle = seg.percentage * availableAngle;
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + segAngle;
+
+            // Create segment path
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', this.createArcPath(startAngle, endAngle));
+            path.setAttribute('class', `data-orb__segment ${seg.class || ''}`);
+            path.setAttribute('stroke', seg.color);
+            if (seg.tooltip) {
+                path.innerHTML = `<title>${seg.tooltip}</title>`;
+            }
+            this.segmentsGroup.appendChild(path);
+
+            // Create label
+            if (this.labelsContainer && seg.label) {
+                const midAngle = startAngle + segAngle / 2;
+                const labelPos = this.polarToCartesian(midAngle);
+                labelPos.x += (labelPos.x > this.options.cx ? 15 : -15);
+                labelPos.y += (labelPos.y > this.options.cy ? 10 : -10);
+
+                const label = document.createElement('div');
+                label.className = 'data-orb__label';
+                label.style.left = labelPos.x + 'px';
+                label.style.top = labelPos.y + 'px';
+                label.style.color = seg.color;
+                label.innerHTML = `<span>${seg.label}</span>
+                    ${seg.amount ? `<span class="data-orb__label-amount">${this.formatNumber(seg.amount)}</span>` : ''}`;
+                label.title = seg.fullLabel || seg.label;
+                this.labelsContainer.appendChild(label);
+            }
+
+            gradientStops.push(`${seg.color} ${(startAngle / 360) * 100}%`);
+            currentAngle = endAngle + gap;
+        });
+
+        // Apply glow
+        if (this.glowElement && gradientStops.length > 0) {
+            gradientStops.push(gradientStops[0].split(' ')[0] + ' 100%');
+            this.glowElement.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+        }
+    }
+
+    // Update data and re-render
+    update(newData) {
+        this.data = newData;
+        this.render();
+    }
+
+    // Override in subclasses
+    render() {}
+    destroy() {}
+}
+
+
+/**
+ * Module 1: Portfolio Pulse
+ * Visualizes wallet holdings with animated token particles
+ */
+class PortfolioPulseModule extends DataOrbModule {
+    constructor(container, options = {}) {
+        super(container, {
+            colors: {
+                doge: '#c9a227', shib: '#ff5722', pepe: '#4caf50',
+                bonk: '#ff9800', wif: '#e91e63', floki: '#8d6e63',
+                trump: '#1976d2', brett: '#2196f3'
+            },
+            ...options
+        });
+
+        this.particles = [];
+        this.running = true;
+        this.state = 'scatter';
+
+        // Sample data
+        this.data = options.holdings || [
+            { token: 'doge', address: '0xba2ae424d960c26247dd6c32edc70b295c744c43', amount: 15000000, percentage: 0.28 },
+            { token: 'shib', address: '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce', amount: 8500000000, percentage: 0.22 },
+            { token: 'pepe', address: '0x6982508145454ce325ddbe47a25d4ec3d2311933', amount: 420690000, percentage: 0.18 }
+        ];
+
+        this.init();
+    }
+
+    init() {
+        this.render();
+        this.createParticles();
+        this.animate();
+    }
+
+    render() {
+        const segments = this.data.map(h => ({
+            color: this.options.colors[h.token] || '#888',
+            percentage: h.percentage,
+            label: h.address.substring(0, 10),
+            amount: h.amount,
+            fullLabel: `${h.token.toUpperCase()}: ${h.address}`,
+            tooltip: `${h.token.toUpperCase()}: ${this.formatNumber(h.amount)} (${Math.round(h.percentage * 100)}%)`
+        }));
+        this.renderRing(segments);
+    }
+
+    createParticles() {
+        // Particle creation logic (simplified)
+        const numParticles = 12;
+        for (let i = 0; i < numParticles; i++) {
+            const token = this.data[i % this.data.length]?.token || 'doge';
+            const particle = document.createElement('div');
+            particle.className = `portfolio-pulse__particle particle-${token}`;
+            particle.style.backgroundColor = this.options.colors[token];
+            particle.style.width = '14px';
+            particle.style.height = '14px';
+            this.core.appendChild(particle);
+            this.particles.push({
+                element: particle,
+                x: 50 + (Math.random() - 0.5) * 60,
+                y: 50 + (Math.random() - 0.5) * 60,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2
+            });
+        }
+    }
+
+    animate() {
+        if (!this.running) return;
+        this.particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            // Bounce off edges
+            if (p.x < 10 || p.x > 90) p.vx *= -1;
+            if (p.y < 10 || p.y > 90) p.vy *= -1;
+            // Apply friction
+            p.vx *= 0.99;
+            p.vy *= 0.99;
+            // Random nudge
+            p.vx += (Math.random() - 0.5) * 0.1;
+            p.vy += (Math.random() - 0.5) * 0.1;
+            p.element.style.left = p.x + '%';
+            p.element.style.top = p.y + '%';
+        });
+        requestAnimationFrame(() => this.animate());
+    }
+
+    destroy() {
+        this.running = false;
+    }
+}
+
+
+/**
+ * Module 2: Transaction Flow
+ * Real-time transaction activity monitor
+ */
+class TransactionFlowModule extends DataOrbModule {
+    constructor(container, options = {}) {
+        super(container, options);
+
+        this.txCount = 0;
+        this.running = true;
+        this.counterEl = container.querySelector('.transaction-flow__counter-value');
+
+        // Transaction type colors
+        this.txColors = {
+            send: '#ff5722',
+            receive: '#4caf50',
+            swap: '#9c27b0',
+            contract: '#2196f3'
+        };
+
+        // Sample data
+        this.data = options.transactions || {
+            sends: 0.30,
+            receives: 0.40,
+            swaps: 0.20,
+            contracts: 0.10
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.render();
+        this.startFlowAnimation();
+    }
+
+    render() {
+        const segments = [
+            { color: this.txColors.send, percentage: this.data.sends, label: 'SENDS', class: 'data-orb__segment--sends' },
+            { color: this.txColors.receive, percentage: this.data.receives, label: 'RECEIVES', class: 'data-orb__segment--receives' },
+            { color: this.txColors.swap, percentage: this.data.swaps, label: 'SWAPS', class: 'data-orb__segment--swaps' },
+            { color: this.txColors.contract, percentage: this.data.contracts, label: 'CALLS', class: 'data-orb__segment--contracts' }
+        ];
+        this.renderRing(segments);
+    }
+
+    startFlowAnimation() {
+        const createFlowParticle = () => {
+            if (!this.running) return;
+
+            const types = ['inbound', 'outbound', 'internal'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const particle = document.createElement('div');
+            particle.className = `transaction-flow__particle transaction-flow__particle--${type}`;
+
+            // Random starting position on edge
+            const angle = Math.random() * Math.PI * 2;
+            const startX = 50 + Math.cos(angle) * 45;
+            const startY = 50 + Math.sin(angle) * 45;
+            particle.style.left = startX + '%';
+            particle.style.top = startY + '%';
+
+            this.core.appendChild(particle);
+
+            // Animate to center
+            setTimeout(() => {
+                particle.style.transition = 'all 1s ease-in';
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                particle.style.opacity = '0';
+            }, 50);
+
+            // Remove after animation
+            setTimeout(() => particle.remove(), 1100);
+
+            // Update counter
+            this.txCount++;
+            if (this.counterEl) {
+                this.counterEl.textContent = Math.min(this.txCount, 99);
+            }
+
+            // Schedule next particle
+            setTimeout(createFlowParticle, 500 + Math.random() * 1500);
+        };
+
+        createFlowParticle();
+    }
+
+    destroy() {
+        this.running = false;
+    }
+}
+
+
+/**
+ * Module 3: Provenance Orbit
+ * NFT ownership history visualization
+ */
+class ProvenanceOrbitModule extends DataOrbModule {
+    constructor(container, options = {}) {
+        super(container, options);
+
+        this.artworkEl = container.querySelector('.provenance-orbit__artwork');
+
+        // Sample provenance data
+        this.data = options.provenance || {
+            artwork: '/path/to/nft.jpg',
+            owners: [
+                { address: '0xabc123...', duration: 847, isCurrent: true },
+                { address: '0xdef456...', duration: 234, isCurrent: false },
+                { address: '0x789ghi...', duration: 56, isCurrent: false },
+                { address: '0xjkl012...', duration: 12, isCurrent: false, isCreator: true }
+            ]
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.render();
+        this.renderOwnerMarkers();
+    }
+
+    render() {
+        // Ring shows ownership duration proportions
+        const totalDuration = this.data.owners.reduce((sum, o) => sum + o.duration, 0);
+        const segments = this.data.owners.map((owner, i) => ({
+            color: owner.isCurrent ? '#c9a227' : owner.isCreator ? '#4caf50' : `hsl(${200 + i * 30}, 70%, 50%)`,
+            percentage: owner.duration / totalDuration,
+            label: owner.address.substring(0, 10),
+            tooltip: `${owner.duration} days${owner.isCurrent ? ' (current)' : ''}${owner.isCreator ? ' (creator)' : ''}`
+        }));
+        this.renderRing(segments);
+
+        // Set artwork
+        if (this.artworkEl && this.data.artwork) {
+            this.artworkEl.src = this.data.artwork;
+        }
+    }
+
+    renderOwnerMarkers() {
+        const rings = this.container.querySelectorAll('.provenance-orbit__ring');
+        this.data.owners.forEach((owner, i) => {
+            if (rings[rings.length - 1 - i]) {
+                const ring = rings[rings.length - 1 - i];
+                const marker = document.createElement('div');
+                marker.className = `provenance-orbit__marker ${owner.isCurrent ? 'provenance-orbit__marker--current' : ''}`;
+                marker.title = `${owner.address}\n${owner.duration} days`;
+                marker.style.color = owner.isCurrent ? '#c9a227' : owner.isCreator ? '#4caf50' : '#2196f3';
+
+                // Position on ring
+                const angle = (i / this.data.owners.length) * 360;
+                const rad = (angle - 90) * Math.PI / 180;
+                const ringSize = parseInt(getComputedStyle(ring).width) / 2;
+                marker.style.left = `calc(50% + ${Math.cos(rad) * ringSize}px)`;
+                marker.style.top = `calc(50% + ${Math.sin(rad) * ringSize}px)`;
+
+                this.core.appendChild(marker);
+            }
+        });
+    }
+
+    destroy() {}
+}
+
+
+// Export for use
+window.DataOrbModules = {
+    Base: DataOrbModule,
+    PortfolioPulse: PortfolioPulseModule,
+    TransactionFlow: TransactionFlowModule,
+    ProvenanceOrbit: ProvenanceOrbitModule
+};
+</script>

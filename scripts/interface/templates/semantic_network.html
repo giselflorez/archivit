@@ -1,0 +1,4214 @@
+{% extends "base.html" %}
+
+{% block title %}Semantic Network - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Lock page to viewport - no scroll */
+    body {
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    .main-content {
+        height: calc(100vh - 180px);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Hide footer on this page - single viewport */
+    .footer {
+        display: none;
+    }
+
+    .semantic-network-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 0.5rem;
+    }
+
+    .semantic-network-title {
+        text-align: left;
+    }
+
+    .semantic-network-stats {
+        display: flex;
+        gap: 2rem;
+        justify-content: flex-end;
+        align-items: flex-end;
+    }
+
+    .stat-item {
+        text-align: right;
+    }
+
+    .stat-number {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        display: block;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Main Layout */
+    .semantic-layout {
+        display: grid;
+        grid-template-columns: 1fr 240px;
+        grid-template-rows: 1fr auto;
+        gap: 0.5rem;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    /* Network Visualization */
+    .network-container {
+        position: relative;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        grid-row: 1;
+    }
+
+    /* View Controls Row - spans full width below network */
+    .view-controls-row {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem 0 1.5rem 0;
+        background: var(--bg-primary);
+        min-height: 60px;
+    }
+
+    #semanticNetwork {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+    }
+
+    #semanticNetwork:active {
+        cursor: grabbing;
+    }
+
+    /* Network Controls */
+    .network-controls {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 10;
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+    }
+
+    .network-controls:hover {
+        opacity: 1;
+    }
+
+    .network-btn {
+        background: rgba(22, 22, 22, 0.8);
+        border: 1px solid var(--border-color);
+        color: var(--text-tertiary);
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+        font-size: 0.65rem;
+        font-weight: 400;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(5px);
+    }
+
+    .network-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        background: rgba(22, 22, 22, 0.95);
+    }
+
+    .network-btn.active {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        background: rgba(212, 165, 116, 0.15);
+    }
+
+    /* View Mode Controls */
+    .view-mode-controls {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(10, 10, 15, 0.95);
+        padding: 0.6rem 1.25rem;
+        border: 1px solid var(--accent-gold);
+        border-radius: 8px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .view-mode-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-tertiary);
+        padding: 0.4rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .view-mode-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+        background: rgba(212, 165, 116, 0.1);
+    }
+
+    .view-mode-btn.active {
+        border-color: var(--accent-gold);
+        color: var(--bg-primary);
+        background: var(--accent-gold);
+    }
+
+    .view-mode-btn .icon {
+        font-size: 0.9rem;
+    }
+
+    /* Glassy Hover Popup for Connections */
+    .connection-hover-popup {
+        position: fixed;
+        z-index: 1000;
+        background: rgba(15, 15, 20, 0.95);
+        border: 1px solid rgba(212, 165, 116, 0.4);
+        border-radius: 8px;
+        padding: 0.75rem;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        max-width: 280px;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .connection-hover-popup.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .connection-hover-popup .popup-thumbnail {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .connection-hover-popup .popup-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .connection-hover-popup .popup-meta {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        margin-bottom: 0.4rem;
+    }
+
+    .connection-hover-popup .popup-preview {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        max-height: 60px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .connection-hover-popup .popup-preview::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: linear-gradient(transparent, rgba(15, 15, 20, 0.95));
+    }
+
+    .connection-hover-popup .popup-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+    }
+
+    .connection-hover-popup .popup-tag {
+        font-size: 0.55rem;
+        padding: 0.15rem 0.35rem;
+        background: rgba(212, 165, 116, 0.15);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 2px;
+        color: var(--accent-warm);
+    }
+
+    /* Magnetization cluster labels */
+    .cluster-label {
+        position: absolute;
+        pointer-events: none;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: rgba(212, 165, 116, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .cluster-label.visible {
+        opacity: 1;
+    }
+
+    /* Network Legend */
+    .network-legend {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(22, 22, 22, 0.95);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        max-width: 300px;
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        font-size: 0.75rem;
+    }
+
+    .legend-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .legend-section {
+        margin-bottom: 0.75rem;
+    }
+
+    .legend-section-title {
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-tertiary);
+        font-size: 0.7rem;
+    }
+
+    .legend-node-type {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid;
+    }
+
+    .legend-edge-type {
+        width: 20px;
+        height: 2px;
+        opacity: 0.6;
+    }
+
+    /* Cognitive Type Colors */
+    .type-blockchain {
+        background: rgba(209, 102, 255, 0.3);
+        border-color: rgba(209, 102, 255, 1);
+    }
+    .type-web_article {
+        background: rgba(102, 178, 255, 0.3);
+        border-color: rgba(102, 178, 255, 1);
+    }
+    .type-research {
+        background: rgba(255, 204, 102, 0.3);
+        border-color: rgba(255, 204, 102, 1);
+    }
+    .type-media {
+        background: rgba(255, 102, 153, 0.3);
+        border-color: rgba(255, 102, 153, 1);
+    }
+    .type-conversation {
+        background: rgba(102, 255, 178, 0.3);
+        border-color: rgba(102, 255, 178, 1);
+    }
+
+    /* Edge Type Colors */
+    .edge-blockchain_platform { background: rgba(209, 102, 255, 0.6); }
+    .edge-blockchain_network { background: rgba(209, 102, 255, 0.5); }
+    .edge-blockchain_address { background: rgba(209, 102, 255, 0.95); }
+    .edge-ipfs_content { background: rgba(209, 102, 255, 0.9); }
+    .edge-domain_sibling { background: rgba(102, 178, 255, 0.6); }
+    .edge-semantic_similarity { background: rgba(255, 204, 102, 0.6); }
+    .edge-temporal_proximity { background: rgba(255, 255, 255, 0.3); }
+
+    /* Blockchain Network Badges */
+    .network-badge {
+        display: inline-block;
+        font-size: 0.6rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 2px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-left: 0.25rem;
+    }
+
+    .network-ethereum {
+        background: rgba(98, 126, 234, 0.3);
+        color: rgba(98, 126, 234, 1);
+        border: 1px solid rgba(98, 126, 234, 0.5);
+    }
+
+    .network-bitcoin {
+        background: rgba(247, 147, 26, 0.3);
+        color: rgba(247, 147, 26, 1);
+        border: 1px solid rgba(247, 147, 26, 0.5);
+    }
+
+    .network-solana {
+        background: rgba(140, 229, 193, 0.3);
+        color: rgba(140, 229, 193, 1);
+        border: 1px solid rgba(140, 229, 193, 0.5);
+    }
+
+    .network-tezos {
+        background: rgba(44, 125, 247, 0.3);
+        color: rgba(44, 125, 247, 1);
+        border: 1px solid rgba(44, 125, 247, 0.5);
+    }
+
+    .network-polygon {
+        background: rgba(130, 71, 229, 0.3);
+        color: rgba(130, 71, 229, 1);
+        border: 1px solid rgba(130, 71, 229, 0.5);
+    }
+
+    /* Right Sidebar - Unified container for petri dish + tank + analysis */
+    .sidebar-right {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    /* Petri Dish Section - integrated at top of sidebar */
+    .sidebar-petri-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem 0.25rem 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--border-color);
+        background: rgba(0, 0, 0, 0.15);
+        min-height: 130px;
+        overflow: visible;
+        position: relative;
+    }
+
+    /* Zoom expansion overlay - appears on hover */
+    .petri-zoom-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .petri-zoom-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .petri-zoom-container {
+        transform: scale(0.5);
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .petri-zoom-overlay.active .petri-zoom-container {
+        transform: scale(2.5);
+        opacity: 1;
+    }
+
+    /* Unicorn flyout animations */
+    .unicorn-flyout {
+        position: fixed;
+        font-size: 24px;
+        pointer-events: none;
+        z-index: 2000;
+        animation: unicorn-fly 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+
+    @keyframes unicorn-fly {
+        0% {
+            transform: scale(0.5) rotate(0deg) translateY(0);
+            opacity: 1;
+        }
+        30% {
+            transform: scale(1.8) rotate(var(--fly-rotate, 15deg)) translateY(-80px);
+            opacity: 1;
+        }
+        60% {
+            transform: scale(1.2) rotate(calc(var(--fly-rotate, 15deg) * 2)) translateY(-180px);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(0.2) rotate(calc(var(--fly-rotate, 15deg) * 4)) translateY(-350px);
+            opacity: 0;
+        }
+    }
+
+    /* Sparkle burst on click */
+    .sparkle-burst {
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1999;
+        animation: sparkle-pop 0.8s ease-out forwards;
+    }
+
+    @keyframes sparkle-pop {
+        0% {
+            transform: scale(0) translate(0, 0);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1) translate(var(--spark-x), var(--spark-y));
+            opacity: 0;
+        }
+    }
+
+    /* Zoom close hint */
+    .zoom-close-hint {
+        position: absolute;
+        bottom: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0;
+        transition: opacity 0.5s ease 0.3s;
+    }
+
+    .petri-zoom-overlay.active .zoom-close-hint {
+        opacity: 1;
+    }
+
+    /* Amount hover satisfying effects */
+    .holdings-label:hover {
+        transform: translate(-50%, -50%) scale(1.3);
+        z-index: 100;
+        filter: brightness(1.3);
+    }
+
+    .holdings-label:hover .label-amount {
+        transform: scale(1.1);
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 0 8px currentColor;
+    }
+
+    .holdings-label {
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+    }
+
+    .holdings-label .label-amount {
+        transition: all 0.2s ease;
+    }
+
+    /* Holdings segment hover */
+    .holdings-segment {
+        cursor: pointer;
+        transition: stroke-width 0.2s ease, filter 0.2s ease;
+    }
+
+    .holdings-segment:hover {
+        stroke-width: 12;
+        filter: brightness(1.4) drop-shadow(0 0 6px currentColor);
+    }
+
+    /* Selection Tank - borderless, compact */
+    .selection-tank {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 0.35rem;
+        height: 160px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .tank-header {
+        font-family: 'Crimson Pro', serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: center;
+    }
+
+    .tank-canvas {
+        width: 100%;
+        height: calc(100% - 32px);
+        background: rgba(0, 0, 0, 0.25);
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tank-controls {
+        position: absolute;
+        bottom: 0.15rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .tank-btn {
+        background: rgba(22, 22, 22, 0.9);
+        border: 1px solid var(--border-color);
+        color: var(--text-tertiary);
+        padding: 0.1rem 0.3rem;
+        cursor: pointer;
+        font-size: 0.5rem;
+        font-weight: 400;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .tank-btn:hover {
+        border-color: var(--accent-warm);
+        color: var(--accent-warm);
+    }
+
+    /* Analysis Panel - borderless, fills remaining space */
+    .analysis-panel {
+        background: transparent;
+        border: none;
+        padding: 0.35rem;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .analysis-header {
+        font-family: 'Crimson Pro', serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .analysis-export-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.15rem 0.3rem;
+        font-size: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .analysis-export-btn:hover {
+        border-color: var(--accent-warm);
+        color: var(--accent-warm);
+    }
+
+    .analysis-empty {
+        text-align: center;
+        color: var(--text-tertiary);
+        font-size: 0.55rem;
+        padding: 0.5rem 0.25rem;
+        font-style: italic;
+    }
+
+    /* Analysis Summary - ultra-compact */
+    .analysis-summary {
+        background: rgba(212, 165, 116, 0.03);
+        border: none;
+        border-left: 2px solid rgba(212, 165, 116, 0.4);
+        padding: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .summary-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .summary-stat {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.25rem;
+        border-left: 2px solid var(--accent-gold);
+    }
+
+    .summary-stat-label {
+        font-size: 0.5rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.15rem;
+    }
+
+    .summary-stat-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+    }
+
+    .summary-breakdown {
+        font-size: 0.55rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .summary-breakdown-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.2rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .summary-breakdown-label {
+        color: var(--text-tertiary);
+    }
+
+    .summary-breakdown-value {
+        color: var(--accent-warm);
+        font-weight: 500;
+    }
+
+    /* Export Gallery */
+    .export-gallery {
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.2);
+        padding-top: 0.5rem;
+    }
+
+    .export-section-title {
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .export-count {
+        font-size: 0.5rem;
+        color: var(--text-tertiary);
+        font-weight: 400;
+    }
+
+    .export-thumbnails {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 0.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .export-thumb-item {
+        position: relative;
+        aspect-ratio: 1;
+        border: 1px solid var(--border-color);
+        background: rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .export-thumb-item:hover {
+        border-color: var(--accent-gold);
+        transform: scale(1.03);
+    }
+
+    .export-thumb-item.omitted {
+        opacity: 0.3;
+        filter: grayscale(100%);
+    }
+
+    .export-thumb-item.omitted:hover {
+        opacity: 0.5;
+    }
+
+    .export-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .export-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--text-tertiary);
+    }
+
+    .export-thumb-remove {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 0.7rem;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .export-thumb-item:hover .export-thumb-remove {
+        opacity: 1;
+    }
+
+    .export-thumb-remove:hover {
+        background: rgba(255, 0, 0, 1);
+    }
+
+    .export-thumb-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        font-size: 0.55rem;
+        padding: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .omitted-items {
+        margin-top: 1rem;
+    }
+
+    .omitted-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem;
+        background: rgba(255, 255, 255, 0.03);
+        margin-bottom: 0.3rem;
+        font-size: 0.65rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .omitted-item:hover {
+        background: rgba(212, 165, 116, 0.1);
+    }
+
+    .omitted-item-icon {
+        color: var(--text-tertiary);
+    }
+
+    .omitted-item-title {
+        flex: 1;
+        color: var(--text-secondary);
+    }
+
+    .omitted-item-restore {
+        color: var(--accent-gold);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+    }
+
+    .selected-node {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .selected-node-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+
+    .selected-node-title {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        flex: 1;
+    }
+
+    .selected-node-type {
+        font-size: 0.6rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.15rem 0.4rem;
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+    }
+
+    .selected-node-remove {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        padding: 0;
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.6;
+        transition: opacity 0.2s ease;
+    }
+
+    .selected-node-remove:hover {
+        opacity: 1;
+        color: var(--accent-warm);
+    }
+
+    .selected-node-meta {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        margin-top: 0.25rem;
+    }
+
+    .selected-node-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+    }
+
+    .selected-node-tag {
+        font-size: 0.6rem;
+        color: var(--accent-gold);
+        padding: 0.15rem 0.4rem;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 2px;
+    }
+
+    /* Relationships Section */
+    .relationships-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .relationships-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .relationship-item {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .relationship-item a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .relationship-item a:hover {
+        color: var(--accent-gold);
+    }
+
+    .relationship-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .rel-blockchain_address { background: #d166ff; }
+    .rel-ipfs_content { background: #d166ff; }
+    .rel-blockchain_platform { background: #d166ff; }
+    .rel-blockchain_network { background: #d166ff; }
+    .rel-domain_sibling { background: #66b2ff; }
+    .rel-semantic_similarity { background: #ffcc66; }
+
+    /* Node Thumbnails in Analysis */
+    .node-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .node-with-thumb {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .node-content {
+        flex: 1;
+    }
+
+    /* Filter Modal */
+    .filter-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    }
+
+    .filter-modal.active {
+        display: flex;
+    }
+
+    .filter-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--accent-gold);
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .filter-header {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-close {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .filter-close:hover {
+        color: var(--accent-gold);
+    }
+
+    .filter-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-section-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .filter-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+    }
+
+    .filter-checkbox:hover {
+        border-color: var(--accent-gold);
+    }
+
+    .filter-checkbox input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .filter-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.5rem 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .filter-btn-primary {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-color: var(--accent-gold);
+    }
+
+    .filter-btn-primary:hover {
+        background: var(--accent-warm);
+        border-color: var(--accent-warm);
+    }
+
+    .relationship-type {
+        color: var(--accent-warm);
+        font-weight: 500;
+    }
+
+    /* Floating Orb Animation */
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .tank-orb {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid;
+        animation: float 3s ease-in-out infinite;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tank-orb:hover {
+        transform: scale(1.2);
+        filter: brightness(1.5);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       NON-FUNGIBLE PETRI DISH - Fungible Token Visualizer
+       3D candy-like memecoins that form blockchain logos
+    ═══════════════════════════════════════════════════════════ */
+    /* Petri dish container - now inline within sidebar */
+    .petri-dish-container {
+        position: relative;
+        z-index: 10;
+        pointer-events: auto;
+        perspective: 600px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: visible;
+        width: 130px;
+        height: 130px;
+        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    z-index 0s;
+    }
+
+    /* 3D Magnifying Bubble Effect - Entire module expands first */
+    .petri-dish-container.magnified {
+        transform: scale(2.2) translateY(-20px);
+        z-index: 1000;
+    }
+
+    /* Glass bubble wrapper for magnified state */
+    .petri-dish-container.magnified::before {
+        content: '';
+        position: absolute;
+        inset: -30px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at 30% 20%,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.02) 30%,
+            transparent 60%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.4),
+            inset 0 2px 20px rgba(255, 255, 255, 0.05);
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.4s ease;
+    }
+
+    .petri-dish-container.magnified::before {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Second glass reflection layer */
+    .petri-dish-container.magnified::after {
+        content: '';
+        position: absolute;
+        top: -25px;
+        left: -15px;
+        width: 50px;
+        height: 30px;
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.03) 50%,
+            transparent 100%);
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(2px);
+    }
+
+    /* Disable label interactions until magnified */
+    .petri-dish-container:not(.magnified) .holdings-label {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .petri-dish-container:not(.magnified) .holdings-segment {
+        pointer-events: none;
+    }
+
+    /* Enable interactions when magnified */
+    .petri-dish-container.magnified .holdings-label {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .petri-dish-container.magnified .holdings-segment {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    /* Full address display in magnified state */
+    .petri-dish-container.magnified .holdings-label .full-address {
+        display: block;
+        font-size: 4px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 2px;
+        opacity: 1;
+        max-width: none;
+    }
+
+    .holdings-label .full-address {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Secure link styling */
+    .holdings-label .explorer-link {
+        display: none;
+        font-size: 4px;
+        color: rgba(100, 180, 255, 0.8);
+        text-decoration: none;
+        margin-top: 2px;
+        padding: 1px 3px;
+        background: rgba(100, 180, 255, 0.1);
+        border-radius: 2px;
+        transition: all 0.2s ease;
+    }
+
+    .petri-dish-container.magnified .holdings-label .explorer-link {
+        display: inline-block;
+    }
+
+    .holdings-label .explorer-link:hover {
+        color: rgba(100, 180, 255, 1);
+        background: rgba(100, 180, 255, 0.2);
+    }
+
+    /* Security indicator */
+    .holdings-label .explorer-link::before {
+        content: '🔒';
+        font-size: 3px;
+        margin-right: 2px;
+    }
+
+    /* Holdings Ring - SVG segmented border showing wallet contents */
+    .holdings-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 130px;
+        height: 130px;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .holdings-ring svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .holdings-segment {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: butt;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+        transition: stroke-width 0.2s ease, filter 0.2s ease;
+    }
+
+    .holdings-segment:hover {
+        stroke-width: 11;
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    }
+
+    /* Address labels around ring */
+    .holdings-label {
+        position: absolute;
+        font-family: 'SF Mono', 'Monaco', monospace;
+        font-size: 6px;
+        letter-spacing: 0.3px;
+        color: rgba(255, 255, 255, 0.7);
+        white-space: nowrap;
+        pointer-events: auto;
+        cursor: default;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        transition: all 0.2s ease;
+    }
+
+    .holdings-label:hover {
+        color: #fff;
+        font-size: 7px;
+        z-index: 100;
+    }
+
+    .holdings-label .label-amount {
+        display: block;
+        font-size: 5px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 1px;
+    }
+
+    /* Ring glow effect synced with contents */
+    .holdings-ring-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 4;
+        opacity: 0.4;
+        background: conic-gradient(var(--ring-gradient, transparent));
+        filter: blur(12px);
+    }
+
+    .petri-dish {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at 30% 25%,
+            rgba(60, 60, 80, 0.95) 0%,
+            rgba(25, 25, 35, 0.98) 40%,
+            rgba(15, 15, 20, 0.99) 100%);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+            0 4px 16px rgba(0, 0, 0, 0.5),
+            0 2px 6px rgba(0, 0, 0, 0.3),
+            inset 0 2px 15px rgba(255, 255, 255, 0.03),
+            inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotateX(8deg);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+        z-index: 10;
+    }
+
+    .petri-dish:hover {
+        transform: translate(-50%, -50%) rotateX(4deg) scale(1.05);
+        border-color: rgba(212, 165, 116, 0.3);
+        box-shadow:
+            0 6px 24px rgba(212, 165, 116, 0.12),
+            0 3px 10px rgba(0, 0, 0, 0.4),
+            inset 0 2px 15px rgba(255, 255, 255, 0.05);
+    }
+
+    .petri-dish-label {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 7px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: rgba(255, 255, 255, 0.35);
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .petri-dish-glass {
+        position: absolute;
+        top: 8%;
+        left: 12%;
+        width: 35%;
+        height: 18%;
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%);
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(1px);
+    }
+
+    /* Secondary glass reflection */
+    .petri-dish::before {
+        content: '';
+        position: absolute;
+        top: 6%;
+        right: 20%;
+        width: 12%;
+        height: 8%;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        filter: blur(2px);
+    }
+
+    /* 3D Candy Memecoin Style */
+    .memecoin {
+        position: absolute;
+        border-radius: 50%;
+        background-size: 70% 70%;
+        background-position: center;
+        background-repeat: no-repeat;
+        user-select: none;
+        pointer-events: none;
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    }
+
+    /* 3D candy depth effect - applied via JS based on position */
+    .memecoin::before {
+        content: '';
+        position: absolute;
+        top: 5%;
+        left: 15%;
+        width: 35%;
+        height: 25%;
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 255, 255, 0.1) 100%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .memecoin::after {
+        content: '';
+        position: absolute;
+        bottom: 15%;
+        right: 15%;
+        width: 20%;
+        height: 15%;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        filter: blur(1px);
+    }
+
+    /* Coin base colors with 3D candy gradient */
+    .memecoin.doge {
+        background-color: #c9a227;
+        background-image: url('https://assets.coingecko.com/coins/images/5/small/dogecoin.png');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.shib {
+        background-color: #ff5722;
+        background-image: url('https://assets.coingecko.com/coins/images/11939/small/shiba.png');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.pepe {
+        background-color: #4caf50;
+        background-image: url('https://assets.coingecko.com/coins/images/29850/small/pepe-token.jpeg');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.bonk {
+        background-color: #ff9800;
+        background-image: url('https://assets.coingecko.com/coins/images/28600/small/bonk.jpg');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.wif {
+        background-color: #e91e63;
+        background-image: url('https://assets.coingecko.com/coins/images/33566/small/dogwifhat.jpg');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.floki {
+        background-color: #8d6e63;
+        background-image: url('https://assets.coingecko.com/coins/images/16746/small/FLOKI.png');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.trump {
+        background-color: #1976d2;
+        background-image: url('https://assets.coingecko.com/coins/images/53746/small/trump.jpg');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    .memecoin.brett {
+        background-color: #2196f3;
+        background-image: url('https://assets.coingecko.com/coins/images/35529/small/1000050750.png');
+        box-shadow:
+            0 3px 6px rgba(0,0,0,0.4),
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            inset 0 3px 8px rgba(255,255,255,0.2);
+    }
+
+    /* Formation indicator glow */
+    .petri-dish.forming {
+        border-color: rgba(255, 215, 0, 0.4);
+    }
+
+    .petri-dish.forming::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: radial-gradient(circle,
+            transparent 60%,
+            rgba(255, 215, 0, 0.1) 100%);
+        animation: formation-pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes formation-pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+
+    @keyframes coin-pop {
+        0% { transform: scale(1) translateZ(0); }
+        50% { transform: scale(1.15) translateZ(5px); }
+        100% { transform: scale(1) translateZ(0); }
+    }
+
+    .memecoin.popping {
+        animation: coin-pop 0.3s ease-out;
+    }
+
+    @keyframes petri-glow {
+        0%, 100% {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 2px 15px rgba(255, 255, 255, 0.03), inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+        }
+        50% {
+            box-shadow: 0 4px 16px rgba(212, 165, 116, 0.12), 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 2px 15px rgba(255, 255, 255, 0.03), inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+        }
+    }
+
+    .petri-dish {
+        animation: petri-glow 6s ease-in-out infinite;
+        animation-fill-mode: both;
+    }
+
+    /* Chain logo label that appears during formation */
+    .chain-label {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0);
+        text-transform: uppercase;
+        transition: color 0.5s ease;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .petri-dish.forming .chain-label {
+        color: rgba(255, 255, 255, 0.6);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="semantic-network-header">
+    <div class="semantic-network-title">
+        <h1>Semantic Network</h1>
+        <p style="color: var(--text-tertiary); font-size: 0.85rem; margin-top: 0.25rem;">
+            Cognitive Data Point Cloud - Research Laboratory Interface
+        </p>
+    </div>
+    <div class="semantic-network-stats">
+        <div class="stat-item">
+            <span class="stat-number" id="totalNodes">-</span>
+            <span class="stat-label">Data Nodes</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="totalEdges">-</span>
+            <span class="stat-label">Relationships</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="selectedCount">0</span>
+            <span class="stat-label">Selected</span>
+        </div>
+    </div>
+</div>
+
+<div class="semantic-layout">
+    <!-- Main Network Visualization -->
+    <div class="network-container">
+        <svg id="semanticNetwork"></svg>
+
+        <!-- Controls -->
+        <div class="network-controls">
+            <button class="network-btn" onclick="resetView()" title="Reset view (0)">Reset</button>
+            <button class="network-btn" onclick="toggleLabels()" title="Toggle labels (L)">Labels</button>
+            <button class="network-btn" onclick="reheatSimulation()" title="Reheat simulation (H)">Reheat</button>
+            <button class="network-btn" onclick="filterByType()" title="Filter by type (F)">Filter</button>
+        </div>
+
+        <!-- Legend -->
+        <div class="network-legend" id="networkLegend">
+            <div class="legend-title">Legend</div>
+
+            <div class="legend-section">
+                <div class="legend-section-title">Cognitive Types</div>
+                <div class="legend-item">
+                    <div class="legend-node-type type-blockchain"></div>
+                    <span>Blockchain / NFT</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-node-type type-web_article"></div>
+                    <span>Web Article</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-node-type type-research"></div>
+                    <span>Research</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-node-type type-media"></div>
+                    <span>Media</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-node-type type-conversation"></div>
+                    <span>Conversation</span>
+                </div>
+            </div>
+
+            <div class="legend-section">
+                <div class="legend-section-title">Relationships</div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-blockchain_address"></div>
+                    <span>Address (98%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-ipfs_content"></div>
+                    <span>IPFS (95%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-blockchain_platform"></div>
+                    <span>Platform (80%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-blockchain_network"></div>
+                    <span>Network (70%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-domain_sibling"></div>
+                    <span>Domain (60%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-edge-type edge-semantic_similarity"></div>
+                    <span>Semantic</span>
+                </div>
+            </div>
+
+            <div class="legend-section">
+                <div class="legend-section-title">Blockchain Networks</div>
+                <div class="legend-item">
+                    <span class="network-badge network-ethereum" style="margin-left: 0;">ETH</span>
+                    <span style="margin-left: 0.5rem;">Ethereum</span>
+                </div>
+                <div class="legend-item">
+                    <span class="network-badge network-tezos" style="margin-left: 0;">XTZ</span>
+                    <span style="margin-left: 0.5rem;">Tezos</span>
+                </div>
+                <div class="legend-item">
+                    <span class="network-badge network-polygon" style="margin-left: 0;">MATIC</span>
+                    <span style="margin-left: 0.5rem;">Polygon</span>
+                </div>
+                <div class="legend-item">
+                    <span class="network-badge network-bitcoin" style="margin-left: 0;">BTC</span>
+                    <span style="margin-left: 0.5rem;">Bitcoin</span>
+                </div>
+                <div class="legend-item">
+                    <span class="network-badge network-solana" style="margin-left: 0;">SOL</span>
+                    <span style="margin-left: 0.5rem;">Solana</span>
+                </div>
+            </div>
+
+            <div class="legend-section">
+                <div class="legend-section-title">Blockchain Metadata</div>
+                <div class="legend-item">
+                    <span>⏰</span>
+                    <span style="margin-left: 0.5rem;">Mint Date</span>
+                </div>
+                <div class="legend-item">
+                    <span>🔐</span>
+                    <span style="margin-left: 0.5rem;">Transaction Hash</span>
+                </div>
+                <div class="legend-item">
+                    <span>🧱</span>
+                    <span style="margin-left: 0.5rem;">Block Number</span>
+                </div>
+                <div class="legend-item">
+                    <span>📜</span>
+                    <span style="margin-left: 0.5rem;">Contract Address</span>
+                </div>
+                <div class="legend-item">
+                    <span>📌</span>
+                    <span style="margin-left: 0.5rem;">IPFS Content</span>
+                </div>
+            </div>
+
+            <div class="legend-section">
+                <div class="legend-section-title">Interaction</div>
+                <div class="legend-item" style="font-size: 0.65rem; color: var(--text-tertiary);">
+                    Click nodes to select for analysis
+                </div>
+                <div class="legend-item" style="font-size: 0.65rem; color: var(--text-tertiary);">
+                    Use view modes below to magnetize
+                </div>
+            </div>
+        </div>
+
+        <!-- Cluster Labels Container -->
+        <div id="clusterLabels"></div>
+    </div>
+
+    <!-- Right Sidebar: Petri Dish + Selection Tank + Analysis -->
+    <div class="sidebar-right">
+        <!-- Petri Dish - integrated at top of sidebar -->
+        <div class="sidebar-petri-section">
+            <div class="petri-dish-container" id="petriDish" title="Fungible Token Petri Dish - Watch them form chain logos!">
+                <!-- Holdings Ring - segmented border showing wallet ratios -->
+                <div class="holdings-ring-glow" id="holdingsGlow"></div>
+                <div class="holdings-ring" id="holdingsRing">
+                    <svg viewBox="0 0 130 130">
+                        <g id="holdingsSegments"></g>
+                    </svg>
+                    <!-- Address labels positioned around ring -->
+                    <div id="holdingsLabels"></div>
+                </div>
+                <div class="petri-dish">
+                    <div class="petri-dish-glass"></div>
+                    <div class="chain-label" id="chainLabel"></div>
+                    <!-- Memecoins will be injected here by JS -->
+                </div>
+                <div class="petri-dish-label">fungibles</div>
+            </div>
+        </div>
+        <!-- Selection Tank -->
+        <div class="selection-tank">
+            <div class="tank-header">Selection Tank</div>
+            <div class="tank-canvas" id="tankCanvas">
+                <!-- Floating orbs will be rendered here -->
+            </div>
+            <div class="tank-controls">
+                <button class="tank-btn" onclick="clearSelection()">Clear All</button>
+                <button class="tank-btn" onclick="analyzeSelection()">Analyze</button>
+            </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="analysis-panel">
+            <div class="analysis-header">
+                <span>Analysis</span>
+                <button class="analysis-export-btn" onclick="exportForAgent()" title="Export as training dataset for autonomous agents">
+                    Export Dataset
+                </button>
+            </div>
+            <div id="analysisContent">
+                <div class="analysis-empty">
+                    Drag nodes to the Selection Tank to begin analysis
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Mode Controls Row -->
+    <div class="view-controls-row">
+        <div class="view-mode-controls">
+            <button class="view-mode-btn active" onclick="setViewMode('free')" id="viewmode-free">
+                <span class="icon">◈</span>
+                <span>None</span>
+            </button>
+            <button class="view-mode-btn" onclick="setViewMode('cognitive')" id="viewmode-cognitive">
+                <span class="icon">🧠</span>
+                <span>Cognitive</span>
+            </button>
+            <button class="view-mode-btn" onclick="setViewMode('relationships')" id="viewmode-relationships">
+                <span class="icon">🔗</span>
+                <span>Relations</span>
+            </button>
+            <button class="view-mode-btn" onclick="setViewMode('networks')" id="viewmode-networks">
+                <span class="icon">⛓️</span>
+                <span>Networks</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Glassy Hover Popup for File Connections -->
+<div class="connection-hover-popup" id="connectionPopup">
+    <img class="popup-thumbnail" id="popupThumbnail" style="display: none;">
+    <div class="popup-title" id="popupTitle"></div>
+    <div class="popup-meta" id="popupMeta"></div>
+    <div class="popup-preview" id="popupPreview"></div>
+    <div class="popup-tags" id="popupTags"></div>
+</div>
+
+<!-- Petri Dish Zoom Overlay -->
+<div class="petri-zoom-overlay" id="petriZoomOverlay">
+    <div class="petri-zoom-container" id="petriZoomContainer">
+        <!-- Clone of petri dish will be rendered here -->
+    </div>
+    <div class="zoom-close-hint">Click anywhere to close</div>
+</div>
+
+<!-- Filter Modal -->
+<div class="filter-modal" id="filterModal">
+    <div class="filter-panel">
+        <div class="filter-header">
+            <span>Filter Network</span>
+            <button class="filter-close" onclick="closeFilterModal()">×</button>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-section-title">⛓️ Blockchain Network</div>
+            <div class="filter-options">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-ethereum" checked>
+                    <span>Ethereum</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-tezos" checked>
+                    <span>Tezos</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-polygon" checked>
+                    <span>Polygon</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-bitcoin" checked>
+                    <span>Bitcoin</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-solana" checked>
+                    <span>Solana</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-no-blockchain" checked>
+                    <span>No Blockchain</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-section-title">🏪 Platform / Marketplace</div>
+            <div class="filter-options">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-opensea" checked>
+                    <span>OpenSea</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-superrare" checked>
+                    <span>SuperRare</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-foundation" checked>
+                    <span>Foundation</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-1stdibs" checked>
+                    <span>1stDibs NFT</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-zora" checked>
+                    <span>Zora</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-section-title">🔐 Blockchain Data</div>
+            <div class="filter-options">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-has-tx" checked>
+                    <span>Has Transaction Hash</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-has-token" checked>
+                    <span>Has Token ID</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-has-ipfs" checked>
+                    <span>Has IPFS</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-has-contract" checked>
+                    <span>Has Contract Address</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-section-title">🎨 Cognitive Type</div>
+            <div class="filter-options">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-type-blockchain" checked>
+                    <span>Blockchain / NFT</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-type-web" checked>
+                    <span>Web Article</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-type-research" checked>
+                    <span>Research</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-type-media" checked>
+                    <span>Media</span>
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-type-conversation" checked>
+                    <span>Conversation</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="filter-btn" onclick="resetFilters()">Reset All</button>
+            <button class="filter-btn filter-btn-primary" onclick="applyFilters()">Apply Filters</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// Global state
+let networkData = { nodes: [], edges: [] };
+let allNetworkData = { nodes: [], edges: [] }; // Unfiltered copy
+let selectedNodes = new Set();
+let exportSet = new Set(); // Nodes marked for export
+let omittedSet = new Set(); // Nodes omitted from export
+let simulation;
+let svg, g, link, node, label;
+let showLabels = true;
+let transform = d3.zoomIdentity;
+let activeFilters = {
+    networks: new Set(['ethereum', 'tezos', 'polygon', 'bitcoin', 'solana', 'no-blockchain']),
+    platforms: new Set(['OpenSea', 'SuperRare', 'Foundation', '1stDibs NFT', 'Zora', 'Objkt', 'fxhash', 'Hic et Nunc']),
+    hasTransaction: true,
+    hasTokenId: true,
+    hasIPFS: true,
+    hasContract: true,
+    cognitiveTypes: new Set(['blockchain', 'web_article', 'research', 'media', 'conversation'])
+};
+
+// Cognitive type colors
+const typeColors = {
+    'blockchain': '#d166ff',
+    'web_article': '#66b2ff',
+    'research': '#ffcc66',
+    'media': '#ff6699',
+    'conversation': '#66ffb2'
+};
+
+// Edge type colors
+const edgeColors = {
+    'blockchain_platform': '#d166ff',
+    'ipfs_content': '#d166ff',
+    'domain_sibling': '#66b2ff',
+    'semantic_similarity': '#ffcc66',
+    'temporal_proximity': '#ffffff'
+};
+
+// View mode state
+let currentViewMode = 'free';
+let clusterCenters = {};
+
+// Cluster positions for magnetization (relative to center)
+const clusterLayouts = {
+    cognitive: {
+        'blockchain': { x: -200, y: -150 },
+        'web_article': { x: 200, y: -150 },
+        'research': { x: 0, y: 0 },
+        'media': { x: -200, y: 150 },
+        'conversation': { x: 200, y: 150 }
+    },
+    relationships: {
+        'blockchain_platform': { x: -180, y: -120 },
+        'ipfs_content': { x: 180, y: -120 },
+        'domain_sibling': { x: -180, y: 120 },
+        'semantic_similarity': { x: 180, y: 120 },
+        'isolated': { x: 0, y: 0 }
+    },
+    networks: {
+        'ethereum': { x: 0, y: -180 },
+        'tezos': { x: 170, y: -55 },
+        'polygon': { x: 105, y: 145 },
+        'bitcoin': { x: -105, y: 145 },
+        'solana': { x: -170, y: -55 },
+        'no-blockchain': { x: 0, y: 0 }
+    }
+};
+
+// View mode labels
+const clusterLabels = {
+    cognitive: {
+        'blockchain': 'Blockchain / NFT',
+        'web_article': 'Web Articles',
+        'research': 'Research',
+        'media': 'Media Files',
+        'conversation': 'Conversations'
+    },
+    relationships: {
+        'blockchain_platform': 'Platform Links',
+        'ipfs_content': 'IPFS Content',
+        'domain_sibling': 'Domain Siblings',
+        'semantic_similarity': 'Semantic Links',
+        'isolated': 'Unconnected'
+    },
+    networks: {
+        'ethereum': 'Ethereum',
+        'tezos': 'Tezos',
+        'polygon': 'Polygon',
+        'bitcoin': 'Bitcoin',
+        'solana': 'Solana',
+        'no-blockchain': 'Off-Chain'
+    }
+};
+
+// Set view mode with magnetization animation
+function setViewMode(mode) {
+    // Update button states
+    document.querySelectorAll('.view-mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`viewmode-${mode}`).classList.add('active');
+
+    currentViewMode = mode;
+
+    // Clear cluster labels
+    const labelContainer = document.getElementById('clusterLabels');
+    labelContainer.innerHTML = '';
+
+    if (mode === 'free') {
+        // Remove all custom forces
+        simulation
+            .force('x', null)
+            .force('y', null)
+            .force('center', d3.forceCenter(svg.node().clientWidth / 2, svg.node().clientHeight / 2))
+            .alpha(0.5)
+            .restart();
+    } else {
+        const centerX = svg.node().clientWidth / 2;
+        const centerY = svg.node().clientHeight / 2;
+        const layout = clusterLayouts[mode];
+        const labels = clusterLabels[mode];
+
+        // Create cluster labels
+        Object.entries(layout).forEach(([key, pos]) => {
+            const labelEl = document.createElement('div');
+            labelEl.className = 'cluster-label';
+            labelEl.textContent = labels[key];
+            labelEl.style.left = (centerX + pos.x) + 'px';
+            labelEl.style.top = (centerY + pos.y - 80) + 'px';
+            labelContainer.appendChild(labelEl);
+
+            // Fade in after a short delay
+            setTimeout(() => labelEl.classList.add('visible'), 300);
+        });
+
+        // Apply magnetization forces
+        simulation
+            .force('center', null)
+            .force('x', d3.forceX(d => {
+                const cluster = getNodeCluster(d, mode);
+                return centerX + (layout[cluster]?.x || 0);
+            }).strength(0.3))
+            .force('y', d3.forceY(d => {
+                const cluster = getNodeCluster(d, mode);
+                return centerY + (layout[cluster]?.y || 0);
+            }).strength(0.3))
+            .alpha(0.8)
+            .restart();
+    }
+}
+
+// Get node's cluster based on view mode
+function getNodeCluster(node, mode) {
+    if (mode === 'cognitive') {
+        return node.cognitive_type || 'research';
+    } else if (mode === 'relationships') {
+        // Find primary relationship type for this node
+        const nodeEdges = networkData.edges.filter(e =>
+            (e.source.id || e.source) === node.id ||
+            (e.target.id || e.target) === node.id
+        );
+        if (nodeEdges.length === 0) return 'isolated';
+
+        // Count relationship types
+        const typeCounts = {};
+        nodeEdges.forEach(e => {
+            typeCounts[e.type] = (typeCounts[e.type] || 0) + 1;
+        });
+
+        // Return most common type
+        return Object.entries(typeCounts)
+            .sort((a, b) => b[1] - a[1])[0][0];
+    } else if (mode === 'networks') {
+        const bc = node.metadata?.blockchain;
+        if (bc?.blockchain_network) {
+            return bc.blockchain_network;
+        }
+        return 'no-blockchain';
+    }
+    return 'default';
+}
+
+// Connection hover popup functionality
+const popup = document.getElementById('connectionPopup');
+let popupTimeout;
+
+function showConnectionPopup(nodeData, event) {
+    clearTimeout(popupTimeout);
+
+    const title = popup.querySelector('#popupTitle');
+    const meta = popup.querySelector('#popupMeta');
+    const preview = popup.querySelector('#popupPreview');
+    const tags = popup.querySelector('#popupTags');
+    const thumbnail = popup.querySelector('#popupThumbnail');
+
+    title.textContent = nodeData.title || 'Untitled';
+    meta.textContent = nodeData.cognitive_type ?
+        nodeData.cognitive_type.replace('_', ' ').toUpperCase() : '';
+
+    // Show preview text if available
+    if (nodeData.preview || nodeData.summary) {
+        preview.textContent = nodeData.preview || nodeData.summary;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+
+    // Show tags
+    if (nodeData.tags && nodeData.tags.length > 0) {
+        tags.innerHTML = nodeData.tags.slice(0, 5).map(t =>
+            `<span class="popup-tag">${t}</span>`
+        ).join('');
+        tags.style.display = 'flex';
+    } else {
+        tags.style.display = 'none';
+    }
+
+    // Show thumbnail if available
+    const imgPath = nodeData.image_path ||
+        (nodeData.metadata?.image_path) ||
+        (nodeData.metadata?.blockchain?.image_url);
+
+    if (imgPath) {
+        thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+        thumbnail.style.display = 'block';
+        thumbnail.onerror = () => { thumbnail.style.display = 'none'; };
+    } else {
+        thumbnail.style.display = 'none';
+    }
+
+    // Position popup
+    const rect = event.target.getBoundingClientRect();
+    let left = rect.left - 290;
+    let top = rect.top;
+
+    // Keep in viewport
+    if (left < 10) left = rect.right + 10;
+    if (top + 300 > window.innerHeight) top = window.innerHeight - 310;
+
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+    popup.classList.add('visible');
+}
+
+function hideConnectionPopup() {
+    popupTimeout = setTimeout(() => {
+        popup.classList.remove('visible');
+    }, 100);
+}
+
+// Load network data
+async function loadNetworkData() {
+    try {
+        const response = await fetch('/api/semantic-network');
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('Error loading network:', data.error);
+            return;
+        }
+
+        // Store unfiltered copy
+        allNetworkData = JSON.parse(JSON.stringify(data));
+        networkData = data;
+
+        // Update stats
+        document.getElementById('totalNodes').textContent = networkData.nodes.length;
+        document.getElementById('totalEdges').textContent = networkData.edges.length;
+
+        // Initialize visualization
+        initializeVisualization();
+    } catch (error) {
+        console.error('Failed to load network data:', error);
+    }
+}
+
+// Initialize D3 visualization
+function initializeVisualization() {
+    const container = document.getElementById('semanticNetwork');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    // Clear existing
+    d3.select('#semanticNetwork').selectAll('*').remove();
+
+    // Create SVG
+    svg = d3.select('#semanticNetwork')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Add zoom behavior
+    const zoom = d3.zoom()
+        .scaleExtent([0.1, 10])
+        .on('zoom', (event) => {
+            transform = event.transform;
+            g.attr('transform', transform);
+        });
+
+    svg.call(zoom);
+
+    // Create container group
+    g = svg.append('g');
+
+    // Create force simulation
+    simulation = d3.forceSimulation(networkData.nodes)
+        .force('link', d3.forceLink(networkData.edges)
+            .id(d => d.id)
+            .distance(d => 100 / (d.strength || 0.5)))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(30));
+
+    // Create edges
+    link = g.append('g')
+        .selectAll('line')
+        .data(networkData.edges)
+        .join('line')
+        .attr('stroke', d => edgeColors[d.type] || '#666')
+        .attr('stroke-opacity', d => (d.strength || 0.5) * 0.6)
+        .attr('stroke-width', d => Math.max(1, (d.strength || 0.5) * 3));
+
+    // Create nodes
+    node = g.append('g')
+        .selectAll('circle')
+        .data(networkData.nodes)
+        .join('circle')
+        .attr('r', d => {
+            // Size by number of connections
+            const connections = networkData.edges.filter(e =>
+                e.source === d.id || e.target === d.id
+            ).length;
+            return Math.max(8, Math.min(20, 8 + connections * 2));
+        })
+        .attr('fill', d => typeColors[d.cognitive_type] || '#999')
+        .attr('fill-opacity', 0.3)
+        .attr('stroke', d => typeColors[d.cognitive_type] || '#999')
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .call(drag(simulation))
+        .on('click', (event, d) => {
+            event.stopPropagation();
+            addToSelection(d);
+        })
+        .on('mouseover', function(event, d) {
+            d3.select(this)
+                .attr('fill-opacity', 0.6)
+                .attr('stroke-width', 3);
+        })
+        .on('mouseout', function(event, d) {
+            d3.select(this)
+                .attr('fill-opacity', selectedNodes.has(d.id) ? 0.8 : 0.3)
+                .attr('stroke-width', 2);
+        });
+
+    // Create labels
+    label = g.append('g')
+        .selectAll('text')
+        .data(networkData.nodes)
+        .join('text')
+        .text(d => d.title.substring(0, 30) + (d.title.length > 30 ? '...' : ''))
+        .attr('font-size', 10)
+        .attr('fill', '#999')
+        .attr('text-anchor', 'middle')
+        .attr('dy', -25)
+        .style('pointer-events', 'none')
+        .style('display', showLabels ? 'block' : 'none');
+
+    // Update positions on simulation tick
+    simulation.on('tick', () => {
+        link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+
+        node
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y);
+
+        label
+            .attr('x', d => d.x)
+            .attr('y', d => d.y);
+    });
+
+    // Fit to screen on load
+    setTimeout(() => fitToScreen(), 1000);
+}
+
+// Drag behavior
+function drag(simulation) {
+    function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    return d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended);
+}
+
+// Add node to selection
+function addToSelection(node) {
+    if (selectedNodes.has(node.id)) {
+        selectedNodes.delete(node.id);
+    } else {
+        selectedNodes.add(node.id);
+    }
+
+    updateSelection();
+}
+
+// Update selection display
+function updateSelection() {
+    // Update node appearance
+    node.attr('fill-opacity', d => selectedNodes.has(d.id) ? 0.8 : 0.3);
+
+    // Update count
+    document.getElementById('selectedCount').textContent = selectedNodes.size;
+
+    // Update tank
+    updateSelectionTank();
+
+    // Update analysis
+    updateAnalysis();
+}
+
+// Update selection tank with floating orbs
+function updateSelectionTank() {
+    const tank = document.getElementById('tankCanvas');
+    const tankWidth = tank.clientWidth;
+    const tankHeight = tank.clientHeight;
+
+    // Clear existing orbs
+    tank.innerHTML = '';
+
+    // Create orbs for selected nodes
+    Array.from(selectedNodes).forEach((nodeId, index) => {
+        const nodeData = networkData.nodes.find(n => n.id === nodeId);
+        if (!nodeData) return;
+
+        const orb = document.createElement('div');
+        orb.className = 'tank-orb';
+        orb.style.width = '40px';
+        orb.style.height = '40px';
+        orb.style.left = `${20 + (index % 5) * 50}px`;
+        orb.style.top = `${20 + Math.floor(index / 5) * 50}px`;
+        orb.style.background = typeColors[nodeData.cognitive_type] || '#999';
+        orb.style.borderColor = typeColors[nodeData.cognitive_type] || '#999';
+        orb.style.animationDelay = `${index * 0.2}s`;
+        orb.title = nodeData.title;
+        orb.onclick = () => {
+            selectedNodes.delete(nodeId);
+            updateSelection();
+        };
+
+        tank.appendChild(orb);
+    });
+}
+
+// Update analysis panel
+function updateAnalysis() {
+    const content = document.getElementById('analysisContent');
+
+    if (selectedNodes.size === 0) {
+        content.innerHTML = '<div class="analysis-empty">Drag nodes to the Selection Tank to begin analysis</div>';
+        return;
+    }
+
+    let html = '';
+
+    // Show selected nodes
+    Array.from(selectedNodes).forEach(nodeId => {
+        const nodeData = networkData.nodes.find(n => n.id === nodeId);
+        if (!nodeData) return;
+
+        // Find relationships
+        const relationships = networkData.edges.filter(e =>
+            (e.source.id === nodeId || e.target.id === nodeId) &&
+            (selectedNodes.has(e.source.id) || selectedNodes.has(e.target.id))
+        );
+
+        // Generate blockchain network badge if applicable
+        let networkBadge = '';
+        if (nodeData.metadata && nodeData.metadata.blockchain && nodeData.metadata.blockchain.blockchain_network) {
+            const network = nodeData.metadata.blockchain.blockchain_network;
+            networkBadge = `<span class="network-badge network-${network}">${network}</span>`;
+        }
+
+        // Generate blockchain metadata display
+        let blockchainMeta = '';
+        if (nodeData.cognitive_type === 'blockchain' && nodeData.metadata && nodeData.metadata.blockchain) {
+            const bc = nodeData.metadata.blockchain;
+            let priorityParts = [];
+            let metaParts = [];
+
+            // PRIORITY: Blockchain Transaction Data (shown first with emphasis)
+            if (bc.mint_date) {
+                priorityParts.push(`<div style="color: var(--accent-gold); font-weight: 600;">⏰ Minted: ${bc.mint_date}</div>`);
+            }
+            if (bc.transaction_hash) {
+                const shortHash = `${bc.transaction_hash.substring(0, 10)}...${bc.transaction_hash.substring(bc.transaction_hash.length - 8)}`;
+                priorityParts.push(`<div style="font-family: monospace; font-size: 0.6rem;">🔐 Tx: ${shortHash}</div>`);
+            }
+            if (bc.block_number) {
+                priorityParts.push(`<div>🧱 Block: #${bc.block_number}</div>`);
+            }
+            if (bc.contract_address) {
+                const shortContract = `${bc.contract_address.substring(0, 8)}...${bc.contract_address.substring(bc.contract_address.length - 6)}`;
+                priorityParts.push(`<div style="font-family: monospace; font-size: 0.6rem;">📜 Contract: ${shortContract}</div>`);
+            }
+
+            // Secondary metadata
+            if (bc.platforms && bc.platforms.length > 0) {
+                metaParts.push(`🏪 Platform: ${bc.platforms.join(', ')}`);
+            }
+            if (bc.token_ids && bc.token_ids.length > 0) {
+                metaParts.push(`🎫 Token: ${bc.token_ids.join(', ')}`);
+            }
+            if (bc.ipfs_hashes && bc.ipfs_hashes.length > 0) {
+                metaParts.push(`📌 ${bc.ipfs_hashes.length} IPFS hash${bc.ipfs_hashes.length > 1 ? 'es' : ''}`);
+            }
+            if (bc.blockchain_addresses && bc.blockchain_addresses.length > 0) {
+                const addrCount = bc.blockchain_addresses.length;
+                metaParts.push(`💳 ${addrCount} address${addrCount > 1 ? 'es' : ''}`);
+            }
+            if (bc.original_date && !bc.mint_date) {
+                metaParts.push(`📅 Original: ${bc.original_date}`);
+            }
+
+            if (priorityParts.length > 0 || metaParts.length > 0) {
+                blockchainMeta = `<div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.5rem; border-top: 1px solid rgba(212, 165, 116, 0.3); padding-top: 0.5rem;">
+                    ${priorityParts.join('')}
+                    ${priorityParts.length > 0 && metaParts.length > 0 ? '<div style="margin: 0.4rem 0; border-top: 1px solid rgba(255,255,255,0.05);"></div>' : ''}
+                    ${metaParts.map(part => `<div>• ${part}</div>`).join('')}
+                </div>`;
+            }
+        }
+
+        // Check if node has an associated image
+        const nodeThumbnail = nodeData.image_path || (nodeData.metadata && nodeData.metadata.image_path) || null;
+
+        html += `
+            <div class="selected-node ${nodeThumbnail ? 'node-with-thumb' : ''}">
+                ${nodeThumbnail ? `<img src="/media/${nodeThumbnail}" class="node-thumbnail" alt="${nodeData.title}" onerror="this.style.display='none'">` : ''}
+                <div class="node-content">
+                    <div class="selected-node-header">
+                        <div class="selected-node-title">${nodeData.title}${networkBadge}</div>
+                        <span class="selected-node-type">${nodeData.cognitive_type}</span>
+                        <button class="selected-node-remove" onclick="removeFromSelection('${nodeId}')">×</button>
+                    </div>
+                    <div class="selected-node-meta">
+                        ${nodeData.url ? SafeUrlHelper.getSafeUrlHtml(nodeData.url, 'View Source →', 'color: var(--accent-warm); font-size: 0.65rem;') : ''}
+                    </div>
+                    ${nodeData.tags && nodeData.tags.length > 0 ? `
+                        <div class="selected-node-tags">
+                            ${nodeData.tags.map(tag => `<span class="selected-node-tag">${SafeUrlHelper.escapeHtml(tag)}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${blockchainMeta}
+                    ${relationships.length > 0 ? `
+                        <div class="relationships-section">
+                            <div class="relationships-title">Connections</div>
+                            ${relationships.map(rel => {
+                                const otherId = rel.source.id === nodeId ? rel.target.id : rel.source.id;
+                                const other = networkData.nodes.find(n => n.id === otherId);
+                                const safeOtherId = SafeUrlHelper.escapeHtml(otherId);
+                                const safeTitle = SafeUrlHelper.escapeHtml(other ? other.title : 'Unknown');
+                                const safeRelType = SafeUrlHelper.escapeHtml(rel.type.replace(/_/g, ' '));
+                                return `<div class="relationship-item" data-node-id="${safeOtherId}">
+                                    <span class="relationship-dot rel-${SafeUrlHelper.escapeHtml(rel.type)}" title="${safeRelType}"></span>
+                                    ${other && other.url ?
+                                        SafeUrlHelper.getSafeUrlHtml(other.url, safeTitle, '') :
+                                        `<span>${safeTitle}</span>`
+                                    }
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    content.innerHTML = html;
+
+    // Add hover events for relationship items
+    content.querySelectorAll('.relationship-item').forEach(item => {
+        const nodeId = item.dataset.nodeId;
+        if (!nodeId) return;
+
+        item.addEventListener('mouseenter', (e) => {
+            const nodeData = networkData.nodes.find(n => n.id === nodeId);
+            if (nodeData) {
+                showConnectionPopup(nodeData, e);
+            }
+        });
+
+        item.addEventListener('mouseleave', () => {
+            hideConnectionPopup();
+        });
+    });
+}
+
+// Remove from selection
+function removeFromSelection(nodeId) {
+    selectedNodes.delete(nodeId);
+    updateSelection();
+}
+
+// Clear selection
+function clearSelection() {
+    selectedNodes.clear();
+    exportSet.clear();
+    omittedSet.clear();
+    updateSelection();
+}
+
+// Analyze selection - generate comprehensive summary
+function analyzeSelection() {
+    if (selectedNodes.size === 0) {
+        alert('No nodes selected. Drag nodes to Selection Tank first.');
+        return;
+    }
+
+    // Initialize export set with all selected nodes (if not already set)
+    if (exportSet.size === 0 && omittedSet.size === 0) {
+        exportSet = new Set(selectedNodes);
+    }
+
+    // Generate comprehensive dataset summary
+    const summary = {
+        totalAssets: selectedNodes.size,
+        cognitiveTypes: {},
+        blockchainNetworks: {},
+        platforms: {},
+        withImages: 0,
+        withBlockchainData: 0,
+        withTransactions: 0,
+        withIPFS: 0,
+        withTokens: 0,
+        totalConnections: 0,
+        mediaTypes: {
+            nft: 0,
+            article: 0,
+            research: 0,
+            media: 0,
+            conversation: 0
+        }
+    };
+
+    // Analyze each selected node
+    Array.from(selectedNodes).forEach(nodeId => {
+        const node = networkData.nodes.find(n => n.id === nodeId);
+        if (!node) return;
+
+        // Count cognitive types
+        summary.cognitiveTypes[node.cognitive_type] = (summary.cognitiveTypes[node.cognitive_type] || 0) + 1;
+
+        // Count media types
+        if (node.cognitive_type === 'blockchain') summary.mediaTypes.nft++;
+        else if (node.cognitive_type === 'web_article') summary.mediaTypes.article++;
+        else if (node.cognitive_type === 'research') summary.mediaTypes.research++;
+        else if (node.cognitive_type === 'media') summary.mediaTypes.media++;
+        else if (node.cognitive_type === 'conversation') summary.mediaTypes.conversation++;
+
+        // Check for images
+        if (node.image_path || node.image_url) summary.withImages++;
+
+        // Analyze blockchain metadata
+        if (node.metadata && node.metadata.blockchain) {
+            const bc = node.metadata.blockchain;
+            summary.withBlockchainData++;
+
+            if (bc.blockchain_network) {
+                summary.blockchainNetworks[bc.blockchain_network] = (summary.blockchainNetworks[bc.blockchain_network] || 0) + 1;
+            }
+
+            if (bc.platforms && bc.platforms.length > 0) {
+                bc.platforms.forEach(platform => {
+                    summary.platforms[platform] = (summary.platforms[platform] || 0) + 1;
+                });
+            }
+
+            if (bc.transaction_hash) summary.withTransactions++;
+            if (bc.ipfs_hashes && bc.ipfs_hashes.length > 0) summary.withIPFS++;
+            if (bc.token_ids && bc.token_ids.length > 0) summary.withTokens++;
+        }
+
+        // Count connections
+        const nodeConnections = networkData.edges.filter(e =>
+            (e.source.id === nodeId || e.target.id === nodeId) &&
+            (selectedNodes.has(e.source.id) || selectedNodes.has(e.target.id))
+        );
+        summary.totalConnections += nodeConnections.length;
+    });
+
+    // Avoid double counting connections
+    summary.totalConnections = Math.floor(summary.totalConnections / 2);
+
+    // Generate summary HTML
+    let summaryHTML = `
+        <div class="analysis-summary">
+            <div class="summary-title">Dataset Summary</div>
+
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="summary-stat-label">Total Assets</div>
+                    <div class="summary-stat-value">${summary.totalAssets}</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-label">Connections</div>
+                    <div class="summary-stat-value">${summary.totalConnections}</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-label">With Images</div>
+                    <div class="summary-stat-value">${summary.withImages}</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-label">Blockchain Data</div>
+                    <div class="summary-stat-value">${summary.withBlockchainData}</div>
+                </div>
+            </div>
+
+            <div class="summary-breakdown">
+                <strong style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Media Types in Training Set:</strong>
+                ${summary.mediaTypes.nft > 0 ? `
+                    <div class="summary-breakdown-item">
+                        <span class="summary-breakdown-label">🎨 NFT Artwork</span>
+                        <span class="summary-breakdown-value">${summary.mediaTypes.nft} asset${summary.mediaTypes.nft !== 1 ? 's' : ''}</span>
+                    </div>
+                ` : ''}
+                ${summary.mediaTypes.article > 0 ? `
+                    <div class="summary-breakdown-item">
+                        <span class="summary-breakdown-label">📰 Articles</span>
+                        <span class="summary-breakdown-value">${summary.mediaTypes.article} article${summary.mediaTypes.article !== 1 ? 's' : ''}</span>
+                    </div>
+                ` : ''}
+                ${summary.mediaTypes.research > 0 ? `
+                    <div class="summary-breakdown-item">
+                        <span class="summary-breakdown-label">📚 Research</span>
+                        <span class="summary-breakdown-value">${summary.mediaTypes.research} document${summary.mediaTypes.research !== 1 ? 's' : ''}</span>
+                    </div>
+                ` : ''}
+                ${summary.mediaTypes.media > 0 ? `
+                    <div class="summary-breakdown-item">
+                        <span class="summary-breakdown-label">🖼️ Media Files</span>
+                        <span class="summary-breakdown-value">${summary.mediaTypes.media} file${summary.mediaTypes.media !== 1 ? 's' : ''}</span>
+                    </div>
+                ` : ''}
+                ${summary.mediaTypes.conversation > 0 ? `
+                    <div class="summary-breakdown-item">
+                        <span class="summary-breakdown-label">💬 Conversations</span>
+                        <span class="summary-breakdown-value">${summary.mediaTypes.conversation} thread${summary.mediaTypes.conversation !== 1 ? 's' : ''}</span>
+                    </div>
+                ` : ''}
+            </div>
+
+            ${Object.keys(summary.blockchainNetworks).length > 0 ? `
+                <div class="summary-breakdown" style="margin-top: 0.75rem;">
+                    <strong style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Blockchain Networks:</strong>
+                    ${Object.entries(summary.blockchainNetworks).map(([network, count]) => `
+                        <div class="summary-breakdown-item">
+                            <span class="summary-breakdown-label">${
+                                network === 'ethereum' ? '⛓️ Ethereum' :
+                                network === 'tezos' ? '⛓️ Tezos' :
+                                network === 'polygon' ? '⛓️ Polygon' :
+                                network === 'bitcoin' ? '⛓️ Bitcoin' :
+                                network === 'solana' ? '⛓️ Solana' : '⛓️ ' + network
+                            }</span>
+                            <span class="summary-breakdown-value">${count} NFT${count !== 1 ? 's' : ''}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${Object.keys(summary.platforms).length > 0 ? `
+                <div class="summary-breakdown" style="margin-top: 0.75rem;">
+                    <strong style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">NFT Platforms:</strong>
+                    ${Object.entries(summary.platforms).map(([platform, count]) => `
+                        <div class="summary-breakdown-item">
+                            <span class="summary-breakdown-label">🏪 ${platform}</span>
+                            <span class="summary-breakdown-value">${count} item${count !== 1 ? 's' : ''}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${summary.withTransactions > 0 || summary.withIPFS > 0 || summary.withTokens > 0 ? `
+                <div class="summary-breakdown" style="margin-top: 0.75rem;">
+                    <strong style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Blockchain Verification:</strong>
+                    ${summary.withTransactions > 0 ? `
+                        <div class="summary-breakdown-item">
+                            <span class="summary-breakdown-label">🔐 Transaction Hashes</span>
+                            <span class="summary-breakdown-value">${summary.withTransactions}</span>
+                        </div>
+                    ` : ''}
+                    ${summary.withIPFS > 0 ? `
+                        <div class="summary-breakdown-item">
+                            <span class="summary-breakdown-label">📌 IPFS Content</span>
+                            <span class="summary-breakdown-value">${summary.withIPFS}</span>
+                        </div>
+                    ` : ''}
+                    ${summary.withTokens > 0 ? `
+                        <div class="summary-breakdown-item">
+                            <span class="summary-breakdown-label">🎫 Token IDs</span>
+                            <span class="summary-breakdown-value">${summary.withTokens}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : ''}
+
+            <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.65rem; color: var(--text-tertiary); font-style: italic;">
+                💡 This dataset is ready for autonomous agent training. Export using the button above to download as JSON.
+            </div>
+
+            <!-- Export Gallery with Thumbnails -->
+            <div class="export-gallery">
+                <div class="export-section-title">
+                    <span>📦 Will Export</span>
+                    <span class="export-count">${exportSet.size} asset${exportSet.size !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="export-thumbnails">
+                    ${Array.from(exportSet).map(nodeId => {
+                        const node = networkData.nodes.find(n => n.id === nodeId);
+                        if (!node) return '';
+                        const thumbnail = node.image_path || (node.metadata && node.metadata.image_path) || null;
+                        const typeIcon = node.cognitive_type === 'blockchain' ? '🎨' :
+                                       node.cognitive_type === 'web_article' ? '📰' :
+                                       node.cognitive_type === 'research' ? '📚' :
+                                       node.cognitive_type === 'media' ? '🖼️' : '💬';
+
+                        return `
+                            <div class="export-thumb-item" title="${node.title}">
+                                ${thumbnail ?
+                                    `<img src="/media/${thumbnail}" class="export-thumb-img" alt="${node.title}" onerror="this.parentElement.innerHTML='<div class=\\'export-thumb-placeholder\\'>${typeIcon}</div>'">` :
+                                    `<div class="export-thumb-placeholder">${typeIcon}</div>`
+                                }
+                                <button class="export-thumb-remove" onclick="removeFromExport('${nodeId}')" title="Remove from export">×</button>
+                                <div class="export-thumb-title">${node.title.substring(0, 20)}${node.title.length > 20 ? '...' : ''}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                ${omittedSet.size > 0 ? `
+                    <div class="omitted-items">
+                        <div class="export-section-title" style="margin-top: 1rem;">
+                            <span>🗑️ Omitted</span>
+                            <span class="export-count">${omittedSet.size} asset${omittedSet.size !== 1 ? 's' : ''}</span>
+                        </div>
+                        ${Array.from(omittedSet).map(nodeId => {
+                            const node = networkData.nodes.find(n => n.id === nodeId);
+                            if (!node) return '';
+                            const typeIcon = node.cognitive_type === 'blockchain' ? '🎨' :
+                                           node.cognitive_type === 'web_article' ? '📰' :
+                                           node.cognitive_type === 'research' ? '📚' :
+                                           node.cognitive_type === 'media' ? '🖼️' : '💬';
+
+                            return `
+                                <div class="omitted-item" onclick="restoreToExport('${nodeId}')" title="Click to restore to export">
+                                    <span class="omitted-item-icon">${typeIcon}</span>
+                                    <span class="omitted-item-title">${node.title}</span>
+                                    <span class="omitted-item-restore">↩ Restore</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+
+    // Insert summary at the top of analysis content
+    const content = document.getElementById('analysisContent');
+    const existingContent = content.innerHTML;
+
+    // Remove old summary if exists
+    const withoutOldSummary = existingContent.replace(/<div class="analysis-summary">[\s\S]*?<\/div>\s*(?=<div class="selected-node"|$)/, '');
+
+    content.innerHTML = summaryHTML + withoutOldSummary;
+
+    // Scroll to analysis panel
+    document.querySelector('.analysis-panel').scrollIntoView({ behavior: 'smooth' });
+
+    console.log('Dataset summary:', summary);
+}
+
+// Remove item from export (move to omitted)
+function removeFromExport(nodeId) {
+    if (exportSet.has(nodeId)) {
+        exportSet.delete(nodeId);
+        omittedSet.add(nodeId);
+
+        // Regenerate the analysis summary to update counts and thumbnails
+        analyzeSelection();
+
+        console.log(`Removed ${nodeId} from export. Export: ${exportSet.size}, Omitted: ${omittedSet.size}`);
+    }
+}
+
+// Restore item to export (move from omitted back to export)
+function restoreToExport(nodeId) {
+    if (omittedSet.has(nodeId)) {
+        omittedSet.delete(nodeId);
+        exportSet.add(nodeId);
+
+        // Regenerate the analysis summary to update counts and thumbnails
+        analyzeSelection();
+
+        console.log(`Restored ${nodeId} to export. Export: ${exportSet.size}, Omitted: ${omittedSet.size}`);
+    }
+}
+
+// Export selection as training dataset for autonomous agents
+function exportForAgent() {
+    if (selectedNodes.size === 0) {
+        alert('No nodes selected. Drag nodes to Selection Tank first.');
+        return;
+    }
+
+    // Use exportSet if it has been initialized, otherwise use all selectedNodes
+    const nodesToExport = exportSet.size > 0 ? exportSet : selectedNodes;
+
+    if (nodesToExport.size === 0) {
+        alert('No nodes marked for export. All nodes have been omitted.');
+        return;
+    }
+
+    // Build comprehensive dataset
+    const dataset = {
+        export_date: new Date().toISOString(),
+        export_type: 'semantic_network_analysis',
+        purpose: 'autonomous_agent_training',
+        node_count: nodesToExport.size,
+        omitted_count: omittedSet.size,
+        nodes: [],
+        connections: [],
+        metadata: {
+            blockchain_networks: new Set(),
+            platforms: new Set(),
+            cognitive_types: new Set()
+        }
+    };
+
+    // Collect all nodes marked for export with full metadata
+    Array.from(nodesToExport).forEach(nodeId => {
+        const nodeData = networkData.nodes.find(n => n.id === nodeId);
+        if (!nodeData) return;
+
+        const nodeExport = {
+            id: nodeData.id,
+            title: nodeData.title,
+            cognitive_type: nodeData.cognitive_type,
+            url: nodeData.url,
+            tags: nodeData.tags || [],
+            created_at: nodeData.created_at
+        };
+
+        // Add blockchain metadata if available
+        if (nodeData.metadata && nodeData.metadata.blockchain) {
+            const bc = nodeData.metadata.blockchain;
+            nodeExport.blockchain = {
+                network: bc.blockchain_network,
+                platforms: bc.platforms || [],
+                token_ids: bc.token_ids || [],
+                ipfs_hashes: bc.ipfs_hashes || [],
+                addresses: bc.blockchain_addresses || [],
+                mint_date: bc.mint_date,
+                transaction_hash: bc.transaction_hash,
+                block_number: bc.block_number,
+                contract_address: bc.contract_address,
+                explorer_url: bc.explorer_url
+            };
+
+            // Track metadata for summary
+            if (bc.blockchain_network) dataset.metadata.blockchain_networks.add(bc.blockchain_network);
+            if (bc.platforms) bc.platforms.forEach(p => dataset.metadata.platforms.add(p));
+        }
+
+        dataset.metadata.cognitive_types.add(nodeData.cognitive_type);
+        dataset.nodes.push(nodeExport);
+    });
+
+    // Collect all connections between nodes being exported (not omitted)
+    networkData.edges.forEach(edge => {
+        const sourceId = edge.source.id || edge.source;
+        const targetId = edge.target.id || edge.target;
+
+        if (nodesToExport.has(sourceId) && nodesToExport.has(targetId)) {
+            const sourceNode = networkData.nodes.find(n => n.id === sourceId);
+            const targetNode = networkData.nodes.find(n => n.id === targetId);
+
+            dataset.connections.push({
+                from: sourceNode ? sourceNode.title : sourceId,
+                to: targetNode ? targetNode.title : targetId,
+                relationship_type: edge.type,
+                strength: edge.strength,
+                from_url: sourceNode ? sourceNode.url : null,
+                to_url: targetNode ? targetNode.url : null
+            });
+        }
+    });
+
+    // Convert sets to arrays
+    dataset.metadata.blockchain_networks = Array.from(dataset.metadata.blockchain_networks);
+    dataset.metadata.platforms = Array.from(dataset.metadata.platforms);
+    dataset.metadata.cognitive_types = Array.from(dataset.metadata.cognitive_types);
+
+    // Download as JSON file
+    const filename = `archivit_agent_dataset_${new Date().toISOString().split('T')[0]}.json`;
+    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('Dataset exported:', dataset);
+    const message = omittedSet.size > 0 ?
+        `Exported ${dataset.nodes.length} nodes and ${dataset.connections.length} connections as ${filename}\n\n(${omittedSet.size} item${omittedSet.size !== 1 ? 's were' : ' was'} omitted from export)` :
+        `Exported ${dataset.nodes.length} nodes and ${dataset.connections.length} connections as ${filename}`;
+    alert(message);
+}
+
+// Reset view
+function resetView() {
+    svg.transition()
+        .duration(750)
+        .call(d3.zoom().transform, d3.zoomIdentity);
+}
+
+// Toggle labels
+function toggleLabels() {
+    showLabels = !showLabels;
+    label.style('display', showLabels ? 'block' : 'none');
+}
+
+// Reheat simulation
+function reheatSimulation() {
+    simulation.alpha(0.3).restart();
+}
+
+// Fit to screen
+function fitToScreen() {
+    const bounds = g.node().getBBox();
+    const parent = svg.node().parentElement;
+    const fullWidth = parent.clientWidth;
+    const fullHeight = parent.clientHeight;
+    const width = bounds.width;
+    const height = bounds.height;
+    const midX = bounds.x + width / 2;
+    const midY = bounds.y + height / 2;
+
+    if (width === 0 || height === 0) return;
+
+    const scale = 0.8 / Math.max(width / fullWidth, height / fullHeight);
+    const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
+
+    svg.transition()
+        .duration(750)
+        .call(d3.zoom().transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+}
+
+// Filter by type - open filter modal
+function filterByType() {
+    document.getElementById('filterModal').classList.add('active');
+}
+
+function closeFilterModal() {
+    document.getElementById('filterModal').classList.remove('active');
+}
+
+function resetFilters() {
+    // Check all checkboxes
+    document.querySelectorAll('.filter-modal input[type="checkbox"]').forEach(cb => {
+        cb.checked = true;
+    });
+
+    // Reset filter state
+    activeFilters = {
+        networks: new Set(['ethereum', 'tezos', 'polygon', 'bitcoin', 'solana', 'no-blockchain']),
+        platforms: new Set(['OpenSea', 'SuperRare', 'Foundation', '1stDibs NFT', 'Zora', 'Objkt', 'fxhash', 'Hic et Nunc']),
+        hasTransaction: true,
+        hasTokenId: true,
+        hasIPFS: true,
+        hasContract: true,
+        cognitiveTypes: new Set(['blockchain', 'web_article', 'research', 'media', 'conversation'])
+    };
+}
+
+function applyFilters() {
+    // Read filter state from checkboxes
+    activeFilters.networks.clear();
+    if (document.getElementById('filter-ethereum').checked) activeFilters.networks.add('ethereum');
+    if (document.getElementById('filter-tezos').checked) activeFilters.networks.add('tezos');
+    if (document.getElementById('filter-polygon').checked) activeFilters.networks.add('polygon');
+    if (document.getElementById('filter-bitcoin').checked) activeFilters.networks.add('bitcoin');
+    if (document.getElementById('filter-solana').checked) activeFilters.networks.add('solana');
+    if (document.getElementById('filter-no-blockchain').checked) activeFilters.networks.add('no-blockchain');
+
+    activeFilters.platforms.clear();
+    if (document.getElementById('filter-opensea').checked) activeFilters.platforms.add('OpenSea');
+    if (document.getElementById('filter-superrare').checked) activeFilters.platforms.add('SuperRare');
+    if (document.getElementById('filter-foundation').checked) activeFilters.platforms.add('Foundation');
+    if (document.getElementById('filter-1stdibs').checked) activeFilters.platforms.add('1stDibs NFT');
+    if (document.getElementById('filter-zora').checked) activeFilters.platforms.add('Zora');
+    // Tezos platforms
+    activeFilters.platforms.add('Objkt');
+    activeFilters.platforms.add('fxhash');
+    activeFilters.platforms.add('Hic et Nunc');
+    activeFilters.platforms.add('Teia');
+
+    activeFilters.hasTransaction = document.getElementById('filter-has-tx').checked;
+    activeFilters.hasTokenId = document.getElementById('filter-has-token').checked;
+    activeFilters.hasIPFS = document.getElementById('filter-has-ipfs').checked;
+    activeFilters.hasContract = document.getElementById('filter-has-contract').checked;
+
+    activeFilters.cognitiveTypes.clear();
+    if (document.getElementById('filter-type-blockchain').checked) activeFilters.cognitiveTypes.add('blockchain');
+    if (document.getElementById('filter-type-web').checked) activeFilters.cognitiveTypes.add('web_article');
+    if (document.getElementById('filter-type-research').checked) activeFilters.cognitiveTypes.add('research');
+    if (document.getElementById('filter-type-media').checked) activeFilters.cognitiveTypes.add('media');
+    if (document.getElementById('filter-type-conversation').checked) activeFilters.cognitiveTypes.add('conversation');
+
+    // Apply filters to network data
+    const filteredNodes = allNetworkData.nodes.filter(node => {
+        // Filter by cognitive type
+        if (!activeFilters.cognitiveTypes.has(node.cognitive_type)) {
+            return false;
+        }
+
+        // Filter by blockchain network
+        const hasBlockchain = node.metadata && node.metadata.blockchain && node.metadata.blockchain.blockchain_network;
+        if (hasBlockchain) {
+            if (!activeFilters.networks.has(node.metadata.blockchain.blockchain_network)) {
+                return false;
+            }
+        } else {
+            if (!activeFilters.networks.has('no-blockchain')) {
+                return false;
+            }
+        }
+
+        // Filter by platform
+        if (hasBlockchain && node.metadata.blockchain.platforms && node.metadata.blockchain.platforms.length > 0) {
+            const hasPlatform = node.metadata.blockchain.platforms.some(p => activeFilters.platforms.has(p));
+            if (!hasPlatform) {
+                return false;
+            }
+        }
+
+        // Filter by blockchain data presence
+        if (hasBlockchain) {
+            const bc = node.metadata.blockchain;
+            if (!activeFilters.hasTransaction && bc.transaction_hash) return false;
+            if (!activeFilters.hasTokenId && bc.token_ids && bc.token_ids.length > 0) return false;
+            if (!activeFilters.hasIPFS && bc.ipfs_hashes && bc.ipfs_hashes.length > 0) return false;
+            if (!activeFilters.hasContract && bc.contract_address) return false;
+        }
+
+        return true;
+    });
+
+    // Get IDs of filtered nodes
+    const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+
+    // Filter edges - only include edges between filtered nodes
+    const filteredEdges = allNetworkData.edges.filter(edge => {
+        const sourceId = edge.source.id || edge.source;
+        const targetId = edge.target.id || edge.target;
+        return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId);
+    });
+
+    // Update network data
+    networkData = {
+        nodes: filteredNodes,
+        edges: filteredEdges
+    };
+
+    // Update stats
+    document.getElementById('totalNodes').textContent = networkData.nodes.length;
+    document.getElementById('totalEdges').textContent = networkData.edges.length;
+
+    // Reinitialize visualization
+    initializeVisualization();
+
+    // Close modal
+    closeFilterModal();
+
+    console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredEdges.length} edges`);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === '0') resetView();
+    if (e.key === 'l' || e.key === 'L') toggleLabels();
+    if (e.key === 'h' || e.key === 'H') reheatSimulation();
+    if (e.key === 'Escape') clearSelection();
+});
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    loadNetworkData();
+});
+
+// Resize handler
+window.addEventListener('resize', () => {
+    if (networkData.nodes.length > 0) {
+        initializeVisualization();
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NON-FUNGIBLE PETRI DISH - 3D Candy Physics with Chain Logo Formations
+// Memecoins bounce around then align into BTC ₿, ETH ◆, XTZ ꜩ, SOL ◎
+// ═══════════════════════════════════════════════════════════════════════════
+
+class PetriDishPhysics {
+    constructor(container) {
+        this.container = container;
+        this.dish = container.querySelector('.petri-dish');
+        this.chainLabel = container.querySelector('#chainLabel');
+        this.radius = 70; // Dish radius (140px / 2)
+        this.center = this.radius;
+        this.coins = [];
+        this.coinTypes = ['doge', 'shib', 'pepe', 'bonk', 'wif', 'floki', 'trump', 'brett'];
+        this.running = true;
+
+        // State machine: 'scatter' | 'attracting' | 'formed' | 'dispersing'
+        this.state = 'scatter';
+        this.stateTimer = 0;
+        this.currentFormation = 0;
+
+        // Chain logo formations (normalized 0-1 coordinates, will be scaled)
+        this.formations = [
+            {
+                name: 'BTC',
+                label: '₿',
+                // Bitcoin B shape
+                points: [
+                    {x: 0.35, y: 0.2}, {x: 0.35, y: 0.35}, {x: 0.35, y: 0.5},
+                    {x: 0.35, y: 0.65}, {x: 0.35, y: 0.8},
+                    {x: 0.5, y: 0.2}, {x: 0.6, y: 0.28}, {x: 0.55, y: 0.42},
+                    {x: 0.5, y: 0.5}, {x: 0.62, y: 0.58}, {x: 0.58, y: 0.72}, {x: 0.5, y: 0.8}
+                ]
+            },
+            {
+                name: 'ETH',
+                label: '◆',
+                // Ethereum diamond shape
+                points: [
+                    {x: 0.5, y: 0.15},
+                    {x: 0.3, y: 0.45}, {x: 0.4, y: 0.45}, {x: 0.6, y: 0.45}, {x: 0.7, y: 0.45},
+                    {x: 0.35, y: 0.55}, {x: 0.5, y: 0.55}, {x: 0.65, y: 0.55},
+                    {x: 0.5, y: 0.85},
+                    {x: 0.25, y: 0.5}, {x: 0.75, y: 0.5}, {x: 0.5, y: 0.5}
+                ]
+            },
+            {
+                name: 'XTZ',
+                label: 'ꜩ',
+                // Tezos T shape
+                points: [
+                    {x: 0.25, y: 0.25}, {x: 0.4, y: 0.25}, {x: 0.5, y: 0.25}, {x: 0.6, y: 0.25}, {x: 0.75, y: 0.25},
+                    {x: 0.5, y: 0.35}, {x: 0.5, y: 0.45}, {x: 0.5, y: 0.55},
+                    {x: 0.5, y: 0.65}, {x: 0.5, y: 0.75},
+                    {x: 0.35, y: 0.75}, {x: 0.65, y: 0.75}
+                ]
+            },
+            {
+                name: 'SOL',
+                label: '◎',
+                // Solana S shape
+                points: [
+                    {x: 0.65, y: 0.22}, {x: 0.5, y: 0.2}, {x: 0.35, y: 0.25},
+                    {x: 0.3, y: 0.35}, {x: 0.4, y: 0.45},
+                    {x: 0.5, y: 0.5}, {x: 0.6, y: 0.55},
+                    {x: 0.7, y: 0.65}, {x: 0.65, y: 0.75},
+                    {x: 0.5, y: 0.8}, {x: 0.35, y: 0.78}, {x: 0.5, y: 0.5}
+                ]
+            }
+        ];
+
+        this.init();
+    }
+
+    init() {
+        // Create 12 coins for better formations
+        const numCoins = 12;
+
+        for (let i = 0; i < numCoins; i++) {
+            this.createCoin(i);
+        }
+
+        // Start physics loop
+        this.lastTime = performance.now();
+        this.animate();
+
+        // Start formation cycle
+        this.scheduleNextFormation();
+    }
+
+    createCoin(index) {
+        const coinType = this.coinTypes[index % this.coinTypes.length];
+        const coin = document.createElement('div');
+        coin.className = `memecoin ${coinType}`;
+
+        // Random starting position within dish
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (this.radius - 20);
+
+        const size = 16 + Math.random() * 5;
+
+        const coinData = {
+            element: coin,
+            x: this.center + Math.cos(angle) * dist,
+            y: this.center + Math.sin(angle) * dist,
+            z: Math.random() * 10, // Pseudo 3D depth
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: (Math.random() - 0.5) * 1.2,
+            vz: (Math.random() - 0.5) * 0.5,
+            size: size,
+            targetX: null,
+            targetY: null,
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 2
+        };
+
+        coin.style.width = size + 'px';
+        coin.style.height = size + 'px';
+
+        this.coins.push(coinData);
+        this.dish.appendChild(coin);
+    }
+
+    scheduleNextFormation() {
+        // Wait 8-12 seconds then start formation
+        const delay = 8000 + Math.random() * 4000;
+
+        setTimeout(() => {
+            if (!this.running) return;
+            this.startFormation();
+        }, delay);
+    }
+
+    startFormation() {
+        this.state = 'attracting';
+        this.dish.classList.add('forming');
+
+        const formation = this.formations[this.currentFormation];
+        this.chainLabel.textContent = formation.label;
+
+        // Assign target positions
+        const points = formation.points;
+        const scale = this.radius * 1.6; // Scale formation to dish
+        const offset = this.center - scale * 0.5;
+
+        this.coins.forEach((coin, i) => {
+            const point = points[i % points.length];
+            coin.targetX = offset + point.x * scale;
+            coin.targetY = offset + point.y * scale;
+        });
+
+        // Hold formation for 3 seconds then disperse
+        setTimeout(() => {
+            if (!this.running) return;
+            this.state = 'formed';
+
+            // Pop animation
+            this.coins.forEach((coin, i) => {
+                setTimeout(() => {
+                    coin.element.classList.add('popping');
+                    setTimeout(() => coin.element.classList.remove('popping'), 300);
+                }, i * 50);
+            });
+
+            setTimeout(() => {
+                if (!this.running) return;
+                this.disperseFormation();
+            }, 3000);
+        }, 2000);
+    }
+
+    disperseFormation() {
+        this.state = 'dispersing';
+        this.dish.classList.remove('forming');
+
+        // Give coins random velocities to scatter
+        this.coins.forEach(coin => {
+            coin.targetX = null;
+            coin.targetY = null;
+            coin.vx = (Math.random() - 0.5) * 3;
+            coin.vy = (Math.random() - 0.5) * 3;
+        });
+
+        setTimeout(() => {
+            if (!this.running) return;
+            this.state = 'scatter';
+            this.currentFormation = (this.currentFormation + 1) % this.formations.length;
+            this.scheduleNextFormation();
+        }, 1500);
+    }
+
+    animate() {
+        if (!this.running) return;
+
+        const now = performance.now();
+        const dt = Math.min((now - this.lastTime) / 16.67, 2); // Normalize to ~60fps
+        this.lastTime = now;
+
+        this.coins.forEach((coin, i) => {
+            // Attraction to target (during formation)
+            if (coin.targetX !== null && (this.state === 'attracting' || this.state === 'formed')) {
+                const dx = coin.targetX - coin.x;
+                const dy = coin.targetY - coin.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > 1) {
+                    // Spring force toward target
+                    const force = this.state === 'formed' ? 0.15 : 0.08;
+                    coin.vx += (dx / dist) * force * dt;
+                    coin.vy += (dy / dist) * force * dt;
+
+                    // Extra damping when forming
+                    coin.vx *= 0.92;
+                    coin.vy *= 0.92;
+                }
+            }
+
+            // Apply velocity
+            coin.x += coin.vx * dt;
+            coin.y += coin.vy * dt;
+            coin.z += coin.vz * dt;
+            coin.rotation += coin.rotationSpeed * dt;
+
+            // Z bounds (pseudo 3D)
+            if (coin.z < 0 || coin.z > 10) {
+                coin.vz *= -0.8;
+                coin.z = Math.max(0, Math.min(10, coin.z));
+            }
+
+            // Bounce off circular boundary
+            const dx = coin.x - this.center;
+            const dy = coin.y - this.center;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = this.radius - coin.size / 2 - 4;
+
+            if (dist > maxDist) {
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                coin.x = this.center + nx * maxDist;
+                coin.y = this.center + ny * maxDist;
+
+                const dot = coin.vx * nx + coin.vy * ny;
+                coin.vx -= 2 * dot * nx;
+                coin.vy -= 2 * dot * ny;
+
+                // Bouncy energy loss
+                coin.vx *= 0.75;
+                coin.vy *= 0.75;
+
+                // Add some spin on bounce
+                coin.rotationSpeed += (Math.random() - 0.5) * 3;
+            }
+
+            // Coin-to-coin collision (3D aware)
+            for (let j = i + 1; j < this.coins.length; j++) {
+                const other = this.coins[j];
+                const cdx = other.x - coin.x;
+                const cdy = other.y - coin.y;
+                const cdz = other.z - coin.z;
+                const cdist2D = Math.sqrt(cdx * cdx + cdy * cdy);
+                const minDist = (coin.size + other.size) / 2 * 0.9;
+
+                // Only collide if at similar Z depth
+                if (cdist2D < minDist && Math.abs(cdz) < 5 && cdist2D > 0) {
+                    const overlap = minDist - cdist2D;
+                    const cnx = cdx / cdist2D;
+                    const cny = cdy / cdist2D;
+
+                    coin.x -= cnx * overlap * 0.5;
+                    coin.y -= cny * overlap * 0.5;
+                    other.x += cnx * overlap * 0.5;
+                    other.y += cny * overlap * 0.5;
+
+                    // Elastic collision
+                    const dvx = coin.vx - other.vx;
+                    const dvy = coin.vy - other.vy;
+                    const dvDotN = dvx * cnx + dvy * cny;
+
+                    coin.vx -= dvDotN * cnx * 0.8;
+                    coin.vy -= dvDotN * cny * 0.8;
+                    other.vx += dvDotN * cnx * 0.8;
+                    other.vy += dvDotN * cny * 0.8;
+
+                    // Z separation
+                    if (coin.z < other.z) {
+                        coin.vz -= 0.3;
+                        other.vz += 0.3;
+                    } else {
+                        coin.vz += 0.3;
+                        other.vz -= 0.3;
+                    }
+                }
+            }
+
+            // Brownian motion (only in scatter state)
+            if (this.state === 'scatter' || this.state === 'dispersing') {
+                coin.vx += (Math.random() - 0.5) * 0.08 * dt;
+                coin.vy += (Math.random() - 0.5) * 0.08 * dt;
+            }
+
+            // Damping
+            const dampFactor = this.state === 'formed' ? 0.96 : 0.992;
+            coin.vx *= dampFactor;
+            coin.vy *= dampFactor;
+            coin.vz *= 0.98;
+            coin.rotationSpeed *= 0.995;
+
+            // Minimum velocity (keep things alive in scatter mode)
+            if (this.state === 'scatter') {
+                const speed = Math.sqrt(coin.vx * coin.vx + coin.vy * coin.vy);
+                if (speed < 0.2) {
+                    coin.vx += (Math.random() - 0.5) * 0.5;
+                    coin.vy += (Math.random() - 0.5) * 0.5;
+                }
+            }
+
+            // Update DOM with 3D transforms
+            const zScale = 1 + coin.z * 0.015; // Slight size change with depth
+            const zTranslate = coin.z * 0.5; // Pseudo 3D lift
+            const shadowBlur = 3 + coin.z * 0.3;
+            const shadowY = 2 + coin.z * 0.2;
+
+            coin.element.style.left = (coin.x - coin.size / 2) + 'px';
+            coin.element.style.top = (coin.y - coin.size / 2) + 'px';
+            coin.element.style.transform = `
+                scale(${zScale})
+                translateZ(${zTranslate}px)
+                rotateY(${coin.rotation * 0.3}deg)
+                rotateX(${coin.rotation * 0.2}deg)
+            `;
+            coin.element.style.zIndex = Math.floor(coin.z);
+
+            // Dynamic shadow based on Z
+            const baseColor = getComputedStyle(coin.element).backgroundColor;
+            coin.element.style.boxShadow = `
+                0 ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.4),
+                inset 0 -3px 8px rgba(0,0,0,0.3),
+                inset 0 3px 8px rgba(255,255,255,0.2)
+            `;
+        });
+
+        requestAnimationFrame(() => this.animate());
+    }
+
+    shake() {
+        this.coins.forEach(coin => {
+            coin.vx += (Math.random() - 0.5) * 4;
+            coin.vy += (Math.random() - 0.5) * 4;
+            coin.vz += (Math.random() - 0.5) * 2;
+            coin.rotationSpeed += (Math.random() - 0.5) * 5;
+        });
+    }
+
+    // Force immediate formation (for demo)
+    forceFormation() {
+        if (this.state === 'scatter') {
+            this.startFormation();
+        }
+    }
+
+    destroy() {
+        this.running = false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECURE LINK VALIDATION - Hardcoded trusted block explorers
+// Protects against link hijacking, XSS, and malicious redirects
+// ═══════════════════════════════════════════════════════════════════════════
+const SecureBlockExplorer = {
+    // LOCKED: Only these domains are trusted - DO NOT modify without security review
+    TRUSTED_EXPLORERS: Object.freeze({
+        ethereum: 'https://etherscan.io',
+        polygon: 'https://polygonscan.com',
+        bsc: 'https://bscscan.com',
+        arbitrum: 'https://arbiscan.io',
+        optimism: 'https://optimistic.etherscan.io',
+        base: 'https://basescan.org',
+        solana: 'https://solscan.io'
+    }),
+
+    // Validate Ethereum address format (0x + 40 hex chars)
+    isValidEthAddress(address) {
+        return /^0x[a-fA-F0-9]{40}$/.test(address);
+    },
+
+    // Validate Solana address format (32-44 base58 chars)
+    isValidSolanaAddress(address) {
+        return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+    },
+
+    // Detect chain from address format
+    detectChain(address) {
+        if (this.isValidEthAddress(address)) return 'ethereum';
+        if (this.isValidSolanaAddress(address)) return 'solana';
+        return null;
+    },
+
+    // Build secure explorer URL - returns null if validation fails
+    getExplorerUrl(address, chain = null) {
+        // Auto-detect chain if not specified
+        const detectedChain = chain || this.detectChain(address);
+        if (!detectedChain) return null;
+
+        // Get trusted base URL
+        const baseUrl = this.TRUSTED_EXPLORERS[detectedChain];
+        if (!baseUrl) return null;
+
+        // Sanitize address - only allow alphanumeric and 0x prefix
+        const sanitized = address.replace(/[^a-zA-Z0-9]/g, '');
+        if (sanitized.length < 32) return null;
+
+        // Build URL based on chain
+        if (detectedChain === 'solana') {
+            return `${baseUrl}/token/${sanitized}`;
+        }
+        return `${baseUrl}/token/${address.startsWith('0x') ? address : '0x' + sanitized}`;
+    },
+
+    // Secure link opener - validates before navigation
+    openExplorerLink(address, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const url = this.getExplorerUrl(address);
+        if (!url) {
+            console.warn('SecureBlockExplorer: Invalid address format', address);
+            return false;
+        }
+
+        // Verify URL is from trusted domain before opening
+        try {
+            const parsed = new URL(url);
+            const isTrusted = Object.values(this.TRUSTED_EXPLORERS).some(
+                trusted => parsed.origin === new URL(trusted).origin
+            );
+            if (!isTrusted) {
+                console.error('SecureBlockExplorer: URL not from trusted domain', url);
+                return false;
+            }
+        } catch (e) {
+            console.error('SecureBlockExplorer: URL parsing failed', e);
+            return false;
+        }
+
+        // Open with security attributes to prevent window.opener attacks
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return true;
+    }
+};
+
+// Freeze the security module to prevent tampering
+Object.freeze(SecureBlockExplorer);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SA-005 FIX: Safe URL validation for general web links
+// Validates URLs before insertion into href attributes
+// ═══════════════════════════════════════════════════════════════════════════
+const SafeUrlHelper = {
+    // Validate that URL uses safe protocol and is well-formed
+    isValidUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+        try {
+            const parsed = new URL(url);
+            // Only allow http and https protocols
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                return false;
+            }
+            // Block javascript: data: and other dangerous schemes that might bypass protocol check
+            if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
+                return false;
+            }
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    // Escape HTML special characters
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    // Create a safe anchor element with validated URL
+    createSafeLink(url, text, className = '') {
+        if (!this.isValidUrl(url)) {
+            const span = document.createElement('span');
+            span.textContent = text || 'Invalid URL';
+            if (className) span.className = className;
+            return span;
+        }
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = text || url;
+        if (className) a.className = className;
+        return a;
+    },
+
+    // Get safe HTML string for URL (when DOM manipulation is not practical)
+    getSafeUrlHtml(url, text, style = '') {
+        if (!this.isValidUrl(url)) {
+            return `<span>${this.escapeHtml(text || 'Invalid URL')}</span>`;
+        }
+        const safeUrl = this.escapeHtml(url);
+        const safeText = this.escapeHtml(text || url);
+        return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" ${style ? `style="${style}"` : ''}>${safeText}</a>`;
+    }
+};
+
+Object.freeze(SafeUrlHelper);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOLDINGS RING - Segmented border showing wallet token ratios with addresses
+// Now with secure explorer links and full address display
+// ═══════════════════════════════════════════════════════════════════════════
+class HoldingsRing {
+    constructor(container) {
+        this.container = container;
+        this.segmentsGroup = container.querySelector('#holdingsSegments');
+        this.labelsContainer = container.querySelector('#holdingsLabels');
+        this.glowElement = container.querySelector('#holdingsGlow');
+
+        // Ring geometry
+        this.cx = 65;  // Center X
+        this.cy = 65;  // Center Y
+        this.radius = 57; // Ring radius
+        this.strokeWidth = 8;
+
+        // Token colors matching memecoin styles
+        this.tokenColors = {
+            'doge': '#c9a227',
+            'shib': '#ff5722',
+            'pepe': '#4caf50',
+            'bonk': '#ff9800',
+            'wif': '#e91e63',
+            'floki': '#8d6e63',
+            'trump': '#1976d2',
+            'brett': '#2196f3'
+        };
+
+        // Mock wallet holdings data (would come from blockchain scanner)
+        this.holdings = [
+            { token: 'doge', address: '0xba2ae424d960c26247dd6c32edc70b295c744c43', amount: 15000000, percentage: 0.28, chain: 'ethereum' },
+            { token: 'shib', address: '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce', amount: 8500000000, percentage: 0.22, chain: 'ethereum' },
+            { token: 'pepe', address: '0x6982508145454ce325ddbe47a25d4ec3d2311933', amount: 420690000, percentage: 0.18, chain: 'ethereum' },
+            { token: 'bonk', address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', amount: 50000000, percentage: 0.12, chain: 'solana' },
+            { token: 'wif', address: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', amount: 2500, percentage: 0.10, chain: 'solana' },
+            { token: 'trump', address: '0x576e2bed8f7b46d34016198911cdf9886f78bea7', amount: 1000, percentage: 0.06, chain: 'ethereum' },
+            { token: 'brett', address: '0x532f27101965dd16442e59d40670faf5ebb142e4', amount: 500000, percentage: 0.04, chain: 'base' }
+        ];
+
+        this.render();
+    }
+
+    // Convert polar to cartesian coordinates
+    polarToCartesian(cx, cy, r, angleDegrees) {
+        const angleRadians = (angleDegrees - 90) * Math.PI / 180;
+        return {
+            x: cx + r * Math.cos(angleRadians),
+            y: cy + r * Math.sin(angleRadians)
+        };
+    }
+
+    // Create SVG arc path
+    createArcPath(startAngle, endAngle) {
+        const start = this.polarToCartesian(this.cx, this.cy, this.radius, endAngle);
+        const end = this.polarToCartesian(this.cx, this.cy, this.radius, startAngle);
+        const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+
+        return `M ${start.x} ${start.y} A ${this.radius} ${this.radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+    }
+
+    // Format large numbers
+    formatAmount(amount) {
+        if (amount >= 1e9) return (amount / 1e9).toFixed(1) + 'B';
+        if (amount >= 1e6) return (amount / 1e6).toFixed(1) + 'M';
+        if (amount >= 1e3) return (amount / 1e3).toFixed(1) + 'K';
+        return amount.toString();
+    }
+
+    // Escape text for safe display (prevents XSS)
+    escapeText(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
+
+    render() {
+        // Clear existing using safe method
+        while (this.segmentsGroup.firstChild) {
+            this.segmentsGroup.removeChild(this.segmentsGroup.firstChild);
+        }
+        while (this.labelsContainer.firstChild) {
+            this.labelsContainer.removeChild(this.labelsContainer.firstChild);
+        }
+
+        let currentAngle = 0;
+        const gap = 2; // Gap between segments in degrees
+        const totalGap = gap * this.holdings.length;
+        const availableAngle = 360 - totalGap;
+
+        // Build gradient stops for glow
+        let gradientStops = [];
+
+        this.holdings.forEach((holding, index) => {
+            const segmentAngle = holding.percentage * availableAngle;
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + segmentAngle;
+
+            // Create arc segment
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', this.createArcPath(startAngle, endAngle));
+            path.setAttribute('class', 'holdings-segment');
+            path.setAttribute('stroke', this.tokenColors[holding.token] || '#888');
+            path.setAttribute('data-token', this.escapeText(holding.token));
+            path.setAttribute('data-address', this.escapeText(holding.address));
+            path.setAttribute('data-chain', this.escapeText(holding.chain || 'ethereum'));
+
+            // Create title element safely (no innerHTML)
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = `${holding.token.toUpperCase()}: ${this.formatAmount(holding.amount)} (${Math.round(holding.percentage * 100)}%)\n${holding.address}`;
+            path.appendChild(title);
+
+            this.segmentsGroup.appendChild(path);
+
+            // Calculate label position (middle of arc, outside ring)
+            const midAngle = startAngle + segmentAngle / 2;
+            const labelRadius = this.radius + 18;
+            const labelPos = this.polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
+
+            // Create address label using DOM methods (no innerHTML - XSS safe)
+            const label = document.createElement('div');
+            label.className = 'holdings-label';
+            label.style.left = labelPos.x + 'px';
+            label.style.top = labelPos.y + 'px';
+            label.style.transform = 'translate(-50%, -50%)';
+            label.style.color = this.tokenColors[holding.token] || '#888';
+            label.setAttribute('data-token', this.escapeText(holding.token));
+            label.setAttribute('data-address', this.escapeText(holding.address));
+            label.setAttribute('data-chain', this.escapeText(holding.chain || 'ethereum'));
+
+            // Short address span (visible in normal state)
+            const shortSpan = document.createElement('span');
+            shortSpan.className = 'short-address';
+            shortSpan.textContent = holding.address.substring(0, 10);
+            label.appendChild(shortSpan);
+
+            // Amount span
+            const amountSpan = document.createElement('span');
+            amountSpan.className = 'label-amount';
+            amountSpan.textContent = this.formatAmount(holding.amount);
+            label.appendChild(amountSpan);
+
+            // Full address span (visible in magnified state)
+            const fullSpan = document.createElement('span');
+            fullSpan.className = 'full-address';
+            fullSpan.textContent = holding.address;
+            label.appendChild(fullSpan);
+
+            // Secure explorer link (visible in magnified state)
+            const explorerUrl = SecureBlockExplorer.getExplorerUrl(holding.address, holding.chain);
+            if (explorerUrl) {
+                const link = document.createElement('a');
+                link.className = 'explorer-link';
+                link.textContent = 'View on Explorer';
+                link.href = '#'; // Placeholder - actual navigation handled by click
+                link.setAttribute('rel', 'noopener noreferrer');
+                link.addEventListener('click', (e) => {
+                    SecureBlockExplorer.openExplorerLink(holding.address, e);
+                });
+                label.appendChild(link);
+            }
+
+            // Set title for tooltip
+            label.title = `${holding.token.toUpperCase()}: ${holding.address}`;
+
+            this.labelsContainer.appendChild(label);
+
+            // Add to gradient stops
+            const stopPercent = (startAngle / 360) * 100;
+            gradientStops.push(`${this.tokenColors[holding.token] || '#888'} ${stopPercent}%`);
+
+            currentAngle = endAngle + gap;
+        });
+
+        // Close gradient loop
+        if (gradientStops.length > 0) {
+            gradientStops.push(gradientStops[0].split(' ')[0] + ' 100%');
+        }
+
+        // Apply glow gradient
+        this.glowElement.style.setProperty('--ring-gradient', gradientStops.join(', '));
+        this.glowElement.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+    }
+
+    // Update holdings data (can be called with real wallet data)
+    updateHoldings(newHoldings) {
+        // Validate holdings data before accepting
+        this.holdings = newHoldings.filter(h => {
+            return h.token && h.address && typeof h.percentage === 'number';
+        });
+        this.render();
+    }
+}
+
+// Token mascot/emoji mappings for unicorn flyouts
+const tokenMascots = {
+    'doge': { emoji: '🐕', name: 'DOGE', extra: ['🌙', '🚀', '✨'] },
+    'shib': { emoji: '🦊', name: 'SHIB', extra: ['🔥', '💎', '🐕'] },
+    'pepe': { emoji: '🐸', name: 'PEPE', extra: ['💚', '🎭', '😏'] },
+    'bonk': { emoji: '🏏', name: 'BONK', extra: ['💥', '🐕', '⚡'] },
+    'wif': { emoji: '🎩', name: 'WIF', extra: ['🐕', '👑', '✨'] },
+    'floki': { emoji: '⚔️', name: 'FLOKI', extra: ['🛡️', '🐕', '🌊'] },
+    'trump': { emoji: '🦅', name: 'TRUMP', extra: ['🇺🇸', '🎺', '⭐'] },
+    'brett': { emoji: '🐸', name: 'BRETT', extra: ['💙', '🔵', '😎'] }
+};
+
+// Spawn unicorn flyout with token-specific emoji
+function spawnUnicornFlyout(x, y, token) {
+    const mascot = tokenMascots[token] || { emoji: '🪙', extra: ['✨', '💫', '⭐'] };
+
+    // Spawn main emoji
+    createFlyoutEmoji(x, y, mascot.emoji, 0);
+
+    // Spawn extra emojis with delays
+    mascot.extra.forEach((emoji, i) => {
+        setTimeout(() => {
+            const offsetX = (Math.random() - 0.5) * 60;
+            const offsetY = (Math.random() - 0.5) * 40;
+            createFlyoutEmoji(x + offsetX, y + offsetY, emoji, (i + 1) * 0.1);
+        }, (i + 1) * 100);
+    });
+
+    // Spawn sparkles
+    spawnSparkles(x, y, tokenMascots[token]?.extra?.[0] === '🔥' ? '#ff5722' : '#ffd700');
+}
+
+function createFlyoutEmoji(x, y, emoji, delay) {
+    const el = document.createElement('div');
+    el.className = 'unicorn-flyout';
+    el.textContent = emoji;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.animationDelay = delay + 's';
+
+    // Randomize flight direction
+    const angle = (Math.random() * 60 - 30) + 'deg';
+    el.style.setProperty('--fly-rotate', angle);
+
+    document.body.appendChild(el);
+
+    // Clean up after animation
+    setTimeout(() => el.remove(), 2000);
+}
+
+function spawnSparkles(x, y, color = '#ffd700') {
+    const sparkleCount = 12;
+
+    for (let i = 0; i < sparkleCount; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-burst';
+        sparkle.style.left = x + 'px';
+        sparkle.style.top = y + 'px';
+        sparkle.style.background = color;
+        sparkle.style.boxShadow = `0 0 4px ${color}, 0 0 8px ${color}`;
+
+        // Random direction
+        const angle = (i / sparkleCount) * 360;
+        const distance = 30 + Math.random() * 40;
+        const rad = angle * Math.PI / 180;
+        sparkle.style.setProperty('--spark-x', Math.cos(rad) * distance + 'px');
+        sparkle.style.setProperty('--spark-y', Math.sin(rad) * distance + 'px');
+
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+}
+
+// Zoom overlay functionality
+let isZoomActive = false;
+
+function activateZoom() {
+    if (isZoomActive) return;
+    isZoomActive = true;
+
+    const overlay = document.getElementById('petriZoomOverlay');
+    const container = document.getElementById('petriZoomContainer');
+    const petriContainer = document.getElementById('petriDish');
+
+    if (!overlay || !container || !petriContainer) return;
+
+    // Clone the petri dish
+    const clone = petriContainer.cloneNode(true);
+    clone.id = 'petriDishClone';
+    clone.style.transform = 'none';
+    clone.style.position = 'relative';
+    clone.style.margin = '0 auto';
+
+    container.innerHTML = '';
+    container.appendChild(clone);
+
+    // Add click handlers to cloned segments
+    const segments = clone.querySelectorAll('.holdings-segment');
+    segments.forEach(seg => {
+        seg.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const token = seg.getAttribute('data-token');
+            const rect = seg.getBoundingClientRect();
+            spawnUnicornFlyout(rect.left + rect.width / 2, rect.top, token);
+        });
+    });
+
+    // Add click handlers to cloned labels
+    const labels = clone.querySelectorAll('.holdings-label');
+    labels.forEach(label => {
+        label.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const rect = label.getBoundingClientRect();
+            // Find associated token from position
+            const token = label.title?.split(':')[0]?.toLowerCase() || 'doge';
+            spawnUnicornFlyout(rect.left + rect.width / 2, rect.top, token);
+        });
+    });
+
+    // Activate overlay
+    overlay.classList.add('active');
+}
+
+function deactivateZoom() {
+    if (!isZoomActive) return;
+    isZoomActive = false;
+
+    const overlay = document.getElementById('petriZoomOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+}
+
+// Magnifying bubble hover state
+let magnifyTimeout = null;
+let isMagnified = false;
+
+function activateMagnify(container) {
+    if (isMagnified) return;
+    isMagnified = true;
+    container.classList.add('magnified');
+    if (petriDish) petriDish.shake();
+}
+
+function deactivateMagnify(container) {
+    if (!isMagnified) return;
+    isMagnified = false;
+    container.classList.remove('magnified');
+}
+
+// Initialize petri dish when DOM is ready
+let petriDish = null;
+let holdingsRing = null;
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('petriDish');
+    if (container) {
+        petriDish = new PetriDishPhysics(container);
+        holdingsRing = new HoldingsRing(container);
+
+        // Magnifying bubble hover effect
+        // Module expands FIRST on hover, then individual elements become interactive
+        container.addEventListener('mouseenter', () => {
+            // Small delay to prevent accidental triggers
+            magnifyTimeout = setTimeout(() => {
+                activateMagnify(container);
+            }, 150);
+        });
+
+        container.addEventListener('mouseleave', () => {
+            // Clear pending magnification
+            if (magnifyTimeout) {
+                clearTimeout(magnifyTimeout);
+                magnifyTimeout = null;
+            }
+            // Small delay before shrinking to allow clicking links
+            setTimeout(() => {
+                if (!container.matches(':hover')) {
+                    deactivateMagnify(container);
+                }
+            }, 300);
+        });
+
+        // Double-click to activate full zoom overlay (optional larger view)
+        container.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            activateZoom();
+        });
+
+        // Event delegation for dynamically created segments and labels
+        // Only works when magnified (CSS pointer-events controls this)
+        container.addEventListener('click', (e) => {
+            // Skip if not magnified - interactions disabled
+            if (!isMagnified) return;
+
+            // Check if clicked on explorer link - let it handle itself
+            if (e.target.classList.contains('explorer-link')) {
+                return; // Link has its own secure handler
+            }
+
+            // Check if clicked on a holdings segment
+            const segment = e.target.closest('.holdings-segment');
+            if (segment) {
+                e.stopPropagation();
+                const token = segment.getAttribute('data-token');
+                const rect = segment.getBoundingClientRect();
+                spawnUnicornFlyout(rect.left + rect.width / 2, rect.top, token);
+                return;
+            }
+
+            // Check if clicked on a holdings label
+            const label = e.target.closest('.holdings-label');
+            if (label) {
+                e.stopPropagation();
+                const rect = label.getBoundingClientRect();
+                const token = label.getAttribute('data-token') || 'doge';
+                spawnUnicornFlyout(rect.left + rect.width / 2, rect.top, token);
+                return;
+            }
+        });
+    }
+
+    // Zoom overlay close handlers
+    const overlay = document.getElementById('petriZoomOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay || e.target.classList.contains('zoom-close-hint')) {
+                deactivateZoom();
+            }
+        });
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isZoomActive) {
+                deactivateZoom();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

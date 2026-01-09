@@ -1,0 +1,1057 @@
+{% extends "base.html" %}
+
+{% block title %}Mint ACU-METER - ARCHIV-IT{% endblock %}
+
+{% block extra_head %}
+<!-- ethers.js v6 for Web3 wallet integration -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6/dist/ethers.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+    .ultra-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .ultra-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .ultra-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(104, 211, 145, 0.15);
+        border: 3px solid #68d391;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        animation: ultra-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes ultra-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(104, 211, 145, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(104, 211, 145, 0.5); }
+    }
+
+    .ultra-header h1 {
+        font-size: 1.75rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+    }
+
+    .ultra-header p {
+        color: rgba(232, 230, 227, 0.6);
+    }
+
+    .step-card {
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(100, 100, 120, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(104, 211, 145, 0.2);
+        border: 2px solid #68d391;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #68d391;
+        margin-bottom: 1rem;
+    }
+
+    .step-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-description {
+        color: rgba(232, 230, 227, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .chain-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+        .chain-selector {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chain-option {
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 2px solid rgba(100, 100, 120, 0.2);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .chain-option:hover {
+        border-color: rgba(104, 211, 145, 0.4);
+    }
+
+    .chain-option.selected {
+        border-color: #68d391;
+        background: rgba(104, 211, 145, 0.1);
+    }
+
+    .chain-option input {
+        display: none;
+    }
+
+    .chain-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .chain-note {
+        font-size: 0.75rem;
+        color: rgba(232, 230, 227, 0.5);
+    }
+
+    .chain-option.selected .chain-note {
+        color: #68d391;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.6);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(100, 100, 120, 0.3);
+        border-radius: 6px;
+        color: #e8e6e3;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.9rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #68d391;
+    }
+
+    .wallet-display {
+        padding: 0.75rem 1rem;
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.2);
+        border-radius: 6px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+
+    .mint-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(90deg, #68d391, #48bb78);
+        color: #0a0a0f;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mint-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(104, 211, 145, 0.4);
+    }
+
+    .mint-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .benefits-box {
+        background: rgba(104, 211, 145, 0.05);
+        border: 1px solid rgba(104, 211, 145, 0.2);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .benefits-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #68d391;
+        margin-bottom: 0.75rem;
+    }
+
+    .benefits-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .benefits-list li {
+        padding: 0.4rem 0;
+        padding-left: 1.25rem;
+        position: relative;
+        color: rgba(232, 230, 227, 0.7);
+        font-size: 0.85rem;
+    }
+
+    .benefits-list li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #68d391;
+    }
+
+    .erc-note {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(212, 165, 116, 0.1);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.6);
+    }
+
+    .erc-note strong {
+        color: #d4a574;
+    }
+
+    .status-message {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+
+    .status-message.success {
+        display: block;
+        background: rgba(72, 187, 120, 0.15);
+        border: 1px solid rgba(72, 187, 120, 0.3);
+        color: #48bb78;
+    }
+
+    .status-message.error {
+        display: block;
+        background: rgba(229, 62, 62, 0.15);
+        border: 1px solid rgba(229, 62, 62, 0.3);
+        color: #e53e3e;
+    }
+
+    .connect-wallet-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(104, 211, 145, 0.15);
+        border: 1px solid rgba(104, 211, 145, 0.4);
+        border-radius: 6px;
+        color: #68d391;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 1rem;
+    }
+
+    .connect-wallet-btn:hover {
+        background: rgba(104, 211, 145, 0.25);
+        border-color: #68d391;
+    }
+
+    .connect-wallet-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .connect-wallet-btn.connected {
+        background: rgba(104, 211, 145, 0.2);
+        border-color: #68d391;
+        color: #68d391;
+    }
+
+    .wallet-icon {
+        font-size: 1.1rem;
+    }
+
+    .wallet-status {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .wallet-status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(100, 100, 120, 0.5);
+    }
+
+    .wallet-status-indicator.connected {
+        background: #68d391;
+        box-shadow: 0 0 8px rgba(104, 211, 145, 0.5);
+    }
+
+    .wallet-status-text {
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.6);
+    }
+
+    .mint-method-toggle {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+    }
+
+    .mint-method-btn {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        color: rgba(232, 230, 227, 0.6);
+        font-family: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mint-method-btn.active {
+        background: rgba(104, 211, 145, 0.2);
+        color: #68d391;
+    }
+
+    .mint-method-btn:hover:not(.active) {
+        color: #e8e6e3;
+    }
+
+    .web3-mint-section, .manual-mint-section {
+        display: none;
+    }
+
+    .web3-mint-section.active, .manual-mint-section.active {
+        display: block;
+    }
+
+    .minting-status {
+        padding: 1rem;
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.2);
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+
+    .minting-status.visible {
+        display: block;
+    }
+
+    .minting-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(104, 211, 145, 0.3);
+        border-top-color: #68d391;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 0.5rem;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="ultra-container">
+    <div class="ultra-header">
+        <div class="ultra-icon">&#9733;</div>
+        <h1>Mint Your ACU-METER</h1>
+        <p>On-chain verification + audit trail + 2 bonus wallets</p>
+    </div>
+
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- Step 1: Select Chain -->
+    <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-title">Select Chain</div>
+        <div class="step-description">Choose where to mint your badge. We recommend Polygon or Base for lower gas fees.</div>
+
+        <div class="chain-selector">
+            {% for chain_id, chain_info in supported_chains.items() %}
+            <label class="chain-option" onclick="selectChain('{{ chain_id }}', this)">
+                <input type="radio" name="chain" value="{{ chain_id }}">
+                <div class="chain-name">{{ chain_id|capitalize }}</div>
+                <div class="chain-note">
+                    {% if chain_id == 'polygon' %}
+                    Recommended - Low fees
+                    {% elif chain_id == 'base' %}
+                    Recommended - Low fees
+                    {% elif chain_id == 'ethereum' %}
+                    Higher fees
+                    {% elif chain_id == 'zora' %}
+                    Creator-focused
+                    {% endif %}
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Step 2: Your Wallet -->
+    <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-title">Your Wallet</div>
+        <div class="step-description">Connect your wallet or enter your address manually. This wallet will own your ACU-METER NFT.</div>
+
+        <div class="wallet-status">
+            <div id="walletStatusIndicator" class="wallet-status-indicator"></div>
+            <span id="walletStatusText" class="wallet-status-text">No wallet connected</span>
+        </div>
+
+        <button id="connectWalletBtn" class="connect-wallet-btn" onclick="connectWallet()">
+            <span class="wallet-icon">&#128279;</span>
+            <span id="connectBtnText">Connect Wallet</span>
+        </button>
+
+        {% if wallet_address %}
+        <div class="wallet-display" id="walletDisplay">{{ wallet_address }}</div>
+        <input type="hidden" id="walletAddress" value="{{ wallet_address }}">
+        {% else %}
+        <div class="form-group">
+            <label class="form-label">Wallet Address</label>
+            <input type="text" id="walletAddress" class="form-input" placeholder="0x... (auto-filled on connect)">
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Step 3: Mint -->
+    <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-title">Mint Your Badge</div>
+        <div class="step-description">
+            Mint directly from this page or enter details from an external mint.
+        </div>
+
+        <!-- Toggle between Web3 mint and manual entry -->
+        <div class="mint-method-toggle">
+            <button class="mint-method-btn active" onclick="setMintMethod('web3')" id="web3MethodBtn">
+                Mint with Wallet
+            </button>
+            <button class="mint-method-btn" onclick="setMintMethod('manual')" id="manualMethodBtn">
+                Already Minted
+            </button>
+        </div>
+
+        <!-- Web3 Mint Section -->
+        <div id="web3MintSection" class="web3-mint-section active">
+            <div id="mintingStatus" class="minting-status">
+                <span class="minting-spinner"></span>
+                <span id="mintingStatusText">Waiting for wallet confirmation...</span>
+            </div>
+
+            <button class="mint-btn" onclick="mintWithWallet()" id="web3MintBtn">
+                MINT ACU-METER
+            </button>
+
+            <div style="margin-top: 0.75rem; font-size: 0.8rem; color: rgba(232, 230, 227, 0.5);">
+                This will open your wallet to sign the mint transaction.
+            </div>
+        </div>
+
+        <!-- Manual Entry Section (fallback) -->
+        <div id="manualMintSection" class="manual-mint-section">
+            <div class="form-group">
+                <label class="form-label">Token ID (from mint transaction)</label>
+                <input type="text" id="tokenId" class="form-input" placeholder="1">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Transaction Hash</label>
+                <input type="text" id="txHash" class="form-input" placeholder="0x...">
+            </div>
+
+            <button class="mint-btn" onclick="registerBadge()">
+                ACTIVATE ACU-METER
+            </button>
+        </div>
+    </div>
+
+    <!-- Benefits -->
+    <div class="benefits-box">
+        <div class="benefits-title">What You Get</div>
+        <ul class="benefits-list">
+            <li>+2 wallet addresses (CERTIFIED status)</li>
+            <li>On-chain proof of your ARCHIV-IT identity</li>
+            <li>Audit trail of your data consistency history</li>
+            <li>Dynamic NFT that evolves with your data</li>
+            <li>Connected to all other ACU-METER holders</li>
+            <li>Evolving visual in your public profile</li>
+        </ul>
+    </div>
+
+    <div class="erc-note">
+        <strong>ERC-7160 Compatible:</strong> Your ACU-METER uses the multi-metadata standard, allowing us to add new iterations as your archive grows. Your ACU-METER will evolve with custom visualizations of your data - making it both utility and art.
+    </div>
+</div>
+
+<script>
+// ============================================================
+// ARCHIV-IT ACU-METER Web3 Integration
+// Using ethers.js v6 for wallet connection and contract interaction
+// ============================================================
+
+let selectedChain = null;
+let connectedWallet = null;
+let provider = null;
+let signer = null;
+
+// Chain configuration with contract addresses and RPC URLs
+const CHAIN_CONFIG = {
+    'ethereum': {
+        chainId: '0x1',  // 1
+        chainName: 'Ethereum Mainnet',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+        rpcUrls: ['https://eth.llamarpc.com'],
+        blockExplorerUrls: ['https://etherscan.io'],
+        contract: null  // To be deployed
+    },
+    'polygon': {
+        chainId: '0x89',  // 137
+        chainName: 'Polygon Mainnet',
+        nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+        rpcUrls: ['https://polygon-rpc.com'],
+        blockExplorerUrls: ['https://polygonscan.com'],
+        contract: null  // To be deployed
+    },
+    'base': {
+        chainId: '0x2105',  // 8453
+        chainName: 'Base',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+        rpcUrls: ['https://mainnet.base.org'],
+        blockExplorerUrls: ['https://basescan.org'],
+        contract: null  // To be deployed
+    },
+    'zora': {
+        chainId: '0x76adf1',  // 7777777
+        chainName: 'Zora',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+        rpcUrls: ['https://rpc.zora.energy'],
+        blockExplorerUrls: ['https://explorer.zora.energy'],
+        contract: null  // To be deployed
+    }
+};
+
+// ACCUMETER Contract ABI (ERC-721 with mint function)
+const ACCUMETER_ABI = [
+    "function mint(bytes32 userHash) external returns (uint256)",
+    "function ownerOf(uint256 tokenId) external view returns (address)",
+    "function balanceOf(address owner) external view returns (uint256)",
+    "function tokenURI(uint256 tokenId) external view returns (string)",
+    "function getTokenForUser(bytes32 userHash) external view returns (uint256)",
+    "function verifyOwnership(bytes32 userHash, address wallet) external view returns (bool)",
+    "event AccumeterMinted(address indexed owner, uint256 tokenId, bytes32 userHash)",
+    "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+];
+
+// ============================================================
+// Chain Selection
+// ============================================================
+
+function selectChain(chain, element) {
+    document.querySelectorAll('.chain-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    selectedChain = chain;
+
+    // If wallet is connected, switch to selected chain
+    if (connectedWallet && provider) {
+        switchChain(chain);
+    }
+}
+
+// ============================================================
+// Wallet Connection
+// ============================================================
+
+async function connectWallet() {
+    // Check if ethers is loaded
+    if (typeof ethers === 'undefined') {
+        showStatus('Web3 library not loaded. Please refresh the page.', 'error');
+        return null;
+    }
+
+    // Check for wallet provider (MetaMask, etc.)
+    if (typeof window.ethereum === 'undefined') {
+        showStatus('No wallet detected. Please install MetaMask or another Web3 wallet.', 'error');
+        return null;
+    }
+
+    try {
+        updateConnectButton('Connecting...', true);
+
+        // Create provider and request account access
+        provider = new ethers.BrowserProvider(window.ethereum);
+
+        // Request accounts (triggers MetaMask popup)
+        const accounts = await provider.send("eth_requestAccounts", []);
+
+        if (!accounts || accounts.length === 0) {
+            throw new Error('No accounts found. Please unlock your wallet.');
+        }
+
+        // Get signer
+        signer = await provider.getSigner();
+        connectedWallet = await signer.getAddress();
+
+        // Update UI
+        updateWalletStatus(connectedWallet);
+        autoFillWalletAddress(connectedWallet);
+
+        // If chain is selected, switch to it
+        if (selectedChain) {
+            await switchChain(selectedChain);
+        }
+
+        showStatus('Wallet connected: ' + shortenAddress(connectedWallet), 'success');
+
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+
+        return connectedWallet;
+
+    } catch (err) {
+        console.error('Wallet connection error:', err);
+        updateConnectButton('Connect Wallet', false);
+
+        if (err.code === 4001) {
+            showStatus('Connection rejected. Please try again.', 'error');
+        } else {
+            showStatus('Connection failed: ' + (err.message || 'Unknown error'), 'error');
+        }
+        return null;
+    }
+}
+
+function handleAccountsChanged(accounts) {
+    if (accounts.length === 0) {
+        // User disconnected
+        connectedWallet = null;
+        signer = null;
+        updateWalletStatus(null);
+        showStatus('Wallet disconnected', 'error');
+    } else {
+        connectedWallet = accounts[0];
+        updateWalletStatus(connectedWallet);
+        autoFillWalletAddress(connectedWallet);
+    }
+}
+
+function handleChainChanged(chainId) {
+    // Reload to ensure consistent state
+    window.location.reload();
+}
+
+// ============================================================
+// Chain Switching
+// ============================================================
+
+async function switchChain(chain) {
+    if (!window.ethereum || !CHAIN_CONFIG[chain]) return;
+
+    const chainConfig = CHAIN_CONFIG[chain];
+
+    try {
+        // Try to switch to the chain
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainConfig.chainId }]
+        });
+    } catch (switchError) {
+        // Chain not added to wallet - try to add it
+        if (switchError.code === 4902) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: chainConfig.chainId,
+                        chainName: chainConfig.chainName,
+                        nativeCurrency: chainConfig.nativeCurrency,
+                        rpcUrls: chainConfig.rpcUrls,
+                        blockExplorerUrls: chainConfig.blockExplorerUrls
+                    }]
+                });
+            } catch (addError) {
+                console.error('Failed to add chain:', addError);
+                showStatus('Failed to add ' + chainConfig.chainName + ' to wallet', 'error');
+            }
+        } else if (switchError.code !== 4001) {
+            // Not a user rejection
+            console.error('Failed to switch chain:', switchError);
+        }
+    }
+}
+
+// ============================================================
+// Minting Functions
+// ============================================================
+
+async function mintWithWallet() {
+    // Validate chain selection
+    if (!selectedChain) {
+        showStatus('Please select a chain first', 'error');
+        return;
+    }
+
+    // Connect wallet if not connected
+    if (!connectedWallet) {
+        const wallet = await connectWallet();
+        if (!wallet) return;
+    }
+
+    // Check if contract is deployed for selected chain
+    const contractAddress = CHAIN_CONFIG[selectedChain].contract;
+    if (!contractAddress) {
+        showStatus('Contract not yet deployed on ' + selectedChain + '. Please use manual entry or choose another chain.', 'error');
+        setMintMethod('manual');
+        return;
+    }
+
+    // Ensure we're on the correct chain
+    await switchChain(selectedChain);
+
+    try {
+        showMintingStatus('Preparing transaction...');
+
+        // Generate user hash (in production, this would come from server)
+        const userHash = generateUserHash();
+
+        // Call mint function
+        const result = await mintAccumeter(selectedChain, userHash);
+
+        if (result.success) {
+            // Auto-populate fields and register
+            document.getElementById('tokenId').value = result.tokenId;
+            document.getElementById('txHash').value = result.txHash;
+
+            hideMintingStatus();
+            showStatus('Mint successful! Token ID: ' + result.tokenId, 'success');
+
+            // Auto-register the badge
+            await registerBadge();
+        }
+
+    } catch (err) {
+        console.error('Minting error:', err);
+        hideMintingStatus();
+
+        if (err.code === 'ACTION_REJECTED' || err.code === 4001) {
+            showStatus('Transaction rejected by user', 'error');
+        } else if (err.message && err.message.includes('insufficient funds')) {
+            showStatus('Insufficient funds for gas', 'error');
+        } else if (err.message && err.message.includes('already minted')) {
+            showStatus('ACCUMETER already minted for this user', 'error');
+        } else {
+            showStatus('Minting failed: ' + (err.reason || err.message || 'Unknown error'), 'error');
+        }
+    }
+}
+
+async function mintAccumeter(chain, userHash) {
+    const contractAddress = CHAIN_CONFIG[chain].contract;
+
+    if (!contractAddress) {
+        throw new Error('Contract not deployed on ' + chain);
+    }
+
+    if (!signer) {
+        throw new Error('Wallet not connected');
+    }
+
+    // Create contract instance
+    const contract = new ethers.Contract(contractAddress, ACCUMETER_ABI, signer);
+
+    showMintingStatus('Waiting for wallet confirmation...');
+
+    // Call mint function
+    const tx = await contract.mint(userHash);
+
+    showMintingStatus('Transaction submitted. Waiting for confirmation...');
+
+    // Wait for transaction receipt
+    const receipt = await tx.wait();
+
+    // Parse the AccumeterMinted event to get tokenId
+    let tokenId = null;
+
+    for (const log of receipt.logs) {
+        try {
+            const parsed = contract.interface.parseLog({
+                topics: log.topics,
+                data: log.data
+            });
+            if (parsed && parsed.name === 'AccumeterMinted') {
+                tokenId = parsed.args.tokenId.toString();
+                break;
+            }
+            // Fallback: check Transfer event (from 0x0 = mint)
+            if (parsed && parsed.name === 'Transfer' && parsed.args.from === ethers.ZeroAddress) {
+                tokenId = parsed.args.tokenId.toString();
+            }
+        } catch (e) {
+            // Not our event, continue
+        }
+    }
+
+    // If we couldn't parse the event, try to get token count
+    if (!tokenId) {
+        // Fallback: assume sequential token IDs
+        tokenId = 'Check transaction';
+    }
+
+    return {
+        success: true,
+        tokenId: tokenId,
+        txHash: receipt.hash
+    };
+}
+
+function generateUserHash() {
+    // In production, this should be generated server-side and signed
+    // For now, generate a deterministic hash based on wallet address
+    if (!connectedWallet) {
+        throw new Error('Wallet not connected');
+    }
+
+    // Create hash from wallet address (placeholder - server should provide this)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(connectedWallet.toLowerCase() + '_archivit_accumeter');
+
+    // Use ethers to hash
+    return ethers.keccak256(data);
+}
+
+// ============================================================
+// Manual Registration (Fallback)
+// ============================================================
+
+async function registerBadge() {
+    const tokenIdEl = document.getElementById('tokenId');
+    const txHashEl = document.getElementById('txHash');
+    const walletInput = document.getElementById('walletAddress');
+
+    const tokenId = tokenIdEl ? tokenIdEl.value : '';
+    const txHash = txHashEl ? txHashEl.value : '';
+    const wallet = walletInput ? walletInput.value : connectedWallet || '{{ wallet_address }}';
+
+    if (!selectedChain) {
+        showStatus('Please select a chain', 'error');
+        return;
+    }
+
+    if (!wallet) {
+        showStatus('Please connect wallet or enter wallet address', 'error');
+        return;
+    }
+
+    if (!tokenId || !txHash) {
+        showStatus('Please fill in Token ID and Transaction Hash', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/tier/upgrade-ultra', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                wallet_address: wallet,
+                chain: selectedChain,
+                token_id: parseInt(tokenId),
+                tx_hash: txHash
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showStatus('ACU-METER ACTIVATED! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '/upgrade-badge';
+            }, 2000);
+        } else {
+            showStatus(result.error || 'Registration failed', 'error');
+        }
+    } catch (err) {
+        showStatus('Network error: ' + err.message, 'error');
+    }
+}
+
+// ============================================================
+// UI Helper Functions
+// ============================================================
+
+function setMintMethod(method) {
+    const web3Section = document.getElementById('web3MintSection');
+    const manualSection = document.getElementById('manualMintSection');
+    const web3Btn = document.getElementById('web3MethodBtn');
+    const manualBtn = document.getElementById('manualMethodBtn');
+
+    if (method === 'web3') {
+        web3Section.classList.add('active');
+        manualSection.classList.remove('active');
+        web3Btn.classList.add('active');
+        manualBtn.classList.remove('active');
+    } else {
+        web3Section.classList.remove('active');
+        manualSection.classList.add('active');
+        web3Btn.classList.remove('active');
+        manualBtn.classList.add('active');
+    }
+}
+
+function updateWalletStatus(address) {
+    const indicator = document.getElementById('walletStatusIndicator');
+    const statusText = document.getElementById('walletStatusText');
+    const connectBtn = document.getElementById('connectWalletBtn');
+    const connectBtnText = document.getElementById('connectBtnText');
+
+    if (address) {
+        indicator.classList.add('connected');
+        statusText.textContent = 'Connected: ' + shortenAddress(address);
+        connectBtn.classList.add('connected');
+        connectBtnText.textContent = shortenAddress(address);
+    } else {
+        indicator.classList.remove('connected');
+        statusText.textContent = 'No wallet connected';
+        connectBtn.classList.remove('connected');
+        connectBtnText.textContent = 'Connect Wallet';
+    }
+}
+
+function updateConnectButton(text, disabled) {
+    const btn = document.getElementById('connectWalletBtn');
+    const btnText = document.getElementById('connectBtnText');
+    if (btn) btn.disabled = disabled;
+    if (btnText) btnText.textContent = text;
+}
+
+function autoFillWalletAddress(address) {
+    const walletInput = document.getElementById('walletAddress');
+    const walletDisplay = document.getElementById('walletDisplay');
+
+    if (walletInput && walletInput.type !== 'hidden') {
+        walletInput.value = address;
+    }
+    if (walletDisplay) {
+        walletDisplay.textContent = address;
+    }
+}
+
+function showMintingStatus(message) {
+    const statusEl = document.getElementById('mintingStatus');
+    const textEl = document.getElementById('mintingStatusText');
+
+    if (textEl) textEl.textContent = message;
+    if (statusEl) statusEl.classList.add('visible');
+
+    // Disable mint button
+    const mintBtn = document.getElementById('web3MintBtn');
+    if (mintBtn) mintBtn.disabled = true;
+}
+
+function hideMintingStatus() {
+    const statusEl = document.getElementById('mintingStatus');
+    if (statusEl) statusEl.classList.remove('visible');
+
+    // Re-enable mint button
+    const mintBtn = document.getElementById('web3MintBtn');
+    if (mintBtn) mintBtn.disabled = false;
+}
+
+function showStatus(message, type) {
+    const el = document.getElementById('statusMessage');
+    el.textContent = message;
+    el.className = 'status-message ' + type;
+
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            el.className = 'status-message';
+        }, 5000);
+    }
+}
+
+function shortenAddress(address) {
+    if (!address) return '';
+    return address.slice(0, 6) + '...' + address.slice(-4);
+}
+
+// ============================================================
+// Initialization
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if wallet was previously connected
+    if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.request({ method: 'eth_accounts' })
+            .then(accounts => {
+                if (accounts && accounts.length > 0) {
+                    // Wallet is already connected
+                    connectedWallet = accounts[0];
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    provider.getSigner().then(s => {
+                        signer = s;
+                        updateWalletStatus(connectedWallet);
+                        autoFillWalletAddress(connectedWallet);
+                    });
+                }
+            })
+            .catch(console.error);
+    }
+});
+</script>
+{% endblock %}

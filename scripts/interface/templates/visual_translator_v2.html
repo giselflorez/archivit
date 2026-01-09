@@ -1,0 +1,1561 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<style>
+    /* ============================================
+       LIGHTROOM-STYLE VISUAL TRANSLATOR REDESIGN
+       Optimized for displaying thousands of queries
+       ============================================ */
+
+    .vt-container {
+        display: flex;
+        height: calc(100vh - 80px);
+        gap: 0;
+        position: relative;
+    }
+
+    /* ============================================
+       SIDEBAR LEGEND SYSTEM (Connected Legends)
+       ============================================ */
+
+    .vt-sidebar {
+        width: 280px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .vt-sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        background: var(--bg-secondary);
+        z-index: 10;
+    }
+
+    .vt-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin: 0 0 0.5rem 0;
+        color: var(--accent-gold);
+        letter-spacing: -0.02em;
+    }
+
+    .vt-stats-mini {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .vt-stats-mini span {
+        color: var(--accent-gold);
+        font-weight: 600;
+    }
+
+    /* Legend Sections */
+    .vt-legend-section {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vt-legend-section:last-child {
+        border-bottom: none;
+    }
+
+    .vt-legend-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .vt-legend-title::before {
+        content: '';
+        display: block;
+        width: 3px;
+        height: 12px;
+        background: var(--accent-gold);
+    }
+
+    /* Category Legend Items */
+    .vt-legend-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .vt-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .vt-legend-item:hover {
+        background: rgba(212, 165, 116, 0.05);
+        border-color: rgba(212, 165, 116, 0.2);
+    }
+
+    .vt-legend-item.active {
+        background: rgba(212, 165, 116, 0.1);
+        border-color: var(--accent-gold);
+    }
+
+    .vt-legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 2px solid currentColor;
+    }
+
+    /* Category Colors (matching cognitive types) */
+    .vt-color-blockchain { color: #d166ff; }
+    .vt-color-article { color: #66b2ff; }
+    .vt-color-research { color: #ffcc66; }
+    .vt-color-media { color: #ff6699; }
+    .vt-color-conversation { color: #66ffb2; }
+    .vt-color-document { color: #ffffff; opacity: 0.5; }
+
+    .vt-legend-label {
+        flex: 1;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .vt-legend-count {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        font-family: 'Courier New', monospace;
+        padding: 0.15rem 0.4rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+    }
+
+    /* Network Badges Legend */
+    .vt-network-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .vt-network-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.65rem;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .vt-network-badge:hover {
+        border-color: currentColor;
+    }
+
+    .vt-network-badge.active {
+        border-color: currentColor;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .vt-network-ethereum {
+        background: rgba(98, 126, 234, 0.15);
+        color: rgba(98, 126, 234, 1);
+    }
+
+    .vt-network-bitcoin {
+        background: rgba(247, 147, 26, 0.15);
+        color: rgba(247, 147, 26, 1);
+    }
+
+    .vt-network-solana {
+        background: rgba(140, 229, 193, 0.15);
+        color: rgba(140, 229, 193, 1);
+    }
+
+    /* Analysis Status Legend */
+    .vt-status-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .vt-status-badge {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.65rem;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid currentColor;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .vt-status-analyzed {
+        color: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+
+    .vt-status-pending {
+        color: var(--text-tertiary);
+        border-color: var(--border-color);
+    }
+
+    /* Zoom Controls */
+    .vt-zoom-controls {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vt-zoom-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.75rem;
+    }
+
+    .vt-zoom-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .vt-zoom-btn {
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.7rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        border-radius: 2px;
+    }
+
+    .vt-zoom-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .vt-zoom-btn.active {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-color: var(--accent-gold);
+    }
+
+    /* Selection Summary */
+    .vt-selection-summary {
+        padding: 1rem 1.5rem;
+        background: rgba(212, 165, 116, 0.05);
+        border-top: 1px solid var(--accent-gold);
+        position: sticky;
+        bottom: 0;
+    }
+
+    .vt-selection-count {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+    }
+
+    .vt-selection-count strong {
+        color: var(--accent-gold);
+        font-size: 1rem;
+    }
+
+    .vt-selection-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .vt-action-btn {
+        flex: 1;
+        padding: 0.6rem;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border: none;
+        cursor: pointer;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s ease;
+        font-weight: 600;
+    }
+
+    .vt-action-btn:hover {
+        background: var(--accent-warm);
+    }
+
+    .vt-action-btn.secondary {
+        background: transparent;
+        color: var(--accent-gold);
+        border: 1px solid var(--accent-gold);
+    }
+
+    .vt-action-btn.secondary:hover {
+        background: rgba(212, 165, 116, 0.1);
+    }
+
+    /* ============================================
+       MAIN CONTENT AREA (Thumbnail Grid)
+       ============================================ */
+
+    .vt-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .vt-toolbar {
+        padding: 1rem 1.5rem;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .vt-toolbar-left {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .vt-toolbar-right {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .vt-search-box {
+        position: relative;
+    }
+
+    .vt-search-input {
+        width: 300px;
+        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 0.8rem;
+    }
+
+    .vt-search-input:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+    }
+
+    .vt-search-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+        font-size: 0.8rem;
+    }
+
+    .vt-view-toggle {
+        display: flex;
+        gap: 0.25rem;
+        background: var(--bg-primary);
+        padding: 0.25rem;
+        border-radius: 2px;
+    }
+
+    .vt-view-btn {
+        padding: 0.4rem 0.75rem;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .vt-view-btn.active {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .vt-grid-container {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1.5rem;
+        background: var(--bg-primary);
+    }
+
+    /* Thumbnail Grid - Multiple Zoom Levels */
+    .vt-grid {
+        display: grid;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Zoom Level 1: Largest (200px) - ~6 items per row */
+    .vt-grid.zoom-1 {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Zoom Level 2: Large (140px) - ~10 items per row */
+    .vt-grid.zoom-2 {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.75rem;
+    }
+
+    /* Zoom Level 3: Medium (100px) - ~15 items per row */
+    .vt-grid.zoom-3 {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+
+    /* Zoom Level 4: Small (70px) - ~20+ items per row */
+    .vt-grid.zoom-4 {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 0.35rem;
+    }
+
+    /* Thumbnail Card */
+    .vt-thumb {
+        position: relative;
+        aspect-ratio: 1;
+        cursor: pointer;
+        overflow: hidden;
+        background: var(--bg-secondary);
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    /* Category Color Borders */
+    .vt-thumb[data-category="blockchain"] { border-color: #d166ff; }
+    .vt-thumb[data-category="article"] { border-color: #66b2ff; }
+    .vt-thumb[data-category="research"] { border-color: #ffcc66; }
+    .vt-thumb[data-category="media"] { border-color: #ff6699; }
+    .vt-thumb[data-category="conversation"] { border-color: #66ffb2; }
+    .vt-thumb[data-category="document"] { border-color: rgba(255, 255, 255, 0.2); }
+
+    .vt-thumb:hover {
+        transform: scale(1.05);
+        z-index: 5;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .vt-thumb.selected {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.3);
+    }
+
+    .vt-thumb-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .vt-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+        font-size: 2rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Corner Badges */
+    .vt-thumb-badges {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.3rem;
+    }
+
+    .vt-thumb-badge {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        border-radius: 1px;
+        backdrop-filter: blur(10px);
+        white-space: nowrap;
+    }
+
+    /* Network badges at zoom 1-2 */
+    .zoom-1 .vt-thumb-badge,
+    .zoom-2 .vt-thumb-badge {
+        font-size: 0.55rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Hide text badges at smallest zoom */
+    .zoom-4 .vt-thumb-badge {
+        width: 6px;
+        height: 6px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0;
+    }
+
+    .vt-badge-eth {
+        background: rgba(98, 126, 234, 0.8);
+        color: #ffffff;
+    }
+
+    .vt-badge-btc {
+        background: rgba(247, 147, 26, 0.8);
+        color: #ffffff;
+    }
+
+    .vt-badge-sol {
+        background: rgba(140, 229, 193, 0.8);
+        color: #ffffff;
+    }
+
+    .vt-badge-analyzed {
+        background: rgba(212, 165, 116, 0.8);
+        color: #ffffff;
+    }
+
+    .vt-badge-pending {
+        background: rgba(106, 103, 98, 0.8);
+        color: #ffffff;
+    }
+
+    /* Selection Checkbox */
+    .vt-thumb-checkbox {
+        position: absolute;
+        top: 0.3rem;
+        left: 0.3rem;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--accent-gold);
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        border-radius: 2px;
+    }
+
+    .vt-thumb:hover .vt-thumb-checkbox,
+    .vt-thumb.selected .vt-thumb-checkbox {
+        display: flex;
+    }
+
+    .vt-thumb.selected .vt-thumb-checkbox {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    /* Bottom Info Bar (visible on zoom 1-2) */
+    .vt-thumb-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.3rem;
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.9), transparent);
+        color: var(--text-primary);
+        font-size: 0.6rem;
+        line-height: 1.2;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        max-height: 35%;
+        overflow: hidden;
+    }
+
+    .zoom-1 .vt-thumb:hover .vt-thumb-info,
+    .zoom-2 .vt-thumb:hover .vt-thumb-info {
+        opacity: 1;
+    }
+
+    .zoom-3 .vt-thumb-info,
+    .zoom-4 .vt-thumb-info {
+        display: none;
+    }
+
+    .vt-thumb-title {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vt-thumb-meta {
+        font-size: 0.55rem;
+        color: var(--text-tertiary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ============================================
+       DETAIL PANEL (Replaces Hover EXIF)
+       ============================================ */
+
+    .vt-detail-panel {
+        position: fixed;
+        top: 0;
+        right: -450px;
+        width: 450px;
+        height: 100vh;
+        background: var(--bg-secondary);
+        border-left: 1px solid var(--border-color);
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .vt-detail-panel.open {
+        right: 0;
+    }
+
+    .vt-detail-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .vt-detail-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 1;
+        padding: 0;
+        transition: color 0.2s ease;
+    }
+
+    .vt-detail-close:hover {
+        color: var(--accent-gold);
+    }
+
+    .vt-detail-preview {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .vt-detail-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .vt-detail-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+
+    .vt-detail-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .vt-detail-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .vt-detail-section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .vt-detail-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.3rem;
+        font-weight: 400;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .vt-detail-meta-grid {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        gap: 0.75rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .vt-detail-meta-label {
+        color: var(--text-tertiary);
+        font-weight: 600;
+    }
+
+    .vt-detail-meta-value {
+        color: var(--text-secondary);
+        word-break: break-word;
+        font-family: 'Courier New', monospace;
+        font-size: 0.7rem;
+    }
+
+    .vt-detail-description {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.6;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .vt-detail-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .vt-detail-action-btn {
+        flex: 1;
+        padding: 0.75rem;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s ease;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .vt-detail-action-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .vt-detail-action-btn.primary {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-color: var(--accent-gold);
+    }
+
+    .vt-detail-action-btn.primary:hover {
+        background: var(--accent-warm);
+        border-color: var(--accent-warm);
+    }
+
+    /* Blockchain transaction styling in detail panel */
+    .vt-blockchain-data {
+        background: rgba(209, 102, 255, 0.05);
+        border-left: 3px solid #d166ff;
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+        font-size: 0.7rem;
+    }
+
+    .vt-blockchain-data code {
+        color: #d166ff;
+        font-family: 'Courier New', monospace;
+        background: rgba(209, 102, 255, 0.1);
+        padding: 0.15rem 0.4rem;
+        border-radius: 2px;
+    }
+
+    /* ============================================
+       RESPONSIVE ADJUSTMENTS
+       ============================================ */
+
+    @media (max-width: 1024px) {
+        .vt-sidebar {
+            width: 240px;
+        }
+
+        .vt-detail-panel {
+            width: 380px;
+            right: -380px;
+        }
+
+        .vt-search-input {
+            width: 200px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .vt-container {
+            flex-direction: column;
+        }
+
+        .vt-sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--border-color);
+            max-height: 200px;
+        }
+
+        .vt-detail-panel {
+            width: 100%;
+            right: auto;
+            left: 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vt-detail-panel.open {
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       LOADING & EMPTY STATES
+       ============================================ */
+
+    .vt-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        color: var(--text-tertiary);
+        font-size: 0.9rem;
+    }
+
+    .vt-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        color: var(--text-tertiary);
+        text-align: center;
+    }
+
+    .vt-empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .vt-empty-text {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .vt-empty-subtext {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+    }
+
+    /* Lazy loading skeleton */
+    .vt-thumb.loading {
+        background: linear-gradient(
+            90deg,
+            var(--bg-secondary) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            var(--bg-secondary) 100%
+        );
+        background-size: 200% 100%;
+        animation: loading-shimmer 1.5s infinite;
+    }
+
+    @keyframes loading-shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vt-container">
+
+    <!-- ============================================
+         SIDEBAR WITH CONNECTED LEGENDS
+         ============================================ -->
+    <aside class="vt-sidebar">
+        <div class="vt-sidebar-header">
+            <h1 class="vt-title">Visual Translator</h1>
+            <p class="vt-stats-mini">
+                <span id="total-items">0</span> queries
+                • <span id="selected-items">0</span> selected
+            </p>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="vt-zoom-controls">
+            <div class="vt-zoom-label">Density</div>
+            <div class="vt-zoom-buttons">
+                <button class="vt-zoom-btn" data-zoom="1">XL</button>
+                <button class="vt-zoom-btn active" data-zoom="2">L</button>
+                <button class="vt-zoom-btn" data-zoom="3">M</button>
+                <button class="vt-zoom-btn" data-zoom="4">S</button>
+            </div>
+        </div>
+
+        <!-- Category Legend -->
+        <div class="vt-legend-section">
+            <div class="vt-legend-title">Content Types</div>
+            <div class="vt-legend-items">
+                <div class="vt-legend-item active" data-filter="category" data-value="all">
+                    <div class="vt-legend-color" style="background: var(--accent-gold);"></div>
+                    <div class="vt-legend-label">
+                        <span>All Types</span>
+                        <span class="vt-legend-count" id="count-all">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="blockchain">
+                    <div class="vt-legend-color vt-color-blockchain"></div>
+                    <div class="vt-legend-label">
+                        <span>Blockchain/NFT</span>
+                        <span class="vt-legend-count" id="count-blockchain">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="article">
+                    <div class="vt-legend-color vt-color-article"></div>
+                    <div class="vt-legend-label">
+                        <span>Web Article</span>
+                        <span class="vt-legend-count" id="count-article">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="research">
+                    <div class="vt-legend-color vt-color-research"></div>
+                    <div class="vt-legend-label">
+                        <span>Research</span>
+                        <span class="vt-legend-count" id="count-research">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="media">
+                    <div class="vt-legend-color vt-color-media"></div>
+                    <div class="vt-legend-label">
+                        <span>Media</span>
+                        <span class="vt-legend-count" id="count-media">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="conversation">
+                    <div class="vt-legend-color vt-color-conversation"></div>
+                    <div class="vt-legend-label">
+                        <span>Conversation</span>
+                        <span class="vt-legend-count" id="count-conversation">0</span>
+                    </div>
+                </div>
+                <div class="vt-legend-item" data-filter="category" data-value="document">
+                    <div class="vt-legend-color vt-color-document"></div>
+                    <div class="vt-legend-label">
+                        <span>Document</span>
+                        <span class="vt-legend-count" id="count-document">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Badge Legend -->
+        <div class="vt-legend-section">
+            <div class="vt-legend-title">Blockchain Networks</div>
+            <div class="vt-network-badges">
+                <div class="vt-network-badge vt-network-ethereum" data-filter="network" data-value="ethereum">
+                    <span>ETH</span>
+                    <span class="vt-legend-count" id="count-eth">0</span>
+                </div>
+                <div class="vt-network-badge vt-network-bitcoin" data-filter="network" data-value="bitcoin">
+                    <span>BTC</span>
+                    <span class="vt-legend-count" id="count-btc">0</span>
+                </div>
+                <div class="vt-network-badge vt-network-solana" data-filter="network" data-value="solana">
+                    <span>SOL</span>
+                    <span class="vt-legend-count" id="count-sol">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Status Legend -->
+        <div class="vt-legend-section">
+            <div class="vt-legend-title">Analysis Status</div>
+            <div class="vt-status-items">
+                <div class="vt-status-badge vt-status-analyzed" data-filter="status" data-value="analyzed">
+                    Analyzed
+                    <span class="vt-legend-count" id="count-analyzed">0</span>
+                </div>
+                <div class="vt-status-badge vt-status-pending" data-filter="status" data-value="pending">
+                    Pending
+                    <span class="vt-legend-count" id="count-pending">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selection Summary (shown when items selected) -->
+        <div class="vt-selection-summary" id="selection-summary" style="display: none;">
+            <div class="vt-selection-count">
+                <strong id="selection-count-number">0</strong> items selected
+            </div>
+            <div class="vt-selection-actions">
+                <button class="vt-action-btn" id="analyze-selected">Analyze</button>
+                <button class="vt-action-btn secondary" id="clear-selection">Clear</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ============================================
+         MAIN CONTENT AREA
+         ============================================ -->
+    <main class="vt-main">
+        <!-- Toolbar -->
+        <div class="vt-toolbar">
+            <div class="vt-toolbar-left">
+                <div class="vt-search-box">
+                    <span class="vt-search-icon">🔍</span>
+                    <input
+                        type="text"
+                        class="vt-search-input"
+                        id="search-input"
+                        placeholder="Search queries..."
+                    />
+                </div>
+            </div>
+            <div class="vt-toolbar-right">
+                <div class="vt-view-toggle">
+                    <button class="vt-view-btn active" data-view="grid">Grid</button>
+                    <button class="vt-view-btn" data-view="list">List</button>
+                </div>
+                <button class="vt-action-btn" id="select-all-btn">Select All</button>
+            </div>
+        </div>
+
+        <!-- Thumbnail Grid Container -->
+        <div class="vt-grid-container" id="grid-container">
+            <div class="vt-grid zoom-2" id="thumbnail-grid">
+                <!-- Thumbnails will be dynamically inserted here -->
+                <div class="vt-loading" id="loading-state">
+                    Loading queries...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================
+         DETAIL PANEL (Slides in from right)
+         ============================================ -->
+    <div class="vt-detail-panel" id="detail-panel">
+        <div class="vt-detail-header">
+            <div>
+                <div class="vt-detail-title" id="detail-title">Item Details</div>
+            </div>
+            <button class="vt-detail-close" id="detail-close">&times;</button>
+        </div>
+
+        <div class="vt-detail-preview" id="detail-preview">
+            <!-- Image preview -->
+        </div>
+
+        <div class="vt-detail-content" id="detail-content">
+            <!-- Content dynamically inserted -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ============================================
+// LIGHTROOM-STYLE VISUAL TRANSLATOR
+// Optimized for thousands of items
+// ============================================
+
+const VT = {
+    data: {
+        queries: [],
+        selected: new Set(),
+        filters: {
+            category: 'all',
+            network: null,
+            status: null,
+            search: ''
+        },
+        zoom: 2,
+        currentDetailId: null
+    },
+
+    // Initialize
+    init() {
+        this.loadQueries();
+        this.bindEvents();
+    },
+
+    // Load queries from API
+    async loadQueries() {
+        try {
+            const response = await fetch('/api/visual-translator/queries');
+            const data = await response.json();
+            this.data.queries = data.queries || [];
+            this.renderGrid();
+            this.updateCounts();
+        } catch (error) {
+            console.error('Error loading queries:', error);
+            document.getElementById('loading-state').innerHTML =
+                '<div class="vt-empty"><div class="vt-empty-icon">⚠️</div><div class="vt-empty-text">Error loading queries</div></div>';
+        }
+    },
+
+    // Bind UI events
+    bindEvents() {
+        // Zoom controls
+        document.querySelectorAll('.vt-zoom-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.vt-zoom-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.data.zoom = parseInt(e.target.dataset.zoom);
+                this.updateZoom();
+            });
+        });
+
+        // Category filters
+        document.querySelectorAll('[data-filter="category"]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-filter="category"]').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                this.data.filters.category = e.currentTarget.dataset.value;
+                this.renderGrid();
+            });
+        });
+
+        // Network filters
+        document.querySelectorAll('[data-filter="network"]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const value = e.currentTarget.dataset.value;
+                if (this.data.filters.network === value) {
+                    this.data.filters.network = null;
+                    e.currentTarget.classList.remove('active');
+                } else {
+                    document.querySelectorAll('[data-filter="network"]').forEach(i => i.classList.remove('active'));
+                    this.data.filters.network = value;
+                    e.currentTarget.classList.add('active');
+                }
+                this.renderGrid();
+            });
+        });
+
+        // Status filters
+        document.querySelectorAll('[data-filter="status"]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const value = e.currentTarget.dataset.value;
+                if (this.data.filters.status === value) {
+                    this.data.filters.status = null;
+                    e.currentTarget.classList.remove('active');
+                } else {
+                    document.querySelectorAll('[data-filter="status"]').forEach(i => i.classList.remove('active'));
+                    this.data.filters.status = value;
+                    e.currentTarget.classList.add('active');
+                }
+                this.renderGrid();
+            });
+        });
+
+        // Search
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            this.data.filters.search = e.target.value.toLowerCase();
+            this.renderGrid();
+        });
+
+        // Select all
+        document.getElementById('select-all-btn').addEventListener('click', () => {
+            if (this.data.selected.size === this.getFilteredQueries().length) {
+                this.data.selected.clear();
+            } else {
+                this.getFilteredQueries().forEach(q => this.data.selected.add(q.id));
+            }
+            this.renderGrid();
+            this.updateSelectionSummary();
+        });
+
+        // Clear selection
+        document.getElementById('clear-selection').addEventListener('click', () => {
+            this.data.selected.clear();
+            this.renderGrid();
+            this.updateSelectionSummary();
+        });
+
+        // Analyze selected
+        document.getElementById('analyze-selected').addEventListener('click', () => {
+            this.analyzeSelected();
+        });
+
+        // Detail panel close
+        document.getElementById('detail-close').addEventListener('click', () => {
+            this.closeDetailPanel();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeDetailPanel();
+            }
+        });
+    },
+
+    // Get filtered queries
+    getFilteredQueries() {
+        return this.data.queries.filter(q => {
+            // Category filter
+            if (this.data.filters.category !== 'all' && q.category !== this.data.filters.category) {
+                return false;
+            }
+
+            // Network filter
+            if (this.data.filters.network && q.network !== this.data.filters.network) {
+                return false;
+            }
+
+            // Status filter
+            if (this.data.filters.status && q.status !== this.data.filters.status) {
+                return false;
+            }
+
+            // Search filter
+            if (this.data.filters.search) {
+                const searchStr = (q.title + ' ' + (q.description || '')).toLowerCase();
+                if (!searchStr.includes(this.data.filters.search)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    },
+
+    // Update zoom level
+    updateZoom() {
+        const grid = document.getElementById('thumbnail-grid');
+        grid.className = `vt-grid zoom-${this.data.zoom}`;
+    },
+
+    // Render grid
+    renderGrid() {
+        const grid = document.getElementById('thumbnail-grid');
+        const filtered = this.getFilteredQueries();
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="vt-empty"><div class="vt-empty-icon">📭</div><div class="vt-empty-text">No queries found</div><div class="vt-empty-subtext">Try adjusting your filters</div></div>';
+            return;
+        }
+
+        grid.innerHTML = filtered.map(query => this.renderThumbnail(query)).join('');
+
+        // Bind thumbnail events
+        grid.querySelectorAll('.vt-thumb').forEach(thumb => {
+            const id = thumb.dataset.id;
+
+            // Click to view details
+            thumb.addEventListener('click', (e) => {
+                if (!e.target.closest('.vt-thumb-checkbox')) {
+                    this.openDetailPanel(id);
+                }
+            });
+
+            // Checkbox click
+            const checkbox = thumb.querySelector('.vt-thumb-checkbox');
+            if (checkbox) {
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleSelection(id);
+                });
+            }
+        });
+
+        this.updateCounts();
+        this.updateSelectionSummary();
+    },
+
+    // Render individual thumbnail
+    renderThumbnail(query) {
+        const isSelected = this.data.selected.has(query.id);
+        const categoryColor = this.getCategoryColor(query.category);
+
+        let badges = '';
+        if (query.network) {
+            const networkClass = `vt-badge-${query.network.toLowerCase().substring(0, 3)}`;
+            badges += `<div class="vt-thumb-badge ${networkClass}">${query.network.substring(0, 3).toUpperCase()}</div>`;
+        }
+        if (query.status) {
+            badges += `<div class="vt-thumb-badge vt-badge-${query.status}">${query.status === 'analyzed' ? '✓' : '⋯'}</div>`;
+        }
+
+        const imageHtml = query.image_url
+            ? `<img src="${query.image_url}" alt="${query.title}" class="vt-thumb-image" loading="lazy" />`
+            : `<div class="vt-thumb-placeholder">${this.getCategoryIcon(query.category)}</div>`;
+
+        return `
+            <div class="vt-thumb ${isSelected ? 'selected' : ''}"
+                 data-id="${query.id}"
+                 data-category="${query.category}">
+                ${imageHtml}
+                <div class="vt-thumb-checkbox">${isSelected ? '✓' : ''}</div>
+                <div class="vt-thumb-badges">${badges}</div>
+                <div class="vt-thumb-info">
+                    <div class="vt-thumb-title">${query.title || 'Untitled'}</div>
+                    <div class="vt-thumb-meta">${this.formatDate(query.created_at)}</div>
+                </div>
+            </div>
+        `;
+    },
+
+    // Toggle selection
+    toggleSelection(id) {
+        if (this.data.selected.has(id)) {
+            this.data.selected.delete(id);
+        } else {
+            this.data.selected.add(id);
+        }
+        this.renderGrid();
+    },
+
+    // Update counts in legend
+    updateCounts() {
+        const filtered = this.getFilteredQueries();
+        const all = this.data.queries;
+
+        document.getElementById('total-items').textContent = filtered.length;
+        document.getElementById('count-all').textContent = all.length;
+
+        // Category counts
+        ['blockchain', 'article', 'research', 'media', 'conversation', 'document'].forEach(cat => {
+            const count = all.filter(q => q.category === cat).length;
+            const el = document.getElementById(`count-${cat}`);
+            if (el) el.textContent = count;
+        });
+
+        // Network counts
+        ['ethereum', 'bitcoin', 'solana'].forEach(net => {
+            const count = all.filter(q => q.network === net).length;
+            const short = net === 'ethereum' ? 'eth' : net === 'bitcoin' ? 'btc' : 'sol';
+            const el = document.getElementById(`count-${short}`);
+            if (el) el.textContent = count;
+        });
+
+        // Status counts
+        ['analyzed', 'pending'].forEach(status => {
+            const count = all.filter(q => q.status === status).length;
+            const el = document.getElementById(`count-${status}`);
+            if (el) el.textContent = count;
+        });
+    },
+
+    // Update selection summary
+    updateSelectionSummary() {
+        const summary = document.getElementById('selection-summary');
+        const count = this.data.selected.size;
+
+        document.getElementById('selected-items').textContent = count;
+        document.getElementById('selection-count-number').textContent = count;
+
+        if (count > 0) {
+            summary.style.display = 'block';
+        } else {
+            summary.style.display = 'none';
+        }
+    },
+
+    // Open detail panel
+    openDetailPanel(id) {
+        const query = this.data.queries.find(q => q.id === id);
+        if (!query) return;
+
+        this.data.currentDetailId = id;
+
+        // Update title
+        document.getElementById('detail-title').textContent = query.title || 'Untitled';
+
+        // Update preview
+        const preview = document.getElementById('detail-preview');
+        if (query.image_url) {
+            preview.innerHTML = `<img src="${query.image_url}" alt="${query.title}" />`;
+        } else {
+            preview.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;color:var(--text-tertiary);">${this.getCategoryIcon(query.category)}</div>`;
+        }
+
+        // Update content
+        const content = document.getElementById('detail-content');
+        content.innerHTML = `
+            <div class="vt-detail-section">
+                <div class="vt-detail-section-title">Metadata</div>
+                <div class="vt-detail-meta-grid">
+                    <div class="vt-detail-meta-label">Type</div>
+                    <div class="vt-detail-meta-value">${query.category || 'Unknown'}</div>
+
+                    <div class="vt-detail-meta-label">Created</div>
+                    <div class="vt-detail-meta-value">${this.formatDate(query.created_at)}</div>
+
+                    <div class="vt-detail-meta-label">Status</div>
+                    <div class="vt-detail-meta-value">${query.status || 'Unknown'}</div>
+
+                    ${query.network ? `
+                        <div class="vt-detail-meta-label">Network</div>
+                        <div class="vt-detail-meta-value">${query.network}</div>
+                    ` : ''}
+
+                    ${query.source_url ? `
+                        <div class="vt-detail-meta-label">Source</div>
+                        <div class="vt-detail-meta-value"><a href="${query.source_url}" target="_blank" style="color:var(--accent-gold);">View Source</a></div>
+                    ` : ''}
+                </div>
+            </div>
+
+            ${query.description ? `
+                <div class="vt-detail-section">
+                    <div class="vt-detail-section-title">Description</div>
+                    <div class="vt-detail-description">${query.description}</div>
+                </div>
+            ` : ''}
+
+            ${query.blockchain_data ? `
+                <div class="vt-detail-section">
+                    <div class="vt-detail-section-title">Blockchain Data</div>
+                    <div class="vt-blockchain-data">
+                        ${Object.entries(query.blockchain_data).map(([key, value]) =>
+                            `<div><strong>${key}:</strong> <code>${value}</code></div>`
+                        ).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <div class="vt-detail-actions">
+                <button class="vt-detail-action-btn primary" onclick="VT.analyzeQuery('${id}')">Analyze</button>
+                <a href="${query.source_url || '#'}" target="_blank" class="vt-detail-action-btn">Open Source</a>
+                <button class="vt-detail-action-btn" onclick="VT.exportQuery('${id}')">Export</button>
+            </div>
+        `;
+
+        // Show panel
+        document.getElementById('detail-panel').classList.add('open');
+    },
+
+    // Close detail panel
+    closeDetailPanel() {
+        document.getElementById('detail-panel').classList.remove('open');
+        this.data.currentDetailId = null;
+    },
+
+    // Analyze query
+    async analyzeQuery(id) {
+        try {
+            const response = await fetch(`/api/visual-translator/analyze/${id}`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+            alert(`Analysis complete for query ${id}`);
+            this.loadQueries(); // Reload to update status
+        } catch (error) {
+            console.error('Error analyzing query:', error);
+            alert('Error analyzing query');
+        }
+    },
+
+    // Analyze selected
+    async analyzeSelected() {
+        if (this.data.selected.size === 0) return;
+
+        try {
+            const ids = Array.from(this.data.selected);
+            const response = await fetch('/api/visual-translator/analyze-batch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+            });
+            const result = await response.json();
+            alert(`Analyzed ${ids.length} queries`);
+            this.data.selected.clear();
+            this.loadQueries();
+        } catch (error) {
+            console.error('Error analyzing selected:', error);
+            alert('Error analyzing queries');
+        }
+    },
+
+    // Export query
+    exportQuery(id) {
+        const query = this.data.queries.find(q => q.id === id);
+        if (!query) return;
+
+        const data = JSON.stringify(query, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `query-${id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    // Helper: Get category color
+    getCategoryColor(category) {
+        const colors = {
+            blockchain: '#d166ff',
+            article: '#66b2ff',
+            research: '#ffcc66',
+            media: '#ff6699',
+            conversation: '#66ffb2',
+            document: 'rgba(255, 255, 255, 0.2)'
+        };
+        return colors[category] || colors.document;
+    },
+
+    // Helper: Get category icon
+    getCategoryIcon(category) {
+        const icons = {
+            blockchain: '⛓️',
+            article: '📰',
+            research: '📚',
+            media: '🖼️',
+            conversation: '💬',
+            document: '📄'
+        };
+        return icons[category] || icons.document;
+    },
+
+    // Helper: Format date
+    formatDate(dateStr) {
+        if (!dateStr) return 'Unknown';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+};
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    VT.init();
+});
+</script>
+
+{% endblock %}

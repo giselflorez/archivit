@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+
+{% block title %}Blockchain Tracker - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: var(--accent-gold);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-value {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+        line-height: 1;
+    }
+
+    .section-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .section-header {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        font-size: 0.9rem;
+        font-family: 'Work Sans', sans-serif;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 1px var(--accent-gold);
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border: 1px solid var(--accent-gold);
+        border-radius: 2px;
+        font-size: 0.85rem;
+        font-family: 'Work Sans', sans-serif;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .btn:hover {
+        background: transparent;
+        color: var(--accent-gold);
+    }
+
+    .btn-secondary {
+        padding: 0.625rem 1.5rem;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .address-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .address-item {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid var(--accent-gold);
+        padding: 1.5rem;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .address-item:hover {
+        box-shadow: var(--shadow-subtle);
+    }
+
+    .address-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .address-label {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .network-badge {
+        display: inline-block;
+        padding: 0.35rem 0.875rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+        color: var(--accent-gold);
+        margin-right: 1rem;
+    }
+
+    .address-code {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        word-break: break-all;
+        margin-bottom: 1rem;
+    }
+
+    .address-meta {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+        margin-bottom: 1rem;
+    }
+
+    .address-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .nft-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .nft-card {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .nft-card:hover {
+        border-color: var(--accent-gold);
+        box-shadow: var(--shadow-elevated);
+        transform: translateY(-4px);
+    }
+
+    .nft-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        background: var(--bg-primary);
+    }
+
+    .nft-info {
+        padding: 1.25rem;
+    }
+
+    .nft-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .nft-meta {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 3rem;">
+    <h1 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem;">
+        <strong style="font-weight: 600; color: var(--accent-gold);">Blockchain</strong> Address Tracker
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.15em;">
+        Multi-chain NFT tracking with automatic metadata extraction
+    </p>
+</div>
+
+<!-- Statistics -->
+<div class="dashboard-grid">
+    <div class="stat-card">
+        <div class="stat-label">Tracked Addresses</div>
+        <div class="stat-value">{{ stats.addresses }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total NFTs</div>
+        <div class="stat-value">{{ stats.nfts }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Collectors</div>
+        <div class="stat-value">{{ stats.collectors }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Syncs Today</div>
+        <div class="stat-value">{{ stats.syncs_today }}</div>
+    </div>
+</div>
+
+<!-- Add Address -->
+<div class="section-card">
+    <h2 class="section-header">Add New Address</h2>
+    <form id="add-address-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Blockchain Address</label>
+                <input type="text" class="form-control" id="address-input" placeholder="0x... or wallet address" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Network</label>
+                <select class="form-control" id="network-select" required>
+                    <option value="">Select...</option>
+                    <option value="ethereum">Ethereum</option>
+                    <option value="solana">Solana</option>
+                    <option value="bitcoin">Bitcoin</option>
+                    <option value="polygon">Polygon</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Label (Optional)</label>
+                <input type="text" class="form-control" id="label-input" placeholder="My NFTs">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn">Add Address</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tracked Addresses -->
+<div class="section-card">
+    <h2 class="section-header">Tracked Addresses</h2>
+    {% if tracked_addresses %}
+    <div class="address-list">
+        {% for addr in tracked_addresses %}
+        <div class="address-item">
+            <div class="address-header">
+                <div>
+                    <span class="network-badge">{{ addr.network }}</span>
+                    <span class="address-label">{{ addr.label or 'Unlabeled' }}</span>
+                </div>
+            </div>
+            <div class="address-code">{{ addr.address }}</div>
+            <div class="address-meta">
+                <span>Last Synced: {{ addr.last_synced or 'Never' }}</span>
+            </div>
+            <div class="address-actions">
+                <button class="btn-secondary btn" onclick="syncAddress({{ addr.id }})">⟳ Sync Now</button>
+                <button class="btn-secondary btn" onclick="deleteAddress({{ addr.id }})">✕ Delete</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">⛓️</div>
+        <p>No addresses tracked yet. Add your first address above.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- NFTs -->
+<div class="section-card">
+    <h2 class="section-header">Tracked NFTs</h2>
+    <div class="nft-grid" id="nfts-grid">
+        <div class="empty-state">
+            <div class="empty-state-icon">🖼️</div>
+            <p>Loading NFTs...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Purchase Analysis -->
+<div class="section-card">
+    <h2 class="section-header">📊 Historical Purchase Analysis</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+        Analyze past purchases for any NFT collection - identify whales, flippers, and diamond hands.
+    </p>
+
+    <form id="analyze-collection-form" style="margin-bottom: 2.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">NFT Contract Address</label>
+                <input type="text" class="form-control" id="contract-input"
+                       placeholder="0x..." required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <button type="submit" class="btn" style="margin-top: 1.8rem;">Analyze Collection</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Analysis Results -->
+    <div id="analysis-results" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-family: 'Crimson Pro', serif; font-size: 1.4rem; color: var(--text-primary); margin-bottom: 1rem;">
+                Collection Overview
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 2px;">
+                    <div style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Total Buyers</div>
+                    <div id="stat-total-buyers" style="font-family: 'Crimson Pro', serif; font-size: 2rem; font-weight: 600; color: var(--accent-gold);">-</div>
+                </div>
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 2px;">
+                    <div style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Total Purchases</div>
+                    <div id="stat-total-purchases" style="font-family: 'Crimson Pro', serif; font-size: 2rem; font-weight: 600; color: var(--accent-gold);">-</div>
+                </div>
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 2px;">
+                    <div style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Avg Hold Time</div>
+                    <div id="stat-avg-hold" style="font-family: 'Crimson Pro', serif; font-size: 2rem; font-weight: 600; color: var(--accent-gold);">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collector Classifications -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-family: 'Crimson Pro', serif; font-size: 1.4rem; color: var(--text-primary); margin-bottom: 1rem;">
+                Collector Classifications
+            </h3>
+            <div id="collectors-list">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div id="analysis-loading" style="display: none; text-align: center; padding: 3rem;">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+        <div style="color: var(--text-secondary);">Analyzing collection purchases...</div>
+    </div>
+</div>
+
+<script>
+const API_BASE = '/api/tracker';
+
+document.getElementById('add-address-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const address = document.getElementById('address-input').value;
+    const network = document.getElementById('network-select').value;
+    const label = document.getElementById('label-input').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/addresses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address, network, label })
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert('✓ Address added successfully!');
+            window.location.reload();
+        } else {
+            alert('✗ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('✗ Error: ' + error.message);
+    }
+});
+
+async function syncAddress(id) {
+    if (!confirm('Start sync? This may take a few minutes.')) return;
+    try {
+        const response = await fetch(`${API_BASE}/addresses/${id}/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_sync: false })
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert('✓ Sync complete! Found ' + result.items_new + ' new NFTs');
+            window.location.reload();
+        } else {
+            alert('✗ Sync failed: ' + result.error);
+        }
+    } catch (error) {
+        alert('✗ Error: ' + error.message);
+    }
+}
+
+async function deleteAddress(id) {
+    if (!confirm('Delete this address?')) return;
+    try {
+        const response = await fetch(`${API_BASE}/addresses/${id}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (result.success) {
+            alert('✓ Address deleted');
+            window.location.reload();
+        } else {
+            alert('✗ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('✗ Error: ' + error.message);
+    }
+}
+
+async function loadNFTs() {
+    try {
+        const response = await fetch(`${API_BASE}/nfts`);
+        const data = await response.json();
+        const grid = document.getElementById('nfts-grid');
+
+        if (data.nfts.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🖼️</div><p>No NFTs synced yet</p></div>';
+            return;
+        }
+
+        grid.innerHTML = data.nfts.map(nft => `
+            <div class="nft-card">
+                ${nft.image ? `<img src="${nft.image}" class="nft-image" alt="${nft.name || 'NFT'}">` :
+                '<div class="nft-image" style="display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);">No Image</div>'}
+                <div class="nft-info">
+                    <div class="nft-title">${nft.name || 'Unnamed NFT'}</div>
+                    <div class="nft-meta">Token #${nft.token_id}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading NFTs:', error);
+        document.getElementById('nfts-grid').innerHTML = '<div class="empty-state"><p>Error loading NFTs</p></div>';
+    }
+}
+
+loadNFTs();
+
+// Historical Purchase Analysis
+document.getElementById('analyze-collection-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const contract = document.getElementById('contract-input').value.trim();
+
+    if (!contract) {
+        alert('Please enter a contract address');
+        return;
+    }
+
+    // Show loading, hide results
+    document.getElementById('analysis-loading').style.display = 'block';
+    document.getElementById('analysis-results').style.display = 'none';
+
+    try {
+        const response = await fetch(`/api/analytics/collection-buyers/${contract}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert('Error: ' + data.error);
+            document.getElementById('analysis-loading').style.display = 'none';
+            return;
+        }
+
+        // Update stats
+        document.getElementById('stat-total-buyers').textContent = data.total_buyers || 0;
+        document.getElementById('stat-total-purchases').textContent = data.total_purchases || 0;
+
+        // Calculate average hold time
+        let totalHoldDays = 0;
+        let countWithHold = 0;
+        Object.values(data.buyers).forEach(buyer => {
+            if (buyer.avg_holding_days > 0) {
+                totalHoldDays += buyer.avg_holding_days;
+                countWithHold++;
+            }
+        });
+        const avgHoldDays = countWithHold > 0 ? Math.round(totalHoldDays / countWithHold) : 0;
+        document.getElementById('stat-avg-hold').textContent = avgHoldDays + ' days';
+
+        // Group buyers by classification
+        const classifications = {
+            whale: [],
+            holder: [],
+            flipper: [],
+            collector: [],
+            casual_buyer: []
+        };
+
+        Object.entries(data.buyers).forEach(([address, buyer]) => {
+            const classification = buyer.classification || 'casual_buyer';
+            classifications[classification].push({ address, ...buyer });
+        });
+
+        // Render collector classifications
+        const collectorsList = document.getElementById('collectors-list');
+        collectorsList.innerHTML = '';
+
+        const classificationLabels = {
+            whale: { icon: '🐋', label: 'Whales', color: '#d4a574' },
+            holder: { icon: '💎', label: 'Diamond Hands', color: '#7fa8c9' },
+            flipper: { icon: '⚡', label: 'Flippers', color: '#f4a261' },
+            collector: { icon: '🎨', label: 'Collectors', color: '#8b7355' },
+            casual_buyer: { icon: '👤', label: 'Casual Buyers', color: '#6a6762' }
+        };
+
+        Object.entries(classifications).forEach(([type, buyers]) => {
+            if (buyers.length === 0) return;
+
+            const info = classificationLabels[type];
+            const section = document.createElement('div');
+            section.style.marginBottom = '2rem';
+
+            section.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <span style="font-size: 1.5rem;">${info.icon}</span>
+                    <h4 style="font-family: 'Crimson Pro', serif; font-size: 1.2rem; color: ${info.color}; margin: 0;">
+                        ${info.label} (${buyers.length})
+                    </h4>
+                </div>
+                <div style="display: grid; gap: 1rem;">
+                    ${buyers.slice(0, 10).map(buyer => `
+                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 2px;">
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;">
+                                <div>
+                                    <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                        ${buyer.address.slice(0, 6)}...${buyer.address.slice(-4)}
+                                    </div>
+                                    <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--text-secondary);">
+                                        <span>Purchases: <strong style="color: var(--accent-gold);">${buyer.purchase_count}</strong></span>
+                                        <span>Avg Hold: <strong style="color: var(--accent-gold);">${Math.round(buyer.avg_holding_days)} days</strong></span>
+                                        ${buyer.total_spent_eth ? `<span>Spent: <strong style="color: var(--accent-gold);">${buyer.total_spent_eth.toFixed(2)} ETH</strong></span>` : ''}
+                                    </div>
+                                </div>
+                                <button onclick="viewCollectorReport('${buyer.address}')"
+                                        style="padding: 0.5rem 1rem; background: var(--accent-gold); color: var(--bg-primary); border: none; border-radius: 2px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase;">
+                                    View Report
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            collectorsList.appendChild(section);
+        });
+
+        // Show results, hide loading
+        document.getElementById('analysis-loading').style.display = 'none';
+        document.getElementById('analysis-results').style.display = 'block';
+
+    } catch (error) {
+        console.error('Analysis error:', error);
+        alert('Error analyzing collection: ' + error.message);
+        document.getElementById('analysis-loading').style.display = 'none';
+    }
+});
+
+async function viewCollectorReport(address) {
+    try {
+        const response = await fetch(`/api/analytics/collector-report/${address}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+
+        // Create modal-style display
+        let reportHtml = `
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem;" onclick="this.remove()">
+                <div style="background: var(--bg-primary); border: 1px solid var(--accent-gold); border-radius: 2px; padding: 2.5rem; max-width: 800px; max-height: 90vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                        <div>
+                            <h2 style="font-family: 'Crimson Pro', serif; font-size: 1.8rem; color: var(--accent-gold); margin: 0 0 0.5rem 0;">
+                                Collector Report
+                            </h2>
+                            <div style="font-family: monospace; font-size: 0.9rem; color: var(--text-secondary);">
+                                ${address.slice(0, 10)}...${address.slice(-8)}
+                            </div>
+                        </div>
+                        <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()"
+                                style="background: none; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 2px; cursor: pointer;">
+                            ✕ Close
+                        </button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                        <div style="background: var(--bg-secondary); padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 2px;">
+                            <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Total Purchases</div>
+                            <div style="font-family: 'Crimson Pro', serif; font-size: 1.8rem; font-weight: 600; color: var(--accent-gold);">${data.total_purchases || 0}</div>
+                        </div>
+                        <div style="background: var(--bg-secondary); padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 2px;">
+                            <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Collections</div>
+                            <div style="font-family: 'Crimson Pro', serif; font-size: 1.8rem; font-weight: 600; color: var(--accent-gold);">${data.unique_collections || 0}</div>
+                        </div>
+                        <div style="background: var(--bg-secondary); padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 2px;">
+                            <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.5rem;">Avg Hold Time</div>
+                            <div style="font-family: 'Crimson Pro', serif; font-size: 1.8rem; font-weight: 600; color: var(--accent-gold);">${Math.round(data.avg_holding_days || 0)} days</div>
+                        </div>
+                    </div>
+
+                    <h3 style="font-family: 'Crimson Pro', serif; font-size: 1.3rem; color: var(--text-primary); margin: 0 0 1rem 0;">
+                        Purchase History
+                    </h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${(data.purchases || []).slice(0, 20).map(purchase => `
+                            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 1rem; margin-bottom: 0.75rem; border-radius: 2px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-family: monospace; font-size: 0.85rem; color: var(--text-primary);">
+                                        Token #${purchase.token_id}
+                                    </span>
+                                    <span style="font-size: 0.8rem; color: var(--text-tertiary);">
+                                        ${new Date(purchase.purchase_date).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                                    ${purchase.status === 'sold' ?
+                                        `Held for ${purchase.holding_days} days` :
+                                        `Currently holding (${purchase.holding_days} days so far)`}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', reportHtml);
+
+    } catch (error) {
+        console.error('Error loading collector report:', error);
+        alert('Error loading report: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

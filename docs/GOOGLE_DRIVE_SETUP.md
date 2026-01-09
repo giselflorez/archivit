@@ -29,7 +29,7 @@ The Google Drive automation system allows you to:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Click "Select a project" → "New Project"
-3. Project name: `GiselX Knowledge Base` (or your choice)
+3. Project name: `ARCHIV-IT` (or your choice)
 4. Click "Create"
 
 ### Step 2: Enable Google Drive API
@@ -47,7 +47,7 @@ The Google Drive automation system allows you to:
    - Select "External" (unless you have Google Workspace)
    - Click "Create"
    - Fill in:
-     - App name: `GiselX Knowledge Base`
+     - App name: `ARCHIV-IT`
      - User support email: Your email
      - Developer contact: Your email
    - Click "Save and Continue"
@@ -112,7 +112,7 @@ KMP_DUPLICATE_LIB_OK=TRUE python scripts/collectors/drive_collector.py --test
 2. Sign in with your Google account
 3. Google will show a warning "Google hasn't verified this app"
    - Click "Advanced"
-   - Click "Go to GiselX Knowledge Base (unsafe)" (it's your own app)
+   - Click "Go to ARCHIV-IT (unsafe)" (it's your own app)
 4. Click "Allow" to grant access
 5. You'll see "The authentication flow has completed"
 6. Close the browser
@@ -511,7 +511,7 @@ The token automatically refreshes when expired. No manual action needed.
 
 To revoke Drive access:
 1. Go to [Google Account > Security > Third-party apps](https://myaccount.google.com/permissions)
-2. Find "GiselX Knowledge Base"
+2. Find "ARCHIV-IT"
 3. Click "Remove access"
 4. Delete local token: `rm config/google_drive_token.json`
 

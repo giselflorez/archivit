@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conceptual Nebula - Point Cloud Paradigm 02</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #000;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .ui-overlay * { pointer-events: auto; }
+
+        .header {
+            top: 20px;
+            left: 20px;
+        }
+
+        .title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: #ff6b9d;
+            margin-bottom: 5px;
+        }
+
+        .paradigm-name {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .controls {
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #2a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid #ff6b9d;
+            color: #ff6b9d;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover { background: rgba(255, 107, 157, 0.2); }
+        .control-btn.active { background: #ff6b9d; color: #000; }
+
+        .theme-tag {
+            background: rgba(255, 107, 157, 0.2);
+            border: 1px solid rgba(255, 107, 157, 0.5);
+            color: #ff6b9d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-tag:hover, .theme-tag.active {
+            background: #ff6b9d;
+            color: #000;
+        }
+
+        .nebula-labels {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .nebula-label {
+            position: absolute;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            transform: translate(-50%, -50%);
+        }
+
+        .info-panel {
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #2a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .info-panel.visible { display: block; }
+
+        .info-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .info-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            display: none;
+        }
+
+        .info-thumbnail.visible { display: block; }
+
+        .info-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .info-source {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .info-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #ff6b9d;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .concept-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .concept-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            border-radius: 12px;
+            color: #ff6b9d;
+        }
+
+        .lineage-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .lineage-arrow {
+            color: #ff6b9d;
+        }
+
+        .stats {
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #2a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.7rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { color: #666; }
+        .stat-value { color: #ff6b9d; }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #2a1a2e;
+            border-radius: 8px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            z-index: 200;
+        }
+
+        .back-link:hover { color: #ff6b9d; }
+            .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .top-nav a:hover { color: #d4a574; }
+        .top-nav .active { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div id="canvas-container"></div>
+    <div class="nebula-labels" id="nebula-labels"></div>
+
+    <a href="/point-cloud" class="back-link">← All Paradigms</a>
+
+    <div class="ui-overlay header">
+        <div class="title">PARADIGM 02</div>
+        <div class="paradigm-name">Conceptual Nebula</div>
+    </div>
+
+    <div class="ui-overlay controls">
+        <div class="control-group">
+            <div class="control-label">THEME FILTER</div>
+            <div class="control-buttons" id="theme-filters">
+                <span class="theme-tag active" data-theme="all">All</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">VISUALIZATION</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-visual="nebulae">Nebulae</button>
+                <button class="control-btn" data-visual="evolution">Evolution Paths</button>
+                <button class="control-btn" data-visual="siblings">Siblings</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">GRAVITY</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-gravity="off">Off</button>
+                <button class="control-btn active" data-gravity="low">Low</button>
+                <button class="control-btn" data-gravity="high">High</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-overlay info-panel" id="info-panel">
+        <button class="info-close" onclick="hideInfoPanel()">×</button>
+        <img class="info-thumbnail" id="info-thumbnail" alt="Work thumbnail">
+        <div class="info-title" id="info-title">Work Title</div>
+        <div class="info-source" id="info-source"></div>
+
+        <div class="info-section">
+            <div class="info-section-title">CONCEPT DNA</div>
+            <div class="concept-tags" id="info-themes"></div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">TECHNIQUES</div>
+            <div class="concept-tags" id="info-techniques"></div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">CONCEPTUAL LINEAGE</div>
+            <div id="info-lineage"></div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">SIBLINGS (Same Theme)</div>
+            <div class="info-text" id="info-siblings">3 related works</div>
+        </div>
+    </div>
+
+    <div class="ui-overlay stats">
+        <div class="stat-row">
+            <span class="stat-label">Total Works</span>
+            <span class="stat-value" id="stat-total">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Theme Clusters</span>
+            <span class="stat-value" id="stat-clusters">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Evolution Paths</span>
+            <span class="stat-value" id="stat-paths">0</span>
+        </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // ============================================
+        // CONCEPTUAL NEBULA - POINT CLOUD PARADIGM 02
+        // ============================================
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x05050a);
+        scene.fog = new THREE.FogExp2(0x05050a, 0.004);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 100, 250);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 600;
+        controls.minDistance = 50;
+
+        // Theme/Concept definitions with colors
+        const THEMES = {
+            'digital_nature': { color: 0x00ff88, label: 'Digital Nature', center: new THREE.Vector3(-80, 20, -40) },
+            'algorithmic_identity': { color: 0xff6b9d, label: 'Algorithmic Identity', center: new THREE.Vector3(60, -10, 30) },
+            'temporal_recursion': { color: 0x6bceff, label: 'Temporal Recursion', center: new THREE.Vector3(-20, 50, 80) },
+            'data_embodiment': { color: 0xffd93d, label: 'Data Embodiment', center: new THREE.Vector3(40, -40, -60) },
+            'glitch_aesthetic': { color: 0xc77dff, label: 'Glitch Aesthetic', center: new THREE.Vector3(-60, -30, 50) },
+            'generative_systems': { color: 0xff8c42, label: 'Generative Systems', center: new THREE.Vector3(80, 40, -20) }
+        };
+
+        const TECHNIQUES = ['generative', 'glitch', 'data-viz', 'interactive', 'procedural', 'AI-assisted'];
+
+        // State
+        let works = [];
+        let workMeshes = [];
+        let nebulaMeshes = [];
+        let evolutionLines = [];
+        let siblingLines = [];
+        let gravityStrength = 0.5;
+        let showNebulae = true;
+        let showEvolution = false;
+        let showSiblings = false;
+        let selectedTheme = 'all';
+
+        // Generate sample data
+        function generateSampleData() {
+            const data = [];
+            const themeKeys = Object.keys(THEMES);
+
+            for (let i = 0; i < 100; i++) {
+                // Assign 1-3 themes
+                const numThemes = Math.floor(Math.random() * 3) + 1;
+                const themes = [];
+                for (let t = 0; t < numThemes; t++) {
+                    const theme = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+                    if (!themes.includes(theme)) themes.push(theme);
+                }
+
+                // Assign 1-3 techniques
+                const numTech = Math.floor(Math.random() * 3) + 1;
+                const techniques = [];
+                for (let t = 0; t < numTech; t++) {
+                    const tech = TECHNIQUES[Math.floor(Math.random() * TECHNIQUES.length)];
+                    if (!techniques.includes(tech)) techniques.push(tech);
+                }
+
+                // Position based on primary theme (with scatter)
+                const primaryTheme = THEMES[themes[0]];
+                const scatter = 50;
+                const position = new THREE.Vector3(
+                    primaryTheme.center.x + (Math.random() - 0.5) * scatter,
+                    primaryTheme.center.y + (Math.random() - 0.5) * scatter,
+                    primaryTheme.center.z + (Math.random() - 0.5) * scatter
+                );
+
+                // For multi-theme works, pull toward other centers
+                if (themes.length > 1) {
+                    const secondaryTheme = THEMES[themes[1]];
+                    position.lerp(secondaryTheme.center, 0.3);
+                }
+
+                data.push({
+                    id: `work_${i}`,
+                    name: `Artwork #${i + 1}`,
+                    position: position,
+                    themes: themes,
+                    techniques: techniques,
+                    primaryColor: primaryTheme.color,
+                    conceptualSignificance: Math.random(),
+                    creationOrder: i,
+                    ancestors: i > 5 ? [Math.floor(Math.random() * (i - 1))] : [],
+                    descendants: []
+                });
+            }
+
+            // Build descendants from ancestors
+            data.forEach((work, i) => {
+                work.ancestors.forEach(ancestorIdx => {
+                    if (data[ancestorIdx]) {
+                        data[ancestorIdx].descendants.push(i);
+                    }
+                });
+            });
+
+            return data;
+        }
+
+        // Create nebula cloud for each theme
+        function createNebulae() {
+            nebulaMeshes.forEach(m => scene.remove(m));
+            nebulaMeshes = [];
+
+            if (!showNebulae) return;
+
+            Object.entries(THEMES).forEach(([key, theme]) => {
+                // Create cloud of particles for nebula
+                const particleCount = 500;
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                const sizes = new Float32Array(particleCount);
+
+                const color = new THREE.Color(theme.color);
+
+                for (let i = 0; i < particleCount; i++) {
+                    // Gaussian-ish distribution around center
+                    const radius = Math.random() * 60;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.random() * Math.PI;
+
+                    positions[i * 3] = theme.center.x + radius * Math.sin(phi) * Math.cos(theta);
+                    positions[i * 3 + 1] = theme.center.y + radius * Math.sin(phi) * Math.sin(theta);
+                    positions[i * 3 + 2] = theme.center.z + radius * Math.cos(phi);
+
+                    colors[i * 3] = color.r;
+                    colors[i * 3 + 1] = color.g;
+                    colors[i * 3 + 2] = color.b;
+
+                    sizes[i] = 1 + Math.random() * 3;
+                }
+
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                const material = new THREE.PointsMaterial({
+                    size: 2,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.15,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const nebula = new THREE.Points(geometry, material);
+                nebula.userData = { theme: key };
+                scene.add(nebula);
+                nebulaMeshes.push(nebula);
+            });
+        }
+
+        // Create work nodes
+        function createWorkNodes() {
+            workMeshes.forEach(m => scene.remove(m));
+            workMeshes = [];
+
+            works.forEach((work, index) => {
+                const size = 2 + work.conceptualSignificance * 3;
+                const geometry = new THREE.SphereGeometry(size, 16, 16);
+                const material = new THREE.MeshBasicMaterial({
+                    color: work.primaryColor,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(work.position);
+                mesh.userData = { workIndex: index };
+                scene.add(mesh);
+                workMeshes.push(mesh);
+            });
+
+            updateStats();
+        }
+
+        // Create evolution paths (ancestor -> descendant)
+        function createEvolutionPaths() {
+            evolutionLines.forEach(l => scene.remove(l));
+            evolutionLines = [];
+
+            if (!showEvolution) return;
+
+            works.forEach((work, i) => {
+                work.descendants.forEach(descIdx => {
+                    const descendant = works[descIdx];
+                    if (!descendant) return;
+
+                    // Create curved line
+                    const start = work.position.clone();
+                    const end = descendant.position.clone();
+                    const mid = start.clone().lerp(end, 0.5);
+                    mid.y += 20; // Arc up
+
+                    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                    const points = curve.getPoints(20);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+                    const material = new THREE.LineBasicMaterial({
+                        color: 0xff6b9d,
+                        transparent: true,
+                        opacity: 0.4
+                    });
+
+                    const line = new THREE.Line(geometry, material);
+                    scene.add(line);
+                    evolutionLines.push(line);
+                });
+            });
+        }
+
+        // Create sibling connections (same theme)
+        function createSiblingConnections() {
+            siblingLines.forEach(l => scene.remove(l));
+            siblingLines = [];
+
+            if (!showSiblings) return;
+
+            // Group works by primary theme
+            const themeGroups = {};
+            works.forEach((work, i) => {
+                const primary = work.themes[0];
+                if (!themeGroups[primary]) themeGroups[primary] = [];
+                themeGroups[primary].push(i);
+            });
+
+            // Connect nearby siblings
+            Object.values(themeGroups).forEach(group => {
+                for (let i = 0; i < group.length; i++) {
+                    for (let j = i + 1; j < Math.min(i + 3, group.length); j++) {
+                        const work1 = works[group[i]];
+                        const work2 = works[group[j]];
+
+                        const geometry = new THREE.BufferGeometry().setFromPoints([
+                            work1.position, work2.position
+                        ]);
+                        const material = new THREE.LineBasicMaterial({
+                            color: 0x444466,
+                            transparent: true,
+                            opacity: 0.2
+                        });
+
+                        const line = new THREE.Line(geometry, material);
+                        scene.add(line);
+                        siblingLines.push(line);
+                    }
+                }
+            });
+        }
+
+        // Create theme filter buttons
+        function createThemeFilters() {
+            const container = document.getElementById('theme-filters');
+            container.innerHTML = '<span class="theme-tag active" data-theme="all">All</span>';
+
+            Object.entries(THEMES).forEach(([key, theme]) => {
+                const tag = document.createElement('span');
+                tag.className = 'theme-tag';
+                tag.dataset.theme = key;
+                tag.textContent = theme.label;
+                tag.style.borderColor = `#${theme.color.toString(16).padStart(6, '0')}`;
+                tag.addEventListener('click', () => filterByTheme(key));
+                container.appendChild(tag);
+            });
+
+            // All button click handler
+            container.querySelector('[data-theme="all"]').addEventListener('click', () => filterByTheme('all'));
+        }
+
+        // Create legend
+        function createLegend() {
+            const legend = document.getElementById('legend');
+            legend.innerHTML = '';
+
+            Object.entries(THEMES).forEach(([key, theme]) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: #${theme.color.toString(16).padStart(6, '0')}"></div>
+                    <span>${theme.label}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
+        // Update nebula labels
+        function updateNebulaLabels() {
+            const labelsContainer = document.getElementById('nebula-labels');
+            labelsContainer.innerHTML = '';
+
+            Object.entries(THEMES).forEach(([key, theme]) => {
+                // Project 3D position to 2D screen
+                const pos = theme.center.clone();
+                pos.project(camera);
+
+                const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
+
+                // Only show if in front of camera
+                if (pos.z < 1) {
+                    const label = document.createElement('div');
+                    label.className = 'nebula-label';
+                    label.textContent = theme.label;
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                    label.style.color = `#${theme.color.toString(16).padStart(6, '0')}`;
+                    labelsContainer.appendChild(label);
+                }
+            });
+        }
+
+        // Filter by theme
+        function filterByTheme(theme) {
+            selectedTheme = theme;
+
+            document.querySelectorAll('.theme-tag').forEach(t => {
+                t.classList.toggle('active', t.dataset.theme === theme);
+            });
+
+            workMeshes.forEach((mesh, i) => {
+                const work = works[i];
+                const visible = theme === 'all' || work.themes.includes(theme);
+                mesh.visible = visible;
+                mesh.material.opacity = visible ? 0.9 : 0.1;
+            });
+
+            nebulaMeshes.forEach(nebula => {
+                const nebulaTheme = nebula.userData.theme;
+                nebula.material.opacity = theme === 'all' || nebulaTheme === theme ? 0.15 : 0.02;
+            });
+
+            updateStats();
+        }
+
+        // Apply conceptual gravity
+        function applyGravity() {
+            if (gravityStrength === 0) return;
+
+            works.forEach((work, i) => {
+                const mesh = workMeshes[i];
+                if (!mesh || !mesh.visible) return;
+
+                // Pull toward theme center
+                const primaryTheme = THEMES[work.themes[0]];
+                const direction = primaryTheme.center.clone().sub(mesh.position);
+                const distance = direction.length();
+
+                if (distance > 5) {
+                    direction.normalize().multiplyScalar(gravityStrength * 0.5);
+                    mesh.position.add(direction);
+                    work.position.copy(mesh.position);
+                }
+            });
+        }
+
+        // Animation
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsed = clock.getElapsedTime();
+
+            // Animate nebulae
+            nebulaMeshes.forEach((nebula, i) => {
+                nebula.rotation.y = elapsed * 0.02 * (i % 2 === 0 ? 1 : -1);
+                nebula.rotation.x = Math.sin(elapsed * 0.01 + i) * 0.1;
+            });
+
+            // Subtle work movement
+            workMeshes.forEach((mesh, i) => {
+                const work = works[i];
+                mesh.position.y = work.position.y + Math.sin(elapsed + i * 0.5) * 0.5;
+            });
+
+            // Apply gravity
+            applyGravity();
+
+            // Update labels
+            updateNebulaLabels();
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(workMeshes);
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                const work = works[mesh.userData.workIndex];
+                showInfoPanel(work);
+            }
+        }
+
+        function showInfoPanel(work) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            // Show thumbnail if available from original API data
+            const thumbnail = document.getElementById('info-thumbnail');
+            const imgPath = work.originalData?.image_path ||
+                work.originalData?.media_files?.[0] ||
+                work.originalData?.images?.[0] ||
+                work.originalData?.image_url;
+
+            if (imgPath) {
+                thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+                thumbnail.classList.add('visible');
+                thumbnail.onerror = () => { thumbnail.classList.remove('visible'); };
+            } else {
+                thumbnail.classList.remove('visible');
+            }
+
+            document.getElementById('info-title').textContent = work.name;
+
+            // Show source
+            const sourceEl = document.getElementById('info-source');
+            sourceEl.textContent = work.source || work.cognitiveType || '';
+
+            // Themes
+            const themesEl = document.getElementById('info-themes');
+            themesEl.innerHTML = work.themes.map(t =>
+                `<span class="concept-tag" style="border-color: #${THEMES[t].color.toString(16).padStart(6, '0')}">${THEMES[t].label}</span>`
+            ).join('');
+
+            // Techniques
+            document.getElementById('info-techniques').innerHTML = work.techniques.map(t =>
+                `<span class="concept-tag">${t}</span>`
+            ).join('');
+
+            // Lineage
+            const lineageEl = document.getElementById('info-lineage');
+            let lineageHTML = '';
+
+            if (work.ancestors.length > 0) {
+                lineageHTML += '<div class="lineage-item"><span class="lineage-arrow">←</span> Influenced by: ';
+                lineageHTML += work.ancestors.map(i => works[i]?.name || 'Unknown').join(', ');
+                lineageHTML += '</div>';
+            }
+
+            if (work.descendants.length > 0) {
+                lineageHTML += '<div class="lineage-item"><span class="lineage-arrow">→</span> Influenced: ';
+                lineageHTML += work.descendants.map(i => works[i]?.name || 'Unknown').join(', ');
+                lineageHTML += '</div>';
+            }
+
+            lineageEl.innerHTML = lineageHTML || '<div class="info-text">No lineage recorded</div>';
+
+            // Siblings count
+            const siblings = works.filter(w =>
+                w.id !== work.id && w.themes.some(t => work.themes.includes(t))
+            ).length;
+            document.getElementById('info-siblings').textContent = `${siblings} related works`;
+        }
+
+        function hideInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        function updateStats() {
+            const visible = works.filter((w, i) => workMeshes[i]?.visible);
+            document.getElementById('stat-total').textContent = visible.length;
+            document.getElementById('stat-clusters').textContent = Object.keys(THEMES).length;
+            document.getElementById('stat-paths').textContent =
+                works.reduce((sum, w) => sum + w.descendants.length, 0);
+        }
+
+        // Control handlers
+        document.querySelectorAll('[data-visual]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const visual = btn.dataset.visual;
+                btn.classList.toggle('active');
+
+                switch(visual) {
+                    case 'nebulae':
+                        showNebulae = btn.classList.contains('active');
+                        createNebulae();
+                        break;
+                    case 'evolution':
+                        showEvolution = btn.classList.contains('active');
+                        createEvolutionPaths();
+                        break;
+                    case 'siblings':
+                        showSiblings = btn.classList.contains('active');
+                        createSiblingConnections();
+                        break;
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-gravity]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-gravity]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                switch(btn.dataset.gravity) {
+                    case 'off': gravityStrength = 0; break;
+                    case 'low': gravityStrength = 0.5; break;
+                    case 'high': gravityStrength = 2; break;
+                }
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onMouseClick);
+
+        // Load data from API or fall back to sample data
+        async function loadNetworkData() {
+            try {
+                const response = await fetch('/api/point-cloud/data');
+                const result = await response.json();
+
+                if (result.success && result.nodes && result.nodes.length > 0) {
+                    // Transform API nodes to works array for conceptual visualization
+                    const themeKeys = Object.keys(THEMES);
+
+                    works = result.nodes
+                        .filter(n => n.type === 'nft' || n.type === 'document')
+                        .map((node, index) => {
+                            // Map cognitive_type to themes
+                            const cogType = node.data?.cognitive_type || 'web_article';
+                            const themes = [];
+
+                            // Map cognitive types to conceptual themes
+                            if (cogType === 'blockchain') themes.push('data_embodiment', 'generative_systems');
+                            else if (cogType === 'research') themes.push('algorithmic_identity', 'temporal_recursion');
+                            else if (cogType === 'media') themes.push('digital_nature', 'glitch_aesthetic');
+                            else if (cogType === 'conversation') themes.push('algorithmic_identity');
+                            else themes.push(themeKeys[Math.floor(Math.random() * themeKeys.length)]);
+
+                            // Add second theme based on tags
+                            const tags = node.data?.tags || [];
+                            if (tags.some(t => t.includes('art') || t.includes('visual'))) themes.push('digital_nature');
+                            if (tags.some(t => t.includes('code') || t.includes('gen'))) themes.push('generative_systems');
+
+                            // Position based on primary theme
+                            const primaryTheme = THEMES[themes[0]];
+                            const scatter = 50;
+                            const position = new THREE.Vector3(
+                                primaryTheme.center.x + (Math.random() - 0.5) * scatter,
+                                primaryTheme.center.y + (Math.random() - 0.5) * scatter,
+                                primaryTheme.center.z + (Math.random() - 0.5) * scatter
+                            );
+
+                            // Techniques from source type
+                            const source = node.data?.source || '';
+                            const techniques = [];
+                            if (source.includes('web') || source.includes('import')) techniques.push('data-viz');
+                            if (source.includes('ai') || source.includes('claude')) techniques.push('AI-assisted');
+                            if (techniques.length === 0) techniques.push(TECHNIQUES[Math.floor(Math.random() * TECHNIQUES.length)]);
+
+                            return {
+                                id: node.id,
+                                name: node.data?.name || node.data?.title || `Item #${index}`,
+                                position: position,
+                                themes: [...new Set(themes)],
+                                techniques: techniques,
+                                primaryColor: parseInt(node.color?.replace('#', '0x') || '0x22c55e'),
+                                conceptualSignificance: Math.random() * 0.5 + 0.3,
+                                creationOrder: index,
+                                ancestors: index > 0 ? [index - 1] : [],
+                                descendants: [],
+                                data: node.data
+                            };
+                        });
+
+                    console.log(`Loaded ${works.length} items for conceptual nebula`);
+                } else {
+                    console.log('No data from API, using sample data');
+                    works = generateSampleData();
+                }
+            } catch (error) {
+                console.error('Failed to load network data:', error);
+                works = generateSampleData();
+            }
+
+            createWorkNodes();
+            createNebulae();
+            createThemeFilters();
+            createLegend();
+        }
+
+        // Initialize
+        loadNetworkData();
+        animate();
+
+        console.log('Conceptual Nebula visualization loaded');
+    </script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point Cloud Paradigms - ARCHIV-IT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: #0a0a0f;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .top-nav a:hover {
+            color: #d4a574;
+        }
+
+        .top-nav .active {
+            color: #d4a574;
+        }
+
+        .header {
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(180deg, #0f0f18 0%, #0a0a0f 100%);
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            letter-spacing: 0.2em;
+        }
+
+        .paradigms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 50px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .paradigm-card {
+            background: linear-gradient(145deg, #12121a 0%, #0d0d14 100%);
+            border: 1px solid #1a1a2e;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .paradigm-card:hover {
+            transform: translateY(-8px);
+            border-color: #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .paradigm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .paradigm-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-preview {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background: #08080c;
+        }
+
+        .card-preview canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-number {
+            font-size: 0.7rem;
+            color: #444;
+            letter-spacing: 0.3em;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .card-metaphor {
+            font-size: 0.85rem;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            color: #aaa;
+        }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            transition: gap 0.3s;
+        }
+
+        .paradigm-card:hover .card-action {
+            gap: 12px;
+        }
+
+        /* Paradigm-specific accent colors */
+        .paradigm-1 { --accent-color: #00ff88; --accent-gradient: linear-gradient(90deg, #00ff88, #00cc6a); }
+        .paradigm-2 { --accent-color: #ff6b9d; --accent-gradient: linear-gradient(90deg, #ff6b9d, #c44569); }
+        .paradigm-3 { --accent-color: #ffd93d; --accent-gradient: linear-gradient(90deg, #ffd93d, #ff9f1c); }
+        .paradigm-4 { --accent-color: #6bceff; --accent-gradient: linear-gradient(90deg, #6bceff, #4ea8de); }
+        .paradigm-5 { --accent-color: #c77dff; --accent-gradient: linear-gradient(90deg, #c77dff, #9d4edd); }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: #444;
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual Analyzer</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/blockchain-tracker">Blockchain</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div class="header">
+        <h1>POINT CLOUD PARADIGMS</h1>
+        <p class="subtitle">FIVE LENSES FOR UNDERSTANDING NFT ART ARCHIVES</p>
+    </div>
+
+    <div class="paradigms-grid">
+        <!-- Paradigm 1: Temporal -->
+        <div class="paradigm-card paradigm-1" onclick="window.location='/point-cloud/temporal'">
+            <div class="card-preview" id="preview-1"></div>
+            <div class="card-content">
+                <div class="card-number">PARADIGM 01</div>
+                <div class="card-title">Temporal Existence</div>
+                <div class="card-metaphor">"NFTs as beings that exist across time - with pasts, presents, and futures"</div>
+                <div class="card-features">
+                    <span class="feature-tag">Living Works Pulse</span>
+                    <span class="feature-tag">Past State Trails</span>
+                    <span class="feature-tag">Future Event Indicators</span>
+                    <span class="feature-tag">Timeline Expansion</span>
+                </div>
+                <div class="card-action">
+                    <span>Enter Temporal Space</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paradigm 2: Conceptual -->
+        <div class="paradigm-card paradigm-2" onclick="window.location='/point-cloud/conceptual'">
+            <div class="card-preview" id="preview-2"></div>
+            <div class="card-content">
+                <div class="card-number">PARADIGM 02</div>
+                <div class="card-title">Conceptual Nebula</div>
+                <div class="card-metaphor">"Ideas cluster in semantic space - themes form nebulae, evolution traces paths"</div>
+                <div class="card-features">
+                    <span class="feature-tag">Semantic Gravity</span>
+                    <span class="feature-tag">Theme Clustering</span>
+                    <span class="feature-tag">Evolution Paths</span>
+                    <span class="feature-tag">Concept DNA</span>
+                </div>
+                <div class="card-action">
+                    <span>Enter Idea Space</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paradigm 3: Stewardship -->
+        <div class="paradigm-card paradigm-3" onclick="window.location='/point-cloud/stewardship'">
+            <div class="card-preview" id="preview-3"></div>
+            <div class="card-content">
+                <div class="card-number">PARADIGM 03</div>
+                <div class="card-title">Stewardship Constellation</div>
+                <div class="card-metaphor">"Collectors as stars - brightness reveals depth of engagement, not just ownership"</div>
+                <div class="card-features">
+                    <span class="feature-tag">Witness Depth</span>
+                    <span class="feature-tag">Orbital Mechanics</span>
+                    <span class="feature-tag">Taste DNA Links</span>
+                    <span class="feature-tag">Provenance Trails</span>
+                </div>
+                <div class="card-action">
+                    <span>Enter Collector Space</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paradigm 4: River -->
+        <div class="paradigm-card paradigm-4" onclick="window.location='/point-cloud/river'">
+            <div class="card-preview" id="preview-4"></div>
+            <div class="card-content">
+                <div class="card-number">PARADIGM 04</div>
+                <div class="card-title">Creative River</div>
+                <div class="card-metaphor">"An artist's practice flows like water - branching, pooling, rushing through time"</div>
+                <div class="card-features">
+                    <span class="feature-tag">Flow Dynamics</span>
+                    <span class="feature-tag">Period Regions</span>
+                    <span class="feature-tag">Tributary Series</span>
+                    <span class="feature-tag">Pivotal Rapids</span>
+                </div>
+                <div class="card-action">
+                    <span>Enter Practice Flow</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paradigm 5: Resonance -->
+        <div class="paradigm-card paradigm-5" onclick="window.location='/point-cloud/resonance'">
+            <div class="card-preview" id="preview-5"></div>
+            <div class="card-content">
+                <div class="card-number">PARADIGM 05</div>
+                <div class="card-title">Cultural Resonance Field</div>
+                <div class="card-metaphor">"Art exists in context - cultural moments create gravitational wells that shape meaning"</div>
+                <div class="card-features">
+                    <span class="feature-tag">Context Gravity</span>
+                    <span class="feature-tag">Movement Fields</span>
+                    <span class="feature-tag">Event Attractors</span>
+                    <span class="feature-tag">Discourse Threads</span>
+                </div>
+                <div class="card-action">
+                    <span>Enter Context Space</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>ARCHIV-IT by WEB3GISEL | <a href="/">Return to Archive</a></p>
+    </div>
+
+    <!-- Three.js for mini previews -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Mini preview renderers for each card
+        function createMiniPreview(containerId, type) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            camera.position.z = 50;
+
+            // Different particle configurations for each paradigm
+            const particles = createParticles(type);
+            scene.add(particles);
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Different animations per type
+                switch(type) {
+                    case 1: // Temporal - pulsing
+                        particles.children.forEach((p, i) => {
+                            p.scale.setScalar(1 + Math.sin(Date.now() * 0.003 + i) * 0.3);
+                        });
+                        particles.rotation.y += 0.002;
+                        break;
+                    case 2: // Conceptual - clustering
+                        particles.rotation.y += 0.003;
+                        particles.rotation.x += 0.001;
+                        break;
+                    case 3: // Stewardship - orbital
+                        particles.children.forEach((p, i) => {
+                            p.position.x = Math.cos(Date.now() * 0.001 + i * 0.5) * (10 + i * 2);
+                            p.position.z = Math.sin(Date.now() * 0.001 + i * 0.5) * (10 + i * 2);
+                        });
+                        break;
+                    case 4: // River - flowing
+                        particles.children.forEach((p, i) => {
+                            p.position.y -= 0.1;
+                            if (p.position.y < -30) p.position.y = 30;
+                            p.position.x += Math.sin(p.position.y * 0.1) * 0.1;
+                        });
+                        break;
+                    case 5: // Resonance - field effects
+                        particles.children.forEach((p, i) => {
+                            const dist = p.position.length();
+                            p.position.normalize().multiplyScalar(dist + Math.sin(Date.now() * 0.002 + dist * 0.1) * 0.5);
+                        });
+                        particles.rotation.y += 0.002;
+                        break;
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        }
+
+        function createParticles(type) {
+            const group = new THREE.Group();
+            const colors = {
+                1: 0x00ff88,
+                2: 0xff6b9d,
+                3: 0xffd93d,
+                4: 0x6bceff,
+                5: 0xc77dff
+            };
+
+            const color = colors[type];
+            const geometry = new THREE.SphereGeometry(1, 8, 8);
+            const material = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.8 });
+
+            for (let i = 0; i < 30; i++) {
+                const mesh = new THREE.Mesh(geometry, material.clone());
+
+                switch(type) {
+                    case 1: // Temporal - timeline
+                        mesh.position.set(
+                            (Math.random() - 0.5) * 40,
+                            (Math.random() - 0.5) * 20,
+                            (Math.random() - 0.5) * 20
+                        );
+                        break;
+                    case 2: // Conceptual - clusters
+                        const cluster = Math.floor(Math.random() * 3);
+                        mesh.position.set(
+                            (cluster - 1) * 20 + (Math.random() - 0.5) * 15,
+                            (Math.random() - 0.5) * 30,
+                            (Math.random() - 0.5) * 20
+                        );
+                        break;
+                    case 3: // Stewardship - orbital
+                        mesh.position.set(
+                            Math.cos(i * 0.5) * (10 + i * 2),
+                            (Math.random() - 0.5) * 20,
+                            Math.sin(i * 0.5) * (10 + i * 2)
+                        );
+                        break;
+                    case 4: // River - flow
+                        mesh.position.set(
+                            Math.sin(i * 0.3) * 10,
+                            i * 2 - 30,
+                            (Math.random() - 0.5) * 10
+                        );
+                        break;
+                    case 5: // Resonance - field
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 10 + Math.random() * 25;
+                        mesh.position.set(
+                            Math.cos(angle) * radius,
+                            (Math.random() - 0.5) * 30,
+                            Math.sin(angle) * radius
+                        );
+                        break;
+                }
+
+                mesh.scale.setScalar(0.5 + Math.random() * 1);
+                group.add(mesh);
+            }
+
+            return group;
+        }
+
+        // Initialize all previews
+        document.addEventListener('DOMContentLoaded', () => {
+            createMiniPreview('preview-1', 1);
+            createMiniPreview('preview-2', 2);
+            createMiniPreview('preview-3', 3);
+            createMiniPreview('preview-4', 4);
+            createMiniPreview('preview-5', 5);
+        });
+    </script>
+</body>
+</html>

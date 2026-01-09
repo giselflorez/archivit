@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT — Initialize</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-mono/style.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #161616;
+            --bg-tertiary: #1f1f1f;
+            --text-primary: #faf8f5;
+            --text-secondary: #b8b5b0;
+            --text-tertiary: #6a6762;
+            --accent-gold: #d4a574;
+            --accent-warm: #f4a261;
+            --border-color: #2a2a2a;
+            --success-green: #68d391;
+            --error-red: #fc8181;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Geist Sans', 'Work Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 8vh 2rem 2rem 2rem;
+            overflow: hidden;
+        }
+
+        /* Animated particle background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(212, 165, 116, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(244, 162, 97, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .setup-container {
+            max-width: 520px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .setup-header h1 {
+            font-family: 'Geist Sans', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: var(--accent-gold);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .setup-header strong {
+            font-family: 'Crimson Pro', serif;
+            font-weight: 400;
+        }
+
+        .setup-header p {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        .top-line {
+            width: 100%;
+            height: 1px;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(212, 165, 116, 0.4) 15%,
+                rgba(212, 165, 116, 0.8) 35%,
+                rgba(255, 230, 200, 1) 50%,
+                rgba(212, 165, 116, 0.8) 65%,
+                rgba(212, 165, 116, 0.4) 85%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            animation: lineShine 3s ease-in-out infinite;
+        }
+
+        @keyframes lineShine {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .step {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.2);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step.active {
+            background: var(--accent-gold);
+            box-shadow: 0 0 16px rgba(212, 165, 116, 0.6);
+            transform: scale(1.4);
+        }
+
+        .step.completed {
+            background: rgba(104, 211, 145, 0.4);
+        }
+
+        .setup-content {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            font-family: 'Geist Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 2.5rem;
+            color: var(--accent-gold);
+            text-align: center;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.25rem 0;
+            background: transparent !important;
+            border: none;
+            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+            font-size: 1rem;
+            font-family: 'Geist Sans', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .form-input:-webkit-autofill,
+        .form-input:-webkit-autofill:hover,
+        .form-input:-webkit-autofill:focus,
+        .form-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #0a0a0a inset !important;
+            -webkit-text-fill-color: var(--text-primary) !important;
+            background-color: #0a0a0a !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+        }
+
+        .form-input:hover {
+            background: transparent !important;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-gold);
+            box-shadow: 0 1px 0 0 var(--accent-gold);
+        }
+
+        .form-input::placeholder {
+            color: transparent;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        .form-input.email-input,
+        .form-input.email-input:focus,
+        .form-input.email-input:active,
+        .form-input.email-input:hover {
+            position: relative;
+            border: none !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            transition: all 0.3s ease;
+        }
+
+        .email-underline {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 1px;
+            width: 0%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(212, 165, 116, 0.4) 15%,
+                rgba(212, 165, 116, 0.8) 35%,
+                rgba(255, 230, 200, 1) 50%,
+                rgba(212, 165, 116, 0.8) 65%,
+                rgba(212, 165, 116, 0.4) 85%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            animation: underlineShine 2s ease-in-out infinite;
+            transition: width 0.15s ease-out;
+            border-radius: 1px;
+        }
+
+        @keyframes underlineShine {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        .email-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            font-family: 'Geist Sans', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            pointer-events: none;
+            background: linear-gradient(
+                90deg,
+                rgba(180, 180, 180, 0.5) 0%,
+                rgba(255, 255, 255, 0.9) 25%,
+                rgba(212, 200, 180, 0.8) 50%,
+                rgba(255, 255, 255, 0.9) 75%,
+                rgba(180, 180, 180, 0.5) 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShine 2.5s ease-in-out infinite;
+        }
+
+        .email-input:focus ~ .email-placeholder,
+        .email-input:not(:placeholder-shown) ~ .email-placeholder {
+            display: none;
+        }
+
+        @keyframes textShine {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        /* Style select dropdown */
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23d4a574' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center right;
+            padding-right: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+        }
+
+        select.form-input option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 2rem 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: rgba(212, 165, 116, 0.5);
+            border-color: rgba(212, 165, 116, 0.5);
+            box-shadow: none;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .address-list {
+            margin-bottom: 2.5rem;
+        }
+
+        .address-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .address-item:hover {
+            border-bottom-color: rgba(212, 165, 116, 0.3);
+        }
+
+        .address-text {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            letter-spacing: 0.02em;
+        }
+
+        .address-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.35rem;
+            font-weight: 300;
+        }
+
+        .address-remove {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .address-remove:hover {
+            background: rgba(252, 129, 129, 0.1);
+            color: var(--error-red);
+        }
+
+        .btn {
+            padding: 1rem 3rem;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+        }
+
+        .btn-primary {
+            color: var(--bg-primary);
+        }
+
+        .btn-primary::before {
+            transform: translateX(0);
+        }
+
+        .btn-primary:hover::before {
+            transform: translateX(5px);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(212, 165, 116, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary::before {
+            display: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            justify-content: center;
+        }
+
+        a.btn {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .error-message {
+            background: rgba(252, 129, 129, 0.05);
+            border-left: 2px solid var(--error-red);
+            color: var(--error-red);
+            padding: 1rem 1.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 300;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .success-message {
+            background: rgba(104, 211, 145, 0.05);
+            border-left: 2px solid var(--success-green);
+            color: var(--success-green);
+            padding: 1rem 1.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 300;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Entrance animation for setup container */
+        .setup-container {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Auto-detected network indicator */
+        .network-detected {
+            font-size: 0.7rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .network-detected.show {
+            opacity: 1;
+        }
+
+        /* Privacy notice - hover reveal */
+        .privacy-notice {
+            position: relative;
+            text-align: center;
+            margin: 2rem 0;
+            cursor: pointer;
+        }
+
+        .privacy-trigger {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            border-bottom: 1px dotted rgba(212, 165, 116, 0.3);
+            display: inline-block;
+            padding-bottom: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .privacy-trigger:hover {
+            color: var(--accent-gold);
+            border-bottom-color: var(--accent-gold);
+        }
+
+        .privacy-content {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            width: 100%;
+            max-width: 320px;
+            background: rgba(30, 30, 30, 0.4);
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .privacy-notice:hover .privacy-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .privacy-content p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .info-box {
+            background: transparent;
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .info-box h3 {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--accent-gold);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .info-box p {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* Blockchain Badges - Below wallets, subtle */
+        .blockchain-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .blockchain-badges .badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+            position: relative;
+        }
+
+        .blockchain-badges .badge svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.25;
+            transition: all 0.4s ease;
+            filter: drop-shadow(0 0 0px currentColor);
+        }
+
+        .blockchain-badges .badge:hover svg,
+        .blockchain-badges .badge.active svg {
+            opacity: 1;
+            filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 20px currentColor);
+            transform: scale(1.2);
+        }
+
+        .blockchain-badges .badge.ethereum { color: #627eea; }
+        .blockchain-badges .badge.tezos { color: #2c7df7; }
+        .blockchain-badges .badge.solana { color: #14f195; }
+        .blockchain-badges .badge.bitcoin { color: #f7931a; }
+        .blockchain-badges .badge.wax { color: #f89022; }
+
+        /* Wallet Inputs - Underline style like email */
+        .wallet-boxes {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .wallet-box {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .wallet-number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 0.55rem;
+            font-weight: 400;
+            color: var(--text-tertiary);
+            letter-spacing: 0.15em;
+            opacity: 0.5;
+            transition: all 0.4s ease;
+        }
+
+        .wallet-box:focus-within .wallet-number,
+        .wallet-box.has-content .wallet-number {
+            color: var(--accent-gold);
+            opacity: 1;
+        }
+
+        .wallet-box.filled .wallet-number {
+            color: var(--success-green);
+        }
+
+        .wallet-box.invalid .wallet-number {
+            color: var(--error-red);
+        }
+
+        .wallet-input-wrap {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wallet-input {
+            width: auto;
+            min-width: 140px;
+            max-width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+            font-family: 'Geist Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            letter-spacing: 0.01em;
+            padding: 0.75rem 0;
+            padding-right: 80px;
+            outline: none;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .wallet-input:focus {
+            border-bottom-color: var(--accent-gold);
+            box-shadow: 0 1px 0 0 var(--accent-gold);
+        }
+
+        .wallet-input::placeholder {
+            font-weight: 300;
+            background: linear-gradient(
+                90deg,
+                rgba(180, 180, 180, 0.5) 0%,
+                rgba(255, 255, 255, 0.9) 25%,
+                rgba(212, 200, 180, 0.8) 50%,
+                rgba(255, 255, 255, 0.9) 75%,
+                rgba(180, 180, 180, 0.5) 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShine 2.5s ease-in-out infinite;
+        }
+
+        .wallet-box.filled .wallet-input {
+            border-bottom-color: rgba(104, 211, 145, 0.4);
+        }
+
+        .wallet-box.filled .wallet-input:focus {
+            box-shadow: 0 1px 0 0 var(--success-green);
+        }
+
+        .wallet-box.invalid .wallet-input {
+            border-bottom-color: rgba(252, 129, 129, 0.5);
+            color: rgba(252, 129, 129, 0.6);
+        }
+
+        .wallet-box.invalid .wallet-input::placeholder {
+            color: rgba(252, 129, 129, 0.5);
+        }
+
+        .wallet-box.invalid .wallet-input:focus {
+            box-shadow: 0 1px 0 0 var(--error-red);
+        }
+
+        @keyframes invalidPulse {
+            0%, 100% { border-bottom-color: rgba(252, 129, 129, 0.3); }
+            50% { border-bottom-color: rgba(252, 129, 129, 0.7); }
+        }
+
+        .wallet-box.invalid .wallet-input {
+            animation: invalidPulse 2s ease-in-out infinite;
+        }
+
+        .wallet-network {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .wallet-network .detected {
+            color: var(--success-green);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .wallet-remove-form {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .wallet-remove {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-tertiary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            opacity: 0.5;
+        }
+
+        .wallet-remove:hover {
+            color: var(--error-red);
+            opacity: 1;
+        }
+
+        /* Wallet Label Input */
+        .wallet-label-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-family: 'Geist Sans', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            padding: 0.5rem 0 0.25rem 0;
+            outline: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-label-input::placeholder {
+            color: var(--text-tertiary);
+            opacity: 0.3;
+            font-style: italic;
+        }
+
+        .wallet-label-input:focus {
+            color: var(--text-primary);
+        }
+
+        .wallet-label-input:focus::placeholder {
+            opacity: 0.5;
+        }
+
+        /* Read-only notice */
+        .read-only-notice {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-tertiary);
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            opacity: 0.6;
+        }
+
+        .read-only-notice svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-header">
+            <h1><strong>ARCHIV-IT</strong></h1>
+            <div style="font-size: 0.65rem; font-weight: 300; color: var(--text-tertiary); letter-spacing: 0.2em; margin-top: 0.5rem;">BY</div>
+            <div style="font-size: 1rem; font-weight: 400; color: var(--accent-gold); letter-spacing: 0.1em; margin-top: 0.25rem;">WEB3GISEL</div>
+            <div class="top-line" style="margin-top: 1.5rem;"></div>
+        </div>
+
+        <div class="setup-content">
+            <p style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 300; text-align: center; margin-bottom: 1.5rem;">YOUR DATA. YOUR FUTURE. TAKE CONTROL.</p>
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            {% if success %}
+            <div class="success-message">{{ success }}</div>
+            {% endif %}
+
+            {% if step == 1 %}
+            <!-- Step 1: Email Collection -->
+            <h2 class="step-title">EXPLORE YOUR LEGACY</h2>
+
+            <form method="POST" action="/setup">
+                <input type="hidden" name="step" value="1">
+
+                <div class="form-group" style="position: relative;">
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="form-input email-input"
+                           placeholder=" "
+                           required
+                           autocomplete="off"
+                           data-lpignore="true"
+                           data-form-type="other"
+                           value="{{ email or '' }}">
+                    <span class="email-placeholder">your@email.com</span>
+                    <div class="email-underline"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox"
+                           id="marketing_opt_in"
+                           name="marketing_opt_in"
+                           checked>
+                    <label for="marketing_opt_in">
+                        First to know — future projects & initiatives
+                    </label>
+                </div>
+
+                <!-- Self-Hosted API Toggle -->
+                <div class="toggle-group" style="margin: 2rem 0;">
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 1rem; cursor: pointer;">
+                        <input type="checkbox" name="self_hosted" id="self_hosted" style="display: none;">
+                        <div class="toggle-switch" style="width: 44px; height: 24px; background: var(--border-color); border-radius: 12px; position: relative; transition: all 0.3s;">
+                            <div class="toggle-knob" style="width: 20px; height: 20px; background: var(--text-tertiary); border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.3s;"></div>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-size: 0.85rem; font-weight: 500;">SELF-HOSTED API</div>
+                            <div style="font-size: 0.7rem; color: var(--text-tertiary);">+2 wallet slots, your infrastructure</div>
+                        </div>
+                    </label>
+                </div>
+
+                <style>
+                    #self_hosted:checked + .toggle-switch {
+                        background: var(--accent-gold);
+                    }
+                    #self_hosted:checked + .toggle-switch .toggle-knob {
+                        left: 22px;
+                        background: var(--bg-primary);
+                    }
+                </style>
+
+                <div class="privacy-notice">
+                    <span class="privacy-trigger">Privacy & Data</span>
+                    <div class="privacy-content">
+                        <p>Your email is stored locally. Used only for system access. You can opt out anytime.</p>
+                    </div>
+                </div>
+
+            </form>
+
+            {% elif step == 2 %}
+            <!-- Step 2: Email Confirmation -->
+
+            <form method="POST" action="/setup">
+                <input type="hidden" name="step" value="2">
+
+                <div class="form-group" style="position: relative;">
+                    <input type="text"
+                           id="confirmation_code"
+                           name="confirmation_code"
+                           class="form-input email-input"
+                           placeholder=" "
+                           required
+                           autocomplete="off"
+                           style="font-family: 'Geist Mono', monospace; letter-spacing: 0.3em;">
+                    <span class="email-placeholder" style="font-family: 'Geist Mono', monospace; letter-spacing: 0.2em;">ENTER CODE</span>
+                    <div class="email-underline" id="code-underline"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="/setup/resend" style="font-size: 0.75rem; color: var(--text-tertiary); text-decoration: none; border-bottom: 1px dotted var(--text-tertiary); letter-spacing: 0.05em;">Resend code</a>
+                </div>
+
+            </form>
+
+            {% elif step == 3 %}
+            <!-- Step 3: Minting Addresses -->
+            <h2 class="step-title">Inputs</h2>
+
+            <div class="read-only-notice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>Read-only — indexing public blockchain data</span>
+            </div>
+
+            <form method="POST" action="/setup" id="wallet-form">
+                <input type="hidden" name="step" value="3">
+
+                <!-- Three Wallet Boxes -->
+                <div class="wallet-boxes">
+                    <!-- Wallet 1 -->
+                    <div class="wallet-box {% if addresses and addresses|length >= 1 %}filled{% endif %}" id="wallet-box-1">
+                        <div class="wallet-number">01</div>
+                        <div class="wallet-input-wrap">
+                            <input type="text"
+                                   id="address_1"
+                                   name="address"
+                                   class="wallet-input"
+                                   placeholder="0x0000...0000"
+                                   autocomplete="off"
+                                   {% if addresses and addresses|length >= 1 %}value="{{ addresses[0].address }}" readonly{% endif %}>
+                            <input type="hidden" name="network" id="network_1" value="ethereum">
+                            <div class="wallet-network" id="network-badge-1">
+                                {% if addresses and addresses|length >= 1 %}
+                                <span class="detected">✓ {{ addresses[0].network|upper }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <input type="text"
+                               id="label_1"
+                               name="label"
+                               class="wallet-label-input"
+                               placeholder="Label (optional)"
+                               autocomplete="off"
+                               {% if addresses and addresses|length >= 1 and addresses[0].label %}value="{{ addresses[0].label }}"{% endif %}>
+                        {% if addresses and addresses|length >= 1 %}
+                        <form method="POST" action="/setup/remove-address" class="wallet-remove-form">
+                            <input type="hidden" name="address_id" value="{{ addresses[0].id }}">
+                            <button type="submit" class="wallet-remove">×</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Wallet 2 -->
+                    <div class="wallet-box {% if addresses and addresses|length >= 2 %}filled{% endif %}" id="wallet-box-2">
+                        <div class="wallet-number">02</div>
+                        <div class="wallet-input-wrap">
+                            <input type="text"
+                                   id="address_2"
+                                   name="address_2"
+                                   class="wallet-input"
+                                   placeholder="0x0000...0000"
+                                   autocomplete="off"
+                                   {% if addresses and addresses|length >= 2 %}value="{{ addresses[1].address }}" readonly{% endif %}>
+                            <input type="hidden" name="network_2" id="network_2" value="ethereum">
+                            <div class="wallet-network" id="network-badge-2">
+                                {% if addresses and addresses|length >= 2 %}
+                                <span class="detected">✓ {{ addresses[1].network|upper }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <input type="text"
+                               id="label_2"
+                               name="label_2"
+                               class="wallet-label-input"
+                               placeholder="Label (optional)"
+                               autocomplete="off"
+                               {% if addresses and addresses|length >= 2 and addresses[1].label %}value="{{ addresses[1].label }}"{% endif %}>
+                        {% if addresses and addresses|length >= 2 %}
+                        <form method="POST" action="/setup/remove-address" class="wallet-remove-form">
+                            <input type="hidden" name="address_id" value="{{ addresses[1].id }}">
+                            <button type="submit" class="wallet-remove">×</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Wallet 3 -->
+                    <div class="wallet-box {% if addresses and addresses|length >= 3 %}filled{% endif %}" id="wallet-box-3">
+                        <div class="wallet-number">03</div>
+                        <div class="wallet-input-wrap">
+                            <input type="text"
+                                   id="address_3"
+                                   name="address_3"
+                                   class="wallet-input"
+                                   placeholder="0x0000...0000"
+                                   autocomplete="off"
+                                   {% if addresses and addresses|length >= 3 %}value="{{ addresses[2].address }}" readonly{% endif %}>
+                            <input type="hidden" name="network_3" id="network_3" value="ethereum">
+                            <div class="wallet-network" id="network-badge-3">
+                                {% if addresses and addresses|length >= 3 %}
+                                <span class="detected">✓ {{ addresses[2].network|upper }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <input type="text"
+                               id="label_3"
+                               name="label_3"
+                               class="wallet-label-input"
+                               placeholder="Label (optional)"
+                               autocomplete="off"
+                               {% if addresses and addresses|length >= 3 and addresses[2].label %}value="{{ addresses[2].label }}"{% endif %}>
+                        {% if addresses and addresses|length >= 3 %}
+                        <form method="POST" action="/setup/remove-address" class="wallet-remove-form">
+                            <input type="hidden" name="address_id" value="{{ addresses[2].id }}">
+                            <button type="submit" class="wallet-remove">×</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Supported Blockchains -->
+                <div class="blockchain-badges">
+                    <div class="badge ethereum" title="Ethereum">
+                        <svg viewBox="0 0 320 512" fill="currentColor"><path d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"/></svg>
+                    </div>
+                    <div class="badge tezos" title="Tezos">
+                        <svg viewBox="0 0 32 32" fill="currentColor"><path d="M18.65 10.7V6.1h-5.3v4.6H9.6v10.6h3.75v4.6h5.3v-4.6h3.75V10.7h-3.75zm-5.3 6.85v-3.1h5.3v3.1h-5.3z"/></svg>
+                    </div>
+                    <div class="badge solana" title="Solana">
+                        <svg viewBox="0 0 398 312" fill="currentColor"><path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7zm0-164c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7zM333.4 118.2c-2.4-2.4-5.7-3.8-9.2-3.8H6.8c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"/></svg>
+                    </div>
+                    <div class="badge bitcoin" title="Bitcoin">
+                        <svg viewBox="0 0 512 512" fill="currentColor"><path d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zm-141.651-35.33c4.937-32.999-20.191-50.739-54.55-62.573l11.146-44.702-27.213-6.781-10.851 43.524c-7.154-1.783-14.502-3.464-21.803-5.13l10.929-43.81-27.198-6.781-11.153 44.686c-5.922-1.349-11.735-2.682-17.377-4.084l.031-.14-37.53-9.37-7.239 29.062s20.191 4.627 19.765 4.913c11.022 2.751 13.014 10.044 12.68 15.825l-12.696 50.925c.76.194 1.744.473 2.829.907-.907-.225-1.876-.473-2.876-.713l-17.796 71.338c-1.349 3.348-4.767 8.37-12.471 6.464.271.395-19.78-4.937-19.78-4.937l-13.51 31.147 35.414 8.827c6.588 1.651 13.045 3.379 19.4 5.006l-11.262 45.213 27.182 6.781 11.153-44.733a1038.209 1038.209 0 0 0 21.687 5.627l-11.115 44.523 27.213 6.781 11.262-45.128c46.404 8.781 81.299 5.239 95.986-36.727 11.836-33.79-.589-53.281-25.004-65.991 17.78-4.098 31.174-15.792 34.747-39.949zm-62.177 87.179c-8.41 33.79-65.308 15.523-83.755 10.943l14.944-59.899c18.446 4.603 77.6 13.717 68.811 48.956zm8.417-87.667c-7.673 30.736-55.031 15.12-70.393 11.292l13.548-54.327c15.363 3.828 64.836 10.973 56.845 43.035z"/></svg>
+                    </div>
+                    <div class="badge wax" title="WAX / EOS">
+                        <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 2L4 8v16l12 6 12-6V8L16 2zm0 4l8 4-8 4-8-4 8-4zm-8 8l8 4 8-4v8l-8 4-8-4v-8z"/></svg>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Initialize Archive</button>
+                </div>
+            </form>
+
+            {% elif step == 4 %}
+            <!-- Step 4: Setup Complete -->
+            <h2 class="step-title">Archive Ready</h2>
+
+            <div class="button-group">
+                <a href="/" class="btn btn-primary">Enter</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect blockchain network based on address format
+        function detectNetwork(address) {
+            if (!address) return null;
+
+            // Ethereum: 0x + 40 hex characters
+            if (/^0x[a-fA-F0-9]{40}$/.test(address)) {
+                return 'ethereum';
+            }
+
+            // Tezos: tz1, tz2, tz3, or KT1
+            if (/^(tz1|tz2|tz3|KT1)[1-9A-HJ-NP-Za-km-z]{33}/.test(address)) {
+                return 'tezos';
+            }
+
+            // Bitcoin/Counterparty/Fake Rares: starts with 1, 3, or bc1
+            if (/^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,}/.test(address)) {
+                // Default to Bitcoin unless user manually selects Counterparty or Fake Rares
+                return 'bitcoin';
+            }
+
+            // EOS/WAX: 1-12 chars, lowercase + numbers 1-5, may contain dots
+            if (/^[a-z1-5.]{1,12}$/.test(address) && address.length <= 12) {
+                return 'eos';
+            }
+
+            // Solana: Base58, 32-44 chars (no 0, O, I, l)
+            if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+                return 'solana';
+            }
+
+            return null;
+        }
+
+        // Set up auto-detection on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Email placeholder shine effect and glowing underline
+            const emailInput = document.getElementById('email');
+            const emailPlaceholder = document.querySelector('.email-placeholder');
+            const emailUnderline = document.querySelector('.email-underline');
+
+            if (emailInput && emailPlaceholder) {
+                emailInput.addEventListener('input', function() {
+                    const len = this.value.length;
+                    emailPlaceholder.style.display = len ? 'none' : 'block';
+
+                    // Animate underline width based on text length
+                    if (emailUnderline) {
+                        if (len > 0) {
+                            emailInput.classList.add('typing');
+                            // Scale from 5% to 80% based on typical email length (max ~30 chars)
+                            const width = Math.min(5 + (len * 2.5), 85);
+                            emailUnderline.style.width = width + '%';
+                        } else {
+                            emailInput.classList.remove('typing');
+                            emailUnderline.style.width = '0%';
+                        }
+                    }
+                });
+                emailInput.addEventListener('focus', function() {
+                    emailPlaceholder.style.opacity = '0.3';
+                });
+                emailInput.addEventListener('blur', function() {
+                    emailPlaceholder.style.opacity = this.value ? '0' : '1';
+                    emailPlaceholder.style.display = this.value ? 'none' : 'block';
+                });
+            }
+
+            // Confirmation code input with same effect
+            const codeInput = document.getElementById('confirmation_code');
+            const codePlaceholder = codeInput ? codeInput.parentElement.querySelector('.email-placeholder') : null;
+            const codeUnderline = document.getElementById('code-underline');
+
+            if (codeInput && codePlaceholder) {
+                codeInput.addEventListener('input', function() {
+                    const len = this.value.length;
+                    codePlaceholder.style.display = len ? 'none' : 'block';
+
+                    if (codeUnderline) {
+                        if (len > 0) {
+                            const width = Math.min(10 + (len * 8), 60);
+                            codeUnderline.style.width = width + '%';
+                        } else {
+                            codeUnderline.style.width = '0%';
+                        }
+                    }
+                });
+                codeInput.addEventListener('focus', function() {
+                    codePlaceholder.style.opacity = '0.3';
+                });
+                codeInput.addEventListener('blur', function() {
+                    codePlaceholder.style.opacity = this.value ? '0' : '1';
+                    codePlaceholder.style.display = this.value ? 'none' : 'block';
+                });
+            }
+
+            // Artist name input with shine effect
+            const artistInput = document.getElementById('artist_name');
+            const artistPlaceholder = artistInput ? artistInput.parentElement.querySelector('.email-placeholder') : null;
+            const artistUnderline = document.getElementById('artist-underline');
+
+            if (artistInput && artistPlaceholder) {
+                artistInput.addEventListener('input', function() {
+                    const len = this.value.length;
+                    artistPlaceholder.style.display = len ? 'none' : 'block';
+
+                    if (artistUnderline) {
+                        if (len > 0) {
+                            const width = Math.min(8 + (len * 3), 80);
+                            artistUnderline.style.width = width + '%';
+                        } else {
+                            artistUnderline.style.width = '0%';
+                        }
+                    }
+                });
+                artistInput.addEventListener('focus', function() {
+                    artistPlaceholder.style.opacity = '0.3';
+                });
+                artistInput.addEventListener('blur', function() {
+                    artistPlaceholder.style.opacity = this.value ? '0' : '1';
+                    artistPlaceholder.style.display = this.value ? 'none' : 'block';
+                });
+            }
+
+            // Wallet box inputs with network detection
+            const networkNames = {
+                'ethereum': 'Ethereum',
+                'tezos': 'Tezos',
+                'solana': 'Solana',
+                'bitcoin': 'Bitcoin',
+                'counterparty': 'Counterparty',
+                'fakerares': 'Fake Rares',
+                'eos': 'EOS',
+                'wax': 'WAX'
+            };
+
+            const networkToBadge = {
+                'ethereum': 'ethereum',
+                'tezos': 'tezos',
+                'solana': 'solana',
+                'bitcoin': 'bitcoin',
+                'counterparty': 'bitcoin',
+                'fakerares': 'bitcoin',
+                'eos': 'wax',
+                'wax': 'wax'
+            };
+
+            // Null address for invalid input visual feedback
+            const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+            // Setup wallet input handlers for all 3 boxes
+            [1, 2, 3].forEach(num => {
+                const input = document.getElementById(`address_${num}`);
+                const networkField = document.getElementById(`network_${num}`);
+                const badge = document.getElementById(`network-badge-${num}`);
+                const box = document.getElementById(`wallet-box-${num}`);
+
+                if (input && !input.readOnly) {
+                    input.addEventListener('input', function() {
+                        const address = this.value.trim();
+
+                        // Clear invalid state
+                        box.classList.remove('invalid');
+
+                        // Only validate if there's substantial input
+                        if (address.length > 10) {
+                            const detected = detectNetwork(address);
+
+                            if (detected && networkField && badge) {
+                                networkField.value = detected;
+                                badge.innerHTML = `<span class="detected">✓ ${networkNames[detected]}</span>`;
+                                box.classList.remove('invalid');
+                                box.classList.add('has-content');
+
+                                // Highlight matching blockchain badge
+                                document.querySelectorAll('.blockchain-badges .badge').forEach(b => {
+                                    b.classList.remove('active');
+                                });
+                                const activeBadge = document.querySelector(`.blockchain-badges .badge.${networkToBadge[detected]}`);
+                                if (activeBadge) activeBadge.classList.add('active');
+                            } else {
+                                // Invalid address - show red state
+                                box.classList.add('invalid');
+                                box.classList.remove('has-content');
+                                badge.innerHTML = '';
+
+                                // Clear all blockchain badge highlights
+                                document.querySelectorAll('.blockchain-badges .badge').forEach(b => {
+                                    b.classList.remove('active');
+                                });
+                            }
+                        } else {
+                            badge.innerHTML = '';
+                            box.classList.remove('has-content');
+                        }
+                    });
+
+                    // On blur, if invalid, replace with null address visual
+                    input.addEventListener('blur', function() {
+                        box.classList.remove('focused');
+                        const address = this.value.trim();
+
+                        if (address.length > 10 && !detectNetwork(address)) {
+                            // Invalid - clear and show null address placeholder
+                            this.value = '';
+                            this.placeholder = NULL_ADDRESS;
+                            box.classList.add('invalid');
+
+                            // Auto-clear invalid state after 3 seconds
+                            setTimeout(() => {
+                                if (box.classList.contains('invalid') && !this.value) {
+                                    box.classList.remove('invalid');
+                                    this.placeholder = '0x0000...0000';
+                                }
+                            }, 3000);
+                        }
+                    });
+
+                    input.addEventListener('focus', function() {
+                        box.classList.add('focused');
+                        // Reset placeholder on focus if it was showing null address
+                        if (this.placeholder === NULL_ADDRESS) {
+                            this.placeholder = '0x0000...0000';
+                            box.classList.remove('invalid');
+                        }
+                    });
+                }
+            });
+
+            // Form validation - require at least one valid wallet
+            const walletForm = document.getElementById('wallet-form');
+            if (walletForm) {
+                walletForm.addEventListener('submit', function(e) {
+                    const boxes = [
+                        { input: document.getElementById('address_1'), box: document.getElementById('wallet-box-1') },
+                        { input: document.getElementById('address_2'), box: document.getElementById('wallet-box-2') },
+                        { input: document.getElementById('address_3'), box: document.getElementById('wallet-box-3') }
+                    ];
+
+                    let validCount = 0;
+                    let hasInvalid = false;
+
+                    boxes.forEach(({ input, box }) => {
+                        if (input && input.value.trim()) {
+                            const detected = detectNetwork(input.value.trim());
+                            if (detected) {
+                                validCount++;
+                                box.classList.remove('invalid');
+                            } else {
+                                // Mark as invalid with null address
+                                hasInvalid = true;
+                                box.classList.add('invalid');
+                                input.value = '';
+                                input.placeholder = NULL_ADDRESS;
+                            }
+                        }
+                    });
+
+                    if (hasInvalid || validCount === 0) {
+                        e.preventDefault();
+                        // Visual feedback only - boxes turn red
+                        if (validCount === 0) {
+                            // Pulse all empty boxes briefly
+                            boxes.forEach(({ box }) => {
+                                box.classList.add('invalid');
+                                setTimeout(() => box.classList.remove('invalid'), 2000);
+                            });
+                        }
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultural Resonance Field - ARCHIV-IT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #050508;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: fixed;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ui-layer > * {
+            pointer-events: auto;
+        }
+
+        /* Header */
+        .header {
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            background: linear-gradient(180deg, rgba(5,5,8,0.95) 0%, rgba(5,5,8,0) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title-section h1 {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            color: #c77dff;
+        }
+
+        .title-section .subtitle {
+            font-size: 0.7rem;
+            color: #666;
+            letter-spacing: 0.2em;
+            margin-top: 4px;
+        }
+
+        .back-link {
+            font-size: 0.75rem;
+            color: #666;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: #c77dff;
+            border-color: #c77dff;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            top: 100px;
+            left: 20px;
+            width: 280px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 0.7rem;
+            color: #666;
+            letter-spacing: 0.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            font-family: inherit;
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            background: rgba(199, 125, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(199, 125, 255, 0.2);
+            border-color: #c77dff;
+        }
+
+        .control-btn.active {
+            background: rgba(199, 125, 255, 0.3);
+            border-color: #c77dff;
+            color: #c77dff;
+        }
+
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-control input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            background: #1a1a2e;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .slider-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #c77dff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-size: 0.7rem;
+            color: #c77dff;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .toggle-label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: rgba(199, 125, 255, 0.5);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #666;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 18px;
+            background: #c77dff;
+        }
+
+        /* Movement Legend */
+        .movement-legend {
+            top: 100px;
+            right: 20px;
+            width: 220px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .legend-item:hover {
+            opacity: 0.8;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .legend-name {
+            font-size: 0.75rem;
+            color: #aaa;
+            flex: 1;
+        }
+
+        .legend-count {
+            font-size: 0.65rem;
+            color: #666;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 400px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+            overflow-y: auto;
+        }
+
+        .info-panel.visible {
+            display: block;
+        }
+
+        .info-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .info-close:hover {
+            color: #c77dff;
+        }
+
+        .info-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(199, 125, 255, 0.2);
+            display: none;
+        }
+
+        .info-thumbnail.visible {
+            display: block;
+        }
+
+        .info-header {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .info-type {
+            font-size: 0.65rem;
+            color: #c77dff;
+            letter-spacing: 0.2em;
+            margin-bottom: 5px;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .info-meta {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .info-section-title {
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .resonance-meter {
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .resonance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .context-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .context-tag {
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            background: rgba(199, 125, 255, 0.15);
+            border-radius: 12px;
+            color: #c77dff;
+        }
+
+        .discourse-thread {
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .discourse-thread .thread-title {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .discourse-thread .thread-meta {
+            font-size: 0.65rem;
+            color: #666;
+        }
+
+        /* Field Visualization Overlay */
+        .field-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.3;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 12px 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            color: #c77dff;
+            font-weight: 300;
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            color: #666;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #1a1a2e;
+            border-top-color: #c77dff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 0.8rem;
+            color: #666;
+            letter-spacing: 0.2em;
+        }
+
+        /* Gravitational Well Indicators */
+        .well-indicator {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            border: 1px solid rgba(199, 125, 255, 0.3);
+            animation: pulse-well 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-well {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.1; }
+        }
+            .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .top-nav a:hover { color: #d4a574; }
+        .top-nav .active { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div id="canvas-container"></div>
+
+    <!-- Field Effect Canvas -->
+    <canvas id="field-canvas" class="field-overlay"></canvas>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">MAPPING CULTURAL FIELDS</div>
+    </div>
+
+    <!-- Header -->
+    <div class="ui-layer header">
+        <div class="title-section">
+            <h1>CULTURAL RESONANCE FIELD</h1>
+            <div class="subtitle">ART EXISTS IN CONTEXT - MEANING SHAPED BY CULTURAL GRAVITY</div>
+        </div>
+        <a href="/point-cloud" class="back-link">← ALL PARADIGMS</a>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="ui-layer control-panel">
+        <div class="panel-title">FIELD CONTROLS</div>
+
+        <div class="control-group">
+            <span class="control-label">VIEW MODE</span>
+            <div class="control-row">
+                <button class="control-btn active" data-mode="field">Field View</button>
+                <button class="control-btn" data-mode="wells">Wells Only</button>
+                <button class="control-btn" data-mode="threads">Discourse</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">TIME PERIOD</span>
+            <div class="control-row">
+                <button class="control-btn" data-period="all">All Time</button>
+                <button class="control-btn active" data-period="2020s">2020s</button>
+                <button class="control-btn" data-period="2010s">2010s</button>
+                <button class="control-btn" data-period="classic">Classic</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">GRAVITY STRENGTH</span>
+            <div class="slider-control">
+                <input type="range" id="gravity-slider" min="0" max="100" value="50">
+                <span class="slider-value" id="gravity-value">50%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">FIELD DECAY</span>
+            <div class="slider-control">
+                <input type="range" id="decay-slider" min="10" max="100" value="60">
+                <span class="slider-value" id="decay-value">60%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">VISUALIZATIONS</span>
+            <div class="toggle-row">
+                <span class="toggle-label">Gravitational Wells</span>
+                <div class="toggle-switch active" data-toggle="wells"></div>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">Movement Fields</span>
+                <div class="toggle-switch active" data-toggle="fields"></div>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">Event Attractors</span>
+                <div class="toggle-switch active" data-toggle="events"></div>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">Discourse Threads</span>
+                <div class="toggle-switch" data-toggle="discourse"></div>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">Field Lines</span>
+                <div class="toggle-switch" data-toggle="fieldlines"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movement Legend -->
+    <div class="ui-layer movement-legend">
+        <div class="panel-title">CULTURAL MOVEMENTS</div>
+        <div class="legend-item" data-movement="crypto-art">
+            <div class="legend-color" style="color: #c77dff;"></div>
+            <span class="legend-name">Crypto Art Movement</span>
+            <span class="legend-count">156</span>
+        </div>
+        <div class="legend-item" data-movement="generative">
+            <div class="legend-color" style="color: #00ff88;"></div>
+            <span class="legend-name">Generative Art</span>
+            <span class="legend-count">89</span>
+        </div>
+        <div class="legend-item" data-movement="glitch">
+            <div class="legend-color" style="color: #ff6b9d;"></div>
+            <span class="legend-name">Glitch Aesthetic</span>
+            <span class="legend-count">67</span>
+        </div>
+        <div class="legend-item" data-movement="surreal">
+            <div class="legend-color" style="color: #ffd93d;"></div>
+            <span class="legend-name">Digital Surrealism</span>
+            <span class="legend-count">45</span>
+        </div>
+        <div class="legend-item" data-movement="conceptual">
+            <div class="legend-color" style="color: #6bceff;"></div>
+            <span class="legend-name">Conceptual NFT</span>
+            <span class="legend-count">34</span>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="ui-layer stats-bar">
+        <div class="stat-item">
+            <div class="stat-value" id="stat-works">0</div>
+            <div class="stat-label">WORKS</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="stat-wells">0</div>
+            <div class="stat-label">WELLS</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="stat-events">0</div>
+            <div class="stat-label">EVENTS</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="stat-threads">0</div>
+            <div class="stat-label">THREADS</div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="ui-layer info-panel" id="info-panel">
+        <span class="info-close" onclick="closeInfoPanel()">×</span>
+        <img class="info-thumbnail" id="info-thumbnail" alt="Work thumbnail">
+        <div class="info-header">
+            <div class="info-type" id="info-type">ARTWORK</div>
+            <div class="info-title" id="info-title">Selected Item</div>
+            <div class="info-meta" id="info-meta">Additional info</div>
+        </div>
+        <div class="info-section">
+            <div class="info-section-title">CULTURAL RESONANCE</div>
+            <div class="resonance-meter">
+                <div class="resonance-fill" id="resonance-fill" style="width: 0%"></div>
+            </div>
+            <div id="resonance-description" style="font-size: 0.75rem; color: #888;"></div>
+        </div>
+        <div class="info-section">
+            <div class="info-section-title">CONTEXTUAL INFLUENCES</div>
+            <div class="context-list" id="context-list"></div>
+        </div>
+        <div class="info-section">
+            <div class="info-section-title">DISCOURSE CONNECTIONS</div>
+            <div id="discourse-list"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // ============================================
+        // CULTURAL RESONANCE FIELD VISUALIZATION
+        // Paradigm 5: Context as Gravity
+        // ============================================
+
+        let scene, camera, renderer, controls;
+        let works = [];
+        let gravitationalWells = [];
+        let eventAttractors = [];
+        let discourseThreads = [];
+        let fieldLines = [];
+        let movementFields = {};
+
+        // Visualization state
+        const state = {
+            viewMode: 'field',
+            timePeriod: '2020s',
+            gravityStrength: 0.5,
+            fieldDecay: 0.6,
+            showWells: true,
+            showFields: true,
+            showEvents: true,
+            showDiscourse: false,
+            showFieldLines: false,
+            selectedItem: null
+        };
+
+        // Movement colors
+        const movementColors = {
+            'crypto-art': 0xc77dff,
+            'generative': 0x00ff88,
+            'glitch': 0xff6b9d,
+            'surreal': 0xffd93d,
+            'conceptual': 0x6bceff
+        };
+
+        // Initialize
+        async function init() {
+            setupScene();
+            setupLighting();
+            await loadData();
+            createGravitationalWells();
+            createEventAttractors();
+            createDiscourseThreads();
+            createWorks();
+            createFieldLines();
+            setupFieldCanvas();
+            setupControls();
+            hideLoading();
+            animate();
+        }
+
+        function setupScene() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050508);
+            scene.fog = new THREE.FogExp2(0x050508, 0.003);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 80, 200);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 500;
+            controls.minDistance = 50;
+
+            // Raycaster for interaction
+            window.raycaster = new THREE.Raycaster();
+            window.mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('click', onCanvasClick);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function setupLighting() {
+            const ambient = new THREE.AmbientLight(0x222233, 0.5);
+            scene.add(ambient);
+
+            // Colored point lights for atmosphere
+            const purpleLight = new THREE.PointLight(0xc77dff, 0.8, 300);
+            purpleLight.position.set(100, 50, 100);
+            scene.add(purpleLight);
+
+            const blueLight = new THREE.PointLight(0x6bceff, 0.6, 300);
+            blueLight.position.set(-100, 50, -100);
+            scene.add(blueLight);
+        }
+
+        // Storage for API-loaded works
+        let apiWorks = [];
+
+        async function loadData() {
+            // Fetch actual data from API
+            try {
+                const response = await fetch('/api/point-cloud/data');
+                const result = await response.json();
+
+                if (result.success && result.nodes && result.nodes.length > 0) {
+                    apiWorks = result.nodes.filter(n => n.type === 'nft' || n.type === 'document');
+                    console.log(`Loaded ${apiWorks.length} items for cultural resonance`);
+                }
+            } catch (error) {
+                console.error('Failed to load API data:', error);
+            }
+        }
+
+        // ============================================
+        // GRAVITATIONAL WELLS (Cultural Moments)
+        // ============================================
+
+        function createGravitationalWells() {
+            const wellData = [
+                { name: 'Beeple $69M Sale', position: [0, 0, 0], mass: 100, movement: 'crypto-art', date: '2021-03' },
+                { name: 'Art Blocks Launch', position: [-80, 20, 60], mass: 80, movement: 'generative', date: '2020-11' },
+                { name: 'CryptoPunks Genesis', position: [100, -10, -40], mass: 90, movement: 'crypto-art', date: '2017-06' },
+                { name: 'SuperRare Emergence', position: [40, 30, 80], mass: 70, movement: 'crypto-art', date: '2018-04' },
+                { name: 'Async Art Launch', position: [-60, -20, -80], mass: 60, movement: 'generative', date: '2020-02' },
+                { name: 'Glitch Art Revival', position: [80, 40, 40], mass: 50, movement: 'glitch', date: '2019-08' },
+                { name: 'NFT Paris 2022', position: [-40, 10, 100], mass: 55, movement: 'crypto-art', date: '2022-02' }
+            ];
+
+            const wellGroup = new THREE.Group();
+            wellGroup.name = 'gravitationalWells';
+
+            wellData.forEach(data => {
+                const well = createWell(data);
+                gravitationalWells.push(well);
+                wellGroup.add(well.group);
+            });
+
+            scene.add(wellGroup);
+            document.getElementById('stat-wells').textContent = gravitationalWells.length;
+        }
+
+        function createWell(data) {
+            const group = new THREE.Group();
+            group.position.set(...data.position);
+
+            const color = movementColors[data.movement] || 0xc77dff;
+
+            // Core sphere (the cultural moment itself)
+            const coreGeometry = new THREE.SphereGeometry(data.mass / 15, 32, 32);
+            const coreMaterial = new THREE.MeshPhongMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: 0.5,
+                transparent: true,
+                opacity: 0.9
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            group.add(core);
+
+            // Gravity field rings
+            for (let i = 1; i <= 4; i++) {
+                const ringGeometry = new THREE.RingGeometry(data.mass / 10 * i, data.mass / 10 * i + 0.5, 64);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.15 / i,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                ring.userData.ringIndex = i;
+                group.add(ring);
+            }
+
+            // Glow sprite
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: createGlowTexture(color),
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.6
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.setScalar(data.mass / 3);
+            group.add(sprite);
+
+            // Label
+            const label = createTextSprite(data.name, color);
+            label.position.y = data.mass / 10 + 8;
+            label.scale.setScalar(20);
+            group.add(label);
+
+            return {
+                group,
+                data,
+                core,
+                color,
+                originalPosition: new THREE.Vector3(...data.position)
+            };
+        }
+
+        // ============================================
+        // EVENT ATTRACTORS (Temporary Cultural Events)
+        // ============================================
+
+        function createEventAttractors() {
+            const eventData = [
+                { name: 'ETH Denver 2023', position: [30, 60, 30], strength: 40, duration: 3, movement: 'crypto-art' },
+                { name: 'Bright Moments', position: [-50, 40, 70], strength: 35, duration: 2, movement: 'generative' },
+                { name: 'Feral File Drop', position: [70, 20, -60], strength: 30, duration: 1, movement: 'conceptual' },
+                { name: 'Right Click Save', position: [-80, 50, -30], strength: 25, duration: 2, movement: 'glitch' },
+                { name: 'AI Art Debate', position: [20, 70, 80], strength: 45, duration: 4, movement: 'generative' }
+            ];
+
+            const eventGroup = new THREE.Group();
+            eventGroup.name = 'eventAttractors';
+
+            eventData.forEach(data => {
+                const event = createEventAttractor(data);
+                eventAttractors.push(event);
+                eventGroup.add(event.group);
+            });
+
+            scene.add(eventGroup);
+            document.getElementById('stat-events').textContent = eventAttractors.length;
+        }
+
+        function createEventAttractor(data) {
+            const group = new THREE.Group();
+            group.position.set(...data.position);
+
+            const color = movementColors[data.movement] || 0xffffff;
+
+            // Pulsing core
+            const coreGeometry = new THREE.OctahedronGeometry(data.strength / 10, 0);
+            const coreMaterial = new THREE.MeshBasicMaterial({
+                color: color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            group.add(core);
+
+            // Outer shell
+            const shellGeometry = new THREE.OctahedronGeometry(data.strength / 8, 1);
+            const shellMaterial = new THREE.MeshBasicMaterial({
+                color: color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+            group.add(shell);
+
+            // Particle emission
+            const particleCount = 50;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * data.strength / 2;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * data.strength / 2;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * data.strength / 2;
+            }
+
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                color: color,
+                size: 1,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            group.add(particleSystem);
+
+            return {
+                group,
+                data,
+                core,
+                shell,
+                particles: particleSystem,
+                color,
+                phase: Math.random() * Math.PI * 2
+            };
+        }
+
+        // ============================================
+        // DISCOURSE THREADS (Connecting Conversations)
+        // ============================================
+
+        function createDiscourseThreads() {
+            const threadData = [
+                { name: 'Is AI Art Real Art?', connects: [0, 4], intensity: 0.8 },
+                { name: 'Royalties Debate', connects: [0, 3], intensity: 0.7 },
+                { name: 'Environmental Impact', connects: [1, 2], intensity: 0.6 },
+                { name: 'Curation vs Algorithm', connects: [1, 3], intensity: 0.5 },
+                { name: 'Artist Rights', connects: [2, 5], intensity: 0.75 }
+            ];
+
+            const threadGroup = new THREE.Group();
+            threadGroup.name = 'discourseThreads';
+            threadGroup.visible = state.showDiscourse;
+
+            threadData.forEach(data => {
+                if (gravitationalWells[data.connects[0]] && gravitationalWells[data.connects[1]]) {
+                    const thread = createThread(data);
+                    discourseThreads.push(thread);
+                    threadGroup.add(thread.line);
+                }
+            });
+
+            scene.add(threadGroup);
+            document.getElementById('stat-threads').textContent = discourseThreads.length;
+        }
+
+        function createThread(data) {
+            const start = gravitationalWells[data.connects[0]].group.position;
+            const end = gravitationalWells[data.connects[1]].group.position;
+
+            // Create curved line between wells
+            const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+            mid.y += 30; // Arc upward
+
+            const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+            const points = curve.getPoints(50);
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({
+                color: 0xc77dff,
+                transparent: true,
+                opacity: data.intensity * 0.5,
+                linewidth: 2
+            });
+
+            const line = new THREE.Line(geometry, material);
+
+            // Add flowing particles along thread
+            const particleGeometry = new THREE.BufferGeometry();
+            const particlePositions = new Float32Array(10 * 3);
+            for (let i = 0; i < 10; i++) {
+                const point = curve.getPoint(i / 10);
+                particlePositions[i * 3] = point.x;
+                particlePositions[i * 3 + 1] = point.y;
+                particlePositions[i * 3 + 2] = point.z;
+            }
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0xc77dff,
+                size: 2,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            line.add(particles);
+
+            return {
+                line,
+                curve,
+                data,
+                particles,
+                flowOffset: 0
+            };
+        }
+
+        // ============================================
+        // ARTWORKS (Points in the Field)
+        // ============================================
+
+        function createWorks() {
+            const workGroup = new THREE.Group();
+            workGroup.name = 'works';
+
+            // Use API data if available, otherwise generate sample works
+            const workCount = apiWorks.length > 0 ? apiWorks.length : 300;
+            const useApiData = apiWorks.length > 0;
+
+            console.log(`Creating ${workCount} works (API data: ${useApiData})`);
+
+            for (let i = 0; i < workCount; i++) {
+                const apiNode = useApiData ? apiWorks[i] : null;
+                const work = createWork(i, apiNode);
+                works.push(work);
+                workGroup.add(work.mesh);
+            }
+
+            scene.add(workGroup);
+            document.getElementById('stat-works').textContent = works.length;
+        }
+
+        // Map cognitive types to cultural movements
+        function mapToMovement(node) {
+            if (!node) return 'crypto-art';
+
+            const cogType = node.cognitive_type || '';
+            const source = (node.source || '').toLowerCase();
+            const tags = (node.data?.tags || []).map(t => t.toLowerCase());
+
+            // Check for specific keywords in tags or source
+            if (tags.some(t => t.includes('generative') || t.includes('algorithm'))) return 'generative';
+            if (tags.some(t => t.includes('glitch') || t.includes('error'))) return 'glitch';
+            if (tags.some(t => t.includes('surreal') || t.includes('dream'))) return 'surreal';
+            if (tags.some(t => t.includes('concept') || t.includes('idea'))) return 'conceptual';
+
+            // Map by cognitive type
+            if (cogType === 'blockchain') return 'crypto-art';
+            if (cogType === 'research') return 'conceptual';
+            if (cogType === 'media') return 'glitch';
+
+            // Default based on source
+            if (source.includes('superrare') || source.includes('foundation')) return 'crypto-art';
+            if (source.includes('artblocks')) return 'generative';
+
+            return 'crypto-art';
+        }
+
+        function createWork(index, apiNode = null) {
+            // Choose a primary gravitational influence
+            const movement = apiNode ? mapToMovement(apiNode) :
+                gravitationalWells[Math.floor(Math.random() * gravitationalWells.length)].data.movement;
+
+            // Find matching well for this movement
+            const matchingWells = gravitationalWells.filter(w => w.data.movement === movement);
+            const primaryWell = matchingWells.length > 0 ?
+                matchingWells[Math.floor(Math.random() * matchingWells.length)] :
+                gravitationalWells[Math.floor(Math.random() * gravitationalWells.length)];
+
+            const color = movementColors[movement];
+
+            // Position relative to well with some randomness
+            const wellPos = primaryWell.group.position;
+            const distance = 20 + Math.random() * 60;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI - Math.PI / 2;
+
+            const position = new THREE.Vector3(
+                wellPos.x + Math.cos(theta) * Math.cos(phi) * distance,
+                wellPos.y + Math.sin(phi) * distance * 0.5,
+                wellPos.z + Math.sin(theta) * Math.cos(phi) * distance
+            );
+
+            // Size based on resonance (how much it aligns with cultural moment)
+            // Use API data if available for calculating resonance
+            let resonance = 0.3 + Math.random() * 0.7;
+            if (apiNode) {
+                // Higher resonance for items with more connections/tags
+                const tagCount = (apiNode.data?.tags || []).length;
+                const hasMedia = apiNode.data?.media_files?.length > 0 || apiNode.data?.images?.length > 0;
+                resonance = Math.min(0.3 + tagCount * 0.1 + (hasMedia ? 0.2 : 0), 1.0);
+            }
+            const size = 0.8 + resonance * 1.5;
+
+            // Use node color if available, otherwise movement color
+            const nodeColor = apiNode?.color ? parseInt(apiNode.color.replace('#', '0x')) : color;
+
+            const geometry = new THREE.SphereGeometry(size, 16, 16);
+            const material = new THREE.MeshPhongMaterial({
+                color: nodeColor,
+                emissive: nodeColor,
+                emissiveIntensity: 0.2 + resonance * 0.3,
+                transparent: true,
+                opacity: 0.6 + resonance * 0.4
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.copy(position);
+
+            // Store data - use API data when available
+            const nodeType = apiNode?.type || 'work';
+            mesh.userData = {
+                id: apiNode?.id || index,
+                type: nodeType,
+                name: apiNode?.data?.name || apiNode?.data?.title || `Work #${index + 1}`,
+                artist: apiNode?.data?.artist || apiNode?.data?.creator ||
+                    ['XCOPY', 'Pak', 'Tyler Hobbs', 'Snowfro', 'Sarah Zucker'][Math.floor(Math.random() * 5)],
+                movement,
+                resonance,
+                primaryWell: primaryWell.data.name,
+                contexts: apiNode?.data?.tags || generateContexts(movement),
+                discourseConnections: apiNode?.connections?.length || Math.floor(Math.random() * 4),
+                source: apiNode?.source || null,
+                cognitiveType: apiNode?.cognitive_type || null,
+                originalData: apiNode?.data || null,
+                velocity: new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1
+                )
+            };
+
+            return {
+                mesh,
+                originalPosition: position.clone(),
+                targetPosition: position.clone()
+            };
+        }
+
+        function generateContexts(movement) {
+            const contextPools = {
+                'crypto-art': ['Digital Ownership', 'Provenance', 'Tokenization', 'Web3 Culture', 'Decentralization'],
+                'generative': ['Algorithmic', 'Code-Based', 'Emergence', 'Randomness', 'On-Chain'],
+                'glitch': ['Data Corruption', 'Digital Decay', 'Error Aesthetic', 'Post-Digital', 'Noise'],
+                'surreal': ['Dreamscape', 'Unconscious', 'Metamorphosis', 'Fantasy', 'Liminal'],
+                'conceptual': ['Idea-Driven', 'Questioning Value', 'Meta-Art', 'Social Commentary', 'Institutional Critique']
+            };
+
+            const pool = contextPools[movement] || contextPools['crypto-art'];
+            const count = 2 + Math.floor(Math.random() * 3);
+            const contexts = [];
+
+            for (let i = 0; i < count; i++) {
+                const ctx = pool[Math.floor(Math.random() * pool.length)];
+                if (!contexts.includes(ctx)) contexts.push(ctx);
+            }
+
+            return contexts;
+        }
+
+        // ============================================
+        // FIELD LINES
+        // ============================================
+
+        function createFieldLines() {
+            const fieldGroup = new THREE.Group();
+            fieldGroup.name = 'fieldLines';
+            fieldGroup.visible = state.showFieldLines;
+
+            gravitationalWells.forEach(well => {
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const line = createFieldLine(well, angle);
+                    fieldLines.push(line);
+                    fieldGroup.add(line);
+                }
+            });
+
+            scene.add(fieldGroup);
+        }
+
+        function createFieldLine(well, angle) {
+            const points = [];
+            const startRadius = well.data.mass / 10;
+            const endRadius = well.data.mass / 2;
+
+            for (let i = 0; i <= 20; i++) {
+                const t = i / 20;
+                const radius = startRadius + (endRadius - startRadius) * t;
+                const spiral = angle + t * Math.PI * 0.5;
+
+                points.push(new THREE.Vector3(
+                    well.group.position.x + Math.cos(spiral) * radius,
+                    well.group.position.y + (Math.random() - 0.5) * 5,
+                    well.group.position.z + Math.sin(spiral) * radius
+                ));
+            }
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({
+                color: well.color,
+                transparent: true,
+                opacity: 0.2
+            });
+
+            return new THREE.Line(geometry, material);
+        }
+
+        // ============================================
+        // 2D FIELD CANVAS (Background Effect)
+        // ============================================
+
+        function setupFieldCanvas() {
+            const canvas = document.getElementById('field-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            function drawField() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (!state.showFields) return;
+
+                // Draw gradient fields for each well
+                gravitationalWells.forEach(well => {
+                    const screenPos = projectToScreen(well.group.position);
+                    if (screenPos) {
+                        const gradient = ctx.createRadialGradient(
+                            screenPos.x, screenPos.y, 0,
+                            screenPos.x, screenPos.y, well.data.mass * 3
+                        );
+
+                        const colorHex = well.color.toString(16).padStart(6, '0');
+                        gradient.addColorStop(0, `#${colorHex}40`);
+                        gradient.addColorStop(0.5, `#${colorHex}15`);
+                        gradient.addColorStop(1, `#${colorHex}00`);
+
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                });
+
+                requestAnimationFrame(drawField);
+            }
+
+            drawField();
+        }
+
+        function projectToScreen(position) {
+            const vector = position.clone();
+            vector.project(camera);
+
+            if (vector.z > 1) return null;
+
+            return {
+                x: (vector.x + 1) / 2 * window.innerWidth,
+                y: (-vector.y + 1) / 2 * window.innerHeight
+            };
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+
+        function createGlowTexture(color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            const colorObj = new THREE.Color(color);
+            const hex = '#' + colorObj.getHexString();
+
+            const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0, hex);
+            gradient.addColorStop(0.3, hex + '80');
+            gradient.addColorStop(1, hex + '00');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 128, 128);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        function createTextSprite(text, color) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 64;
+
+            ctx.font = '24px SF Mono, monospace';
+            ctx.fillStyle = '#' + new THREE.Color(color).getHexString();
+            ctx.textAlign = 'center';
+            ctx.fillText(text, 256, 40);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            return new THREE.Sprite(material);
+        }
+
+        // ============================================
+        // PHYSICS & ANIMATION
+        // ============================================
+
+        function applyGravitationalForces() {
+            works.forEach(work => {
+                const pos = work.mesh.position;
+                const vel = work.mesh.userData.velocity;
+                const totalForce = new THREE.Vector3();
+
+                // Gravitational attraction to wells
+                if (state.showWells) {
+                    gravitationalWells.forEach(well => {
+                        const toWell = new THREE.Vector3().subVectors(well.group.position, pos);
+                        const distance = toWell.length();
+                        const minDist = well.data.mass / 8;
+
+                        if (distance > minDist) {
+                            const strength = (well.data.mass * state.gravityStrength) / (distance * distance) * 0.5;
+                            toWell.normalize().multiplyScalar(strength);
+                            totalForce.add(toWell);
+                        }
+                    });
+                }
+
+                // Event attractor influence
+                if (state.showEvents) {
+                    eventAttractors.forEach(event => {
+                        const toEvent = new THREE.Vector3().subVectors(event.group.position, pos);
+                        const distance = toEvent.length();
+
+                        if (distance < event.data.strength * 2) {
+                            const strength = (event.data.strength * state.gravityStrength * 0.3) / (distance + 10);
+                            toEvent.normalize().multiplyScalar(strength);
+                            totalForce.add(toEvent);
+                        }
+                    });
+                }
+
+                // Apply field decay (return to original position)
+                const toOriginal = new THREE.Vector3().subVectors(work.originalPosition, pos);
+                toOriginal.multiplyScalar(state.fieldDecay * 0.01);
+                totalForce.add(toOriginal);
+
+                // Update velocity and position
+                vel.add(totalForce.multiplyScalar(0.016));
+                vel.multiplyScalar(0.98); // Damping
+                pos.add(vel);
+            });
+        }
+
+        function animateWells(time) {
+            gravitationalWells.forEach((well, i) => {
+                // Rotate gravity rings
+                well.group.children.forEach(child => {
+                    if (child.userData.ringIndex) {
+                        child.rotation.z = time * 0.0002 * child.userData.ringIndex;
+                    }
+                });
+
+                // Subtle breathing
+                const scale = 1 + Math.sin(time * 0.001 + i) * 0.05;
+                well.core.scale.setScalar(scale);
+            });
+        }
+
+        function animateEvents(time) {
+            eventAttractors.forEach((event, i) => {
+                // Rotate octahedrons
+                event.core.rotation.x = time * 0.001;
+                event.core.rotation.y = time * 0.0015;
+                event.shell.rotation.x = -time * 0.0008;
+                event.shell.rotation.y = -time * 0.001;
+
+                // Pulsing scale
+                const pulse = 1 + Math.sin(time * 0.003 + event.phase) * 0.2;
+                event.core.scale.setScalar(pulse);
+
+                // Animate particles
+                const positions = event.particles.geometry.attributes.position.array;
+                for (let j = 0; j < positions.length; j += 3) {
+                    positions[j + 1] += Math.sin(time * 0.002 + j) * 0.05;
+                }
+                event.particles.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+
+        function animateDiscourse(time) {
+            discourseThreads.forEach(thread => {
+                thread.flowOffset += 0.002;
+                if (thread.flowOffset > 1) thread.flowOffset = 0;
+
+                // Update particle positions along curve
+                const positions = thread.particles.geometry.attributes.position.array;
+                for (let i = 0; i < 10; i++) {
+                    const t = (i / 10 + thread.flowOffset) % 1;
+                    const point = thread.curve.getPoint(t);
+                    positions[i * 3] = point.x;
+                    positions[i * 3 + 1] = point.y;
+                    positions[i * 3 + 2] = point.z;
+                }
+                thread.particles.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+
+        // ============================================
+        // INTERACTION
+        // ============================================
+
+        function onCanvasClick(event) {
+            window.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            window.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            window.raycaster.setFromCamera(window.mouse, camera);
+
+            // Check works
+            const workMeshes = works.map(w => w.mesh);
+            const intersects = window.raycaster.intersectObjects(workMeshes);
+
+            if (intersects.length > 0) {
+                const selected = intersects[0].object;
+                showInfoPanel(selected.userData);
+            }
+
+            // Check wells
+            const wellCores = gravitationalWells.map(w => w.core);
+            const wellIntersects = window.raycaster.intersectObjects(wellCores);
+
+            if (wellIntersects.length > 0 && intersects.length === 0) {
+                const well = gravitationalWells.find(w => w.core === wellIntersects[0].object);
+                if (well) {
+                    showWellInfo(well.data);
+                }
+            }
+        }
+
+        function showInfoPanel(data) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            // Show thumbnail if available from original API data
+            const thumbnail = document.getElementById('info-thumbnail');
+            const imgPath = data.originalData?.image_path ||
+                data.originalData?.media_files?.[0] ||
+                data.originalData?.images?.[0] ||
+                data.originalData?.image_url;
+
+            if (imgPath) {
+                thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+                thumbnail.classList.add('visible');
+                thumbnail.onerror = () => { thumbnail.classList.remove('visible'); };
+            } else {
+                thumbnail.classList.remove('visible');
+            }
+
+            document.getElementById('info-type').textContent = data.cognitiveType?.toUpperCase() || 'ARTWORK';
+            document.getElementById('info-title').textContent = data.name;
+            document.getElementById('info-meta').textContent = `by ${data.artist} | ${data.movement.replace('-', ' ').toUpperCase()}`;
+
+            document.getElementById('resonance-fill').style.width = `${data.resonance * 100}%`;
+            document.getElementById('resonance-description').textContent =
+                `${Math.round(data.resonance * 100)}% alignment with "${data.primaryWell}"`;
+
+            // Context tags
+            const contextList = document.getElementById('context-list');
+            contextList.innerHTML = data.contexts.map(ctx =>
+                `<span class="context-tag">${ctx}</span>`
+            ).join('');
+
+            // Discourse connections
+            const discourseList = document.getElementById('discourse-list');
+            discourseList.innerHTML = '';
+            for (let i = 0; i < data.discourseConnections; i++) {
+                const thread = discourseThreads[i % discourseThreads.length];
+                if (thread) {
+                    discourseList.innerHTML += `
+                        <div class="discourse-thread">
+                            <div class="thread-title">${thread.data.name}</div>
+                            <div class="thread-meta">Intensity: ${Math.round(thread.data.intensity * 100)}%</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function showWellInfo(data) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            document.getElementById('info-type').textContent = 'CULTURAL MOMENT';
+            document.getElementById('info-title').textContent = data.name;
+            document.getElementById('info-meta').textContent = `${data.date} | ${data.movement.replace('-', ' ').toUpperCase()}`;
+
+            const mass = data.mass;
+            document.getElementById('resonance-fill').style.width = `${mass}%`;
+            document.getElementById('resonance-description').textContent =
+                `Gravitational mass: ${mass} | Influences ${Math.floor(mass / 5)} nearby works`;
+
+            document.getElementById('context-list').innerHTML = `
+                <span class="context-tag">Major Event</span>
+                <span class="context-tag">Cultural Watershed</span>
+                <span class="context-tag">${data.movement.replace('-', ' ')}</span>
+            `;
+
+            document.getElementById('discourse-list').innerHTML = `
+                <div class="discourse-thread">
+                    <div class="thread-title">This moment shaped the cultural landscape</div>
+                    <div class="thread-meta">Works created nearby inherit its cultural gravity</div>
+                </div>
+            `;
+        }
+
+        function closeInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+        }
+
+        // ============================================
+        // CONTROLS
+        // ============================================
+
+        function setupControls() {
+            // View mode buttons
+            document.querySelectorAll('[data-mode]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.viewMode = btn.dataset.mode;
+                    updateViewMode();
+                });
+            });
+
+            // Time period buttons
+            document.querySelectorAll('[data-period]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.timePeriod = btn.dataset.period;
+                });
+            });
+
+            // Sliders
+            document.getElementById('gravity-slider').addEventListener('input', (e) => {
+                state.gravityStrength = e.target.value / 100;
+                document.getElementById('gravity-value').textContent = e.target.value + '%';
+            });
+
+            document.getElementById('decay-slider').addEventListener('input', (e) => {
+                state.fieldDecay = e.target.value / 100;
+                document.getElementById('decay-value').textContent = e.target.value + '%';
+            });
+
+            // Toggle switches
+            document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    toggle.classList.toggle('active');
+                    const key = toggle.dataset.toggle;
+
+                    switch(key) {
+                        case 'wells':
+                            state.showWells = toggle.classList.contains('active');
+                            scene.getObjectByName('gravitationalWells').visible = state.showWells;
+                            break;
+                        case 'fields':
+                            state.showFields = toggle.classList.contains('active');
+                            break;
+                        case 'events':
+                            state.showEvents = toggle.classList.contains('active');
+                            scene.getObjectByName('eventAttractors').visible = state.showEvents;
+                            break;
+                        case 'discourse':
+                            state.showDiscourse = toggle.classList.contains('active');
+                            scene.getObjectByName('discourseThreads').visible = state.showDiscourse;
+                            break;
+                        case 'fieldlines':
+                            state.showFieldLines = toggle.classList.contains('active');
+                            scene.getObjectByName('fieldLines').visible = state.showFieldLines;
+                            break;
+                    }
+                });
+            });
+
+            // Legend hover
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const movement = item.dataset.movement;
+                    highlightMovement(movement);
+                });
+            });
+        }
+
+        function updateViewMode() {
+            switch(state.viewMode) {
+                case 'field':
+                    scene.getObjectByName('gravitationalWells').visible = state.showWells;
+                    scene.getObjectByName('eventAttractors').visible = state.showEvents;
+                    scene.getObjectByName('discourseThreads').visible = state.showDiscourse;
+                    break;
+                case 'wells':
+                    scene.getObjectByName('gravitationalWells').visible = true;
+                    scene.getObjectByName('eventAttractors').visible = false;
+                    scene.getObjectByName('discourseThreads').visible = false;
+                    break;
+                case 'threads':
+                    scene.getObjectByName('gravitationalWells').visible = false;
+                    scene.getObjectByName('eventAttractors').visible = false;
+                    scene.getObjectByName('discourseThreads').visible = true;
+                    break;
+            }
+        }
+
+        function highlightMovement(movement) {
+            works.forEach(work => {
+                if (work.mesh.userData.movement === movement) {
+                    work.mesh.material.emissiveIntensity = 0.8;
+                    work.mesh.scale.setScalar(1.5);
+                } else {
+                    work.mesh.material.emissiveIntensity = 0.1;
+                    work.mesh.scale.setScalar(0.7);
+                }
+            });
+
+            // Reset after delay
+            setTimeout(() => {
+                works.forEach(work => {
+                    work.mesh.material.emissiveIntensity = 0.2 + work.mesh.userData.resonance * 0.3;
+                    work.mesh.scale.setScalar(1);
+                });
+            }, 2000);
+        }
+
+        // ============================================
+        // MAIN LOOP
+        // ============================================
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = Date.now();
+
+            controls.update();
+            applyGravitationalForces();
+            animateWells(time);
+            animateEvents(time);
+
+            if (state.showDiscourse) {
+                animateDiscourse(time);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const canvas = document.getElementById('field-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

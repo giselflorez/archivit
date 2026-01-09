@@ -1,0 +1,25 @@
+#!/bin/bash
+# Knowledge Base Deduplicator - Merge Duplicate Queries
+#
+# Usage:
+#   ./deduplicate-kb                  # Dry run (show duplicates without merging)
+#   ./deduplicate-kb --execute        # Actually merge duplicates
+#   ./deduplicate-kb --threshold 10   # Adjust image similarity (0-10, default: 5)
+
+cd "$(dirname "$0")"
+
+# Activate virtual environment
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
+
+# Set environment variable
+export KMP_DUPLICATE_LIB_OK=TRUE
+
+# Run deduplicator
+python scripts/processors/deduplicator.py "$@"
+
+# Deactivate venv
+if [ -d "venv" ]; then
+    deactivate 2>/dev/null || true
+fi

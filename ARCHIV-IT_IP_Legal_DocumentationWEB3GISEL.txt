@@ -1,0 +1,617 @@
+================================================================================
+ARCHIV-IT by WEB3GISEL
+Intellectual Property Documentation
+================================================================================
+
+Document Purpose: Legal review, trademark registration, copyright filing
+Document Version: 1.0
+Prepared: January 5, 2026
+Location: New York, NY, USA
+Author: GISELX of WEB3GISEL
+
+================================================================================
+SECTION 1: PRODUCT IDENTIFICATION
+================================================================================
+
+1.1 MARKS AND NAMES
+--------------------------------------------------------------------------------
+
+Primary Product Name: ARCHIV-IT
+Stylization: ARCHIV-IT (hyphenated, all capitals)
+Alternative Marks: ARCHIV-IT (without E, used in some early documentation)
+
+Brand Identifier: WEB3GISEL
+Business Name: WEB3GISEL
+Creator Identity: GISELX (also: Gisel Florez, Gisel X Florez, GiselXFlorez)
+
+Taglines (claimed):
+- "Your Data. Your Future. Take Control."
+- "Your Data. Your Output. Take Control."
+- "Start the Legacy"
+- "Explore Your Legacy"
+
+Domain Assets:
+- giselx.art (redirects to web3photo.com)
+- web3photo.com
+- giselx.eth (Ethereum Name Service)
+
+Contact Email: info@giselx.art, info@web3photo.com
+
+
+1.2 PRODUCT DESCRIPTION
+--------------------------------------------------------------------------------
+
+ARCHIV-IT is a local-first, privacy-preserving software application for
+digital artists, collectors, and galleries. The software provides:
+
+1. Multi-blockchain mint tracking across eight (8) networks
+2. Knowledge base management for artist documentation
+3. Visual archive navigation with semantic search
+4. Multi-wallet artist profile organization
+
+The software operates entirely on the user's local machine with no mandatory
+cloud connectivity. All user data remains under user control.
+
+
+================================================================================
+SECTION 2: TRADEMARK ANALYSIS
+================================================================================
+
+2.1 PRIMARY MARK: ARCHIV-IT
+--------------------------------------------------------------------------------
+
+Mark: ARCHIV-IT
+Type: Standard character mark (word mark)
+Stylization: Hyphenated, typically displayed in capitals
+
+Distinctiveness Assessment:
+The mark combines "ARCHIVE" (descriptive of function) with "IT" (suggestive of
+technology/action). The hyphenated combination creates a moderately distinctive
+mark with potential for registration through acquired distinctiveness or
+secondary meaning in the relevant market.
+
+Recommended Classes for Filing:
+
+Class 09 - Downloadable Software
+Downloadable computer software for managing digital art archives, blockchain
+data tracking, artist documentation, and NFT collection organization.
+
+Class 42 - Software as a Service
+Software as a service (SaaS) featuring software for NFT collection management,
+artist research, blockchain mint tracking, and digital archive organization.
+
+Prior Art Search Recommendation:
+Conduct comprehensive trademark search for:
+- "ARCHIV-IT" (exact match)
+- "ARCHIV-IT" (variant spelling)
+- "ARCHIVE" + technology-related suffixes
+- Similar marks in Class 09 and Class 42
+
+Note: The mark "Archive-It" is used by Internet Archive for web archiving
+services. Distinctiveness argument should emphasize blockchain/NFT market
+specificity and different service category.
+
+
+2.2 SECONDARY MARKS
+--------------------------------------------------------------------------------
+
+WEB3GISEL
+Type: Business identifier / trade name
+Distinctiveness: Strong (arbitrary combination of WEB3 + personal name)
+Recommendation: Register as trademark if business expansion planned
+
+GISELX
+Type: Personal brand / artist identity
+Usage: Creator attribution, signature mark
+Note: Personal names generally require showing secondary meaning
+
+
+2.3 TAGLINE MARKS
+--------------------------------------------------------------------------------
+
+"Your Data. Your Future. Take Control."
+Type: Slogan/tagline
+Distinctiveness: Moderate (combines common words in distinctive arrangement)
+Recommendation: Use consistently to build secondary meaning; consider
+registration if becomes strongly associated with product
+
+"Start the Legacy"
+Type: Call to action / product feature identifier
+Usage: Setup wizard prompt
+Distinctiveness: Moderate
+
+
+================================================================================
+SECTION 3: COPYRIGHT IDENTIFICATION
+================================================================================
+
+3.1 COPYRIGHTABLE WORKS
+--------------------------------------------------------------------------------
+
+SOFTWARE SOURCE CODE
+
+Files: Python scripts, JavaScript, HTML templates, CSS stylesheets
+Location: /scripts/, /templates/, /static/ directories
+Type: Literary work (source code)
+Protection: Automatic upon creation
+Status: Unpublished (not publicly distributed)
+Registration: Recommended for statutory damages eligibility
+
+Key Files:
+- visual_browser.py (main application logic)
+- user_config_db.py (database management)
+- setup_routes.py (user authentication flow)
+- ethereum_tracker.py (blockchain synchronization)
+- multi_provider_web3.py (failover system)
+- setup_wizard.html (user interface)
+- visual_translator.html (archive browser)
+- semantic_network.html (visualization interface)
+
+
+USER INTERFACE DESIGNS
+
+Elements: Visual layouts, color schemes, typography combinations, animations
+Type: Visual arts / graphic design
+Protection: Automatic upon creation
+
+Specific Design Elements:
+- Color palette (#0a0a0a, #161616, #d4a574, #f5f5f0)
+- Typography pairing (Crimson Pro + Geist)
+- Animated gradient text effects
+- Growing underline input interactions
+- Hover-reveal privacy notice design
+- Minimal setup wizard flow
+
+
+DOCUMENTATION
+
+Files: Technical specifications, user guides, product documentation
+Type: Literary work
+Protection: Automatic upon creation
+
+Key Documents:
+- ARCHIV-IT_Technical_Specification.txt
+- ARCHIV-IT_Product_Documentation.txt
+- ARCHIV-IT_Artist_Manifesto.txt
+- ARCHIV-IT_IP_Legal_Documentation.txt
+
+
+DATABASE SCHEMAS
+
+Type: Compilation (structure and organization)
+Protection: Thin copyright on creative arrangement
+Elements: Table structures, relationship designs, field organizations
+
+
+3.2 COPYRIGHT NOTICE
+--------------------------------------------------------------------------------
+
+Recommended Notice:
+
+    Copyright 2026 WEB3GISEL. All Rights Reserved.
+
+For source files:
+
+    # Copyright 2026 WEB3GISEL. All Rights Reserved.
+    # Proprietary and Confidential.
+
+
+3.3 REGISTRATION RECOMMENDATION
+--------------------------------------------------------------------------------
+
+Priority for Registration:
+1. Software source code (as single work compilation)
+2. User interface visual designs (as visual arts work)
+3. Documentation (as literary work compilation)
+
+Benefits of Registration:
+- Prima facie evidence of ownership
+- Eligibility for statutory damages
+- Eligibility for attorney's fees
+- Required before bringing infringement action
+
+
+================================================================================
+SECTION 4: TRADE SECRET IDENTIFICATION
+================================================================================
+
+4.1 PROTECTED INFORMATION
+--------------------------------------------------------------------------------
+
+The following information is maintained as trade secrets and should be
+protected through confidentiality agreements, access controls, and limited
+disclosure:
+
+BLOCKCHAIN INTEGRATION LOGIC
+- Multi-provider failover algorithm (provider priority, timeout thresholds)
+- Network auto-detection pattern matching specifics
+- Rate limit detection and handling procedures
+- API endpoint configurations
+
+DATABASE OPTIMIZATION
+- Indexing strategies for performance
+- Query optimization patterns
+- Cache management approaches
+
+PROTECTION SYSTEM ARCHITECTURE
+- Anti-AI code protection implementation details
+- Obfuscation patterns and encryption methods
+- Hardware binding algorithm specifics
+- License validation procedures
+
+
+4.2 PROTECTION MEASURES
+--------------------------------------------------------------------------------
+
+Current Measures:
+- Source code maintained in private repository
+- Protected builds use bytecode compilation
+- Git repository access restricted
+- Limited distribution of development builds
+
+Recommended Additional Measures:
+- NDA requirements for beta testers
+- Confidentiality provisions in any employment/contractor agreements
+- Physical and electronic access controls
+- Employee training on trade secret handling
+
+
+================================================================================
+SECTION 4A: PROPRIETARY TERMINOLOGY & CONCEPTUAL INNOVATIONS
+================================================================================
+
+4A.1 HIGH-VALUE ORIGINAL COINAGES
+--------------------------------------------------------------------------------
+
+The following terms represent entirely original conceptual innovations with
+significant trademark and trade secret potential.
+
+First documented use: January 1, 2026
+Git commit evidence: e0b25ff 2026-01-01 "Initial commit: Personal knowledge base system"
+Development timeline: January 1-8, 2026 (8 days from concept to functional system)
+
+LIVING WORKS
+Definition: Framework treating NFTs as temporal entities that evolve, reveal,
+decay, and respond—not static objects. Encompasses past states, present
+reactivity, and future scheduled events.
+IP Category: Trademark + Trade Secret
+Viral Potential: VERY HIGH - reframes entire NFT industry thinking
+
+DEEP PROVENANCE
+Definition: Provenance methodology extending beyond transaction history to
+include conceptual lineage, witness depth, creation context, cultural
+resonance, and meaning. Contrasts with "shallow provenance."
+IP Category: Trademark + Trade Secret
+Viral Potential: VERY HIGH - challenges shallow "who owned it" paradigm
+
+WITNESS DEPTH
+Definition: Metric measuring quality of collector engagement vs. mere ownership.
+Incorporates holding duration, adversity holding, collection coherence, and
+stewardship behaviors. Replaces "collector" with "witness" terminology.
+IP Category: Trademark + Trade Secret
+Viral Potential: HIGH - creates new collector status metric
+
+EMOTIONAL ARCHAEOLOGY
+Definition: Methodology extracting emotional/psychological context from
+blockchain transaction data. Uses gas price, timing, market conditions to
+infer urgency, conviction, FOMO, deliberation.
+IP Category: Trademark + Trade Secret
+Viral Potential: VERY HIGH - completely original conceptual frame
+
+EDITION CONSTELLATION
+Definition: Visualization paradigm displaying edition relationships as star
+maps with gravitational physics.
+IP Category: Trademark
+Viral Potential: HIGH - poetic, memorable feature name
+
+TEMPORAL FINGERPRINTING
+Definition: Forensic methodology identifying artists through unconscious
+minting behavior patterns (time of day, intervals, gas tolerance).
+IP Category: Trade Secret (implementation confidential)
+Viral Potential: HIGH - verification/authenticity use case
+
+COLLECTOR TASTE DNA
+Definition: Algorithmic profile of collector aesthetic preferences, price
+psychology, holding behavior, and social influence patterns.
+IP Category: Trade Secret
+Viral Potential: MEDIUM - some similar concepts exist
+
+VISUAL TRANSLATOR
+Definition: AI-powered system that interprets, contextualizes, and describes
+artwork using computer vision and language models.
+IP Category: Trademark (feature name)
+Viral Potential: MEDIUM-HIGH - distinctive feature name
+
+RESONANCE FIELD
+Definition: The web of cultural, conceptual, and temporal connections
+surrounding an artwork—where it exists in discourse and meaning.
+IP Category: Trademark + Copyright
+Viral Potential: HIGH - poetic, useful concept
+
+CONCEPTUAL GENEALOGY
+Definition: Framework tracing ideas, influences, and artistic lineages.
+Includes ancestors (influences), siblings (contemporaries), descendants.
+IP Category: Copyright (framework)
+Viral Potential: HIGH - academic-sounding but accessible
+
+STEWARDSHIP NETWORK
+Definition: Visualization of collectors reframed as caretakers. Maps
+relationships based on witness depth rather than transaction count.
+IP Category: Copyright (framework)
+Viral Potential: HIGH - philosophical reframe
+
+ACU-METER
+Definition: Badge and certification system measuring archive completeness.
+IP Category: Trademark
+Viral Potential: MEDIUM - depends on adoption
+
+
+4A.2 PHILOSOPHICAL REFRAMES (BRAND LANGUAGE)
+--------------------------------------------------------------------------------
+
+These reframes should be used consistently in all marketing and documentation:
+
+Traditional         | ARCHIV-IT Reframe    | Significance
+--------------------|----------------------|---------------------------
+"Ownership"         | STEWARDSHIP          | Caretakers, not owners
+"Transaction"       | WITNESSING           | Acts of engagement
+"Collector"         | WITNESS              | Depth over possession
+"NFT"               | LIVING WORK          | Temporal entity
+"Provenance"        | DEEP PROVENANCE      | Meaning over history
+"Purchase history"  | EMOTIONAL ARCHAEOLOGY| Psychological context
+"Collection"        | STEWARDSHIP NETWORK  | Relational map
+
+
+4A.3 FIVE-PARADIGM POINT CLOUD SYSTEM
+--------------------------------------------------------------------------------
+
+Original visualization system with five copyrightable paradigms:
+
+1. TEMPORAL FLOW - Works positioned along time axis
+2. CONCEPTUAL CLUSTERING - Works grouped by thematic similarity
+3. STEWARDSHIP MAPPING - Collector relationships by witness depth
+4. RIVER FLOW - Provenance as flowing water metaphor
+5. CULTURAL RESONANCE - Works positioned by contextual significance
+
+
+4A.4 IP PROTECTION REQUIREMENTS
+--------------------------------------------------------------------------------
+
+To maximize protection:
+1. This document establishes January 2026 first use date
+2. Use terms consistently across product, docs, and marketing
+3. Consider (TM) symbol for unregistered marks in public materials
+4. Register "Living Works," "Deep Provenance," "Witness Depth" as trademarks
+5. Keep implementation algorithms confidential (trade secrets)
+6. Register this document for copyright
+
+
+4A.5 COMPETITIVE MOAT ANALYSIS
+--------------------------------------------------------------------------------
+
+- NO KNOWN PRIOR ART for "Living Works," "Deep Provenance," "Witness Depth,"
+  or "Emotional Archaeology" in NFT/blockchain art contexts
+- Terms could become INDUSTRY STANDARD if product achieves adoption
+- Documentation PREVENTS THIRD-PARTY CLAIMS on these concepts
+- Trademark registration creates BRAND PROTECTION
+
+
+================================================================================
+SECTION 5: PROPRIETARY ALGORITHMS
+================================================================================
+
+5.1 MULTI-BLOCKCHAIN AUTO-DETECTION
+--------------------------------------------------------------------------------
+
+Description: System that automatically identifies blockchain network from
+wallet address format without user selection.
+
+Innovation: First implementation supporting eight (8) networks with pattern
+matching:
+- Ethereum: 0x + 40 hexadecimal characters
+- Tezos: tz1/tz2/tz3/KT1 prefix + base58
+- Solana: Base58, 32-44 characters
+- Bitcoin/Counterparty/Fake Rares: 1/3/bc1 prefix
+- EOS/WAX: lowercase + 1-5, max 12 characters
+
+User Experience: Paste any address, system displays "Network detected:
+[Network Name]" without dropdown selection required.
+
+Competitive Position: No known competitor offers this feature across eight
+networks.
+
+
+5.2 MULTI-PROVIDER FAILOVER SYSTEM
+--------------------------------------------------------------------------------
+
+Description: Automatic failover across multiple blockchain RPC providers to
+ensure service continuity.
+
+Architecture: Sequential attempt through provider hierarchy with automatic
+fallback on timeout or rate limit.
+
+Effective Uptime: 99.99% (versus single-provider 99.9%)
+
+
+5.3 HARDWARE-BOUND LICENSING
+--------------------------------------------------------------------------------
+
+Description: Software licensing tied to specific machine identifiers (UUID,
+MAC address hash) to prevent unauthorized distribution.
+
+Implementation: License validation against hardware fingerprint at startup.
+
+Purpose: Enable beta testing without piracy risk.
+
+
+================================================================================
+SECTION 6: PATENT CONSIDERATIONS
+================================================================================
+
+6.1 POTENTIALLY PATENTABLE METHODS
+--------------------------------------------------------------------------------
+
+The following methods may be eligible for patent protection, though software
+patent viability should be evaluated against current case law (Alice Corp. v.
+CLS Bank):
+
+1. Multi-Blockchain Address Auto-Detection
+   - Novel: First to auto-detect network from address format
+   - Non-obvious: Requires understanding of eight different address schemas
+   - Utility: Improves user experience, reduces errors
+
+2. Privacy-Preserving Multi-Provider Blockchain Failover
+   - Novel: First to implement automatic failover for NFT data
+   - Non-obvious: Specific provider ordering and timeout logic
+   - Utility: 99.99% uptime versus industry standard
+
+3. Hardware-Bound Licensing with AI Protection
+   - Novel: Combination of hardware binding with AI-specific obfuscation
+   - Non-obvious: Multiple protection layers working together
+   - Utility: Prevents both traditional piracy and AI reconstruction
+
+
+6.2 RECOMMENDATION
+--------------------------------------------------------------------------------
+
+Patent protection viability: MODERATE
+
+Concerns:
+- Software patents face scrutiny under Alice Corp. v. CLS Bank
+- Methods may be characterized as "abstract ideas"
+- Cost of patent prosecution may exceed protection value
+
+Alternative Strategy:
+- Maintain as trade secrets (lower cost, indefinite duration)
+- Publish high-level concepts to establish prior art
+- Keep implementation details confidential
+
+
+================================================================================
+SECTION 7: LICENSING MODEL
+================================================================================
+
+7.1 SOFTWARE LICENSING TIERS
+--------------------------------------------------------------------------------
+
+FREE TIER
+- 1 artist profile
+- 3 wallet addresses
+- All blockchain networks
+- Full feature access
+- No cost
+
+COLLECTOR TIER - $99 (one-time)
+- 5 artist profiles
+- 15 wallet addresses (3 per artist)
+- All blockchain networks
+- Priority support
+
+ENTERPRISE TIER - $299 (one-time)
+- 15 artist profiles
+- 45 wallet addresses
+- All features
+- Team collaboration (up to 3 users)
+
+WHITE LABEL TIER - Custom pricing
+- Unlimited profiles
+- Custom branding
+- API access
+- Dedicated support
+
+
+7.2 LICENSE TERMS (SUMMARY)
+--------------------------------------------------------------------------------
+
+Grant: Non-exclusive, non-transferable license to use software
+Restrictions: No reverse engineering, no redistribution, no modification
+Hardware Binding: License tied to specific machine (beta/protected builds)
+Termination: Upon breach of terms or expiration (if applicable)
+
+
+================================================================================
+SECTION 8: OPEN SOURCE DEPENDENCIES
+================================================================================
+
+8.1 DEPENDENCY LICENSE AUDIT
+--------------------------------------------------------------------------------
+
+All dependencies are compatible with proprietary distribution:
+
+Flask: BSD-3-Clause (permissive)
+SQLite: Public domain (no restrictions)
+Web3.py: MIT (permissive)
+Chart.js: MIT (permissive)
+txtai: Apache 2.0 (permissive)
+sentence-transformers: Apache 2.0 (permissive, planned)
+Geist Font: SIL Open Font License (permissive for bundling)
+Crimson Pro Font: SIL Open Font License (permissive for bundling)
+
+Compliance Status: COMPLIANT
+No copyleft licenses (GPL, AGPL) that would require source disclosure.
+
+
+================================================================================
+SECTION 9: RECOMMENDED ACTIONS
+================================================================================
+
+IMMEDIATE (0-30 days)
+1. Conduct comprehensive trademark search for "ARCHIV-IT"
+2. File trademark application for "ARCHIV-IT" in Classes 09 and 42
+3. Register copyright for software source code compilation
+4. Implement consistent copyright notices in all source files
+
+SHORT-TERM (30-90 days)
+5. Register copyright for user interface designs
+6. Draft standard NDA for beta testers
+7. Document trade secret protection procedures
+8. Evaluate trademark filing for "WEB3GISEL"
+
+ONGOING
+9. Monitor for potentially infringing uses
+10. Maintain trade secret protections
+11. Update copyright notices on new versions
+12. Document significant software updates for potential supplemental filings
+
+
+================================================================================
+SECTION 10: CONTACTS AND AUTHORIZATION
+================================================================================
+
+Intellectual Property Owner:
+GISELX / WEB3GISEL
+Gisel Florez
+New York, NY, USA
+
+Contact:
+info@giselx.art
+info@web3photo.com
+
+Blockchain Identity:
+giselx.eth (Ethereum Name Service)
+
+Authorization:
+This document prepared by creator/owner. All intellectual property described
+herein is claimed by GISELX / WEB3GISEL unless otherwise noted.
+
+
+================================================================================
+DISCLAIMERS
+================================================================================
+
+This document provides information for legal review and is not legal advice.
+Trademark, copyright, and patent filing decisions should be made in
+consultation with qualified intellectual property counsel.
+
+Prior art searches referenced are preliminary. Comprehensive professional
+searches recommended before filing.
+
+Patent viability assessments are general guidance and do not constitute opinion
+on patentability.
+
+
+================================================================================
+                         Copyright 2026 WEB3GISEL
+                           All Rights Reserved
+                       Proprietary and Confidential
+================================================================================

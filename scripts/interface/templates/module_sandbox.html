@@ -1,0 +1,1155 @@
+{% extends "base.html" %}
+
+{% block title %}Module Sandbox - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+/*
+═══════════════════════════════════════════════════════════════════════════════
+ AGENT DOCUMENTATION - READ THIS FIRST
+═══════════════════════════════════════════════════════════════════════════════
+
+ TO FUTURE AI AGENTS:
+
+ This is the Module Sandbox - a testing environment for data visualization
+ modules using the ARCHIV-IT "Orb Design System" aesthetic.
+
+ CRITICAL DESIGN RULES:
+ 1. The visual aesthetic is LOCKED. Do not modify:
+    - Geometry tokens (sizes, perspectives, tilts)
+    - Color palette (the specific token colors)
+    - Typography scale (micro, tiny, small, base)
+    - Glass/glow effects
+    - 3D perspective transforms
+
+ 2. What CAN be changed:
+    - Data functions (what data is visualized)
+    - Particle behaviors (physics patterns)
+    - Ring segment meanings (what they represent)
+    - Label content (what text is displayed)
+    - Easter egg interactions (flyouts, effects)
+
+ 3. Module Framework Pattern:
+    - Container: .data-orb (perspective wrapper)
+    - Core: .data-orb__core (main circular element, 8deg tilt)
+    - Ring: .data-orb__ring > svg with .data-orb__segment paths
+    - Glow: .data-orb__glow (conic gradient behind ring)
+    - Glass: .data-orb__glass (top-left reflection)
+    - Labels: .data-orb__label (positioned around ring)
+    - Title: .data-orb__title (below module)
+
+ 4. Inception Module Reference:
+    The "Fungibles Petri Dish" is the template. It shows:
+    - Physics-driven particles (memecoins)
+    - Segmented ring (wallet holdings by token)
+    - Formation patterns (coins form chain logos)
+    - Easter eggs (unicorn flyouts on click)
+
+ 5. When creating new modules:
+    a. Copy the base .data-orb structure
+    b. Add module-specific class (.my-module)
+    c. Define module accent color
+    d. Implement data binding functions
+    e. Add optional physics/animations
+    f. Keep the same visual rhythm
+
+ Documentation updated: 2026-01-08
+ Design system version: 1.0 (Petri Dish Inception)
+
+═══════════════════════════════════════════════════════════════════════════════
+*/
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM TOKENS - DO NOT MODIFY THESE VALUES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ─── LOCKED: Geometry Tokens ─── */
+    --orb-core-size: 100px;
+    --orb-ring-size: 130px;
+    --orb-glow-size: 140px;
+    --orb-ring-stroke: 8px;
+    --orb-ring-gap: 2deg;
+    --orb-perspective: 400px;
+    --orb-tilt: 8deg;
+    --orb-hover-tilt: 4deg;
+    --orb-hover-scale: 1.05;
+
+    /* ─── LOCKED: Token Color Palette ─── */
+    --orb-color-gold: #c9a227;
+    --orb-color-orange: #ff5722;
+    --orb-color-green: #4caf50;
+    --orb-color-amber: #ff9800;
+    --orb-color-pink: #e91e63;
+    --orb-color-brown: #8d6e63;
+    --orb-color-blue: #1976d2;
+    --orb-color-cyan: #2196f3;
+    --orb-color-purple: #9c27b0;
+    --orb-color-teal: #009688;
+
+    /* ─── LOCKED: Background & Surface ─── */
+    --orb-bg-primary: rgba(15, 15, 20, 0.99);
+    --orb-bg-secondary: rgba(25, 25, 35, 0.98);
+    --orb-bg-tertiary: rgba(60, 60, 80, 0.95);
+    --orb-bg-glass: rgba(255, 255, 255, 0.03);
+    --orb-border-subtle: rgba(255, 255, 255, 0.08);
+    --orb-border-hover: rgba(212, 165, 116, 0.3);
+
+    /* ─── LOCKED: Glow & Shadow System ─── */
+    --orb-glow-blur: 12px;
+    --orb-glow-opacity: 0.4;
+    --orb-shadow-depth: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --orb-shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --orb-shadow-inset-light: inset 0 2px 15px rgba(255, 255, 255, 0.03);
+    --orb-shadow-inset-dark: inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+
+    /* ─── LOCKED: Typography Scale ─── */
+    --orb-font-micro: 5px;
+    --orb-font-tiny: 6px;
+    --orb-font-small: 7px;
+    --orb-font-base: 8px;
+    --orb-font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    --orb-font-display: 'Crimson Pro', Georgia, serif;
+    --orb-letter-spacing: 0.3px;
+    --orb-label-spacing: 1.5px;
+
+    /* ─── LOCKED: Animation Timing ─── */
+    --orb-transition-fast: 0.15s ease-out;
+    --orb-transition-base: 0.2s ease;
+    --orb-transition-slow: 0.3s ease;
+    --orb-animation-pulse: 6s ease-in-out infinite;
+}
+
+/* Page Layout */
+body {
+    overflow-x: hidden;
+}
+
+.sandbox-page {
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--bg-primary);
+}
+
+.sandbox-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sandbox-header h1 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.sandbox-header p {
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+}
+
+/* Agent Documentation Panel */
+.agent-docs {
+    background: rgba(212, 165, 116, 0.05);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    font-family: var(--orb-font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.agent-docs-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(212, 165, 116, 0.8);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.agent-docs-toggle:hover {
+    color: rgba(212, 165, 116, 1);
+}
+
+.agent-docs-content {
+    display: none;
+}
+
+.agent-docs-content.expanded {
+    display: block;
+}
+
+.agent-docs pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-header span {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+}
+
+/* Module Gallery Grid */
+.module-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.module-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.module-card h3 {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.module-card p {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE ORB CONTAINER - Shared structure for all modules
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.data-orb {
+    position: relative;
+    width: var(--orb-ring-size);
+    height: var(--orb-ring-size);
+    perspective: var(--orb-perspective);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+    margin: 20px;
+}
+
+.data-orb__core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateX(var(--orb-tilt));
+    width: var(--orb-core-size);
+    height: var(--orb-core-size);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 30% 25%,
+        var(--orb-bg-tertiary) 0%,
+        var(--orb-bg-secondary) 40%,
+        var(--orb-bg-primary) 100%);
+    border: 2px solid var(--orb-border-subtle);
+    box-shadow: var(--orb-shadow-depth), var(--orb-shadow-soft),
+                var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--orb-transition-slow);
+    transform-style: preserve-3d;
+    z-index: 10;
+    animation: orb-pulse var(--orb-animation-pulse);
+}
+
+.data-orb__core:hover {
+    transform: translate(-50%, -50%) rotateX(var(--orb-hover-tilt)) scale(var(--orb-hover-scale));
+    border-color: var(--orb-border-hover);
+}
+
+.data-orb__glass {
+    position: absolute;
+    top: 8%;
+    left: 12%;
+    width: 35%;
+    height: 18%;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(1px);
+}
+
+.data-orb__core::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    right: 20%;
+    width: 12%;
+    height: 8%;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+.data-orb__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--orb-ring-size);
+    height: var(--orb-ring-size);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.data-orb__ring svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.data-orb__segment {
+    fill: none;
+    stroke-width: var(--orb-ring-stroke);
+    stroke-linecap: butt;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    transition: stroke-width var(--orb-transition-base), filter var(--orb-transition-base);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.data-orb__segment:hover {
+    stroke-width: 11px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)) brightness(1.3);
+}
+
+.data-orb__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--orb-glow-size);
+    height: var(--orb-glow-size);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 4;
+    opacity: var(--orb-glow-opacity);
+    filter: blur(var(--orb-glow-blur));
+}
+
+.data-orb__labels {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 170px;
+    height: 170px;
+    pointer-events: none;
+    z-index: 15;
+}
+
+.data-orb__label {
+    position: absolute;
+    font-family: var(--orb-font-mono);
+    font-size: var(--orb-font-tiny);
+    letter-spacing: var(--orb-letter-spacing);
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    pointer-events: auto;
+    cursor: pointer;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.data-orb__label:hover {
+    color: #fff;
+    transform: scale(1.3);
+    z-index: 100;
+    filter: brightness(1.3);
+}
+
+.data-orb__label-amount {
+    display: block;
+    font-size: var(--orb-font-micro);
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 1px;
+    transition: all 0.2s ease;
+}
+
+.data-orb__label:hover .data-orb__label-amount {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 8px currentColor;
+}
+
+.data-orb__title {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--orb-font-small);
+    text-transform: uppercase;
+    letter-spacing: var(--orb-label-spacing);
+    color: rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+@keyframes orb-pulse {
+    0%, 100% {
+        box-shadow: var(--orb-shadow-depth), var(--orb-shadow-soft),
+                    var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(212, 165, 116, 0.12), var(--orb-shadow-soft),
+                    var(--orb-shadow-inset-light), var(--orb-shadow-inset-dark);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE VARIANTS - Each has unique data function, same visual style
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* MODULE 1: Portfolio Pulse - Asset holdings */
+.portfolio-pulse {
+    --module-accent: var(--orb-color-gold);
+}
+
+.portfolio-pulse__particle {
+    position: absolute;
+    border-radius: 50%;
+    background-size: 70% 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.2);
+}
+
+.portfolio-pulse__particle::before {
+    content: '';
+    position: absolute;
+    top: 5%;
+    left: 15%;
+    width: 35%;
+    height: 25%;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 50%;
+}
+
+/* MODULE 2: Transaction Flow - Activity monitor */
+.transaction-flow {
+    --module-accent: var(--orb-color-cyan);
+}
+
+.transaction-flow__stream {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--module-accent);
+    box-shadow: 0 0 6px var(--module-accent);
+    animation: stream-flow 3s linear infinite;
+}
+
+@keyframes stream-flow {
+    0% { transform: rotate(0deg) translateX(25px); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: rotate(360deg) translateX(45px); opacity: 0; }
+}
+
+/* MODULE 3: Provenance Orbit - Ownership timeline */
+.provenance-orbit {
+    --module-accent: var(--orb-color-purple);
+}
+
+.provenance-orbit__node {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--module-accent);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 8px var(--module-accent);
+}
+
+.provenance-orbit__trail {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border: 1px dashed rgba(156, 39, 176, 0.3);
+    border-radius: 50%;
+    top: 10%;
+    left: 10%;
+}
+
+/* MODULE 4: Network Health - Connection status */
+.network-health {
+    --module-accent: var(--orb-color-green);
+}
+
+.network-health__pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--module-accent);
+    animation: health-pulse 2s ease-in-out infinite;
+}
+
+@keyframes health-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAB SECTION - Testing area for new concepts
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.lab-section {
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.lab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.lab-header h2 {
+    color: var(--orb-color-gold);
+    font-size: 1rem;
+}
+
+.lab-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.lab-btn {
+    background: rgba(212, 165, 116, 0.1);
+    border: 1px solid rgba(212, 165, 116, 0.3);
+    color: rgba(212, 165, 116, 0.8);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+.lab-btn:hover {
+    background: rgba(212, 165, 116, 0.2);
+    border-color: rgba(212, 165, 116, 0.5);
+    color: rgba(212, 165, 116, 1);
+}
+
+.lab-canvas {
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.lab-empty {
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Unicorn flyout animations */
+.unicorn-flyout {
+    position: fixed;
+    font-size: 24px;
+    pointer-events: none;
+    z-index: 2000;
+    animation: unicorn-fly 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+@keyframes unicorn-fly {
+    0% { transform: scale(0.5) rotate(0deg) translateY(0); opacity: 1; }
+    30% { transform: scale(1.8) rotate(var(--fly-rotate, 15deg)) translateY(-80px); opacity: 1; }
+    60% { transform: scale(1.2) rotate(calc(var(--fly-rotate, 15deg) * 2)) translateY(-180px); opacity: 0.8; }
+    100% { transform: scale(0.2) rotate(calc(var(--fly-rotate, 15deg) * 4)) translateY(-350px); opacity: 0; }
+}
+
+.sparkle-burst {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1999;
+    animation: sparkle-pop 0.8s ease-out forwards;
+}
+
+@keyframes sparkle-pop {
+    0% { transform: scale(0) translate(0, 0); opacity: 1; }
+    100% { transform: scale(1) translate(var(--spark-x), var(--spark-y)); opacity: 0; }
+}
+
+/* Framework Reference Card */
+.framework-ref {
+    background: linear-gradient(135deg, rgba(25, 25, 35, 0.9) 0%, rgba(15, 15, 20, 0.95) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.framework-ref h3 {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.framework-ref code {
+    display: block;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: var(--orb-font-mono);
+    font-size: 0.7rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    overflow-x: auto;
+}
+
+.framework-ref .comment {
+    color: rgba(212, 165, 116, 0.6);
+}
+
+.framework-ref .class {
+    color: var(--orb-color-cyan);
+}
+
+.framework-ref .element {
+    color: var(--orb-color-green);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sandbox-page">
+    <div class="sandbox-header">
+        <h1>Module Sandbox</h1>
+        <p>Testing environment for ARCHIV-IT data visualization modules</p>
+    </div>
+
+    <!-- Agent Documentation Panel -->
+    <div class="agent-docs">
+        <div class="agent-docs-toggle" onclick="toggleAgentDocs()">
+            <span id="docsToggleIcon">+</span>
+            <span>AGENT DOCUMENTATION - Click to Expand</span>
+        </div>
+        <div class="agent-docs-content" id="agentDocsContent">
+<pre>
+TO FUTURE AI AGENTS - MODULE FRAMEWORK GUIDE
+============================================
+
+1. DESIGN SYSTEM (LOCKED - DO NOT MODIFY):
+   - Geometry: 100px core, 130px ring, 8deg tilt, 400px perspective
+   - Colors: Gold, Orange, Green, Amber, Pink, Brown, Blue, Cyan, Purple, Teal
+   - Typography: 5px micro, 6px tiny, 7px small, 8px base (monospace)
+   - Effects: Glass reflections, conic glow, depth shadows
+
+2. WHAT YOU CAN CHANGE:
+   - Data source and binding logic
+   - Particle physics behaviors
+   - Ring segment data mapping
+   - Label content and formatting
+   - Easter egg interactions
+   - Animation triggers
+
+3. MODULE STRUCTURE (copy this pattern):
+   <div class="data-orb [your-module-class]">
+       <div class="data-orb__glow"></div>
+       <div class="data-orb__ring"><svg>...</svg></div>
+       <div class="data-orb__core">
+           <div class="data-orb__glass"></div>
+           <!-- Your content here -->
+       </div>
+       <div class="data-orb__labels"><!-- Labels --></div>
+       <div class="data-orb__title">label</div>
+   </div>
+
+4. INCEPTION MODULE REFERENCE:
+   The "Fungibles" petri dish in semantic_network.html is the template.
+   Key features: physics particles, holdings ring, formation patterns.
+
+5. FILE LOCATIONS:
+   - Sandbox: /scripts/interface/templates/module_sandbox.html
+   - Components: /scripts/interface/templates/components/data_orb_modules.html
+   - Live example: /scripts/interface/templates/semantic_network.html (petri dish)
+</pre>
+        </div>
+    </div>
+
+    <!-- Module Gallery -->
+    <div class="section-header">
+        <h2>Module Gallery</h2>
+        <span>Existing module implementations</span>
+    </div>
+
+    <div class="module-gallery">
+        <!-- Module 1: Portfolio Pulse (Inception Module) -->
+        <div class="module-card">
+            <h3>Portfolio Pulse</h3>
+            <div class="data-orb portfolio-pulse" id="portfolioModule">
+                <div class="data-orb__glow" id="portfolioGlow"></div>
+                <div class="data-orb__ring">
+                    <svg viewBox="0 0 130 130">
+                        <g id="portfolioSegments"></g>
+                    </svg>
+                </div>
+                <div class="data-orb__core">
+                    <div class="data-orb__glass"></div>
+                    <!-- Particles injected by JS -->
+                </div>
+                <div class="data-orb__labels" id="portfolioLabels"></div>
+                <div class="data-orb__title">fungibles</div>
+            </div>
+            <p>Asset holdings with physics-driven token particles. The inception module - all others inherit this aesthetic.</p>
+        </div>
+
+        <!-- Module 2: Transaction Flow -->
+        <div class="module-card">
+            <h3>Transaction Flow</h3>
+            <div class="data-orb transaction-flow" id="txFlowModule">
+                <div class="data-orb__glow" id="txFlowGlow"></div>
+                <div class="data-orb__ring">
+                    <svg viewBox="0 0 130 130">
+                        <g id="txFlowSegments"></g>
+                    </svg>
+                </div>
+                <div class="data-orb__core">
+                    <div class="data-orb__glass"></div>
+                    <div class="transaction-flow__stream" style="animation-delay: 0s;"></div>
+                    <div class="transaction-flow__stream" style="animation-delay: 1s;"></div>
+                    <div class="transaction-flow__stream" style="animation-delay: 2s;"></div>
+                </div>
+                <div class="data-orb__labels" id="txFlowLabels"></div>
+                <div class="data-orb__title">activity</div>
+            </div>
+            <p>Real-time transaction monitoring with streaming particles showing wallet activity.</p>
+        </div>
+
+        <!-- Module 3: Provenance Orbit -->
+        <div class="module-card">
+            <h3>Provenance Orbit</h3>
+            <div class="data-orb provenance-orbit" id="provenanceModule">
+                <div class="data-orb__glow" id="provenanceGlow"></div>
+                <div class="data-orb__ring">
+                    <svg viewBox="0 0 130 130">
+                        <g id="provenanceSegments"></g>
+                    </svg>
+                </div>
+                <div class="data-orb__core">
+                    <div class="data-orb__glass"></div>
+                    <div class="provenance-orbit__trail"></div>
+                    <div class="provenance-orbit__node" style="top: 20%; left: 50%;"></div>
+                    <div class="provenance-orbit__node" style="top: 50%; left: 75%;"></div>
+                    <div class="provenance-orbit__node" style="top: 70%; left: 35%;"></div>
+                </div>
+                <div class="data-orb__labels" id="provenanceLabels"></div>
+                <div class="data-orb__title">history</div>
+            </div>
+            <p>Ownership timeline with orbital nodes representing provenance chain events.</p>
+        </div>
+
+        <!-- Module 4: Network Health -->
+        <div class="module-card">
+            <h3>Network Health</h3>
+            <div class="data-orb network-health" id="healthModule">
+                <div class="data-orb__glow" id="healthGlow"></div>
+                <div class="data-orb__ring">
+                    <svg viewBox="0 0 130 130">
+                        <g id="healthSegments"></g>
+                    </svg>
+                </div>
+                <div class="data-orb__core">
+                    <div class="data-orb__glass"></div>
+                    <div class="network-health__pulse"></div>
+                </div>
+                <div class="data-orb__labels" id="healthLabels"></div>
+                <div class="data-orb__title">network</div>
+            </div>
+            <p>Connection status monitor with heartbeat pulse indicating system health.</p>
+        </div>
+    </div>
+
+    <!-- Lab Section -->
+    <div class="lab-section">
+        <div class="lab-header">
+            <h2>Module Lab</h2>
+            <div class="lab-controls">
+                <button class="lab-btn" onclick="spawnTestModule()">Spawn Test Module</button>
+                <button class="lab-btn" onclick="clearLab()">Clear Lab</button>
+            </div>
+        </div>
+        <div class="lab-canvas" id="labCanvas">
+            <div class="lab-empty">Click "Spawn Test Module" to create a new module instance for testing</div>
+        </div>
+    </div>
+
+    <!-- Framework Reference -->
+    <div class="framework-ref">
+        <h3>Module HTML Structure</h3>
+        <code>
+<span class="comment">&lt;!-- Base structure for all data orb modules --&gt;</span>
+&lt;<span class="element">div</span> <span class="class">class="data-orb [module-variant]"</span>&gt;
+    <span class="comment">&lt;!-- Glow effect (conic gradient based on data) --&gt;</span>
+    &lt;<span class="element">div</span> <span class="class">class="data-orb__glow"</span>&gt;&lt;/<span class="element">div</span>&gt;
+
+    <span class="comment">&lt;!-- Segmented ring (proportional data visualization) --&gt;</span>
+    &lt;<span class="element">div</span> <span class="class">class="data-orb__ring"</span>&gt;
+        &lt;<span class="element">svg</span> viewBox="0 0 130 130"&gt;
+            &lt;<span class="element">g</span> id="segments"&gt;<span class="comment">&lt;!-- Arc paths --&gt;</span>&lt;/<span class="element">g</span>&gt;
+        &lt;/<span class="element">svg</span>&gt;
+    &lt;/<span class="element">div</span>&gt;
+
+    <span class="comment">&lt;!-- Core element (main circular visualization) --&gt;</span>
+    &lt;<span class="element">div</span> <span class="class">class="data-orb__core"</span>&gt;
+        &lt;<span class="element">div</span> <span class="class">class="data-orb__glass"</span>&gt;&lt;/<span class="element">div</span>&gt;
+        <span class="comment">&lt;!-- Module-specific content here --&gt;</span>
+    &lt;/<span class="element">div</span>&gt;
+
+    <span class="comment">&lt;!-- Labels (positioned around ring) --&gt;</span>
+    &lt;<span class="element">div</span> <span class="class">class="data-orb__labels"</span>&gt;&lt;/<span class="element">div</span>&gt;
+
+    <span class="comment">&lt;!-- Title (below module) --&gt;</span>
+    &lt;<span class="element">div</span> <span class="class">class="data-orb__title"</span>&gt;label&lt;/<span class="element">div</span>&gt;
+&lt;/<span class="element">div</span>&gt;
+        </code>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// MODULE FRAMEWORK JAVASCRIPT
+// Future agents: Use these functions as building blocks
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Token colors (locked design system)
+const orbColors = {
+    gold: '#c9a227',
+    orange: '#ff5722',
+    green: '#4caf50',
+    amber: '#ff9800',
+    pink: '#e91e63',
+    brown: '#8d6e63',
+    blue: '#1976d2',
+    cyan: '#2196f3',
+    purple: '#9c27b0',
+    teal: '#009688'
+};
+
+// Token mascots for easter eggs
+const tokenMascots = {
+    'doge': { emoji: '🐕', extra: ['🌙', '🚀', '✨'] },
+    'shib': { emoji: '🦊', extra: ['🔥', '💎', '🐕'] },
+    'pepe': { emoji: '🐸', extra: ['💚', '🎭', '😏'] },
+    'bonk': { emoji: '🏏', extra: ['💥', '🐕', '⚡'] },
+    'wif': { emoji: '🎩', extra: ['🐕', '👑', '✨'] },
+    'default': { emoji: '🪙', extra: ['✨', '💫', '⭐'] }
+};
+
+// Geometry utilities
+function polarToCartesian(cx, cy, r, angleDegrees) {
+    const angleRadians = (angleDegrees - 90) * Math.PI / 180;
+    return {
+        x: cx + r * Math.cos(angleRadians),
+        y: cy + r * Math.sin(angleRadians)
+    };
+}
+
+function createArcPath(cx, cy, radius, startAngle, endAngle) {
+    const start = polarToCartesian(cx, cy, radius, endAngle);
+    const end = polarToCartesian(cx, cy, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+}
+
+// Ring segment renderer
+function renderRingSegments(containerId, data, cx = 65, cy = 65, radius = 57) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    const gap = 2;
+    const totalGap = gap * data.length;
+    const availableAngle = 360 - totalGap;
+    let currentAngle = 0;
+
+    data.forEach((item, index) => {
+        const segmentAngle = item.percentage * availableAngle;
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', createArcPath(cx, cy, radius, currentAngle, currentAngle + segmentAngle));
+        path.setAttribute('class', 'data-orb__segment');
+        path.setAttribute('stroke', item.color);
+        path.setAttribute('data-token', item.token || 'default');
+        path.innerHTML = `<title>${item.label}: ${item.value} (${Math.round(item.percentage * 100)}%)</title>`;
+
+        path.addEventListener('click', (e) => {
+            spawnUnicornFlyout(e.clientX, e.clientY, item.token || 'default');
+        });
+
+        container.appendChild(path);
+        currentAngle += segmentAngle + gap;
+    });
+}
+
+// Glow gradient setter
+function setGlowGradient(elementId, data) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    let gradientStops = [];
+    let currentPercent = 0;
+
+    data.forEach(item => {
+        gradientStops.push(`${item.color} ${currentPercent}%`);
+        currentPercent += item.percentage * 100;
+    });
+
+    if (gradientStops.length > 0) {
+        gradientStops.push(data[0].color + ' 100%');
+    }
+
+    el.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+}
+
+// Label renderer
+function renderLabels(containerId, data, cx = 85, cy = 85, radius = 75) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    const gap = 2;
+    const totalGap = gap * data.length;
+    const availableAngle = 360 - totalGap;
+    let currentAngle = 0;
+
+    data.forEach((item, index) => {
+        const segmentAngle = item.percentage * availableAngle;
+        const midAngle = currentAngle + segmentAngle / 2;
+        const pos = polarToCartesian(cx, cy, radius, midAngle);
+
+        const label = document.createElement('div');
+        label.className = 'data-orb__label';
+        label.style.left = pos.x + 'px';
+        label.style.top = pos.y + 'px';
+        label.style.transform = 'translate(-50%, -50%)';
+        label.style.color = item.color;
+        label.innerHTML = `<span>${item.shortLabel || item.label}</span><span class="data-orb__label-amount">${item.value}</span>`;
+        label.title = item.label;
+
+        label.addEventListener('click', (e) => {
+            spawnUnicornFlyout(e.clientX, e.clientY, item.token || 'default');
+        });
+
+        container.appendChild(label);
+        currentAngle += segmentAngle + gap;
+    });
+}
+
+// Unicorn flyout easter egg
+function spawnUnicornFlyout(x, y, token) {
+    const mascot = tokenMascots[token] || tokenMascots.default;
+
+    createFlyoutEmoji(x, y, mascot.emoji, 0);
+
+    mascot.extra.forEach((emoji, i) => {
+        setTimeout(() => {
+            const offsetX = (Math.random() - 0.5) * 60;
+            const offsetY = (Math.random() - 0.5) * 40;
+            createFlyoutEmoji(x + offsetX, y + offsetY, emoji, (i + 1) * 0.1);
+        }, (i + 1) * 100);
+    });
+
+    spawnSparkles(x, y, mascot.extra[0] === '🔥' ? '#ff5722' : '#ffd700');
+}
+
+function createFlyoutEmoji(x, y, emoji, delay) {
+    const el = document.createElement('div');
+    el.className = 'unicorn-flyout';
+    el.textContent = emoji;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.animationDelay = delay + 's';
+    el.style.setProperty('--fly-rotate', (Math.random() * 60 - 30) + 'deg');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+}
+
+function spawnSparkles(x, y, color = '#ffd700') {
+    for (let i = 0; i < 12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-burst';
+        sparkle.style.left = x + 'px';
+        sparkle.style.top = y + 'px';
+        sparkle.style.background = color;
+        sparkle.style.boxShadow = `0 0 4px ${color}, 0 0 8px ${color}`;
+
+        const angle = (i / 12) * 360;
+        const distance = 30 + Math.random() * 40;
+        const rad = angle * Math.PI / 180;
+        sparkle.style.setProperty('--spark-x', Math.cos(rad) * distance + 'px');
+        sparkle.style.setProperty('--spark-y', Math.sin(rad) * distance + 'px');
+
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+}
+
+// Toggle agent docs
+function toggleAgentDocs() {
+    const content = document.getElementById('agentDocsContent');
+    const icon = document.getElementById('docsToggleIcon');
+    content.classList.toggle('expanded');
+    icon.textContent = content.classList.contains('expanded') ? '−' : '+';
+}
+
+// Lab functions
+let labModuleCount = 0;
+
+function spawnTestModule() {
+    const canvas = document.getElementById('labCanvas');
+    const empty = canvas.querySelector('.lab-empty');
+    if (empty) empty.remove();
+
+    labModuleCount++;
+
+    // Create a new test module
+    const moduleDiv = document.createElement('div');
+    moduleDiv.className = 'data-orb portfolio-pulse';
+    moduleDiv.id = `labModule${labModuleCount}`;
+    moduleDiv.innerHTML = `
+        <div class="data-orb__glow" id="labGlow${labModuleCount}"></div>
+        <div class="data-orb__ring">
+            <svg viewBox="0 0 130 130">
+                <g id="labSegments${labModuleCount}"></g>
+            </svg>
+        </div>
+        <div class="data-orb__core">
+            <div class="data-orb__glass"></div>
+        </div>
+        <div class="data-orb__labels" id="labLabels${labModuleCount}"></div>
+        <div class="data-orb__title">test #${labModuleCount}</div>
+    `;
+
+    canvas.appendChild(moduleDiv);
+
+    // Generate random test data
+    const testData = [
+        { token: 'doge', color: orbColors.gold, label: 'DOGE', shortLabel: '0xba2ae4...', value: '15M', percentage: 0.3 },
+        { token: 'pepe', color: orbColors.green, label: 'PEPE', shortLabel: '0x698250...', value: '420M', percentage: 0.25 },
+        { token: 'shib', color: orbColors.orange, label: 'SHIB', shortLabel: '0x95ad61...', value: '8.5B', percentage: 0.2 },
+        { token: 'bonk', color: orbColors.amber, label: 'BONK', shortLabel: 'DezXAZ...', value: '50M', percentage: 0.15 },
+        { token: 'wif', color: orbColors.pink, label: 'WIF', shortLabel: 'EKpQGS...', value: '2.5K', percentage: 0.1 }
+    ];
+
+    renderRingSegments(`labSegments${labModuleCount}`, testData);
+    setGlowGradient(`labGlow${labModuleCount}`, testData);
+    renderLabels(`labLabels${labModuleCount}`, testData);
+}
+
+function clearLab() {
+    const canvas = document.getElementById('labCanvas');
+    canvas.innerHTML = '<div class="lab-empty">Click "Spawn Test Module" to create a new module instance for testing</div>';
+    labModuleCount = 0;
+}
+
+// Initialize gallery modules on load
+document.addEventListener('DOMContentLoaded', () => {
+    // Portfolio Pulse data
+    const portfolioData = [
+        { token: 'doge', color: orbColors.gold, label: 'DOGE', shortLabel: '0xba2ae4...', value: '15M', percentage: 0.28 },
+        { token: 'shib', color: orbColors.orange, label: 'SHIB', shortLabel: '0x95ad61...', value: '8.5B', percentage: 0.22 },
+        { token: 'pepe', color: orbColors.green, label: 'PEPE', shortLabel: '0x698250...', value: '420M', percentage: 0.18 },
+        { token: 'bonk', color: orbColors.amber, label: 'BONK', shortLabel: 'DezXAZ...', value: '50M', percentage: 0.12 },
+        { token: 'wif', color: orbColors.pink, label: 'WIF', shortLabel: 'EKpQGS...', value: '2.5K', percentage: 0.10 },
+        { token: 'default', color: orbColors.blue, label: 'OTHER', shortLabel: '0x576e2b...', value: '1K', percentage: 0.10 }
+    ];
+
+    renderRingSegments('portfolioSegments', portfolioData);
+    setGlowGradient('portfolioGlow', portfolioData);
+    renderLabels('portfolioLabels', portfolioData);
+
+    // Transaction Flow data
+    const txFlowData = [
+        { color: orbColors.cyan, label: 'Incoming', value: '23', percentage: 0.45 },
+        { color: orbColors.orange, label: 'Outgoing', value: '12', percentage: 0.25 },
+        { color: orbColors.green, label: 'Swaps', value: '8', percentage: 0.15 },
+        { color: orbColors.purple, label: 'Mints', value: '5', percentage: 0.15 }
+    ];
+
+    renderRingSegments('txFlowSegments', txFlowData);
+    setGlowGradient('txFlowGlow', txFlowData);
+
+    // Provenance Orbit data
+    const provenanceData = [
+        { color: orbColors.purple, label: 'Creator', value: '2021', percentage: 0.25 },
+        { color: orbColors.cyan, label: 'Primary', value: '2022', percentage: 0.25 },
+        { color: orbColors.teal, label: 'Secondary', value: '2023', percentage: 0.25 },
+        { color: orbColors.gold, label: 'Current', value: '2024', percentage: 0.25 }
+    ];
+
+    renderRingSegments('provenanceSegments', provenanceData);
+    setGlowGradient('provenanceGlow', provenanceData);
+
+    // Network Health data
+    const healthData = [
+        { color: orbColors.green, label: 'Online', value: '98%', percentage: 0.7 },
+        { color: orbColors.amber, label: 'Latency', value: '45ms', percentage: 0.2 },
+        { color: orbColors.orange, label: 'Errors', value: '2%', percentage: 0.1 }
+    ];
+
+    renderRingSegments('healthSegments', healthData);
+    setGlowGradient('healthGlow', healthData);
+});
+</script>
+{% endblock %}

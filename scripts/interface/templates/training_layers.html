@@ -1,0 +1,1164 @@
+{% extends "base.html" %}
+
+{% block title %}ARCHIV-IT | Build Your Dataspace{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --accent-gold: #d4a574;
+        --accent-warm: #f4a261;
+        --text-primary: #e8e6e3;
+        --text-muted: rgba(232, 230, 227, 0.5);
+        --success: #68d391;
+        --glow-gold: 0 0 20px rgba(212, 165, 116, 0.4);
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Geist Sans', -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+
+    .training-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+
+    .training-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .training-header h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2.5rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .training-header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* Layercake Notice */
+    .layercake-notice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(212, 165, 116, 0.03);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .layercake-visual {
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 2px;
+        flex-shrink: 0;
+        min-height: 80px;
+        justify-content: flex-start;
+        position: relative;
+    }
+
+    .cake-plate {
+        width: 50px;
+        height: 4px;
+        background: rgba(212, 165, 116, 0.3);
+        border-radius: 2px;
+    }
+
+    .cake-layer {
+        height: 5px;
+        border-radius: 2px;
+        opacity: 0;
+        transform: translateY(10px) scale(0.8);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 0 rgba(212, 165, 116, 0);
+    }
+
+    .cake-layer.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .cake-layer.glowing {
+        box-shadow: 0 0 12px rgba(212, 165, 116, 0.6);
+    }
+
+    /* Alternating colors and widths for pyramid effect */
+    .cake-layer:nth-child(2) { width: 44px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(3) { width: 42px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(4) { width: 40px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(5) { width: 38px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(6) { width: 36px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(7) { width: 34px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(8) { width: 32px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(9) { width: 30px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(10) { width: 28px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(11) { width: 26px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(12) { width: 24px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(13) { width: 22px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+    .cake-layer:nth-child(14) { width: 20px; background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm)); }
+    .cake-layer:nth-child(15) { width: 18px; background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold)); }
+
+    /* Top decoration when cake is tall */
+    .cake-top {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-gold);
+        border-radius: 50%;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 15px rgba(212, 165, 116, 0.8);
+    }
+
+    .cake-top.visible {
+        opacity: 1;
+        transform: scale(1);
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 15px rgba(212, 165, 116, 0.8); }
+        50% { box-shadow: 0 0 25px rgba(244, 162, 97, 1); }
+    }
+
+    .layercake-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: left;
+    }
+
+    .layercake-headline {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+
+    .layercake-detail {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .cake-power {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+        height: 1.2em;
+        transition: all 0.3s ease;
+    }
+
+    .cake-power.level-0 { color: var(--text-muted); }
+    .cake-power.level-1 { color: rgba(212, 165, 116, 0.6); }
+    .cake-power.level-2 { color: rgba(212, 165, 116, 0.8); }
+    .cake-power.level-3 { color: var(--accent-gold); text-shadow: 0 0 10px rgba(212, 165, 116, 0.5); }
+
+    /* Local-First Reminder */
+    .local-reminder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--success);
+        opacity: 0.8;
+    }
+
+    .lock-icon {
+        color: var(--success);
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        margin-bottom: 3rem;
+    }
+
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.8rem;
+    }
+
+    .progress-selected {
+        color: var(--accent-gold);
+    }
+
+    .progress-total {
+        color: var(--text-muted);
+    }
+
+    .progress-bar-track {
+        height: 2px;
+        background: rgba(212, 165, 116, 0.15);
+        border-radius: 1px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+        width: 0%;
+        transition: width 0.5s ease;
+        box-shadow: var(--glow-gold);
+    }
+
+    /* Layer Selection Grid */
+    .layers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Layer Card */
+    .layer-card {
+        position: relative;
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .layer-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+
+    .layer-card:hover {
+        border-color: rgba(212, 165, 116, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .layer-card.selected {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.15);
+    }
+
+    .layer-card.selected::before {
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+        box-shadow: var(--glow-gold);
+    }
+
+    /* Radio Button */
+    .layer-radio {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 18px;
+        height: 18px;
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .layer-card.selected .layer-radio {
+        border-color: var(--accent-gold);
+        box-shadow: var(--glow-gold);
+    }
+
+    .layer-radio-inner {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .layer-card.selected .layer-radio-inner {
+        background: var(--accent-gold);
+        box-shadow: 0 0 10px var(--accent-gold);
+    }
+
+    /* Layer Content */
+    .layer-number {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+    }
+
+    .layer-card.selected .layer-number {
+        color: var(--accent-gold);
+    }
+
+    .layer-title {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        padding-right: 2rem;
+    }
+
+    .layer-description {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .layer-items {
+        margin-top: 0.75rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(212, 165, 116, 0.6);
+    }
+
+    .layer-card.selected .layer-items {
+        color: var(--accent-gold);
+    }
+
+    /* Import layer warning */
+    .layer-warning {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+        font-size: 0.7rem;
+        color: var(--accent-warm);
+        opacity: 0.8;
+    }
+
+    .layer-warning svg {
+        flex-shrink: 0;
+    }
+
+    .data-import-layer {
+        border-style: dashed;
+    }
+
+    .data-import-layer.selected {
+        border-style: solid;
+    }
+
+    /* Queue status banner */
+    .queue-banner {
+        display: none;
+        background: rgba(212, 165, 116, 0.1);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 4px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .queue-banner.visible {
+        display: block;
+    }
+
+    .queue-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .queue-title {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.8rem;
+        color: var(--accent-gold);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .queue-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .queue-btn {
+        background: transparent;
+        border: 1px solid rgba(212, 165, 116, 0.4);
+        color: var(--text-primary);
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .queue-btn:hover {
+        background: rgba(212, 165, 116, 0.1);
+        border-color: var(--accent-gold);
+    }
+
+    .queue-btn.primary {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-color: var(--accent-gold);
+    }
+
+    .queue-job {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .queue-job:last-child {
+        border-bottom: none;
+    }
+
+    .queue-job-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .queue-job-name {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+    }
+
+    .queue-job-progress {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .queue-job-status {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 2px;
+    }
+
+    .queue-job-status.paused {
+        background: rgba(244, 162, 97, 0.2);
+        color: var(--accent-warm);
+    }
+
+    .queue-job-status.pending {
+        background: rgba(212, 165, 116, 0.2);
+        color: var(--accent-gold);
+    }
+
+    /* Cost estimation modal */
+    .cost-estimate {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 4px;
+        padding: 2rem;
+        max-width: 450px;
+        width: 90%;
+        z-index: 1000;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .cost-estimate.visible {
+        display: block;
+    }
+
+    .cost-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+    }
+
+    .cost-overlay.visible {
+        display: block;
+    }
+
+    .cost-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .cost-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cost-stat {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.75rem;
+        border-radius: 2px;
+    }
+
+    .cost-stat-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .cost-stat-value {
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: var(--accent-gold);
+        margin-top: 0.25rem;
+    }
+
+    .cost-warnings {
+        background: rgba(244, 162, 97, 0.1);
+        border-left: 2px solid var(--accent-warm);
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.8rem;
+        color: var(--accent-warm);
+    }
+
+    .cost-warnings ul {
+        margin: 0.5rem 0 0 1rem;
+        padding: 0;
+    }
+
+    .cost-warnings li {
+        margin-bottom: 0.25rem;
+    }
+
+    .cost-pause-info {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+        background: rgba(104, 211, 145, 0.1);
+        border-radius: 2px;
+    }
+
+    .cost-pause-info strong {
+        color: var(--success);
+    }
+
+    .cost-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    /* Section Divider */
+    .section-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--text-muted);
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    /* Action Buttons */
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .select-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        color: var(--text-muted);
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .btn-ghost:hover {
+        border-color: var(--accent-gold);
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+        border: none;
+        color: var(--bg-primary);
+        padding: 0.75rem 2rem;
+        font-size: 0.85rem;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .btn-primary.active {
+        opacity: 1;
+        pointer-events: auto;
+        box-shadow: var(--glow-gold);
+    }
+
+    .btn-primary.active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.5);
+    }
+
+    .primary-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .btn-skip {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .btn-skip:hover {
+        color: var(--text-primary);
+    }
+
+    /* Hidden checkbox */
+    .layer-checkbox {
+        display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .layers-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .training-header h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="training-container">
+    <div class="training-header">
+        <h1>BUILD YOUR DATASPACE</h1>
+        <p>Select the layers you want to populate. Your progress will track only what you choose.</p>
+
+        <!-- Layercake Concept -->
+        <div class="layercake-notice">
+            <div class="layercake-visual" id="cake-visual">
+                <!-- Cake layers will be dynamically generated -->
+                <div class="cake-plate"></div>
+            </div>
+            <div class="layercake-text">
+                <span class="layercake-headline">You decide how deep your context goes</span>
+                <span class="layercake-detail">Each layer adds richness to your visualizations. Select as many or as few as you want — this is your layercake.</span>
+                <span class="cake-power" id="cake-power"></span>
+            </div>
+        </div>
+
+        <!-- Local-First Reminder -->
+        <div class="local-reminder">
+            <svg class="lock-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Local-first: Your training data never leaves your system</span>
+        </div>
+    </div>
+
+    <!-- Queue Status Banner (for resumable jobs) -->
+    <div class="queue-banner" id="queue-banner">
+        <div class="queue-header">
+            <div class="queue-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Paused Import Jobs
+            </div>
+            <div class="queue-actions">
+                <button type="button" class="queue-btn" onclick="dismissQueue()">Dismiss</button>
+            </div>
+        </div>
+        <div id="queue-jobs"></div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-stats">
+            <span class="progress-selected"><span id="selected-count">0</span> layers selected</span>
+            <span class="progress-total" id="progress-text">Select layers to begin</span>
+        </div>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <form id="layers-form" method="POST" action="/setup/training">
+        <!-- Artist Layers -->
+        <div class="section-label">Artist Layers</div>
+        <div class="layers-grid">
+            <!-- Layer 1: Identity -->
+            <div class="layer-card" data-layer="identity">
+                <input type="checkbox" name="layers" value="identity" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 01</div>
+                <div class="layer-title">Identity Foundation</div>
+                <div class="layer-description">Professional names, wallet addresses, platform profiles, social handles</div>
+                <div class="layer-items">4 parameters</div>
+            </div>
+
+            <!-- Layer 2: Throughline -->
+            <div class="layer-card" data-layer="throughline">
+                <input type="checkbox" name="layers" value="throughline" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 02</div>
+                <div class="layer-title">Artistic Throughline</div>
+                <div class="layer-description">Origin philosophy, evolution points, techniques, recurring themes</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Layer 3: Body of Work -->
+            <div class="layer-card" data-layer="works">
+                <input type="checkbox" name="layers" value="works" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 03</div>
+                <div class="layer-title">Body of Work</div>
+                <div class="layer-description">Series, collections, individual works, metadata, provenance</div>
+                <div class="layer-items">12 parameters</div>
+            </div>
+
+            <!-- Layer 4: Collaborations -->
+            <div class="layer-card" data-layer="collaborations">
+                <input type="checkbox" name="layers" value="collaborations" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 04</div>
+                <div class="layer-title">Collaboration Network</div>
+                <div class="layer-description">Active collaborations, historical projects, collaborator roles</div>
+                <div class="layer-items">6 parameters</div>
+            </div>
+
+            <!-- Layer 5: Roles -->
+            <div class="layer-card" data-layer="roles">
+                <input type="checkbox" name="layers" value="roles" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 05</div>
+                <div class="layer-title">Roles & Positions</div>
+                <div class="layer-description">Founder, advisor, curator, ambassador, board positions</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Layer 6: Exhibitions -->
+            <div class="layer-card" data-layer="exhibitions">
+                <input type="checkbox" name="layers" value="exhibitions" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 06</div>
+                <div class="layer-title">Exhibition History</div>
+                <div class="layer-description">Physical shows, virtual exhibitions, speaking, performances</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Layer 7: Recognition -->
+            <div class="layer-card" data-layer="recognition">
+                <input type="checkbox" name="layers" value="recognition" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 07</div>
+                <div class="layer-title">Recognition & Press</div>
+                <div class="layer-description">Awards, press features, museum collections, interviews</div>
+                <div class="layer-items">4 parameters</div>
+            </div>
+
+            <!-- Layer 8: Collectors -->
+            <div class="layer-card" data-layer="collectors">
+                <input type="checkbox" name="layers" value="collectors" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 08</div>
+                <div class="layer-title">Collector Network</div>
+                <div class="layer-description">Who holds your work, notable collectors, relationships</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Layer 9: Platforms -->
+            <div class="layer-card" data-layer="platforms">
+                <input type="checkbox" name="layers" value="platforms" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 09</div>
+                <div class="layer-title">Platform Layer</div>
+                <div class="layer-description">Primary platforms, contracts, roles, platform health status</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Layer 10: Temporal -->
+            <div class="layer-card" data-layer="temporal">
+                <input type="checkbox" name="layers" value="temporal" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 10</div>
+                <div class="layer-title">Temporal / Living Works</div>
+                <div class="layer-description">Interactive, programmable, evolving works, scheduled events</div>
+                <div class="layer-items">4 parameters</div>
+            </div>
+
+            <!-- Layer 11: Preservation -->
+            <div class="layer-card" data-layer="preservation">
+                <input type="checkbox" name="layers" value="preservation" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Layer 11</div>
+                <div class="layer-title">Preservation & Risk</div>
+                <div class="layer-description">Platform dependency, revival solutions, backups, legal/IP</div>
+                <div class="layer-items">4 parameters</div>
+            </div>
+        </div>
+
+        <!-- Social Archive Layers -->
+        <div class="section-label">Social Archive Import</div>
+        <div class="layers-grid">
+            <!-- Twitter/X Archive -->
+            <div class="layer-card data-import-layer" data-layer="twitter_archive">
+                <input type="checkbox" name="layers" value="twitter_archive" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Import</div>
+                <div class="layer-title">Twitter/X Archive</div>
+                <div class="layer-description">Import your complete Twitter history with all media (images, videos, GIFs)</div>
+                <div class="layer-items">Scrolls to earliest post</div>
+                <div class="layer-warning" id="twitter-warning">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Large archives can pause/resume</span>
+                </div>
+            </div>
+
+            <!-- Instagram Archive -->
+            <div class="layer-card data-import-layer" data-layer="instagram_archive">
+                <input type="checkbox" name="layers" value="instagram_archive" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Import</div>
+                <div class="layer-title">Instagram Archive</div>
+                <div class="layer-description">Import your Instagram posts, stories, and media files</div>
+                <div class="layer-items">Full history supported</div>
+                <div class="layer-warning">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Pause/resume available</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collector Layers -->
+        <div class="section-label">Collector Layers</div>
+        <div class="layers-grid">
+            <!-- Collection Layer -->
+            <div class="layer-card" data-layer="collection">
+                <input type="checkbox" name="layers" value="collection" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Collector 01</div>
+                <div class="layer-title">Collection Layer</div>
+                <div class="layer-description">Holdings by chain, by artist, by theme, value trajectory</div>
+                <div class="layer-items">6 parameters</div>
+            </div>
+
+            <!-- Artist Relationships -->
+            <div class="layer-card" data-layer="artist_relationships">
+                <input type="checkbox" name="layers" value="artist_relationships" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Collector 02</div>
+                <div class="layer-title">Artist Relationships</div>
+                <div class="layer-description">Depth per artist, first acquisitions, IRL connections</div>
+                <div class="layer-items">5 parameters</div>
+            </div>
+
+            <!-- Community -->
+            <div class="layer-card" data-layer="community">
+                <input type="checkbox" name="layers" value="community" class="layer-checkbox">
+                <div class="layer-radio"><div class="layer-radio-inner"></div></div>
+                <div class="layer-number">Collector 03</div>
+                <div class="layer-title">Community Layer</div>
+                <div class="layer-description">DAOs, collector circles, co-collecting, exhibition loans</div>
+                <div class="layer-items">4 parameters</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <div class="select-actions">
+                <button type="button" class="btn-ghost" id="select-all">Select All</button>
+                <button type="button" class="btn-ghost" id="select-none">Clear</button>
+                <button type="button" class="btn-ghost" id="select-essentials">Essentials Only</button>
+            </div>
+            <div class="primary-actions">
+                <a href="/" class="btn-skip">Skip for now</a>
+                <button type="submit" class="btn-primary" id="begin-btn">Begin Training</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.layer-card');
+    const selectedCountEl = document.getElementById('selected-count');
+    const progressTextEl = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+    const beginBtn = document.getElementById('begin-btn');
+    const cakeVisual = document.getElementById('cake-visual');
+    const cakePower = document.getElementById('cake-power');
+    const totalLayers = cards.length;
+
+    // Power level messages
+    const powerMessages = [
+        { threshold: 0, text: '', level: 'level-0' },
+        { threshold: 1, text: 'Knowledge power: ░░░░░░░░░░', level: 'level-0' },
+        { threshold: 3, text: 'Knowledge power: ██░░░░░░░░', level: 'level-1' },
+        { threshold: 5, text: 'Knowledge power: ████░░░░░░', level: 'level-1' },
+        { threshold: 7, text: 'Knowledge power: ██████░░░░', level: 'level-2' },
+        { threshold: 10, text: 'Knowledge power: ████████░░', level: 'level-2' },
+        { threshold: 12, text: 'Knowledge power: ██████████ MAX', level: 'level-3' }
+    ];
+
+    // Build cake layers dynamically
+    function buildCake(layerCount) {
+        // Get existing cake layers (exclude plate)
+        const existingLayers = cakeVisual.querySelectorAll('.cake-layer, .cake-top');
+        const existingCount = cakeVisual.querySelectorAll('.cake-layer').length;
+
+        // Remove old layers if count decreased significantly
+        if (layerCount < existingCount) {
+            existingLayers.forEach((layer, idx) => {
+                if (idx >= layerCount) {
+                    layer.classList.remove('visible', 'glowing');
+                    setTimeout(() => {
+                        if (!layer.classList.contains('visible')) {
+                            layer.remove();
+                        }
+                    }, 400);
+                }
+            });
+        }
+
+        // Remove cake top if present and not enough layers
+        const existingTop = cakeVisual.querySelector('.cake-top');
+        if (existingTop && layerCount < 10) {
+            existingTop.classList.remove('visible');
+            setTimeout(() => existingTop.remove(), 500);
+        }
+
+        // Add new layers if needed
+        for (let i = existingCount; i < layerCount; i++) {
+            const layer = document.createElement('div');
+            layer.className = 'cake-layer';
+            cakeVisual.appendChild(layer);
+
+            // Stagger the animation
+            setTimeout(() => {
+                layer.classList.add('visible');
+                // Add glow to recent layers
+                if (i >= layerCount - 2) {
+                    layer.classList.add('glowing');
+                    setTimeout(() => layer.classList.remove('glowing'), 1000);
+                }
+            }, (i - existingCount) * 80);
+        }
+
+        // Add cake top decoration for high layer counts
+        if (layerCount >= 10 && !cakeVisual.querySelector('.cake-top')) {
+            const top = document.createElement('div');
+            top.className = 'cake-top';
+            cakeVisual.appendChild(top);
+            setTimeout(() => top.classList.add('visible'), layerCount * 80);
+        }
+
+        // Update power level text
+        updatePowerLevel(layerCount);
+    }
+
+    function updatePowerLevel(count) {
+        let power = powerMessages[0];
+        for (const p of powerMessages) {
+            if (count >= p.threshold) power = p;
+        }
+
+        // Remove old level classes
+        cakePower.className = 'cake-power';
+        cakePower.classList.add(power.level);
+        cakePower.textContent = power.text;
+    }
+
+    function updateProgress() {
+        const selected = document.querySelectorAll('.layer-card.selected').length;
+        selectedCountEl.textContent = selected;
+
+        if (selected === 0) {
+            progressTextEl.textContent = 'Select layers to begin';
+            progressFill.style.width = '0%';
+            beginBtn.classList.remove('active');
+        } else {
+            progressTextEl.textContent = `${selected} of ${totalLayers} layers`;
+            progressFill.style.width = `${(selected / totalLayers) * 100}%`;
+            beginBtn.classList.add('active');
+        }
+
+        // Update cake visualization
+        buildCake(selected);
+    }
+
+    // Toggle card selection
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            const checkbox = this.querySelector('.layer-checkbox');
+            checkbox.checked = !checkbox.checked;
+            this.classList.toggle('selected', checkbox.checked);
+            updateProgress();
+        });
+    });
+
+    // Select All
+    document.getElementById('select-all').addEventListener('click', function() {
+        cards.forEach(card => {
+            card.classList.add('selected');
+            card.querySelector('.layer-checkbox').checked = true;
+        });
+        updateProgress();
+    });
+
+    // Select None
+    document.getElementById('select-none').addEventListener('click', function() {
+        cards.forEach(card => {
+            card.classList.remove('selected');
+            card.querySelector('.layer-checkbox').checked = false;
+        });
+        updateProgress();
+    });
+
+    // Essentials Only (Identity, Works, Platforms)
+    document.getElementById('select-essentials').addEventListener('click', function() {
+        const essentials = ['identity', 'works', 'platforms', 'collection'];
+        cards.forEach(card => {
+            const isEssential = essentials.includes(card.dataset.layer);
+            card.classList.toggle('selected', isEssential);
+            card.querySelector('.layer-checkbox').checked = isEssential;
+        });
+        updateProgress();
+    });
+
+    // Form submission
+    document.getElementById('layers-form').addEventListener('submit', function(e) {
+        const selected = document.querySelectorAll('.layer-card.selected').length;
+        if (selected === 0) {
+            e.preventDefault();
+            // Could add visual feedback here
+        }
+    });
+
+    // Initialize cake power text
+    updatePowerLevel(0);
+
+    // Check for paused/resumable jobs
+    checkQueueStatus();
+});
+
+// Queue management functions
+async function checkQueueStatus() {
+    try {
+        const response = await fetch('/api/scrape-queue/status');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.resumable_jobs && data.resumable_jobs.length > 0) {
+                renderQueueBanner(data.resumable_jobs);
+            }
+        }
+    } catch (e) {
+        // Queue API not available, ignore
+        console.log('Queue status check skipped');
+    }
+}
+
+function renderQueueBanner(jobs) {
+    const banner = document.getElementById('queue-banner');
+    const jobsContainer = document.getElementById('queue-jobs');
+
+    jobsContainer.innerHTML = jobs.map(job => {
+        const progress = job.progress;
+        const pct = Math.round((progress.processed_items / progress.total_items) * 100);
+        return `
+            <div class="queue-job">
+                <div class="queue-job-info">
+                    <span class="queue-job-name">${job.source_type === 'twitter_archive' ? 'Twitter Archive' : job.source_type} - @${job.username}</span>
+                    <span class="queue-job-progress">${progress.processed_items.toLocaleString()} / ${progress.total_items.toLocaleString()} items (${pct}%)</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span class="queue-job-status paused">PAUSED</span>
+                    <button type="button" class="queue-btn primary" onclick="resumeJob('${job.id}')">Resume</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    banner.classList.add('visible');
+}
+
+function dismissQueue() {
+    document.getElementById('queue-banner').classList.remove('visible');
+}
+
+async function resumeJob(jobId) {
+    try {
+        const response = await fetch(`/api/scrape-queue/resume/${jobId}`, { method: 'POST' });
+        if (response.ok) {
+            window.location.href = `/training/import-progress?job_id=${jobId}`;
+        } else {
+            alert('Failed to resume job');
+        }
+    } catch (e) {
+        alert('Error resuming job: ' + e.message);
+    }
+}
+</script>
+{% endblock %}

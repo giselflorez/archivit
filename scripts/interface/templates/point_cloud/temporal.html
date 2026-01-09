@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal Existence - Point Cloud Paradigm 01</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #000;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .ui-overlay * {
+            pointer-events: auto;
+        }
+
+        .header {
+            top: 20px;
+            left: 20px;
+            right: 20px;
+        }
+
+        .title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .paradigm-name {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .controls {
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .control-btn.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .info-panel {
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .info-panel.visible {
+            display: block;
+        }
+
+        .info-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .info-thumbnail {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .info-thumbnail.visible {
+            display: block;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .info-source {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .info-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .info-tag {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 3px;
+            color: #00ff88;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .info-section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .timeline-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timeline-node {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #00ff88;
+            position: relative;
+        }
+
+        .timeline-node.past {
+            opacity: 0.4;
+            background: #00ff88;
+        }
+
+        .timeline-node.current {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .timeline-node.future {
+            border-style: dashed;
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff88, #333);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .stats {
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.7rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { color: #666; }
+        .stat-value { color: #00ff88; }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.living {
+            background: #00ff88;
+            animation: breathe 2s infinite;
+        }
+        .legend-dot.static { background: #4a90a4; }
+        .legend-dot.past { background: #00ff88; opacity: 0.3; }
+        .legend-dot.future {
+            border: 2px dashed #ff6b9d;
+            background: transparent;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            z-index: 200;
+        }
+
+        .back-link:hover { color: #00ff88; }
+            .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .top-nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .top-nav a:hover { color: #d4a574; }
+        .top-nav .active { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/visual-translator">Visual</a>
+        <a href="/tags">Tags</a>
+        <a href="/point-cloud" class="active">Point Cloud</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/training-layers">Training</a>
+        <a href="/add-content">+ Import</a>
+    </nav>
+    <div id="canvas-container"></div>
+
+    <a href="/point-cloud" class="back-link">← All Paradigms</a>
+
+    <div class="ui-overlay header">
+        <div class="title">PARADIGM 01</div>
+        <div class="paradigm-name">Temporal Existence</div>
+    </div>
+
+    <div class="ui-overlay controls">
+        <div class="control-group">
+            <div class="control-label">VIEW MODE</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-mode="all">All Works</button>
+                <button class="control-btn" data-mode="living">Living Only</button>
+                <button class="control-btn" data-mode="history">With History</button>
+                <button class="control-btn" data-mode="events">Future Events</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">TIME FLOW</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-action="pause">Pause</button>
+                <button class="control-btn active" data-action="play">Play</button>
+                <button class="control-btn" data-action="fast">Fast</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">VISUAL</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-visual="trails">Trails</button>
+                <button class="control-btn" data-visual="connections">Connections</button>
+                <button class="control-btn" data-visual="timeline">Timeline</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-overlay info-panel" id="info-panel">
+        <button class="info-close" onclick="hideInfoPanel()">×</button>
+        <img class="info-thumbnail" id="info-thumbnail" alt="Work thumbnail">
+        <div class="info-title" id="info-title">Work Title</div>
+        <div class="info-source" id="info-source"></div>
+        <div class="info-tags" id="info-tags"></div>
+
+        <div class="info-section">
+            <div class="info-section-title">TEMPORAL STATUS</div>
+            <div class="info-text" id="info-temporal">Loading...</div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">STATE HISTORY</div>
+            <div class="timeline-container">
+                <div class="timeline" id="info-timeline"></div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">REACTIVITY</div>
+            <div class="info-text" id="info-reactivity">Loading...</div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">NEXT EVENT</div>
+            <div class="info-text" id="info-next-event">None scheduled</div>
+        </div>
+    </div>
+
+    <div class="ui-overlay stats">
+        <div class="stat-row">
+            <span class="stat-label">Total Works</span>
+            <span class="stat-value" id="stat-total">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Living Works</span>
+            <span class="stat-value" id="stat-living">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">With History</span>
+            <span class="stat-value" id="stat-history">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Future Events</span>
+            <span class="stat-value" id="stat-events">0</span>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-dot living"></div>
+            <span>Living/Reactive</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot static"></div>
+            <span>Static</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot past"></div>
+            <span>Past State</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot future"></div>
+            <span>Future Event</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // ============================================
+        // TEMPORAL EXISTENCE - POINT CLOUD PARADIGM 01
+        // ============================================
+
+        // Scene setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050508);
+        scene.fog = new THREE.FogExp2(0x050508, 0.008);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 50, 150);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 500;
+        controls.minDistance = 20;
+
+        // State
+        let works = [];
+        let workMeshes = [];
+        let trailMeshes = [];
+        let eventIndicators = [];
+        let selectedWork = null;
+        let timeSpeed = 1;
+        let showTrails = true;
+        let showConnections = false;
+        let showTimeline = false;
+        let currentMode = 'all';
+
+        // Generate sample data
+        function generateSampleData() {
+            const data = [];
+            const reactivityTypes = ['oracle_fed', 'time_responsive', 'chain_state', 'interactive', 'generative_live'];
+
+            for (let i = 0; i < 80; i++) {
+                const isLiving = Math.random() > 0.6;
+                const hasHistory = Math.random() > 0.5;
+                const hasFutureEvents = Math.random() > 0.7;
+
+                data.push({
+                    id: `work_${i}`,
+                    name: `Artwork #${i + 1}`,
+                    position: new THREE.Vector3(
+                        (Math.random() - 0.5) * 200,
+                        (Math.random() - 0.5) * 100,
+                        (Math.random() - 0.5) * 200
+                    ),
+                    temporal: {
+                        isLiving: isLiving,
+                        pulseRate: isLiving ? 0.3 + Math.random() * 0.7 : 0,
+                        hasHistory: hasHistory,
+                        historyDepth: hasHistory ? Math.floor(Math.random() * 5) + 1 : 0,
+                        hasFutureEvents: hasFutureEvents,
+                        nextEventDays: hasFutureEvents ? Math.floor(Math.random() * 60) + 1 : null,
+                        reactivityTypes: isLiving ?
+                            reactivityTypes.slice(0, Math.floor(Math.random() * 3) + 1) : [],
+                        pastStates: hasHistory ? generatePastStates(Math.floor(Math.random() * 4) + 1) : [],
+                        futureEvents: hasFutureEvents ? generateFutureEvents() : []
+                    }
+                });
+            }
+
+            return data;
+        }
+
+        function generatePastStates(count) {
+            const states = [];
+            const types = ['initial', 'reveal', 'evolution', 'update'];
+            for (let i = 0; i < count; i++) {
+                states.push({
+                    stateNumber: i,
+                    type: types[Math.min(i, types.length - 1)],
+                    daysAgo: (count - i) * 30 + Math.floor(Math.random() * 20)
+                });
+            }
+            return states;
+        }
+
+        function generateFutureEvents() {
+            const events = [];
+            const types = ['reveal', 'phase_change', 'unlock', 'evolution'];
+            const count = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < count; i++) {
+                events.push({
+                    type: types[Math.floor(Math.random() * types.length)],
+                    daysUntil: (i + 1) * 15 + Math.floor(Math.random() * 30)
+                });
+            }
+            return events;
+        }
+
+        // Create work nodes
+        function createWorkNodes() {
+            // Clear existing
+            workMeshes.forEach(m => scene.remove(m));
+            trailMeshes.forEach(m => scene.remove(m));
+            eventIndicators.forEach(m => scene.remove(m));
+            workMeshes = [];
+            trailMeshes = [];
+            eventIndicators = [];
+
+            works.forEach((work, index) => {
+                // Main node
+                const geometry = new THREE.SphereGeometry(2, 16, 16);
+                const material = new THREE.MeshBasicMaterial({
+                    color: work.temporal.isLiving ? 0x00ff88 : 0x4a90a4,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(work.position);
+                mesh.userData = { workIndex: index, type: 'work' };
+                scene.add(mesh);
+                workMeshes.push(mesh);
+
+                // Past state trails
+                if (work.temporal.hasHistory && showTrails) {
+                    work.temporal.pastStates.forEach((state, stateIndex) => {
+                        const trailGeom = new THREE.SphereGeometry(1.5, 8, 8);
+                        const trailMat = new THREE.MeshBasicMaterial({
+                            color: 0x00ff88,
+                            transparent: true,
+                            opacity: 0.1 + (stateIndex / work.temporal.pastStates.length) * 0.2
+                        });
+                        const trailMesh = new THREE.Mesh(trailGeom, trailMat);
+
+                        // Position along time axis (negative X = past)
+                        const offset = -(work.temporal.pastStates.length - stateIndex) * 8;
+                        trailMesh.position.set(
+                            work.position.x + offset,
+                            work.position.y,
+                            work.position.z
+                        );
+                        scene.add(trailMesh);
+                        trailMeshes.push(trailMesh);
+
+                        // Connection line
+                        if (stateIndex > 0) {
+                            const lineGeom = new THREE.BufferGeometry().setFromPoints([
+                                trailMesh.position.clone(),
+                                new THREE.Vector3(
+                                    work.position.x + offset + 8,
+                                    work.position.y,
+                                    work.position.z
+                                )
+                            ]);
+                            const lineMat = new THREE.LineBasicMaterial({
+                                color: 0x00ff88,
+                                transparent: true,
+                                opacity: 0.2
+                            });
+                            const line = new THREE.Line(lineGeom, lineMat);
+                            scene.add(line);
+                            trailMeshes.push(line);
+                        }
+                    });
+                }
+
+                // Future event indicators
+                if (work.temporal.hasFutureEvents) {
+                    work.temporal.futureEvents.forEach((event, eventIndex) => {
+                        const ringGeom = new THREE.RingGeometry(3 + eventIndex * 1.5, 3.5 + eventIndex * 1.5, 32);
+                        const ringMat = new THREE.MeshBasicMaterial({
+                            color: 0xff6b9d,
+                            transparent: true,
+                            opacity: 0.5,
+                            side: THREE.DoubleSide
+                        });
+                        const ring = new THREE.Mesh(ringGeom, ringMat);
+                        ring.position.copy(work.position);
+                        ring.position.x += (eventIndex + 1) * 10; // Future = positive X
+                        ring.userData = { workIndex: index, eventIndex: eventIndex };
+                        scene.add(ring);
+                        eventIndicators.push(ring);
+                    });
+                }
+            });
+
+            updateStats();
+        }
+
+        // Time axis visualization
+        function createTimeAxis() {
+            // Central time arrow
+            const arrowGeom = new THREE.CylinderGeometry(0, 2, 10, 8);
+            const arrowMat = new THREE.MeshBasicMaterial({ color: 0x333344 });
+            const arrow = new THREE.Mesh(arrowGeom, arrowMat);
+            arrow.rotation.z = -Math.PI / 2;
+            arrow.position.set(120, -40, 0);
+            scene.add(arrow);
+
+            // Time labels
+            const createLabel = (text, x) => {
+                // Use sprite for label (simplified)
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#444';
+                ctx.font = '16px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, 64, 20);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.position.set(x, -50, 0);
+                sprite.scale.set(20, 5, 1);
+                scene.add(sprite);
+            };
+
+            createLabel('PAST', -80);
+            createLabel('PRESENT', 0);
+            createLabel('FUTURE', 80);
+
+            // Grid
+            const gridHelper = new THREE.GridHelper(400, 40, 0x111122, 0x0a0a15);
+            gridHelper.position.y = -60;
+            scene.add(gridHelper);
+        }
+
+        // Animation
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsed = clock.getElapsedTime();
+            const delta = clock.getDelta();
+
+            // Animate living works (pulse)
+            workMeshes.forEach((mesh, i) => {
+                const work = works[i];
+                if (work.temporal.isLiving) {
+                    const pulse = 1 + Math.sin(elapsed * work.temporal.pulseRate * 5) * 0.3;
+                    mesh.scale.setScalar(pulse);
+
+                    // Glow effect via opacity
+                    mesh.material.opacity = 0.7 + Math.sin(elapsed * work.temporal.pulseRate * 3) * 0.3;
+                }
+            });
+
+            // Animate future event rings (rotate and pulse)
+            eventIndicators.forEach((ring, i) => {
+                ring.rotation.x = elapsed * 0.5;
+                ring.rotation.y = elapsed * 0.3;
+                ring.material.opacity = 0.3 + Math.sin(elapsed * 2 + i) * 0.2;
+            });
+
+            // Time flow effect (subtle drift)
+            if (timeSpeed > 0) {
+                trailMeshes.forEach(mesh => {
+                    if (mesh.type === 'Mesh') {
+                        mesh.position.x -= 0.01 * timeSpeed;
+                        if (mesh.position.x < -200) {
+                            mesh.position.x = -200;
+                        }
+                    }
+                });
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Raycasting for interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(workMeshes);
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                const work = works[mesh.userData.workIndex];
+                showInfoPanel(work);
+
+                // Highlight selected
+                if (selectedWork) {
+                    workMeshes[selectedWork].material.emissive = new THREE.Color(0x000000);
+                }
+                selectedWork = mesh.userData.workIndex;
+            }
+        }
+
+        function showInfoPanel(work) {
+            const panel = document.getElementById('info-panel');
+            panel.classList.add('visible');
+
+            document.getElementById('info-title').textContent = work.name;
+
+            // Show thumbnail if available from API data
+            const thumbnail = document.getElementById('info-thumbnail');
+            const imgPath = work.data?.image_path ||
+                work.data?.media_files?.[0] ||
+                work.data?.images?.[0] ||
+                work.data?.image_url;
+
+            if (imgPath) {
+                thumbnail.src = imgPath.startsWith('http') ? imgPath : `/media/${imgPath}`;
+                thumbnail.classList.add('visible');
+                thumbnail.onerror = () => { thumbnail.classList.remove('visible'); };
+            } else {
+                thumbnail.classList.remove('visible');
+            }
+
+            // Show source/type
+            const sourceEl = document.getElementById('info-source');
+            const source = work.data?.source || work.nodeType || '';
+            const cogType = work.data?.cognitive_type || '';
+            sourceEl.textContent = [source, cogType].filter(Boolean).join(' • ') || '';
+
+            // Show tags
+            const tagsEl = document.getElementById('info-tags');
+            const tags = work.data?.tags || [];
+            if (tags.length > 0) {
+                tagsEl.innerHTML = tags.slice(0, 5).map(t =>
+                    `<span class="info-tag">${t}</span>`
+                ).join('');
+                tagsEl.style.display = 'flex';
+            } else {
+                tagsEl.style.display = 'none';
+            }
+
+            // Temporal status
+            const temporal = work.temporal;
+            let statusText = temporal.isLiving ?
+                `Living Work (pulse: ${temporal.pulseRate.toFixed(2)})` :
+                'Static Work';
+            if (temporal.hasHistory) {
+                statusText += `\n${temporal.historyDepth} past states recorded`;
+            }
+            document.getElementById('info-temporal').textContent = statusText;
+
+            // Timeline visualization
+            const timelineEl = document.getElementById('info-timeline');
+            timelineEl.innerHTML = '';
+
+            // Past states
+            temporal.pastStates.forEach((state, i) => {
+                const node = document.createElement('div');
+                node.className = 'timeline-node past';
+                node.title = `${state.type} (${state.daysAgo} days ago)`;
+                timelineEl.appendChild(node);
+
+                if (i < temporal.pastStates.length - 1) {
+                    const line = document.createElement('div');
+                    line.className = 'timeline-line';
+                    timelineEl.appendChild(line);
+                }
+            });
+
+            // Current state
+            if (temporal.pastStates.length > 0) {
+                const line = document.createElement('div');
+                line.className = 'timeline-line';
+                timelineEl.appendChild(line);
+            }
+            const currentNode = document.createElement('div');
+            currentNode.className = 'timeline-node current';
+            currentNode.title = 'Current State';
+            timelineEl.appendChild(currentNode);
+
+            // Future events
+            temporal.futureEvents.forEach((event, i) => {
+                const line = document.createElement('div');
+                line.className = 'timeline-line';
+                timelineEl.appendChild(line);
+
+                const node = document.createElement('div');
+                node.className = 'timeline-node future';
+                node.title = `${event.type} (in ${event.daysUntil} days)`;
+                timelineEl.appendChild(node);
+            });
+
+            // Reactivity
+            document.getElementById('info-reactivity').textContent =
+                temporal.reactivityTypes.length > 0 ?
+                    temporal.reactivityTypes.join(', ') :
+                    'Not reactive';
+
+            // Next event
+            if (temporal.futureEvents.length > 0) {
+                const next = temporal.futureEvents[0];
+                document.getElementById('info-next-event').textContent =
+                    `${next.type} in ${next.daysUntil} days`;
+            } else {
+                document.getElementById('info-next-event').textContent = 'None scheduled';
+            }
+        }
+
+        function hideInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+            selectedWork = null;
+        }
+
+        function updateStats() {
+            const visible = works.filter(w => isWorkVisible(w));
+            document.getElementById('stat-total').textContent = visible.length;
+            document.getElementById('stat-living').textContent =
+                visible.filter(w => w.temporal.isLiving).length;
+            document.getElementById('stat-history').textContent =
+                visible.filter(w => w.temporal.hasHistory).length;
+            document.getElementById('stat-events').textContent =
+                visible.filter(w => w.temporal.hasFutureEvents).length;
+        }
+
+        function isWorkVisible(work) {
+            switch(currentMode) {
+                case 'living': return work.temporal.isLiving;
+                case 'history': return work.temporal.hasHistory;
+                case 'events': return work.temporal.hasFutureEvents;
+                default: return true;
+            }
+        }
+
+        function applyFilter(mode) {
+            currentMode = mode;
+            workMeshes.forEach((mesh, i) => {
+                const visible = isWorkVisible(works[i]);
+                mesh.visible = visible;
+            });
+            trailMeshes.forEach(m => m.visible = showTrails && currentMode !== 'events');
+            eventIndicators.forEach((ring, i) => {
+                ring.visible = currentMode === 'all' || currentMode === 'events';
+            });
+            updateStats();
+        }
+
+        // Control handlers
+        document.querySelectorAll('[data-mode]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                applyFilter(btn.dataset.mode);
+            });
+        });
+
+        document.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-action]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                switch(btn.dataset.action) {
+                    case 'pause': timeSpeed = 0; break;
+                    case 'play': timeSpeed = 1; break;
+                    case 'fast': timeSpeed = 3; break;
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-visual]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                switch(btn.dataset.visual) {
+                    case 'trails':
+                        showTrails = btn.classList.contains('active');
+                        trailMeshes.forEach(m => m.visible = showTrails);
+                        break;
+                    case 'connections':
+                        showConnections = btn.classList.contains('active');
+                        break;
+                    case 'timeline':
+                        showTimeline = btn.classList.contains('active');
+                        break;
+                }
+            });
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onMouseClick);
+
+        // Load data from API or fall back to sample data
+        async function loadNetworkData() {
+            try {
+                const response = await fetch('/api/point-cloud/data');
+                const result = await response.json();
+
+                if (result.success && result.nodes && result.nodes.length > 0) {
+                    // Transform API nodes to works array - include NFTs AND documents
+                    works = result.nodes
+                        .filter(n => n.type === 'nft' || n.type === 'document')
+                        .map((node, index) => ({
+                            id: node.id,
+                            name: node.data?.name || node.data?.title || `Item #${index}`,
+                            position: new THREE.Vector3(
+                                (Math.random() - 0.5) * 200,
+                                (Math.random() - 0.5) * 100,
+                                (Math.random() - 0.5) * 200
+                            ),
+                            nodeType: node.type, // 'nft' or 'document'
+                            color: node.color || '#22c55e',
+                            temporal: {
+                                isLiving: node.temporal?.is_living || (node.type === 'document'),
+                                pulseRate: node.temporal?.pulse_rate || (node.type === 'document' ? 0.3 : 0),
+                                hasHistory: node.temporal?.has_history || false,
+                                historyDepth: node.temporal?.history_depth || 0,
+                                hasFutureEvents: node.temporal?.has_future_events || false,
+                                nextEventDays: node.temporal?.next_event_days || null,
+                                reactivityTypes: node.temporal?.reactivity_types || [],
+                                pastStates: node.temporal?.timeline?.filter(t => t.type === 'past') || [],
+                                futureEvents: node.temporal?.timeline?.filter(t => t.type === 'future') || []
+                            },
+                            // Store original data for info panel
+                            data: node.data
+                        }));
+
+                    console.log(`Loaded ${works.length} items from database (NFTs + documents)`);
+                    console.log(`Stats: ${result.stats?.living_count || 0} living works, ${result.stats?.document_count || 0} documents`);
+                } else {
+                    console.log('No data from API, using sample data');
+                    works = generateSampleData();
+                }
+            } catch (error) {
+                console.error('Failed to load network data:', error);
+                console.log('Falling back to sample data');
+                works = generateSampleData();
+            }
+
+            createWorkNodes();
+            createTimeAxis();
+            updateStats();
+        }
+
+        // Update stats display
+        function updateStats() {
+            const livingCount = works.filter(w => w.temporal.isLiving).length;
+            const historyCount = works.filter(w => w.temporal.hasHistory).length;
+            const futureCount = works.filter(w => w.temporal.hasFutureEvents).length;
+
+            document.getElementById('totalWorks').textContent = works.length;
+            document.getElementById('livingWorks').textContent = livingCount;
+            document.getElementById('historicalWorks').textContent = historyCount;
+            document.getElementById('futureEvents').textContent = futureCount;
+        }
+
+        // Initialize
+        loadNetworkData();
+        animate();
+
+        console.log('Temporal Existence visualization initializing...');
+    </script>
+</body>
+</html>

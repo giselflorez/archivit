@@ -253,6 +253,11 @@ Based on collected information about how you describe your work:
 
 ---
 
+## Session Management
+
+**For agent context and work status, see:** `AGENT_HANDOFF.md`
+**For detailed session history, see:** `sessions/archive/`
+
 **Next Steps:**
 - Update this overview as new work emerges
 - Add specific NFT collection details

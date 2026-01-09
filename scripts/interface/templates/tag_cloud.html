@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Tag Network - GiselX Knowledge Archive{% endblock %}
+{% block title %}Tag Network - ARCHIV-IT{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -519,6 +519,40 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+// SA-007 FIX: Input validation helpers to prevent injection attacks
+const SafeInputHelper = {
+    // Validate document ID (alphanumeric with underscores, hyphens, and dots)
+    isValidDocId(docId) {
+        if (!docId || typeof docId !== 'string') return false;
+        return /^[a-zA-Z0-9_.-]+$/.test(docId);
+    },
+
+    // Validate tag name (allow unicode letters, numbers, underscores, hyphens)
+    isValidTagName(tag) {
+        if (!tag || typeof tag !== 'string') return false;
+        // Allow reasonable tag characters but block script injection
+        return tag.length <= 100 && !/<|>|javascript:|data:/i.test(tag);
+    },
+
+    // Escape HTML entities
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    // Safe navigation to document
+    navigateToDocument(docId) {
+        if (this.isValidDocId(docId)) {
+            window.location.href = '/document/' + encodeURIComponent(docId);
+        } else {
+            console.warn('Invalid document ID:', docId);
+        }
+    }
+};
+Object.freeze(SafeInputHelper);
+
 // Prepare data
 const tags = {{ tags|tojson }};
 const tagConnections = {{ tag_connections|tojson }};
@@ -993,15 +1027,25 @@ function showNodeInfo(event, d) {
 
     document.getElementById('modalConnectionCount').textContent = `${connectedTags.size}`;
 
-    // Display connected tags sorted by strength
+    // Display connected tags sorted by strength (SA-007 FIX: Use DOM methods instead of inline onclick)
     const connectedList = document.getElementById('modalConnectedTags');
+    connectedList.innerHTML = ''; // Clear existing
+
     if (connectedTags.size > 0) {
         const sortedConnected = Array.from(connectedTags).sort((a, b) =>
             (connectedStrength[b] || 0) - (connectedStrength[a] || 0)
         );
-        connectedList.innerHTML = sortedConnected.map(tag =>
-            `<div class="tag-connected-item" onclick="jumpToTag('${tag}')">#${tag}</div>`
-        ).join('');
+
+        sortedConnected.forEach(tag => {
+            if (SafeInputHelper.isValidTagName(tag)) {
+                const item = document.createElement('div');
+                item.className = 'tag-connected-item';
+                item.textContent = '#' + tag;
+                item.addEventListener('click', () => jumpToTag(tag));
+                connectedList.appendChild(item);
+            }
+        });
+
         document.getElementById('modalConnectionsSection').style.display = 'block';
     } else {
         document.getElementById('modalConnectionsSection').style.display = 'none';
@@ -1038,15 +1082,29 @@ async function loadTagThumbnails(tag) {
                 }
             });
 
-            console.log('All thumbnails:', allThumbs);
-
             if (allThumbs.length > 0) {
-                const thumbsHtml = allThumbs.map(thumb => `
-                    <div class="tag-thumb" onclick="window.location.href='/document/${thumb.docId}'" title="${thumb.title}">
-                        <img src="${thumb.url}" alt="" loading="lazy" onerror="console.error('Failed to load:', '${thumb.url}')">
-                    </div>
-                `).join('');
-                thumbnailsContainer.innerHTML = thumbsHtml;
+                // SA-007 FIX: Build thumbnails using DOM methods with validated docIds
+                thumbnailsContainer.innerHTML = '';
+                allThumbs.forEach(thumb => {
+                    if (!SafeInputHelper.isValidDocId(thumb.docId)) {
+                        console.warn('Skipping thumbnail with invalid docId:', thumb.docId);
+                        return;
+                    }
+
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = 'tag-thumb';
+                    thumbDiv.title = SafeInputHelper.escapeHtml(thumb.title);
+                    thumbDiv.addEventListener('click', () => SafeInputHelper.navigateToDocument(thumb.docId));
+
+                    const img = document.createElement('img');
+                    img.src = thumb.url;
+                    img.alt = '';
+                    img.loading = 'lazy';
+                    img.onerror = function() { this.style.display = 'none'; };
+
+                    thumbDiv.appendChild(img);
+                    thumbnailsContainer.appendChild(thumbDiv);
+                });
             } else {
                 thumbnailsContainer.innerHTML = '<div class="tag-loading">No images available</div>';
             }
@@ -1054,8 +1112,7 @@ async function loadTagThumbnails(tag) {
             thumbnailsContainer.innerHTML = '<div class="tag-loading">No documents found</div>';
         }
     } catch (error) {
-        console.error('Error loading thumbnails:', error);
-        thumbnailsContainer.innerHTML = `<div class="tag-loading">Error: ${error.message}</div>`;
+        thumbnailsContainer.innerHTML = '<div class="tag-loading">Error loading thumbnails</div>';
     }
 }
 

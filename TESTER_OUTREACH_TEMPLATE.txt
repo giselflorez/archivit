@@ -1,0 +1,79 @@
+ARCHIV-IT Beta Tester Invitation
+================================
+
+SUBJECT LINE OPTIONS:
+- Be among the first: ARCHIV-IT personal archive beta
+- Your creative legacy deserves better than a cloud folder
+- Local-first archive system - beta testers needed
+
+---
+
+SHORT VERSION (DM/Text):
+
+Hey! I'm launching the beta of ARCHIV-IT, a local-first personal archive I've been building. It's designed for visual artists and anyone who wants to own their creative data instead of renting cloud access. Features 3D visualizations, blockchain provenance tracking, and AI-powered image analysis that runs locally.
+
+Want to try it? I'll send you the beta package.
+
+---
+
+LONGER VERSION (Email):
+
+Subject: Be among the first: ARCHIV-IT personal archive beta
+
+Hi [Name],
+
+I wanted to share something I've been working on, and I think you might be interested in being one of the first to try it.
+
+ARCHIV-IT is a local-first personal archive system. Everything lives on your machine. No subscriptions. No cloud dependency. No one scanning your files.
+
+But it's more than a file manager. It transforms your archive into a navigable creative landscape:
+
+- Semantic Network: Your documents connect by meaning, not folders. Watch your ideas form constellations.
+- Point Cloud Paradigms: Five different 3D visualization modes revealing different dimensions of your archive.
+- Visual Translator: AI-powered image analysis that actually runs locally.
+- Blockchain Provenance: For NFT artists/collectors, deep tracking across chains.
+
+The statistics that pushed me to build this:
+- 82% of data breaches in 2025 involve cloud-stored information
+- Only 45% of cloud data is encrypted
+- Fewer than 6% of digital photos are preserved outside of cloud dependency
+
+I'm looking for beta testers who will actually use it and tell me what breaks, what confuses, and what delights. Your feedback directly shapes what this becomes.
+
+Interested? I'll send you the package. Just need a Mac with Python installed.
+
+[Your name]
+
+---
+
+FOLLOW-UP (After sending package):
+
+Hey! Just wanted to check in and see if you've had a chance to try ARCHIV-IT.
+
+Quick reminder:
+1. Unzip the folder
+2. Open Terminal, cd to the folder
+3. Run: ./install.sh
+4. Then: ./start_server.sh
+5. Open: http://localhost:5001
+
+The WELCOME_TESTERS.html file has the full overview, or INSTALL_FOR_TESTERS.md for quick setup.
+
+Let me know if you hit any snags! Genuinely want to know what works and what doesn't.
+
+---
+
+KEY TALKING POINTS:
+
+1. LOCAL-FIRST: Your data never leaves your machine
+2. VISUAL: 3D navigation, not flat folders
+3. SOVEREIGN: No subscription lockout, standard file formats
+4. CREATIVE: Designed with artists in mind, not just utility
+5. PROVENANCE: Blockchain integration for NFT artists
+6. PRIVATE: Zero external transmission for core features
+
+DIFFERENTIATORS FROM:
+- Google Photos: No scanning, no AI training on your images, no lockout
+- Dropbox: File-based but with semantic visualization layer
+- Notion: Local-first, no cloud dependency
+- NotebookLM: Visual-first, owns your data vs. analyzing it for Google

@@ -1,0 +1,27 @@
+#!/bin/bash
+# NFT/Art Platform Scraper - Intelligent Orchestrator
+#
+# Usage: ./scrape-nft <url>
+#
+# Examples:
+#   ./scrape-nft http://superrare.com/giselx
+#   ./scrape-nft https://foundation.app/@artist
+#   ./scrape-nft https://opensea.io/collection/name
+
+cd "$(dirname "$0")"
+
+# Activate virtual environment if it exists
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
+
+# Set environment variable for duplicate lib workaround (macOS)
+export KMP_DUPLICATE_LIB_OK=TRUE
+
+# Run orchestrator
+python scripts/collectors/scraper_orchestrator.py "$@"
+
+# Deactivate venv
+if [ -d "venv" ]; then
+    deactivate 2>/dev/null || true
+fi

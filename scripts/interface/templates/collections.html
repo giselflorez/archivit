@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Collections - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .section-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .section-header {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border: 1px solid var(--accent-gold);
+        border-radius: 2px;
+        font-size: 0.85rem;
+        font-family: 'Work Sans', sans-serif;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .btn:hover {
+        background: transparent;
+        color: var(--accent-gold);
+    }
+
+    .timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg,
+            var(--accent-gold) 0%,
+            var(--accent-dim) 50%,
+            var(--border-color) 100%);
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .timeline-item.left {
+        justify-content: flex-start;
+    }
+
+    .timeline-item.right {
+        justify-content: flex-end;
+    }
+
+    .timeline-content {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        padding: 1.5rem;
+        width: 45%;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        border-color: var(--accent-gold);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        border: 3px solid var(--bg-primary);
+        z-index: 1;
+    }
+
+    .period-badge {
+        display: inline-block;
+        padding: 0.35rem 0.875rem;
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+        border-radius: 2px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .period-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .period-date {
+        color: var(--text-tertiary);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .period-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.9rem;
+    }
+
+    .period-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .period-stat-value {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--accent-gold);
+    }
+
+    .period-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+    }
+
+    .collection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .collection-card {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .collection-card:hover {
+        border-color: var(--accent-gold);
+        box-shadow: var(--shadow-elevated);
+        transform: translateY(-4px);
+    }
+
+    .collection-header {
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem;
+    }
+
+    .collection-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .collection-count {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    .collection-body {
+        padding: 1.5rem;
+    }
+
+    .collection-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .collection-meta {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    .evolution-section {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .evolution-title {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .evolution-metric {
+        margin-bottom: 1.5rem;
+    }
+
+    .evolution-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .evolution-bar {
+        height: 30px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .evolution-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 1rem;
+        color: var(--bg-primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: width 0.5s ease;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 3rem;">
+    <h1 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem;">
+        <strong style="font-weight: 600; color: var(--accent-gold);">Art History</strong> Collections
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.15em;">
+        Hierarchical organization with creative period detection
+    </p>
+</div>
+
+<div style="text-align: center; margin-bottom: 3rem;">
+    <button class="btn" onclick="alert('Collection creation coming soon!')">+ Create New Collection</button>
+</div>
+
+<!-- Creative Periods Timeline -->
+<div class="section-card">
+    <h2 class="section-header">Creative Periods Timeline</h2>
+
+    {% if periods and periods|length > 0 %}
+    <div class="timeline">
+        {% for period in periods %}
+        <div class="timeline-item {% if loop.index % 2 == 0 %}right{% else %}left{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="period-badge">{{ period.name }}</span>
+                <div class="period-title">{{ period.name }}</div>
+                <div class="period-date">
+                    {{ period.start_date or '?' }} - {{ period.end_date or 'Present' }}
+                </div>
+                <div class="period-description">{{ period.description or 'No description available' }}</div>
+                <div class="period-stats">
+                    <div>
+                        <div class="period-stat-value">{{ period.work_count or 0 }}</div>
+                        <div class="period-stat-label">Works</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <p>No creative periods detected yet. Add more works to enable automatic period detection.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Artistic Evolution -->
+<div class="section-card">
+    <h2 class="section-header">Artistic Evolution Analysis</h2>
+
+    <div class="evolution-section">
+        <div class="evolution-title">Subject Matter Evolution</div>
+
+        <div class="evolution-metric">
+            <div class="evolution-label">Abstract → Figurative</div>
+            <div class="evolution-bar">
+                <div class="evolution-bar-fill" style="width: 65%;">65%</div>
+            </div>
+        </div>
+
+        <div class="evolution-metric">
+            <div class="evolution-label">Tone: Dark → Bright</div>
+            <div class="evolution-bar">
+                <div class="evolution-bar-fill" style="width: 45%;">45%</div>
+            </div>
+        </div>
+
+        <div class="evolution-metric">
+            <div class="evolution-label">Medium: Traditional → Digital</div>
+            <div class="evolution-bar">
+                <div class="evolution-bar-fill" style="width: 80%;">80%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collections Grid -->
+<div class="section-card">
+    <h2 class="section-header">All Collections</h2>
+
+    {% if collections and collections|length > 0 %}
+    <div class="collection-grid">
+        {% for col in collections %}
+        <div class="collection-card" onclick="viewCollection({{ col.id }})">
+            <div class="collection-header">
+                <div class="collection-title">{{ col.name }}</div>
+                <div class="collection-count">{{ col.work_count or 0 }} works</div>
+            </div>
+            <div class="collection-body">
+                <div class="collection-description">{{ col.description or 'No description' }}</div>
+                {% if col.start_date %}
+                <div class="collection-meta">
+                    {{ col.start_date }} - {{ col.end_date or 'Present' }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📁</div>
+        <p>No collections yet. Create your first collection to organize your work.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function viewCollection(collectionId) {
+    console.log('Viewing collection:', collectionId);
+    // TODO: Load collection works
+    alert('Collection viewer coming soon!');
+}
+</script>
+{% endblock %}

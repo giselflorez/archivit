@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    background: #0a0a0a;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2.5rem;
+    background: rgba(255,0,0,0.1);
+}
+
+.vt-header {
+    display: flex !important;
+    justify-content: center;
+    align-items: baseline !important;
+    flex-wrap: nowrap !important;
+    margin-bottom: 2rem;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding-bottom: 1.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    border-bottom: 2px solid #d4a574;
+    position: relative;
+    gap: 1.5rem;
+    width: 100vw;
+    background: rgba(0,255,0,0.1);
+}
+
+.vt-header > * {
+    display: inline-block !important;
+}
+
+.vt-title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #d4a574;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.vt-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.vt-stat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.vt-stat-number {
+    font-size: 2.2rem;
+    color: #d4a574;
+}
+
+.vt-stat-label {
+    color: #d4a574;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="vt-header">
+    <h1 class="vt-title">Visual Translator</h1>
+    <div class="vt-stats">
+        <div class="vt-stat">
+            <div class="vt-stat-number">29</div>
+            <div class="vt-stat-label">DATA ASSET INVENTORY</div>
+        </div>
+    </div>
+</div>
+<p style="color: white;">Content below...</p>
+</div>
+</body>
+</html>

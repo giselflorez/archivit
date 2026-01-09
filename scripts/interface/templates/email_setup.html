@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT - Gmail Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-mono/style.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #161616;
+            --bg-tertiary: #1f1f1f;
+            --text-primary: #faf8f5;
+            --text-secondary: #b8b5b0;
+            --text-tertiary: #6a6762;
+            --accent-gold: #d4a574;
+            --accent-warm: #f4a261;
+            --border-color: #2a2a2a;
+            --success-green: #68d391;
+            --error-red: #fc8181;
+            --gmail-red: #ea4335;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Geist Sans', 'Work Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-gold);
+        }
+
+        .status-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.connected {
+            background: rgba(104, 211, 145, 0.1);
+            color: var(--success-green);
+            border: 1px solid rgba(104, 211, 145, 0.3);
+        }
+
+        .status-badge.disconnected {
+            background: rgba(252, 129, 129, 0.1);
+            color: var(--error-red);
+            border: 1px solid rgba(252, 129, 129, 0.3);
+        }
+
+        .status-badge.pending {
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--accent-gold);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .gmail-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .status-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            margin-bottom: 0.35rem;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .setup-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .step-content {
+            padding-left: 2rem;
+        }
+
+        .step-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .step-content ol, .step-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .step-content li {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .step-content code {
+            font-family: 'Geist Mono', monospace;
+            background: var(--bg-tertiary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: var(--accent-gold);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: 'Geist Sans', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .btn-gmail {
+            background: var(--gmail-red);
+            color: white;
+        }
+
+        .btn-gmail:hover {
+            background: #d93025;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .alert-info {
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            color: var(--accent-gold);
+        }
+
+        .alert-success {
+            background: rgba(104, 211, 145, 0.1);
+            border: 1px solid rgba(104, 211, 145, 0.2);
+            color: var(--success-green);
+        }
+
+        .alert-error {
+            background: rgba(252, 129, 129, 0.1);
+            border: 1px solid rgba(252, 129, 129, 0.2);
+            color: var(--error-red);
+        }
+
+        .sync-results {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .sync-results h4 {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .sync-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .sync-stat:last-child {
+            border-bottom: none;
+        }
+
+        .sync-stat-label {
+            color: var(--text-tertiary);
+        }
+
+        .sync-stat-value {
+            color: var(--text-primary);
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: currentColor;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            opacity: 0.5;
+        }
+
+        .file-upload-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-hint {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .uploaded-file-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--success-green);
+        }
+
+        .uploaded-file-name {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .uploaded-file-remove {
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .uploaded-file-remove:hover {
+            color: var(--error-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Archive
+        </a>
+
+        <div class="header">
+            <h1>Gmail Email Collector</h1>
+            <p>Automatically collect attachments from emails with a specific subject</p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card" id="status-card">
+            <div class="status-header">
+                <div class="status-title">
+                    <svg class="gmail-icon" viewBox="0 0 24 24" fill="#ea4335">
+                        <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                    </svg>
+                    Gmail Connection
+                </div>
+                <div class="status-badge pending" id="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Checking...</span>
+                </div>
+            </div>
+
+            <div class="status-details" id="status-details">
+                <div class="detail-item">
+                    <div class="detail-label">Subject Filter</div>
+                    <div class="detail-value" id="subject-filter">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Last Sync</div>
+                    <div class="detail-value" id="last-sync">Never</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Attachments Processed</div>
+                    <div class="detail-value" id="attachments-count">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="setup-section">
+            <div class="section-title">
+                <span class="step-number">1</span>
+                Create Gmail API Credentials
+            </div>
+            <div class="step-content">
+                <p>Follow these steps to create OAuth credentials in Google Cloud Console:</p>
+                <ol>
+                    <li>Go to <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--accent-gold);">Google Cloud Console</a></li>
+                    <li>Create a new project or select an existing one</li>
+                    <li>Navigate to <strong>APIs & Services</strong> > <strong>Library</strong></li>
+                    <li>Search for "Gmail API" and enable it</li>
+                    <li>Go to <strong>APIs & Services</strong> > <strong>Credentials</strong></li>
+                    <li>Click <strong>Create Credentials</strong> > <strong>OAuth client ID</strong></li>
+                    <li>Choose "Desktop app" as the application type</li>
+                    <li>Download the JSON credentials file</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <div class="section-title">
+                <span class="step-number">2</span>
+                Upload Credentials File
+            </div>
+            <div class="step-content">
+                <p>Upload your downloaded <code>credentials.json</code> file:</p>
+
+                <div class="file-upload-area" id="upload-area">
+                    <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <div class="file-upload-text">Drop your credentials.json file here</div>
+                    <div class="file-upload-hint">or click to browse</div>
+                    <input type="file" class="file-input" id="credentials-file" accept=".json">
+                </div>
+
+                <div id="uploaded-file-info" style="display: none;">
+                    <div class="uploaded-file">
+                        <svg class="uploaded-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="uploaded-file-name" id="uploaded-file-name">credentials.json</span>
+                        <span class="uploaded-file-remove" id="remove-file">Remove</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="save-credentials-btn" disabled>
+                        Save Credentials
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <div class="section-title">
+                <span class="step-number">3</span>
+                Configure Email Filter
+            </div>
+            <div class="step-content">
+                <p>Set the subject filter to search for specific emails:</p>
+
+                <div class="form-group">
+                    <label class="form-label">Subject Filter</label>
+                    <input type="text" class="form-input" id="subject-filter-input"
+                           placeholder="WEB3GISELAUTOMATE" value="WEB3GISELAUTOMATE">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Maximum Results per Sync</label>
+                    <input type="number" class="form-input" id="max-results-input"
+                           placeholder="50" value="50" min="1" max="500">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="save-config-btn">
+                        Save Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <div class="section-title">
+                <span class="step-number">4</span>
+                Test Connection & Sync
+            </div>
+            <div class="step-content">
+                <div id="test-alert" class="alert" style="display: none;"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-gmail" id="test-connection-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        Test Gmail Connection
+                    </button>
+                    <button class="btn btn-primary" id="sync-now-btn" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        Sync Now
+                    </button>
+                </div>
+
+                <div id="sync-results" class="sync-results" style="display: none;">
+                    <h4>Sync Results</h4>
+                    <div class="sync-stat">
+                        <span class="sync-stat-label">Messages Found</span>
+                        <span class="sync-stat-value" id="result-messages">0</span>
+                    </div>
+                    <div class="sync-stat">
+                        <span class="sync-stat-label">Attachments Processed</span>
+                        <span class="sync-stat-value" id="result-attachments">0</span>
+                    </div>
+                    <div class="sync-stat">
+                        <span class="sync-stat-label">Errors</span>
+                        <span class="sync-stat-value" id="result-errors">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File upload handling
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('credentials-file');
+        const uploadedFileInfo = document.getElementById('uploaded-file-info');
+        const uploadedFileName = document.getElementById('uploaded-file-name');
+        const removeFile = document.getElementById('remove-file');
+        const saveCredentialsBtn = document.getElementById('save-credentials-btn');
+
+        let credentialsFile = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (file.name.endsWith('.json')) {
+                credentialsFile = file;
+                uploadedFileName.textContent = file.name;
+                uploadArea.style.display = 'none';
+                uploadedFileInfo.style.display = 'block';
+                saveCredentialsBtn.disabled = false;
+            } else {
+                showAlert('test-alert', 'Please upload a JSON file', 'error');
+            }
+        }
+
+        removeFile.addEventListener('click', () => {
+            credentialsFile = null;
+            fileInput.value = '';
+            uploadArea.style.display = 'block';
+            uploadedFileInfo.style.display = 'none';
+            saveCredentialsBtn.disabled = true;
+        });
+
+        saveCredentialsBtn.addEventListener('click', async () => {
+            if (!credentialsFile) return;
+
+            saveCredentialsBtn.disabled = true;
+            saveCredentialsBtn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const credentials = JSON.parse(e.target.result);
+
+                        // Validate it's a proper credentials file
+                        if (!credentials.installed && !credentials.web) {
+                            throw new Error('Invalid credentials file format');
+                        }
+
+                        // Save credentials via API
+                        const response = await fetch('/api/email/credentials', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ credentials: credentials })
+                        });
+
+                        if (response.ok) {
+                            showAlert('test-alert', 'Credentials saved successfully!', 'success');
+                            checkStatus();
+                        } else {
+                            const data = await response.json();
+                            throw new Error(data.error || 'Failed to save credentials');
+                        }
+                    } catch (err) {
+                        showAlert('test-alert', err.message, 'error');
+                    }
+                };
+                reader.readAsText(credentialsFile);
+            } finally {
+                saveCredentialsBtn.disabled = false;
+                saveCredentialsBtn.innerHTML = 'Save Credentials';
+            }
+        });
+
+        // Save configuration
+        document.getElementById('save-config-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('save-config-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Saving...';
+
+            try {
+                const response = await fetch('/api/email/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject_filter: document.getElementById('subject-filter-input').value,
+                        max_results: parseInt(document.getElementById('max-results-input').value) || 50,
+                        enabled: true
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('test-alert', 'Configuration saved!', 'success');
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to save configuration');
+                }
+            } catch (err) {
+                showAlert('test-alert', err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Configuration';
+            }
+        });
+
+        // Test connection
+        document.getElementById('test-connection-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('test-connection-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+
+            try {
+                const response = await fetch('/api/email/test', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('test-alert', `Connected to ${data.email}! Total messages: ${data.messages_total.toLocaleString()}`, 'success');
+                    document.getElementById('sync-now-btn').disabled = false;
+                    updateStatus('connected', 'Connected');
+                } else {
+                    throw new Error(data.error || 'Connection failed');
+                }
+            } catch (err) {
+                showAlert('test-alert', err.message, 'error');
+                updateStatus('disconnected', 'Not Connected');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg> Test Gmail Connection`;
+            }
+        });
+
+        // Sync now
+        document.getElementById('sync-now-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('sync-now-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Syncing...';
+
+            try {
+                const response = await fetch('/api/email/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject_filter: document.getElementById('subject-filter-input').value,
+                        max_results: parseInt(document.getElementById('max-results-input').value) || 50
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('sync-results').style.display = 'block';
+                    document.getElementById('result-messages').textContent = data.stats.messages_found;
+                    document.getElementById('result-attachments').textContent = data.stats.attachments_processed;
+                    document.getElementById('result-errors').textContent = data.stats.errors?.length || 0;
+
+                    showAlert('test-alert', `Sync complete! Processed ${data.attachments_processed} attachments.`, 'success');
+                    checkStatus();
+                } else {
+                    throw new Error(data.error || 'Sync failed');
+                }
+            } catch (err) {
+                showAlert('test-alert', err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 4v6h-6M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg> Sync Now`;
+            }
+        });
+
+        function showAlert(id, message, type) {
+            const alert = document.getElementById(id);
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateStatus(status, text) {
+            const badge = document.getElementById('status-badge');
+            const statusText = document.getElementById('status-text');
+
+            badge.className = `status-badge ${status}`;
+            statusText.textContent = text;
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/email/status');
+                const data = await response.json();
+
+                if (data.configured) {
+                    if (data.authenticated) {
+                        updateStatus('connected', 'Connected');
+                        document.getElementById('sync-now-btn').disabled = false;
+                    } else {
+                        updateStatus('pending', 'Needs Auth');
+                    }
+                } else {
+                    updateStatus('disconnected', 'Not Configured');
+                }
+
+                document.getElementById('subject-filter').textContent = data.subject_filter || 'WEB3GISELAUTOMATE';
+                document.getElementById('subject-filter-input').value = data.subject_filter || 'WEB3GISELAUTOMATE';
+
+                if (data.last_sync) {
+                    const date = new Date(data.last_sync);
+                    document.getElementById('last-sync').textContent = date.toLocaleString();
+                }
+
+                if (data.stats) {
+                    document.getElementById('attachments-count').textContent =
+                        data.stats.attachments_processed || 0;
+                }
+            } catch (err) {
+                console.error('Failed to check status:', err);
+                updateStatus('disconnected', 'Error');
+            }
+        }
+
+        // Load config on page load
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/email/config');
+                const data = await response.json();
+
+                if (data.subject_filter) {
+                    document.getElementById('subject-filter-input').value = data.subject_filter;
+                }
+                if (data.max_results) {
+                    document.getElementById('max-results-input').value = data.max_results;
+                }
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        }
+
+        // Initialize
+        checkStatus();
+        loadConfig();
+    </script>
+</body>
+</html>

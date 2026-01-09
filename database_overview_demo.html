@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Overview Dashboard - Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --accent-gold: #d4a574;
+            --accent-blue: #63b3ed;
+            --accent-purple: #ba8fe0;
+            --accent-green: #68d391;
+            --accent-orange: #f4a261;
+            --text-primary: #f5f5f5;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #666666;
+            --border-color: rgba(212, 165, 116, 0.2);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .demo-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .dashboard-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .dashboard-container.active {
+            display: block;
+        }
+
+        .dashboard-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-desc {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           ITERATION 1: Stats Grid Dashboard
+        ======================================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.05), rgba(20, 20, 20, 0.8));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-blue));
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .breakdown-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(212, 165, 116, 0.1);
+            border-radius: 2px;
+            margin: 0 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--accent-gold);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .breakdown-count {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ========================================
+           ITERATION 2: Radial Progress Dashboard
+        ======================================== */
+        .radial-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .radial-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .radial-circle {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+
+        .radial-svg {
+            transform: rotate(-90deg);
+        }
+
+        .radial-bg {
+            fill: none;
+            stroke: rgba(212, 165, 116, 0.1);
+            stroke-width: 12;
+        }
+
+        .radial-progress {
+            fill: none;
+            stroke: var(--accent-gold);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .radial-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .radial-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .radial-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .radial-details {
+            text-align: center;
+            width: 100%;
+        }
+
+        .radial-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .radial-list {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           ITERATION 3: Timeline Dashboard
+        ======================================== */
+        .timeline-dashboard {
+            padding: 2rem 0;
+        }
+
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .timeline-main-stat {
+            font-size: 4rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .timeline-main-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .timeline-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .timeline-section {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(30, 30, 30, 0.8));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .timeline-section-title {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .timeline-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(212, 165, 116, 0.05);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-item:hover {
+            background: rgba(212, 165, 116, 0.15);
+            transform: translateX(5px);
+        }
+
+        .timeline-item-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item-value {
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* ========================================
+           ITERATION 4: Infographic Dashboard
+        ======================================== */
+        .infographic-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            padding: 2rem 0;
+        }
+
+        .info-hero {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(99, 179, 237, 0.1));
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-hero-number {
+            font-size: 5rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+            text-shadow: 0 0 30px rgba(212, 165, 116, 0.4);
+        }
+
+        .info-hero-label {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 0.5rem;
+        }
+
+        .info-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-column {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(20, 20, 20, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .info-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-number {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+        }
+
+        .info-list {
+            margin-top: 1rem;
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            line-height: 1.8;
+        }
+
+        /* ========================================
+           ITERATION 5: Card Flip Dashboard
+        ======================================== */
+        .flip-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .flip-card {
+            height: 300px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), rgba(20, 20, 20, 0.9));
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, rgba(99, 179, 237, 0.1), rgba(20, 20, 20, 0.95));
+            transform: rotateY(180deg);
+        }
+
+        .flip-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .flip-value {
+            font-size: 3rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .flip-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        .flip-detail-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .flip-detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            background: rgba(212, 165, 116, 0.05);
+            border-radius: 4px;
+        }
+
+        .flip-detail-label {
+            color: var(--text-secondary);
+        }
+
+        .flip-detail-value {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .demo-note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1 class="demo-title">Database Overview Dashboard</h1>
+        <p class="demo-subtitle">Comprehensive breakdown of your complete knowledge base • 5 visualization approaches</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showDashboard(1)">Iteration 1: Stats Grid</button>
+        <button class="tab-btn" onclick="showDashboard(2)">Iteration 2: Radial Progress</button>
+        <button class="tab-btn" onclick="showDashboard(3)">Iteration 3: Timeline View</button>
+        <button class="tab-btn" onclick="showDashboard(4)">Iteration 4: Infographic</button>
+        <button class="tab-btn" onclick="showDashboard(5)">Iteration 5: Flip Cards</button>
+    </div>
+
+    <!-- ITERATION 1: Stats Grid Dashboard -->
+    <div class="dashboard-container active" id="dashboard-1">
+        <h2 class="dashboard-title">Iteration 1: Stats Grid Dashboard</h2>
+        <p class="dashboard-desc">
+            Comprehensive grid layout showing all database metrics at a glance. Each card expands
+            to show detailed breakdowns. Clean, organized, and information-dense.
+        </p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">📊</span>
+                    <div>
+                        <div class="stat-label">Total Assets</div>
+                    </div>
+                </div>
+                <div class="stat-value">1,247</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Images</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 85%;"></div>
+                        </div>
+                        <span class="breakdown-count">1,059</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Videos</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 10%;"></div>
+                        </div>
+                        <span class="breakdown-count">125</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Audio</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 3%;"></div>
+                        </div>
+                        <span class="breakdown-count">38</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Text</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 2%;"></div>
+                        </div>
+                        <span class="breakdown-count">25</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">⛓️</span>
+                    <div>
+                        <div class="stat-label">Blockchain NFTs</div>
+                    </div>
+                </div>
+                <div class="stat-value">892</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Ethereum</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 75%;"></div>
+                        </div>
+                        <span class="breakdown-count">669</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Solana</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">134</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Tezos</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 7%;"></div>
+                        </div>
+                        <span class="breakdown-count">62</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Bitcoin</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 3%;"></div>
+                        </div>
+                        <span class="breakdown-count">27</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🏪</span>
+                    <div>
+                        <div class="stat-label">Platforms</div>
+                    </div>
+                </div>
+                <div class="stat-value">8</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>SuperRare</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 45%;"></div>
+                        </div>
+                        <span class="breakdown-count">401</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Foundation</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 25%;"></div>
+                        </div>
+                        <span class="breakdown-count">223</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>OpenSea</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">134</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Others</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">134</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🌐</span>
+                    <div>
+                        <div class="stat-label">Web Scrapes</div>
+                    </div>
+                </div>
+                <div class="stat-value">243</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Artist Websites</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 60%;"></div>
+                        </div>
+                        <span class="breakdown-count">146</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Galleries</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 25%;"></div>
+                        </div>
+                        <span class="breakdown-count">61</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Publications</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">36</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🤖</span>
+                    <div>
+                        <div class="stat-label">AI Processed</div>
+                    </div>
+                </div>
+                <div class="stat-value">567</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>With Transcript</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 70%;"></div>
+                        </div>
+                        <span class="breakdown-count">397</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>With Description</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 30%;"></div>
+                        </div>
+                        <span class="breakdown-count">170</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">💾</span>
+                    <div>
+                        <div class="stat-label">Storage Size</div>
+                    </div>
+                </div>
+                <div class="stat-value">12.4 GB</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>High-Res Images</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 80%;"></div>
+                        </div>
+                        <span class="breakdown-count">9.9 GB</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Videos</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">1.9 GB</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Audio</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 4%;"></div>
+                        </div>
+                        <span class="breakdown-count">496 MB</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Metadata</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 1%;"></div>
+                        </div>
+                        <span class="breakdown-count">124 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">📅</span>
+                    <div>
+                        <div class="stat-label">Import Timeline</div>
+                    </div>
+                </div>
+                <div class="stat-value">156</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>This Week</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">23</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>This Month</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 40%;"></div>
+                        </div>
+                        <span class="breakdown-count">62</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Last 3 Months</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 30%;"></div>
+                        </div>
+                        <span class="breakdown-count">47</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Older</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 15%;"></div>
+                        </div>
+                        <span class="breakdown-count">24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">👤</span>
+                    <div>
+                        <div class="stat-label">Subject Coverage</div>
+                    </div>
+                </div>
+                <div class="stat-value">100%</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>giselxflorez</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 92%;"></div>
+                        </div>
+                        <span class="breakdown-count">1,147</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Collaborations</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 6%;"></div>
+                        </div>
+                        <span class="breakdown-count">75</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Reference</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: 2%;"></div>
+                        </div>
+                        <span class="breakdown-count">25</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Information-dense, comprehensive, organized • <strong>Best for:</strong> Quick overview of all metrics</p>
+    </div>
+
+    <!-- ITERATION 2: Radial Progress Dashboard -->
+    <div class="dashboard-container" id="dashboard-2">
+        <h2 class="dashboard-title">Iteration 2: Radial Progress Dashboard</h2>
+        <p class="dashboard-desc">
+            Circular progress indicators showing completion/utilization percentages. Visual and
+            engaging. Each circle represents a different metric dimension.
+        </p>
+        <div class="radial-dashboard">
+            <div class="radial-stat">
+                <div class="radial-circle">
+                    <svg class="radial-svg" width="180" height="180">
+                        <circle class="radial-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="radial-progress" cx="90" cy="90" r="70"
+                                stroke-dasharray="440"
+                                stroke-dashoffset="88"></circle>
+                    </svg>
+                    <div class="radial-content">
+                        <div class="radial-number">1,247</div>
+                        <div class="radial-label">Total</div>
+                    </div>
+                </div>
+                <div class="radial-details">
+                    <div class="radial-title">📊 Total Assets</div>
+                    <div class="radial-list">
+                        Images • Videos<br>
+                        Audio • Text
+                    </div>
+                </div>
+            </div>
+
+            <div class="radial-stat">
+                <div class="radial-circle">
+                    <svg class="radial-svg" width="180" height="180">
+                        <circle class="radial-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="radial-progress" cx="90" cy="90" r="70"
+                                style="stroke: var(--accent-purple);"
+                                stroke-dasharray="440"
+                                stroke-dashoffset="110"></circle>
+                    </svg>
+                    <div class="radial-content">
+                        <div class="radial-number">892</div>
+                        <div class="radial-label">NFTs</div>
+                    </div>
+                </div>
+                <div class="radial-details">
+                    <div class="radial-title">⛓️ Blockchain</div>
+                    <div class="radial-list">
+                        ETH • SOL • XTZ<br>
+                        BTC • 4 Networks
+                    </div>
+                </div>
+            </div>
+
+            <div class="radial-stat">
+                <div class="radial-circle">
+                    <svg class="radial-svg" width="180" height="180">
+                        <circle class="radial-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="radial-progress" cx="90" cy="90" r="70"
+                                style="stroke: var(--accent-green);"
+                                stroke-dasharray="440"
+                                stroke-dashoffset="176"></circle>
+                    </svg>
+                    <div class="radial-content">
+                        <div class="radial-number">8</div>
+                        <div class="radial-label">Platforms</div>
+                    </div>
+                </div>
+                <div class="radial-details">
+                    <div class="radial-title">🏪 Marketplaces</div>
+                    <div class="radial-list">
+                        SuperRare • Foundation<br>
+                        OpenSea • +5 more
+                    </div>
+                </div>
+            </div>
+
+            <div class="radial-stat">
+                <div class="radial-circle">
+                    <svg class="radial-svg" width="180" height="180">
+                        <circle class="radial-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="radial-progress" cx="90" cy="90" r="70"
+                                style="stroke: var(--accent-blue);"
+                                stroke-dasharray="440"
+                                stroke-dashoffset="220"></circle>
+                    </svg>
+                    <div class="radial-content">
+                        <div class="radial-number">45%</div>
+                        <div class="radial-label">AI</div>
+                    </div>
+                </div>
+                <div class="radial-details">
+                    <div class="radial-title">🤖 AI Processed</div>
+                    <div class="radial-list">
+                        567 with transcripts<br>
+                        or descriptions
+                    </div>
+                </div>
+            </div>
+
+            <div class="radial-stat">
+                <div class="radial-circle">
+                    <svg class="radial-svg" width="180" height="180">
+                        <circle class="radial-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="radial-progress" cx="90" cy="90" r="70"
+                                style="stroke: var(--accent-orange);"
+                                stroke-dasharray="440"
+                                stroke-dashoffset="264"></circle>
+                    </svg>
+                    <div class="radial-content">
+                        <div class="radial-number">12.4</div>
+                        <div class="radial-label">GB</div>
+                    </div>
+                </div>
+                <div class="radial-details">
+                    <div class="radial-title">💾 Storage</div>
+                    <div class="radial-list">
+                        9.9 GB Images<br>
+                        1.9 GB Video
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Visual, engaging, shows progress • <strong>Best for:</strong> Showing completeness and utilization</p>
+    </div>
+
+    <!-- ITERATION 3: Timeline Dashboard -->
+    <div class="dashboard-container" id="dashboard-3">
+        <h2 class="dashboard-title">Iteration 3: Timeline View Dashboard</h2>
+        <p class="dashboard-desc">
+            Organized by category with clean lists. Focuses on detailed breakdowns rather than
+            visual charts. Easy to scan and understand at a glance.
+        </p>
+        <div class="timeline-dashboard">
+            <div class="timeline-header">
+                <div class="timeline-main-stat">1,247</div>
+                <div class="timeline-main-label">Total Assets in Knowledge Base</div>
+            </div>
+
+            <div class="timeline-sections">
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>🎨</span>
+                        Media Types
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Images</span>
+                            <span class="timeline-item-value">1,059</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Videos</span>
+                            <span class="timeline-item-value">125</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Audio Files</span>
+                            <span class="timeline-item-value">38</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Text Documents</span>
+                            <span class="timeline-item-value">25</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>⛓️</span>
+                        Blockchain Networks
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Ethereum</span>
+                            <span class="timeline-item-value">669</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Solana</span>
+                            <span class="timeline-item-value">134</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Tezos</span>
+                            <span class="timeline-item-value">62</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Bitcoin Ordinals</span>
+                            <span class="timeline-item-value">27</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>🏪</span>
+                        Top Platforms
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">SuperRare</span>
+                            <span class="timeline-item-value">401</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Foundation</span>
+                            <span class="timeline-item-value">223</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">OpenSea</span>
+                            <span class="timeline-item-value">134</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">MakersPlace</span>
+                            <span class="timeline-item-value">89</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Others</span>
+                            <span class="timeline-item-value">45</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>📦</span>
+                        Sources
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Blockchain Scrapes</span>
+                            <span class="timeline-item-value">892</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Web Scrapes</span>
+                            <span class="timeline-item-value">243</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Direct Uploads</span>
+                            <span class="timeline-item-value">87</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Written Content</span>
+                            <span class="timeline-item-value">25</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>🤖</span>
+                        AI Processing
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">With Transcript</span>
+                            <span class="timeline-item-value">397</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">With AI Description</span>
+                            <span class="timeline-item-value">170</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Verified NFT Data</span>
+                            <span class="timeline-item-value">892</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Pending Analysis</span>
+                            <span class="timeline-item-value">680</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-section-title">
+                        <span>📅</span>
+                        Import Timeline
+                    </div>
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Last 7 Days</span>
+                            <span class="timeline-item-value">23</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Last 30 Days</span>
+                            <span class="timeline-item-value">62</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Last 90 Days</span>
+                            <span class="timeline-item-value">109</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-item-name">Older</span>
+                            <span class="timeline-item-value">1,053</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Clean, organized, easy to scan • <strong>Best for:</strong> Detailed breakdowns and precise numbers</p>
+    </div>
+
+    <!-- ITERATION 4: Infographic Dashboard -->
+    <div class="dashboard-container" id="dashboard-4">
+        <h2 class="dashboard-title">Iteration 4: Infographic Style Dashboard</h2>
+        <p class="dashboard-desc">
+            Visual-first presentation with large hero numbers and icon-driven sections.
+            Perfect for presentations or quick summaries.
+        </p>
+        <div class="infographic-dashboard">
+            <div class="info-hero">
+                <div class="info-hero-number">1,247</div>
+                <div class="info-hero-label">Assets Across 8 Platforms • 4 Networks • 156 Imports</div>
+            </div>
+
+            <div class="info-columns">
+                <div class="info-column">
+                    <div class="info-icon">⛓️</div>
+                    <div class="info-number">892</div>
+                    <div class="info-label">Blockchain NFTs</div>
+                    <div class="info-list">
+                        Ethereum • Solana<br>
+                        Tezos • Bitcoin<br>
+                        100% Verified
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="info-icon">🌐</div>
+                    <div class="info-number">243</div>
+                    <div class="info-label">Web Scrapes</div>
+                    <div class="info-list">
+                        Artist Sites<br>
+                        Galleries<br>
+                        Publications
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="info-icon">🤖</div>
+                    <div class="info-number">567</div>
+                    <div class="info-label">AI Processed</div>
+                    <div class="info-list">
+                        397 Transcripts<br>
+                        170 Descriptions<br>
+                        45% Coverage
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="info-icon">💾</div>
+                    <div class="info-number">12.4</div>
+                    <div class="info-label">Gigabytes</div>
+                    <div class="info-list">
+                        9.9 GB Images<br>
+                        1.9 GB Videos<br>
+                        496 MB Audio
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="info-icon">🏪</div>
+                    <div class="info-number">8</div>
+                    <div class="info-label">Platforms</div>
+                    <div class="info-list">
+                        SuperRare (401)<br>
+                        Foundation (223)<br>
+                        OpenSea (134)
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="info-icon">📅</div>
+                    <div class="info-number">156</div>
+                    <div class="info-label">Import Sessions</div>
+                    <div class="info-list">
+                        23 This Week<br>
+                        62 This Month<br>
+                        71 Earlier
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Visual, presentation-ready, impactful • <strong>Best for:</strong> High-level overviews and sharing</p>
+    </div>
+
+    <!-- ITERATION 5: Card Flip Dashboard -->
+    <div class="dashboard-container" id="dashboard-5">
+        <h2 class="dashboard-title">Iteration 5: Flip Cards Dashboard</h2>
+        <p class="dashboard-desc">
+            Interactive cards that flip on hover to reveal detailed breakdowns. Fun and engaging
+            way to explore database statistics. Hover over cards to see details.
+        </p>
+        <div class="flip-dashboard">
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">📊</span>
+                        <div class="flip-value">1,247</div>
+                        <div class="flip-label">Total Assets</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Images</span>
+                                <span class="flip-detail-value">1,059</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Videos</span>
+                                <span class="flip-detail-value">125</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Audio</span>
+                                <span class="flip-detail-value">38</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Text</span>
+                                <span class="flip-detail-value">25</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">⛓️</span>
+                        <div class="flip-value">892</div>
+                        <div class="flip-label">Blockchain NFTs</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Ethereum</span>
+                                <span class="flip-detail-value">669</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Solana</span>
+                                <span class="flip-detail-value">134</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Tezos</span>
+                                <span class="flip-detail-value">62</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Bitcoin</span>
+                                <span class="flip-detail-value">27</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">🏪</span>
+                        <div class="flip-value">8</div>
+                        <div class="flip-label">Platforms</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">SuperRare</span>
+                                <span class="flip-detail-value">401</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Foundation</span>
+                                <span class="flip-detail-value">223</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">OpenSea</span>
+                                <span class="flip-detail-value">134</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Others</span>
+                                <span class="flip-detail-value">134</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">🤖</span>
+                        <div class="flip-value">567</div>
+                        <div class="flip-label">AI Processed</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">With Transcript</span>
+                                <span class="flip-detail-value">397</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">AI Description</span>
+                                <span class="flip-detail-value">170</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Pending</span>
+                                <span class="flip-detail-value">680</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">💾</span>
+                        <div class="flip-value">12.4 GB</div>
+                        <div class="flip-label">Total Storage</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">High-Res Images</span>
+                                <span class="flip-detail-value">9.9 GB</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Videos</span>
+                                <span class="flip-detail-value">1.9 GB</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Audio</span>
+                                <span class="flip-detail-value">496 MB</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Metadata</span>
+                                <span class="flip-detail-value">124 MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="flip-icon">📅</span>
+                        <div class="flip-value">156</div>
+                        <div class="flip-label">Import Sessions</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="flip-detail-list">
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">This Week</span>
+                                <span class="flip-detail-value">23</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">This Month</span>
+                                <span class="flip-detail-value">62</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Last 3 Months</span>
+                                <span class="flip-detail-value">47</span>
+                            </div>
+                            <div class="flip-detail-item">
+                                <span class="flip-detail-label">Older</span>
+                                <span class="flip-detail-value">24</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Interactive, fun, engaging • <strong>Best for:</strong> Exploration and discovery, memorable UX</p>
+    </div>
+
+    <script>
+        function showDashboard(num) {
+            // Hide all dashboards
+            document.querySelectorAll('.dashboard-container').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected dashboard
+            document.getElementById(`dashboard-${num}`).classList.add('active');
+
+            // Activate clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

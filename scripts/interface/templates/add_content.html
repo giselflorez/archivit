@@ -1,271 +1,862 @@
 {% extends "base.html" %}
 
-{% block title %}Add Content - GiselX Knowledge Base{% endblock %}
+{% block title %}Add Content - ARCHIV-IT{% endblock %}
 
 {% block extra_styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-mono/style.min.css">
 <style>
-    .add-content-form {
-        background: white;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        max-width: 800px;
+    :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #161616;
+        --bg-tertiary: #1f1f1f;
+        --text-primary: #faf8f5;
+        --text-secondary: #b8b5b0;
+        --text-tertiary: #6a6762;
+        --accent-gold: #d4a574;
+        --accent-warm: #f4a261;
+        --border-color: #2a2a2a;
+        --success-green: #68d391;
+        --error-red: #fc8181;
+    }
+
+    .add-content-container {
+        max-width: 640px;
         margin: 0 auto;
+        padding: 2rem;
+        font-family: 'Geist Sans', sans-serif;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--accent-gold);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .top-line {
+        width: 100%;
+        height: 1px;
+        margin: 1.5rem 0 2.5rem 0;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(212, 165, 116, 0.4) 15%,
+            rgba(212, 165, 116, 0.8) 35%,
+            rgba(255, 230, 200, 1) 50%,
+            rgba(212, 165, 116, 0.8) 65%,
+            rgba(212, 165, 116, 0.4) 85%,
+            transparent 100%
+        );
+        background-size: 200% 100%;
+        animation: lineShine 3s ease-in-out infinite;
+    }
+
+    @keyframes lineShine {
+        0% { background-position: 200% center; }
+        100% { background-position: -200% center; }
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-label {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+        display: block;
     }
 
     .form-group {
+        position: relative;
         margin-bottom: 1.5rem;
     }
 
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .form-input {
         width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
+        padding: 1rem 0;
+        background: transparent !important;
+        border: none !important;
+        border-bottom: none !important;
         font-size: 1rem;
-        font-family: inherit;
-        transition: border-color 0.2s;
+        font-family: 'Geist Sans', sans-serif;
+        color: var(--text-primary);
+        text-align: center;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-        outline: none;
-        border-color: #667eea;
+    .form-input::placeholder {
+        color: transparent;
     }
 
-    .form-group textarea {
-        min-height: 100px;
+    .form-input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px var(--bg-primary) inset !important;
+        -webkit-text-fill-color: var(--text-primary) !important;
+    }
+
+    .input-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.9rem;
+        font-family: 'Geist Sans', sans-serif;
+        font-weight: 300;
+        letter-spacing: 0.02em;
+        pointer-events: none;
+        background: linear-gradient(
+            90deg,
+            rgba(180, 180, 180, 0.5) 0%,
+            rgba(255, 255, 255, 0.9) 25%,
+            rgba(212, 200, 180, 0.8) 50%,
+            rgba(255, 255, 255, 0.9) 75%,
+            rgba(180, 180, 180, 0.5) 100%
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textShine 2.5s ease-in-out infinite;
+    }
+
+    @keyframes textShine {
+        0% { background-position: 200% center; }
+        100% { background-position: -200% center; }
+    }
+
+    .input-underline {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 1px;
+        width: 0%;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(212, 165, 116, 0.4) 15%,
+            rgba(212, 165, 116, 0.8) 35%,
+            rgba(255, 230, 200, 1) 50%,
+            rgba(212, 165, 116, 0.8) 65%,
+            rgba(212, 165, 116, 0.4) 85%,
+            transparent 100%
+        );
+        background-size: 200% 100%;
+        animation: underlineShine 2s ease-in-out infinite;
+        transition: width 0.15s ease-out;
+    }
+
+    @keyframes underlineShine {
+        0% { background-position: 200% center; }
+        100% { background-position: -200% center; }
+    }
+
+    /* Textarea styling */
+    .form-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-family: 'Geist Sans', sans-serif;
+        color: var(--text-primary);
         resize: vertical;
+        transition: border-color 0.3s ease;
     }
 
-    .form-help {
-        font-size: 0.85rem;
-        color: #666;
-        margin-top: 0.25rem;
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent-gold);
     }
 
-    .submit-button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 25px;
-        font-size: 1rem;
-        font-weight: 600;
+    .form-textarea::placeholder {
+        color: var(--text-tertiary);
+    }
+
+    /* Tags Input */
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        min-height: 50px;
+        cursor: text;
+        transition: border-color 0.3s ease;
+    }
+
+    .tags-container:focus-within {
+        border-color: var(--accent-gold);
+    }
+
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.6rem;
+        background: rgba(212, 165, 116, 0.15);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 3px;
+        font-size: 0.75rem;
+        color: var(--accent-gold);
+        letter-spacing: 0.02em;
+    }
+
+    .tag-remove {
         cursor: pointer;
-        transition: transform 0.2s;
+        opacity: 0.6;
+        font-size: 1rem;
+        line-height: 1;
+        transition: opacity 0.2s;
     }
 
-    .submit-button:hover {
-        transform: translateY(-2px);
+    .tag-remove:hover {
+        opacity: 1;
     }
 
-    .submit-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    .tag-input {
+        flex: 1;
+        min-width: 100px;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.85rem;
+        font-family: 'Geist Sans', sans-serif;
+        color: var(--text-primary);
     }
 
-    .success-message {
-        background: #4CAF50;
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+    .tag-input::placeholder {
+        color: var(--text-tertiary);
     }
 
-    .error-message {
-        background: #f44336;
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+    /* Collaborators */
+    .collaborator-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.3);
+        border-radius: 3px;
+        font-size: 0.8rem;
+        color: var(--success-green);
     }
 
-    .preview-section {
-        background: #f9f9f9;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-top: 1.5rem;
-        display: none;
+    /* Select dropdown */
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-family: 'Geist Sans', sans-serif;
+        color: var(--text-primary);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23d4a574' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        transition: border-color 0.3s ease;
     }
 
-    .preview-section.active {
-        display: block;
+    .form-select:focus {
+        outline: none;
+        border-color: var(--accent-gold);
     }
 
-    .preview-images {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem;
+    .form-select option {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    /* Checkbox styling */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .checkbox-group input[type="checkbox"]:checked {
+        background: rgba(212, 165, 116, 0.3);
+        border-color: var(--accent-gold);
+    }
+
+    .checkbox-group input[type="checkbox"]:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--accent-gold);
+        font-size: 10px;
+    }
+
+    .checkbox-group label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+    }
+
+    /* Options panel */
+    .options-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1.25rem;
         margin-top: 1rem;
     }
 
-    .preview-images img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 8px;
+    .options-header {
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
+    .option-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .option-row:last-child {
+        border-bottom: none;
+    }
+
+    .option-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .option-cost {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        font-family: 'Geist Mono', monospace;
+    }
+
+    /* Cost estimate */
+    .cost-estimate {
+        background: linear-gradient(135deg, rgba(212, 165, 116, 0.08) 0%, rgba(212, 165, 116, 0.02) 100%);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        border-radius: 6px;
+        padding: 1.25rem;
+        margin-top: 2rem;
+        display: none;
+    }
+
+    .cost-estimate.active {
+        display: block;
+    }
+
+    .cost-header {
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+    }
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .cost-item:last-child {
+        border-bottom: none;
+    }
+
+    .cost-item.total {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.3);
+        font-weight: 500;
+        color: var(--accent-gold);
+    }
+
+    .cost-amount {
+        font-family: 'Geist Mono', monospace;
+    }
+
+    /* Submit button */
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        margin-top: 2rem;
+        background: transparent;
+        border: 1px solid var(--accent-gold);
+        border-radius: 2px;
+        font-size: 0.8rem;
+        font-family: 'Geist Sans', sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--accent-gold);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background: var(--accent-gold);
+        color: var(--bg-primary);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    /* Messages */
+    .message {
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .message.success {
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.3);
+        color: var(--success-green);
+    }
+
+    .message.error {
+        background: rgba(252, 129, 129, 0.1);
+        border: 1px solid rgba(252, 129, 129, 0.3);
+        color: var(--error-red);
+    }
+
+    /* Loading */
     .loading {
         text-align: center;
         padding: 2rem;
+        display: none;
+    }
+
+    .loading.active {
+        display: block;
     }
 
     .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #667eea;
+        width: 32px;
+        height: 32px;
+        border: 2px solid var(--border-color);
+        border-top-color: var(--accent-gold);
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 1rem;
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+        letter-spacing: 0.05em;
+    }
+
+    /* Form help text */
+    .form-help {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        margin-top: 0.5rem;
+        text-align: center;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1 style="margin-bottom: 2rem;">Add Content from URL</h1>
+<div class="add-content-container">
+    <div class="page-header">
+        <h1>Add to Archive</h1>
+        <p>Import content, media, and documentation</p>
+        <div class="top-line"></div>
+    </div>
 
-{% if success %}
-<div class="success-message">
-    ✓ Content successfully added to your knowledge base!
-    <a href="/document/{{ doc_id }}" style="color: white; text-decoration: underline;">View it here</a>
-</div>
-{% endif %}
+    {% if success %}
+    <div class="message success">
+        ✓ Content added to archive
+        <a href="/document/{{ doc_id }}" style="color: var(--success-green); margin-left: 0.5rem;">View →</a>
+    </div>
+    {% endif %}
 
-{% if error %}
-<div class="error-message">
-    ✗ Error: {{ error }}
-</div>
-{% endif %}
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
 
-<div class="add-content-form">
     <form method="POST" action="/add-content" id="addContentForm">
-        <div class="form-group">
-            <label for="url">URL to Import</label>
-            <input type="url"
-                   id="url"
-                   name="url"
-                   placeholder="https://example.com/page"
-                   required>
-            <p class="form-help">
-                Paste a link to an AI conversation, article, or website you want to save
-            </p>
+        <!-- URL Input -->
+        <div class="form-section">
+            <div class="form-group">
+                <input type="url" id="url" name="url" class="form-input" placeholder=" " required autocomplete="off">
+                <span class="input-placeholder">https://...</span>
+                <div class="input-underline" id="url-underline"></div>
+            </div>
+            <p class="form-help">Paste URL to article, conversation, or website</p>
         </div>
 
-        <div class="form-group">
-            <label for="title">Title (Optional)</label>
-            <input type="text"
-                   id="title"
-                   name="title"
-                   placeholder="Auto-detected from page">
-            <p class="form-help">
-                Leave blank to use the page title automatically
-            </p>
+        <!-- Title -->
+        <div class="form-section">
+            <div class="form-group">
+                <input type="text" id="title" name="title" class="form-input" placeholder=" " autocomplete="off">
+                <span class="input-placeholder">Title (auto-detected)</span>
+                <div class="input-underline" id="title-underline"></div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="manual_content">Manual Content (Optional - for pages that don't scrape well)</label>
-            <textarea id="manual_content"
-                      name="manual_content"
-                      rows="10"
-                      placeholder="If the URL doesn't scrape properly (like Claude conversations), paste the full content here..."></textarea>
-            <p class="form-help">
-                For Claude conversations: Copy the entire conversation text and paste here
-            </p>
+        <!-- Tags -->
+        <div class="form-section">
+            <span class="section-label">Tags</span>
+            <div class="tags-container" id="tagsContainer">
+                <input type="text" class="tag-input" id="tagInput" placeholder="Add tags...">
+            </div>
+            <input type="hidden" name="tags" id="tagsHidden">
+            <p class="form-help">Press Enter or comma to add tags</p>
         </div>
 
-        <div class="form-group">
-            <label for="notes">Your Notes (Optional)</label>
-            <textarea id="notes"
-                      name="notes"
-                      placeholder="Add your own notes about this content..."></textarea>
+        <!-- Collaborators -->
+        <div class="form-section">
+            <span class="section-label">Collaborators</span>
+            <div class="tags-container" id="collaboratorsContainer">
+                <input type="text" class="tag-input" id="collaboratorInput" placeholder="Add collaborating artists...">
+            </div>
+            <input type="hidden" name="collaborators" id="collaboratorsHidden">
+            <p class="form-help">For works created with other artists</p>
         </div>
 
-        <div class="form-group">
-            <label for="source_type">Content Type</label>
-            <select id="source_type" name="source_type">
+        <!-- Content Type -->
+        <div class="form-section">
+            <span class="section-label">Content Type</span>
+            <select id="source_type" name="source_type" class="form-select">
                 <option value="web_import">Web Page</option>
-                <option value="ai_conversation">AI Conversation (Claude, ChatGPT, etc.)</option>
-                <option value="article">Article</option>
+                <option value="ai_conversation">AI Conversation</option>
+                <option value="article">Article / Interview</option>
                 <option value="reference">Reference Material</option>
+                <option value="collaboration">Collaborative Work</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="extract_images" checked> Extract and save images
-            </label>
+        <!-- Manual Content -->
+        <div class="form-section">
+            <span class="section-label">Manual Content (Optional)</span>
+            <textarea id="manual_content" name="manual_content" class="form-textarea"
+                      placeholder="Paste content here if URL doesn't scrape properly..."></textarea>
         </div>
 
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="crawl_site" id="crawl_site"> Crawl entire website (all pages)
-            </label>
-            <p class="form-help">
-                Enable this to scrape all pages on the domain (up to 20 pages). Extracts all content and images from every page found.
-            </p>
+        <!-- Notes -->
+        <div class="form-section">
+            <span class="section-label">Notes</span>
+            <textarea id="notes" name="notes" class="form-textarea"
+                      placeholder="Your notes about this content..."></textarea>
         </div>
 
-        <button type="submit" class="submit-button" id="submitBtn">
-            Import Content
-        </button>
+        <!-- Options -->
+        <div class="options-panel">
+            <div class="options-header">Processing Options</div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="extract_images" name="extract_images" checked>
+                <label for="extract_images">Extract images</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="crawl_site" name="crawl_site">
+                <label for="crawl_site">Crawl entire site (up to 20 pages)</label>
+            </div>
+
+            <div class="option-row">
+                <div class="checkbox-group" style="padding: 0;">
+                    <input type="checkbox" id="enable_vision" checked>
+                    <label for="enable_vision">Vision analysis</label>
+                </div>
+                <select id="vision_model" style="width: auto; padding: 0.4rem 0.6rem; font-size: 0.75rem;">
+                    <option value="haiku">Haiku</option>
+                    <option value="sonnet">Sonnet</option>
+                    <option value="opus">Opus</option>
+                </select>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="enable_transcription" checked>
+                <label for="enable_transcription">Audio transcription</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="enable_video" checked>
+                <label for="enable_video">Video frame analysis</label>
+            </div>
+        </div>
+
+        <!-- Cost Estimate -->
+        <div class="cost-estimate" id="costEstimate">
+            <div class="cost-header">Estimated Cost</div>
+            <div id="costBreakdown">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Import</button>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <div class="loading-text">Importing content...</div>
+        </div>
     </form>
-
-    <div class="preview-section" id="previewSection">
-        <h3>Preview</h3>
-        <p id="previewText">Loading preview...</p>
-        <div class="preview-images" id="previewImages"></div>
-    </div>
-
-    <div class="loading" id="loadingIndicator" style="display: none;">
-        <div class="spinner"></div>
-        <p style="margin-top: 1rem;">Importing content...</p>
-    </div>
 </div>
 
 <script>
-document.getElementById('addContentForm').addEventListener('submit', function(e) {
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('loadingIndicator').style.display = 'block';
-});
+// Tags functionality
+const tagsContainer = document.getElementById('tagsContainer');
+const tagInput = document.getElementById('tagInput');
+const tagsHidden = document.getElementById('tagsHidden');
+let tags = [];
 
-// Optional: Preview functionality
-document.getElementById('url').addEventListener('blur', async function() {
-    const url = this.value;
-    if (!url) return;
-
-    try {
-        const response = await fetch('/api/preview-url?url=' + encodeURIComponent(url));
-        const data = await response.json();
-
-        if (data.title && !document.getElementById('title').value) {
-            document.getElementById('title').value = data.title;
-        }
-
-        if (data.preview) {
-            document.getElementById('previewText').textContent = data.preview;
-            document.getElementById('previewSection').classList.add('active');
-        }
-    } catch (e) {
-        console.log('Preview not available');
+tagInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addTag(this.value.trim());
+        this.value = '';
+    }
+    if (e.key === 'Backspace' && this.value === '' && tags.length > 0) {
+        removeTag(tags.length - 1);
     }
 });
+
+tagsContainer.addEventListener('click', () => tagInput.focus());
+
+function addTag(text) {
+    if (!text || tags.includes(text)) return;
+    tags.push(text);
+    renderTags();
+    updateHiddenField();
+}
+
+function removeTag(index) {
+    tags.splice(index, 1);
+    renderTags();
+    updateHiddenField();
+}
+
+function renderTags() {
+    const existingTags = tagsContainer.querySelectorAll('.tag');
+    existingTags.forEach(t => t.remove());
+
+    tags.forEach((tag, i) => {
+        const el = document.createElement('span');
+        el.className = 'tag';
+
+        // SA-001 FIX: Use textContent instead of innerHTML to prevent XSS
+        const tagText = document.createTextNode(tag);
+        el.appendChild(tagText);
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'tag-remove';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => removeTag(i));
+        el.appendChild(removeBtn);
+
+        tagsContainer.insertBefore(el, tagInput);
+    });
+}
+
+function updateHiddenField() {
+    tagsHidden.value = tags.join(',');
+}
+
+// Collaborators functionality
+const collaboratorsContainer = document.getElementById('collaboratorsContainer');
+const collaboratorInput = document.getElementById('collaboratorInput');
+const collaboratorsHidden = document.getElementById('collaboratorsHidden');
+let collaborators = [];
+
+collaboratorInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addCollaborator(this.value.trim());
+        this.value = '';
+    }
+    if (e.key === 'Backspace' && this.value === '' && collaborators.length > 0) {
+        removeCollaborator(collaborators.length - 1);
+    }
+});
+
+collaboratorsContainer.addEventListener('click', () => collaboratorInput.focus());
+
+function addCollaborator(text) {
+    if (!text || collaborators.includes(text)) return;
+    collaborators.push(text);
+    renderCollaborators();
+    updateCollaboratorsHidden();
+}
+
+function removeCollaborator(index) {
+    collaborators.splice(index, 1);
+    renderCollaborators();
+    updateCollaboratorsHidden();
+}
+
+function renderCollaborators() {
+    const existing = collaboratorsContainer.querySelectorAll('.collaborator-item');
+    existing.forEach(t => t.remove());
+
+    collaborators.forEach((collab, i) => {
+        const el = document.createElement('span');
+        el.className = 'collaborator-item';
+
+        // SA-002 FIX: Use textContent instead of innerHTML to prevent XSS
+        const collabText = document.createTextNode(collab);
+        el.appendChild(collabText);
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'tag-remove';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => removeCollaborator(i));
+        el.appendChild(removeBtn);
+
+        collaboratorsContainer.insertBefore(el, collaboratorInput);
+    });
+}
+
+function updateCollaboratorsHidden() {
+    collaboratorsHidden.value = collaborators.join(',');
+}
+
+// Input animations
+function setupInputAnimation(inputId, underlineId) {
+    const input = document.getElementById(inputId);
+    const placeholder = input?.parentElement?.querySelector('.input-placeholder');
+    const underline = document.getElementById(underlineId);
+
+    if (input && placeholder) {
+        input.addEventListener('input', function() {
+            const len = this.value.length;
+            placeholder.style.display = len ? 'none' : 'block';
+            if (underline) {
+                underline.style.width = len > 0 ? Math.min(10 + (len * 2), 90) + '%' : '0%';
+            }
+        });
+        input.addEventListener('focus', function() {
+            placeholder.style.opacity = '0.3';
+        });
+        input.addEventListener('blur', function() {
+            placeholder.style.opacity = this.value ? '0' : '1';
+            placeholder.style.display = this.value ? 'none' : 'block';
+        });
+    }
+}
+
+setupInputAnimation('url', 'url-underline');
+setupInputAnimation('title', 'title-underline');
+
+// Form submission
+document.getElementById('addContentForm').addEventListener('submit', function(e) {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loadingIndicator').classList.add('active');
+});
+
+// Cost estimation
+async function estimateCosts() {
+    const url = document.getElementById('url').value;
+    if (!url) return;
+
+    const costEstimate = document.getElementById('costEstimate');
+    const costBreakdown = document.getElementById('costBreakdown');
+
+    costBreakdown.innerHTML = '<div style="text-align: center; color: var(--text-tertiary); font-size: 0.8rem;">Analyzing...</div>';
+    costEstimate.classList.add('active');
+
+    try {
+        const response = await fetch('/api/estimate-costs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                url: url,
+                extract_images: document.getElementById('extract_images').checked,
+                crawl_site: document.getElementById('crawl_site').checked,
+                enable_vision: document.getElementById('enable_vision').checked,
+                enable_transcription: document.getElementById('enable_transcription').checked,
+                enable_video: document.getElementById('enable_video').checked,
+                vision_model: document.getElementById('vision_model').value
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            costBreakdown.innerHTML = `<div style="color: var(--error-red);">${data.error}</div>`;
+            return;
+        }
+
+        let html = '';
+        if (data.estimates) {
+            data.estimates.forEach(est => {
+                html += `<div class="cost-item">
+                    <span>${est.service_type.replace('_', ' ')}</span>
+                    <span class="cost-amount">$${est.total_cost.toFixed(3)}</span>
+                </div>`;
+            });
+        }
+        html += `<div class="cost-item total">
+            <span>Total</span>
+            <span class="cost-amount">$${data.total_cost.toFixed(2)}</span>
+        </div>`;
+
+        costBreakdown.innerHTML = html;
+    } catch (e) {
+        costBreakdown.innerHTML = '<div style="color: var(--text-tertiary);">Could not estimate</div>';
+    }
+}
+
+document.getElementById('url').addEventListener('blur', estimateCosts);
+['extract_images', 'crawl_site', 'enable_vision', 'enable_transcription', 'enable_video'].forEach(id => {
+    document.getElementById(id).addEventListener('change', estimateCosts);
+});
+document.getElementById('vision_model').addEventListener('change', estimateCosts);
 </script>
 {% endblock %}

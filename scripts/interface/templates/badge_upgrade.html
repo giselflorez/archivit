@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+
+{% block title %}Upgrade Your Badge - ARCHIV-IT{% endblock %}
+
+{% block content %}
+<style>
+    .upgrade-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .upgrade-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .upgrade-header h1 {
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .upgrade-header p {
+        color: rgba(232, 230, 227, 0.6);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .current-status {
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .current-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #1a1a24;
+        border: 2px solid var(--tier-color, #666);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 12px var(--tier-glow, rgba(100,100,100,0.3));
+    }
+
+    .tier-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .tier-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .tier-card {
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(100, 100, 120, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .tier-card:hover {
+        border-color: rgba(212, 165, 116, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .tier-card.recommended {
+        border-color: rgba(72, 187, 120, 0.5);
+        box-shadow: 0 0 20px rgba(72, 187, 120, 0.1);
+    }
+
+    .tier-card.ultra {
+        border-color: rgba(104, 211, 145, 0.5);
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(40, 50, 45, 0.6));
+    }
+
+    .tier-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background: #48bb78;
+        color: #0a0a0f;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .tier-card.ultra .tier-badge {
+        background: linear-gradient(90deg, #68d391, #48bb78);
+    }
+
+    .tier-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .tier-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .tier-card.standard .tier-icon {
+        background: rgba(212, 165, 116, 0.2);
+        border: 2px solid #d4a574;
+    }
+
+    .tier-card.ultra .tier-icon {
+        background: rgba(104, 211, 145, 0.2);
+        border: 2px solid #68d391;
+        animation: ultra-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes ultra-glow {
+        0%, 100% { box-shadow: 0 0 10px rgba(104, 211, 145, 0.3); }
+        50% { box-shadow: 0 0 20px rgba(104, 211, 145, 0.5); }
+    }
+
+    .tier-name {
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .tier-price {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.5);
+    }
+
+    .tier-wallets {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+    }
+
+    .wallet-count {
+        font-family: 'Geist Mono', monospace;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .tier-card.standard .wallet-count { color: #d4a574; }
+    .tier-card.ultra .wallet-count { color: #68d391; }
+
+    .tier-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .tier-features li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+        color: rgba(232, 230, 227, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .tier-features li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.5;
+    }
+
+    .tier-card.standard .tier-features li::before {
+        background: #d4a574;
+    }
+
+    .tier-card.ultra .tier-features li::before {
+        background: #68d391;
+    }
+
+    .security-box {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .security-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .tier-card.standard .security-title { color: #d4a574; }
+    .tier-card.ultra .security-title { color: #68d391; }
+
+    .security-text {
+        font-size: 0.85rem;
+        color: rgba(232, 230, 227, 0.6);
+        line-height: 1.5;
+    }
+
+    .security-analogy {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(100, 100, 120, 0.2);
+        font-style: italic;
+        color: rgba(232, 230, 227, 0.5);
+        font-size: 0.8rem;
+    }
+
+    .upgrade-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .tier-card.standard .upgrade-btn {
+        background: #d4a574;
+        color: #0a0a0f;
+    }
+
+    .tier-card.standard .upgrade-btn:hover {
+        background: #e8b584;
+        transform: translateY(-1px);
+    }
+
+    .tier-card.ultra .upgrade-btn {
+        background: linear-gradient(90deg, #68d391, #48bb78);
+        color: #0a0a0f;
+    }
+
+    .tier-card.ultra .upgrade-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
+    }
+
+    .upgrade-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .how-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(100, 100, 120, 0.2);
+    }
+
+    .how-title {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+    }
+
+    .how-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .how-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .how-box {
+        padding: 1.5rem;
+    }
+
+    .how-box h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .how-box.standard h3 { color: #d4a574; }
+    .how-box.ultra h3 { color: #68d391; }
+
+    .how-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: step;
+    }
+
+    .how-steps li {
+        padding: 0.75rem 0;
+        padding-left: 2rem;
+        position: relative;
+        color: rgba(232, 230, 227, 0.7);
+        font-size: 0.9rem;
+        border-left: 2px solid rgba(100, 100, 120, 0.2);
+        margin-left: 0.75rem;
+    }
+
+    .how-steps li::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: -0.75rem;
+        top: 0.75rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background: #1a1a24;
+        border: 2px solid rgba(100, 100, 120, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .how-box.standard .how-steps li::before {
+        border-color: rgba(212, 165, 116, 0.5);
+        color: #d4a574;
+    }
+
+    .how-box.ultra .how-steps li::before {
+        border-color: rgba(104, 211, 145, 0.5);
+        color: #68d391;
+    }
+
+    .faq-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(100, 100, 120, 0.2);
+    }
+
+    .faq-title {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+    }
+
+    .faq-item {
+        background: rgba(30, 30, 40, 0.4);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+    }
+
+    .faq-question {
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .faq-question:hover {
+        background: rgba(212, 165, 116, 0.05);
+    }
+
+    .faq-toggle {
+        font-size: 1.25rem;
+        color: rgba(232, 230, 227, 0.4);
+        transition: transform 0.2s ease;
+    }
+
+    .faq-item.open .faq-toggle {
+        transform: rotate(45deg);
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .faq-item.open .faq-answer {
+        max-height: 200px;
+    }
+
+    .faq-answer-inner {
+        padding: 0 1.25rem 1rem;
+        color: rgba(232, 230, 227, 0.7);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="upgrade-container">
+    <div class="upgrade-header">
+        <h1>UNLOCK MORE WALLETS</h1>
+        <p>Go public with your data consistency and unlock multi-wallet tracking. Choose the security level that fits you.</p>
+    </div>
+
+    <!-- Current Status -->
+    <div class="current-status" style="--tier-color: {% if current_tier == 2 %}#68d391{% elif current_tier == 1 %}#d4a574{% else %}#666{% endif %}; --tier-glow: {% if current_tier == 2 %}rgba(104,211,145,0.4){% elif current_tier == 1 %}rgba(212,165,116,0.3){% else %}rgba(100,100,100,0.2){% endif %};">
+        <div class="current-badge">
+            {% if current_tier == 2 %}
+            <span style="color: #68d391;">&#9733;</span>
+            {% elif current_tier == 1 %}
+            <span style="color: #d4a574;">&#10003;</span>
+            {% else %}
+            <span style="color: #666;">&#8212;</span>
+            {% endif %}
+        </div>
+        <div>
+            <div style="font-weight: 500;">Current: {{ current_tier_name|default('Private') }}</div>
+            <div style="font-size: 0.85rem; color: rgba(232,230,227,0.5);">
+                {% if wallet_limit == -1 %}
+                Unlimited wallets
+                {% else %}
+                {{ wallets_used|default(1) }} / {{ wallet_limit|default(1) }} wallets used
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Base Tiers -->
+    <h3 style="color: var(--text-secondary); margin-bottom: 1rem;">Base Tiers</h3>
+    <div class="tier-cards">
+        <!-- SOLO -->
+        <div class="tier-card standard {% if current_tier == 0 %}current{% endif %}">
+            <div class="tier-badge">{% if current_tier == 0 %}Current{% else %}Base{% endif %}</div>
+            <div class="tier-header">
+                <div class="tier-icon">&#9737;</div>
+                <div>
+                    <div class="tier-name">SOLO</div>
+                    <div class="tier-price">FREE</div>
+                </div>
+            </div>
+            <div class="tier-wallets">
+                <span class="wallet-count">1</span>
+                <span style="color: rgba(232,230,227,0.5);">wallet</span>
+            </div>
+            <ul class="tier-features">
+                <li>Private knowledge base</li>
+                <li>Local data exploration</li>
+            </ul>
+        </div>
+
+        <!-- ENTERPRISE -->
+        <div class="tier-card standard {% if current_tier == 1 %}current{% endif %}">
+            <div class="tier-badge">{% if current_tier == 1 %}Current{% else %}Agreement{% endif %}</div>
+            <div class="tier-header">
+                <div class="tier-icon">&#9733;</div>
+                <div>
+                    <div class="tier-name">ENTERPRISE</div>
+                    <div class="tier-price">AGREEMENT</div>
+                </div>
+            </div>
+            <div class="tier-wallets">
+                <span class="wallet-count">6</span>
+                <span style="color: rgba(232,230,227,0.5);">wallets</span>
+            </div>
+            <ul class="tier-features">
+                <li>Enterprise support</li>
+                <li>Priority access</li>
+            </ul>
+            {% if current_tier < 1 %}
+            <a href="/setup/upgrade-enterprise" class="upgrade-btn">Request Access</a>
+            {% endif %}
+        </div>
+
+        <!-- WHITE GLOVE -->
+        <div class="tier-card ultra {% if current_tier == 2 %}current{% endif %}">
+            <div class="tier-badge">{% if current_tier == 2 %}Current{% else %}Premium{% endif %}</div>
+            <div class="tier-header">
+                <div class="tier-icon">&#128142;</div>
+                <div>
+                    <div class="tier-name">WHITE GLOVE</div>
+                    <div class="tier-price">SELF-HOSTED</div>
+                </div>
+            </div>
+            <div class="tier-wallets">
+                <span class="wallet-count">&infin;</span>
+                <span style="color: rgba(232,230,227,0.5);">unlimited</span>
+            </div>
+            <ul class="tier-features">
+                <li>Unlimited wallets</li>
+                <li>Full data sovereignty</li>
+                <li>Guided API setup</li>
+            </ul>
+            {% if current_tier < 2 %}
+            <a href="/setup/upgrade-whiteglove" class="upgrade-btn">Setup Guide</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bonuses -->
+    <h3 style="color: var(--text-secondary); margin: 2rem 0 1rem;">Bonuses (add to any tier)</h3>
+    <div class="tier-cards">
+        <!-- ACU-METER Certified -->
+        <div class="tier-card ultra">
+            <div class="tier-badge">+2 Wallets</div>
+            <div class="tier-header">
+                <div class="tier-icon">&#9733;</div>
+                <div>
+                    <div class="tier-name">ACU-METER</div>
+                    <div class="tier-price">NFT MINT</div>
+                </div>
+            </div>
+            <ul class="tier-features">
+                <li>+2 wallet addresses</li>
+                <li>CERTIFIED status</li>
+                <li>On-chain verification</li>
+                <li>Public profile</li>
+            </ul>
+            <a href="/setup/unlock-ultra" class="upgrade-btn">Mint ACU-METER</a>
+        </div>
+
+        <!-- Self-hosted -->
+        <div class="tier-card standard">
+            <div class="tier-badge">+2 Wallets</div>
+            <div class="tier-header">
+                <div class="tier-icon">&#128421;</div>
+                <div>
+                    <div class="tier-name">SELF-HOSTED</div>
+                    <div class="tier-price">YOUR API</div>
+                </div>
+            </div>
+            <ul class="tier-features">
+                <li>+2 wallet addresses</li>
+                <li>Your infrastructure</li>
+                <li>Full control</li>
+            </ul>
+            <a href="/setup/self-hosted" class="upgrade-btn">Setup Guide</a>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="how-section">
+        <h2 class="how-title">Get Certified</h2>
+        <div class="how-grid">
+            <div class="how-box ultra">
+                <h3><span>&#9733;</span> ACU-METER CERTIFIED</h3>
+                <ol class="how-steps">
+                    <li>Connect wallet</li>
+                    <li>Mint ACU-METER NFT</li>
+                    <li>Done - +2 wallets</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+        <h2 class="faq-title">Questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <span>Why NFT instead of just a password?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    NFT = wallet signature. Proves ownership cryptographically. No passwords to steal.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <span>Why mint the ACU-METER NFT?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Blockchain-verified, no server needed. Third-party can verify directly on-chain.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <span>Supported chains?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Ethereum, Polygon, Base, Zora. Polygon/Base recommended for lower gas.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <span>Can I upgrade tiers later?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Yes. Your data carries over. Upgrade anytime.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <span>Why collect the ACU-METER NFT?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-inner">
+                    Dynamic art from your data. Evolves as you grow. Links you to the verified network.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

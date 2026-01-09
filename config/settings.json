@@ -46,15 +46,130 @@
   "visual_translator": {
     "enabled": true,
     "auto_analyze_on_import": true,
+    "default_provider": "auto",
+    "providers": {
+      "local": {
+        "enabled": true,
+        "priority": 1,
+        "default_model": "moondream-2b",
+        "device": "auto",
+        "quantization": "8bit",
+        "batch_size": 4
+      },
+      "claude": {
+        "enabled": true,
+        "priority": 2,
+        "default_model": "claude-3-5-haiku-20241022",
+        "max_tokens": 1000,
+        "rate_limit_delay": 1.0,
+        "quality_score": 1.0
+      }
+    },
+    "auto_provider_selection": {
+      "prefer_local": true,
+      "fallback_to_cloud": true,
+      "quality_threshold": 0.70,
+      "max_inference_time_seconds": 10
+    },
     "ocr_enabled": true,
-    "vision_enabled": true,
-    "claude_api_model": "claude-3-5-sonnet-20241022",
     "cache_analyses": true,
     "cache_duration_days": 90,
     "supported_formats": ["jpg", "jpeg", "png", "gif", "webp"],
     "ocr_languages": ["eng"],
     "batch_size": 10,
-    "rate_limit_delay_seconds": 1.0,
     "max_image_dimension": 2048
+  },
+  "blockchain_tracker": {
+    "enabled": true,
+    "sync_interval_minutes": 60,
+    "networks": {
+      "ethereum": {
+        "enabled": true,
+        "api_provider": "alchemy",
+        "rpc_url": "https://eth-mainnet.g.alchemy.com/v2/"
+      },
+      "solana": {
+        "enabled": false,
+        "api_provider": "helius",
+        "rpc_url": "https://api.helius.xyz/v0"
+      },
+      "bitcoin": {
+        "enabled": false,
+        "api_provider": "blockstream",
+        "rpc_url": "https://blockstream.info/api"
+      }
+    },
+    "ipfs_gateways": [
+      "https://ipfs.io/ipfs/",
+      "https://gateway.pinata.cloud/ipfs/",
+      "https://cloudflare-ipfs.com/ipfs/",
+      "https://dweb.link/ipfs/"
+    ]
+  },
+  "sales_analytics": {
+    "enabled": true,
+    "sync_interval_minutes": 120,
+    "track_only_monitored_addresses": true,
+    "marketplaces": {
+      "opensea": {
+        "enabled": true,
+        "api_url": "https://api.opensea.io/api/v2"
+      },
+      "foundation": {
+        "enabled": true,
+        "api_url": "https://api.foundation.app/v1"
+      },
+      "superrare": {
+        "enabled": false,
+        "api_url": "https://api.superrare.com/v2"
+      }
+    },
+    "price_conversion": {
+      "enabled": true,
+      "usd_conversion": true,
+      "cache_duration_hours": 24
+    }
+  },
+  "collections": {
+    "enabled": true,
+    "auto_detect_periods": true,
+    "period_detection": {
+      "min_works": 5,
+      "temporal_clustering": true,
+      "visual_clustering": true,
+      "semantic_clustering": true
+    },
+    "deduplication": {
+      "enabled": true,
+      "use_visual_signature": true,
+      "use_perceptual_hash": true,
+      "similarity_threshold": 0.95
+    }
+  },
+  "press_kit": {
+    "enabled": true,
+    "output_dir": "exports/press_kits",
+    "branding": {
+      "primary_brand": "WEB3GISEL",
+      "umbrella_brands": ["WEB3PHOTO"],
+      "artist_names": ["GISEL FLOREZ", "GISELX", "GISELXFLOREZ"]
+    },
+    "xmp_metadata": {
+      "enabled": true,
+      "embed_invisible_branding": true,
+      "copyright_notice": true
+    },
+    "template": {
+      "style": "high-end-minimalist",
+      "fonts": {
+        "heading": "Crimson Pro",
+        "body": "Work Sans"
+      },
+      "colors": {
+        "primary": "#0a0a0a",
+        "accent": "#d4a574",
+        "text": "#faf8f5"
+      }
+    }
   }
 }

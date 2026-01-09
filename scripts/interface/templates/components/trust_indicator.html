@@ -1,0 +1,251 @@
+{#
+Trust Indicator Component
+=========================
+A visual indicator showing data consistency across sources.
+The more aligned blockchain data is with social posts, the more "full" the indicator.
+
+Usage:
+  {% include 'components/trust_indicator.html' with context %}
+
+Variables:
+  trust_score: 0-100 (percentage of data alignment)
+  show_label: boolean (show text label)
+  size: 'sm', 'md', 'lg' (default: md)
+  interactive: boolean (show tooltip on hover)
+#}
+
+{% set score = trust_score|default(0) %}
+{% set indicator_size = size|default('md') %}
+{% set show_text = show_label|default(true) %}
+
+<style>
+.trust-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trust-orb {
+    position: relative;
+    border-radius: 50%;
+    background: rgba(30, 30, 40, 0.8);
+    border: 2px solid rgba(100, 100, 120, 0.3);
+    overflow: hidden;
+}
+
+.trust-orb.size-sm { width: 16px; height: 16px; }
+.trust-orb.size-md { width: 24px; height: 24px; }
+.trust-orb.size-lg { width: 36px; height: 36px; }
+
+.trust-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transition: height 0.5s ease;
+}
+
+/* Liquid surface wave animation */
+.trust-fill::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -50%;
+    width: 200%;
+    height: 8px;
+    background: inherit;
+    border-radius: 50%;
+    animation: liquid-wave 3s ease-in-out infinite;
+    opacity: 0.8;
+}
+
+.trust-fill::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -30%;
+    width: 160%;
+    height: 6px;
+    background: inherit;
+    border-radius: 50%;
+    animation: liquid-wave 2.5s ease-in-out infinite reverse;
+    opacity: 0.6;
+}
+
+@keyframes liquid-wave {
+    0%, 100% { transform: translateX(-5%) rotate(-2deg); }
+    50% { transform: translateX(5%) rotate(2deg); }
+}
+
+/* Subtle shimmer effect on the liquid */
+.trust-fill-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: liquid-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes liquid-shimmer {
+    0%, 100% { left: -100%; }
+    50% { left: 150%; }
+}
+
+/* Trust levels with glow effects */
+.trust-orb[data-level="critical"] {
+    border-color: rgba(229, 62, 62, 0.6);
+    box-shadow: 0 0 12px rgba(229, 62, 62, 0.4), inset 0 0 8px rgba(229, 62, 62, 0.2);
+    animation: pulse-critical 2s ease-in-out infinite;
+}
+
+.trust-orb[data-level="critical"] .trust-fill {
+    background: linear-gradient(to top, #e53e3e, #fc8181);
+}
+
+.trust-orb[data-level="low"] {
+    border-color: rgba(237, 137, 54, 0.6);
+    box-shadow: 0 0 10px rgba(237, 137, 54, 0.3);
+}
+
+.trust-orb[data-level="low"] .trust-fill {
+    background: linear-gradient(to top, #ed8936, #fbd38d);
+}
+
+.trust-orb[data-level="moderate"] {
+    border-color: rgba(212, 165, 116, 0.6);
+    box-shadow: 0 0 8px rgba(212, 165, 116, 0.3);
+}
+
+.trust-orb[data-level="moderate"] .trust-fill {
+    background: linear-gradient(to top, #d4a574, #f4a261);
+}
+
+.trust-orb[data-level="good"] {
+    border-color: rgba(72, 187, 120, 0.6);
+    box-shadow: 0 0 8px rgba(72, 187, 120, 0.3);
+}
+
+.trust-orb[data-level="good"] .trust-fill {
+    background: linear-gradient(to top, #48bb78, #9ae6b4);
+}
+
+.trust-orb[data-level="excellent"] {
+    border-color: rgba(104, 211, 145, 0.8);
+    box-shadow: 0 0 15px rgba(104, 211, 145, 0.5);
+    animation: pulse-excellent 3s ease-in-out infinite;
+}
+
+.trust-orb[data-level="excellent"] .trust-fill {
+    background: linear-gradient(to top, #68d391, #c6f6d5);
+}
+
+@keyframes pulse-critical {
+    0%, 100% { box-shadow: 0 0 12px rgba(229, 62, 62, 0.4), inset 0 0 8px rgba(229, 62, 62, 0.2); }
+    50% { box-shadow: 0 0 20px rgba(229, 62, 62, 0.6), inset 0 0 12px rgba(229, 62, 62, 0.3); }
+}
+
+@keyframes pulse-excellent {
+    0%, 100% { box-shadow: 0 0 15px rgba(104, 211, 145, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(104, 211, 145, 0.7); }
+}
+
+.trust-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.trust-label[data-level="critical"] { color: #e53e3e; }
+.trust-label[data-level="low"] { color: #ed8936; }
+.trust-label[data-level="moderate"] { color: #d4a574; }
+.trust-label[data-level="good"] { color: #48bb78; }
+.trust-label[data-level="excellent"] { color: #68d391; }
+
+/* Tooltip */
+.trust-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a24;
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 100;
+    font-size: 0.75rem;
+    color: rgba(232, 230, 227, 0.8);
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+.trust-indicator:hover .trust-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.trust-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1a1a24;
+}
+
+.trust-tooltip-header {
+    font-weight: 500;
+    color: var(--text-primary, #e8e6e3);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.trust-tooltip-score {
+    font-family: 'Geist Mono', monospace;
+}
+</style>
+
+{% set level = 'critical' if score < 20 else ('low' if score < 40 else ('moderate' if score < 60 else ('good' if score < 85 else 'excellent'))) %}
+{% set level_text = 'Critical' if score < 20 else ('Low' if score < 40 else ('Moderate' if score < 60 else ('Good' if score < 85 else 'Excellent'))) %}
+
+<div class="trust-indicator" {% if interactive|default(true) %}style="position: relative; cursor: help;"{% endif %}>
+    <div class="trust-orb size-{{ indicator_size }}" data-level="{{ level }}">
+        <div class="trust-fill" style="height: {{ score }}%;">
+            <div class="trust-fill-shimmer"></div>
+        </div>
+    </div>
+    {% if show_text %}
+    <span class="trust-label" data-level="{{ level }}">{{ level_text }}</span>
+    {% endif %}
+
+    {% if interactive|default(true) %}
+    <div class="trust-tooltip">
+        <div class="trust-tooltip-header">
+            <span>Data Consistency</span>
+            <span class="trust-tooltip-score">{{ score }}%</span>
+        </div>
+        <div>
+            {% if score < 20 %}
+            Very low alignment between blockchain data and social posts. Consider adding more context layers.
+            {% elif score < 40 %}
+            Limited data alignment. Your archive may appear incomplete to others in the ecosystem.
+            {% elif score < 60 %}
+            Moderate consistency. Some gaps exist between your blockchain activity and documented history.
+            {% elif score < 85 %}
+            Good data alignment. Your archive tells a coherent story.
+            {% else %}
+            Excellent consistency. Your blockchain data and social history align well.
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>

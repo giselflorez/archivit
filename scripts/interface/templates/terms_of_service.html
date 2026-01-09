@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}ARCHIV-IT | Terms of Service{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --accent-gold: #d4a574;
+        --accent-warm: #f4a261;
+        --text-primary: #e8e6e3;
+        --text-muted: rgba(232, 230, 227, 0.5);
+        --danger: #e53e3e;
+        --success: #68d391;
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Geist Sans', -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+
+    .tos-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+
+    .tos-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .tos-header h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .tos-header p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .tos-content {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .tos-content h2 {
+        font-size: 1.1rem;
+        color: var(--accent-gold);
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .tos-content h2:first-child {
+        margin-top: 0;
+    }
+
+    .tos-content p, .tos-content li {
+        font-size: 0.85rem;
+        line-height: 1.7;
+        color: var(--text-muted);
+    }
+
+    .tos-content ul {
+        margin: 0.5rem 0 1rem 1.5rem;
+        padding: 0;
+    }
+
+    .tos-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .tos-highlight {
+        background: rgba(229, 62, 62, 0.1);
+        border-left: 3px solid var(--danger);
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .tos-highlight p {
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    /* Agreement Section */
+    .agreement-section {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .agreement-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+
+    .agreement-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .agreement-checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(212, 165, 116, 0.4);
+        border-radius: 3px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .agreement-checkbox.checked {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+
+    .agreement-checkbox svg {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .agreement-checkbox.checked svg {
+        opacity: 1;
+    }
+
+    .agreement-text {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        line-height: 1.5;
+    }
+
+    .agreement-text strong {
+        color: var(--accent-gold);
+    }
+
+    /* Actions */
+    .tos-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-decline {
+        background: transparent;
+        border: 1px solid rgba(229, 62, 62, 0.4);
+        color: var(--text-muted);
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-decline:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+    }
+
+    .btn-accept {
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+        border: none;
+        color: var(--bg-primary);
+        padding: 0.75rem 2rem;
+        font-size: 0.85rem;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 2px;
+        opacity: 0.4;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-accept.enabled {
+        opacity: 1;
+        pointer-events: auto;
+        box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+    }
+
+    .btn-accept.enabled:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.5);
+    }
+
+    /* Version info */
+    .tos-version {
+        text-align: center;
+        margin-top: 2rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tos-container">
+    <div class="tos-header">
+        <h1>TERMS OF SERVICE</h1>
+        <p>Please review and accept to continue using ARCHIV-IT</p>
+    </div>
+
+    <div class="tos-content">
+        <h2>1. Purpose & Mission</h2>
+        <p>ARCHIV-IT is designed to help artists and collectors preserve, understand, and visualize their creative history. This tool exists to <strong>protect and empower</strong> the digital art community.</p>
+
+        <h2>2. Acceptable Use</h2>
+        <p>You may use ARCHIV-IT to:</p>
+        <ul>
+            <li>Archive and visualize your own creative work and collection history</li>
+            <li>Understand relationships between your work, collectors, and the broader ecosystem</li>
+            <li>Export and preserve your artistic legacy</li>
+            <li>Build context layers from your own social and blockchain data</li>
+        </ul>
+
+        <h2>3. Prohibited Activities</h2>
+        <div class="tos-highlight">
+            <p><strong>The following activities are strictly prohibited and will result in immediate license revocation:</strong></p>
+        </div>
+        <ul>
+            <li><strong>Art Theft & Copycatting:</strong> Using this tool to identify, copy, or re-mint artwork created by others</li>
+            <li><strong>Impersonation:</strong> Creating archives that misrepresent your identity or claim others' work as your own</li>
+            <li><strong>Data Harvesting:</strong> Using scraped data to target, harass, or exploit other artists or collectors</li>
+            <li><strong>Fraudulent Provenance:</strong> Fabricating or manipulating provenance data</li>
+            <li><strong>Circumvention:</strong> Attempting to disable, bypass, or remove protection mechanisms</li>
+        </ul>
+
+        <h2>4. Data Consistency & Trust Indicator</h2>
+        <p>ARCHIV-IT includes a <strong>Trust Indicator</strong> - a visual orb that shows how well your imported data aligns across sources:</p>
+        <ul>
+            <li>A <strong>full, green-glowing orb</strong> = excellent data consistency across blockchain and social sources</li>
+            <li>A <strong>partially filled orb</strong> = moderate consistency, some gaps to address</li>
+            <li>An <strong>empty, red-glowing orb</strong> = low consistency - significant gaps between claimed history and verifiable data</li>
+        </ul>
+        <p>This indicator is visible to you and reflects how your profile may appear to others using ARCHIV-IT. It's not a judgment - it's a mirror. Others in the ecosystem can see this indicator when viewing aggregated data, and will naturally draw their own conclusions.</p>
+        <p><em>A red orb speaks for itself.</em></p>
+
+        <h2>5. License Revocation & Appeals</h2>
+        <p>If your license is revoked for violation of these terms:</p>
+        <ul>
+            <li>You will receive notification with the reason</li>
+            <li>You have <strong>30 days</strong> to submit an appeal</li>
+            <li>Appeals are reviewed by WEB3GISEL within 14 days</li>
+            <li>You may export your data during the appeal period</li>
+            <li>Final decisions are at the sole discretion of WEB3GISEL</li>
+        </ul>
+
+        <h2>6. Local-First Privacy</h2>
+        <p>Your data stays on your local system. ARCHIV-IT does not transmit your archive data to external servers. The only exceptions:</p>
+        <ul>
+            <li>Anonymous usage analytics (if opted in)</li>
+            <li>Appeal communications you initiate</li>
+        </ul>
+
+        <h2>7. Updates to Terms</h2>
+        <p>These terms may be updated. Continued use after updates constitutes acceptance. Material changes will be highlighted at next launch.</p>
+    </div>
+
+    <form id="tos-form" method="POST" action="/setup/accept-terms">
+        <div class="agreement-section">
+            <div class="agreement-item" onclick="toggleAgreement(0)">
+                <div class="agreement-checkbox" id="agree-0">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#0a0a0f" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <input type="checkbox" name="agree_terms" value="1" style="display: none;">
+                <span class="agreement-text">I have read and agree to the <strong>Terms of Service</strong></span>
+            </div>
+
+            <div class="agreement-item" onclick="toggleAgreement(1)">
+                <div class="agreement-checkbox" id="agree-1">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#0a0a0f" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <input type="checkbox" name="agree_no_copycat" value="1" style="display: none;">
+                <span class="agreement-text">I will <strong>NOT</strong> use this tool to copy, impersonate, or misappropriate others' work</span>
+            </div>
+
+            <div class="agreement-item" onclick="toggleAgreement(2)">
+                <div class="agreement-checkbox" id="agree-2">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#0a0a0f" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <input type="checkbox" name="agree_revocation" value="1" style="display: none;">
+                <span class="agreement-text">I understand that <strong>misuse will result in license revocation</strong> with a 30-day appeal window</span>
+            </div>
+        </div>
+
+        <div class="tos-actions">
+            <button type="button" class="btn-decline" onclick="declineTerms()">Decline & Exit</button>
+            <button type="submit" class="btn-accept" id="accept-btn">Accept & Continue</button>
+        </div>
+    </form>
+
+    <div class="tos-version">
+        Terms of Service v1.0 | Effective January 2026 | ARCHIV-IT by WEB3GISEL
+    </div>
+</div>
+
+<script>
+const agreements = [false, false, false];
+
+function toggleAgreement(index) {
+    agreements[index] = !agreements[index];
+    const checkbox = document.getElementById(`agree-${index}`);
+    const input = checkbox.parentElement.querySelector('input[type="checkbox"]');
+
+    checkbox.classList.toggle('checked', agreements[index]);
+    input.checked = agreements[index];
+
+    updateAcceptButton();
+}
+
+function updateAcceptButton() {
+    const allChecked = agreements.every(a => a);
+    const btn = document.getElementById('accept-btn');
+    btn.classList.toggle('enabled', allChecked);
+}
+
+function declineTerms() {
+    if (confirm('Are you sure you want to decline? You will not be able to use ARCHIV-IT without accepting the Terms of Service.')) {
+        window.location.href = '/setup/declined';
+    }
+}
+</script>
+{% endblock %}

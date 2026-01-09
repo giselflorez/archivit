@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════
+                    ARCHIV-IT BETA
+                Personal Archive for Artists
+═══════════════════════════════════════════════════════════
+
+QUICK START (Mac)
+─────────────────
+1. Open Terminal
+2. Navigate to this folder:
+   cd /path/to/ARCHIVIT_01
+
+3. Run the installer:
+   ./install.sh
+
+4. Start the app:
+   ./start_server.sh
+
+5. Open browser:
+   http://localhost:5001
+
+═══════════════════════════════════════════════════════════
+
+NEED HELP?
+─────────────────
+• Full guide: INSTALL_FOR_TESTERS.md
+• Issues: Contact Gisel directly
+
+FEEDBACK
+─────────────────
+• Fill out: TESTER_FEEDBACK.md after testing
+
+═══════════════════════════════════════════════════════════

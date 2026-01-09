@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+{% block title %}Self-Hosted Setup - ARCHIV-IT{% endblock %}
+
+{% block content %}
+<style>
+    .setup-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .setup-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .setup-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(147, 112, 219, 0.15);
+        border: 3px solid #9370db;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        animation: setup-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes setup-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(147, 112, 219, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(147, 112, 219, 0.5); }
+    }
+
+    .setup-header h1 {
+        font-size: 1.75rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+    }
+
+    .setup-header p {
+        color: rgba(232, 230, 227, 0.6);
+    }
+
+    .step-card {
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(100, 100, 120, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-card.active {
+        border-color: #9370db;
+    }
+
+    .step-card.completed {
+        border-color: #68d391;
+        opacity: 0.7;
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(147, 112, 219, 0.2);
+        border: 2px solid #9370db;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #9370db;
+        margin-bottom: 1rem;
+    }
+
+    .step-card.completed .step-number {
+        background: rgba(104, 211, 145, 0.2);
+        border-color: #68d391;
+        color: #68d391;
+    }
+
+    .step-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-description {
+        color: rgba(232, 230, 227, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 480px) {
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .benefit-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+    }
+
+    .benefit-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .benefit-label {
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.7);
+    }
+
+    .benefit-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #9370db;
+    }
+
+    .requirements-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .requirements-list li {
+        padding: 0.6rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+        color: rgba(232, 230, 227, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .requirements-list li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border: 2px solid #9370db;
+        border-radius: 2px;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.6);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(100, 100, 120, 0.3);
+        border-radius: 6px;
+        color: #e8e6e3;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.9rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #9370db;
+    }
+
+    .form-input::placeholder {
+        color: rgba(232, 230, 227, 0.4);
+    }
+
+    .test-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(147, 112, 219, 0.2);
+        border: 1px solid #9370db;
+        border-radius: 6px;
+        color: #9370db;
+        font-family: inherit;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .test-btn:hover {
+        background: rgba(147, 112, 219, 0.3);
+    }
+
+    .test-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .test-result {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: none;
+    }
+
+    .test-result.success {
+        display: block;
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.3);
+        color: #68d391;
+    }
+
+    .test-result.error {
+        display: block;
+        background: rgba(229, 62, 62, 0.1);
+        border: 1px solid rgba(229, 62, 62, 0.3);
+        color: #e53e3e;
+    }
+
+    .activate-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(90deg, #9370db, #7b68ee);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .activate-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(147, 112, 219, 0.4);
+    }
+
+    .activate-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .status-message {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+
+    .status-message.success {
+        display: block;
+        background: rgba(72, 187, 120, 0.15);
+        border: 1px solid rgba(72, 187, 120, 0.3);
+        color: #48bb78;
+    }
+
+    .status-message.error {
+        display: block;
+        background: rgba(229, 62, 62, 0.15);
+        border: 1px solid rgba(229, 62, 62, 0.3);
+        color: #e53e3e;
+    }
+
+    .tier-note {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(212, 165, 116, 0.1);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: rgba(232, 230, 227, 0.6);
+    }
+
+    .tier-note strong {
+        color: #d4a574;
+    }
+
+    .already-enabled {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(104, 211, 145, 0.1);
+        border: 1px solid rgba(104, 211, 145, 0.2);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .already-enabled h3 {
+        color: #68d391;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="setup-container">
+    <div class="setup-header">
+        <div class="setup-icon">&#9881;</div>
+        <h1>Self-Hosted API Setup</h1>
+        <p>Your infrastructure. Full control.</p>
+    </div>
+
+    <div id="statusMessage" class="status-message"></div>
+
+    {% if is_self_hosted %}
+    <div class="already-enabled">
+        <h3>Self-Hosted Active</h3>
+        <p>Endpoint: {{ current_endpoint }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Step 1: Why Self-Host -->
+    <div class="step-card" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-title">Why Self-Host?</div>
+        <div class="step-description">Run your own API for maximum control.</div>
+
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <div class="benefit-icon">+2</div>
+                <div class="benefit-label">Bonus Wallets</div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">&#128274;</div>
+                <div class="benefit-label">Full Control</div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">&#9734;</div>
+                <div class="benefit-label">WHITE GLOVE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Requirements -->
+    <div class="step-card" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-title">Requirements</div>
+        <div class="step-description">What you need to get started.</div>
+
+        <ul class="requirements-list">
+            <li>Server or cloud instance</li>
+            <li>HTTPS endpoint (SSL required)</li>
+            <li>ARCHIV-IT API deployed</li>
+        </ul>
+    </div>
+
+    <!-- Step 3: Configuration -->
+    <div class="step-card" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-title">Your API Endpoint</div>
+        <div class="step-description">Enter your self-hosted API URL.</div>
+
+        <div class="form-group">
+            <label class="form-label">API Endpoint URL</label>
+            <input type="url"
+                   id="apiEndpoint"
+                   class="form-input"
+                   placeholder="https://your-api.example.com"
+                   value="{{ current_endpoint or '' }}">
+        </div>
+    </div>
+
+    <!-- Step 4: Test Connection -->
+    <div class="step-card" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-title">Test Connection</div>
+        <div class="step-description">Verify your endpoint is reachable.</div>
+
+        <button class="test-btn" onclick="testConnection()">
+            <span id="testIcon">&#9889;</span>
+            <span id="testText">Test Connection</span>
+        </button>
+
+        <div id="testResult" class="test-result"></div>
+    </div>
+
+    <!-- Step 5: Activate -->
+    <div class="step-card" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-title">Activate</div>
+        <div class="step-description">Enable self-hosted mode.</div>
+
+        <button class="activate-btn" id="activateBtn" onclick="activateSelfHosted()" disabled>
+            ACTIVATE SELF-HOSTED
+        </button>
+    </div>
+
+    <div class="tier-note">
+        <strong>WHITE GLOVE tier:</strong> Requires self-hosted API for unlimited wallets.
+        Other tiers get +2 bonus wallets when self-hosted.
+    </div>
+</div>
+
+<script>
+let connectionTested = false;
+
+function testConnection() {
+    const endpoint = document.getElementById('apiEndpoint').value.trim();
+    const testResult = document.getElementById('testResult');
+    const testBtn = document.querySelector('.test-btn');
+    const testIcon = document.getElementById('testIcon');
+    const testText = document.getElementById('testText');
+
+    if (!endpoint) {
+        testResult.textContent = 'Enter an endpoint URL first';
+        testResult.className = 'test-result error';
+        return;
+    }
+
+    // Validate URL format
+    try {
+        new URL(endpoint);
+    } catch {
+        testResult.textContent = 'Invalid URL format';
+        testResult.className = 'test-result error';
+        return;
+    }
+
+    // Check HTTPS
+    if (!endpoint.startsWith('https://')) {
+        testResult.textContent = 'HTTPS required for security';
+        testResult.className = 'test-result error';
+        return;
+    }
+
+    testBtn.disabled = true;
+    testIcon.textContent = '...';
+    testText.textContent = 'Testing...';
+
+    // Test the endpoint
+    fetch('/api/self-hosted/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: endpoint })
+    })
+    .then(response => response.json())
+    .then(result => {
+        testBtn.disabled = false;
+        testIcon.textContent = result.success ? '&#10003;' : '&#10007;';
+        testText.textContent = 'Test Connection';
+
+        if (result.success) {
+            testResult.textContent = 'Connection successful';
+            testResult.className = 'test-result success';
+            connectionTested = true;
+            document.getElementById('activateBtn').disabled = false;
+        } else {
+            testResult.textContent = result.error || 'Connection failed';
+            testResult.className = 'test-result error';
+            connectionTested = false;
+            document.getElementById('activateBtn').disabled = true;
+        }
+    })
+    .catch(err => {
+        testBtn.disabled = false;
+        testIcon.textContent = '&#9889;';
+        testText.textContent = 'Test Connection';
+        testResult.textContent = 'Test failed: ' + err.message;
+        testResult.className = 'test-result error';
+    });
+}
+
+function activateSelfHosted() {
+    const endpoint = document.getElementById('apiEndpoint').value.trim();
+
+    if (!connectionTested) {
+        showStatus('Test connection first', 'error');
+        return;
+    }
+
+    fetch('/api/self-hosted/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: endpoint, enabled: true })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showStatus('Self-hosted activated! +2 wallets unlocked.', 'success');
+            setTimeout(() => {
+                window.location.href = '/upgrade-badge';
+            }, 2000);
+        } else {
+            showStatus(result.error || 'Activation failed', 'error');
+        }
+    })
+    .catch(err => {
+        showStatus('Error: ' + err.message, 'error');
+    });
+}
+
+function showStatus(message, type) {
+    const el = document.getElementById('statusMessage');
+    el.textContent = message;
+    el.className = 'status-message ' + type;
+}
+
+// Enable activate if already tested (page reload)
+document.addEventListener('DOMContentLoaded', function() {
+    const endpoint = document.getElementById('apiEndpoint').value;
+    if (endpoint && '{{ is_self_hosted|lower }}' === 'true') {
+        connectionTested = true;
+        document.getElementById('activateBtn').disabled = false;
+    }
+});
+</script>
+{% endblock %}

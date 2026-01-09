@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter System Iterations - Visual Translator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --accent-gold: #d4a574;
+            --accent-blue: #63b3ed;
+            --accent-purple: #ba8fe0;
+            --accent-green: #68d391;
+            --text-primary: #f5f5f5;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #666666;
+            --border-color: rgba(212, 165, 116, 0.2);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .demo-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-overview {
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .data-overview h3 {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .data-dimensions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .dimension-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .iteration-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-height: 600px;
+        }
+
+        .iteration-container.active {
+            display: block;
+        }
+
+        .iteration-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .iteration-desc {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .demo-note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* ========================================
+           ITERATION 1: Accordion Drawers
+        ======================================== */
+        .accordion-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .accordion-drawer {
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(20, 20, 20, 0.5);
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, rgba(212, 165, 116, 0.05), transparent);
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(90deg, rgba(212, 165, 116, 0.15), transparent);
+        }
+
+        .accordion-drawer.active .accordion-header {
+            background: linear-gradient(90deg, rgba(212, 165, 116, 0.2), transparent);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .accordion-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .accordion-icon {
+            font-size: 1.2rem;
+        }
+
+        .accordion-arrow {
+            transition: transform 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .accordion-drawer.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-drawer.active .accordion-content {
+            max-height: 300px;
+        }
+
+        .accordion-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .accordion-option {
+            padding: 0.5rem 1rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .accordion-option:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+            color: var(--text-primary);
+        }
+
+        .accordion-option.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        /* ========================================
+           ITERATION 2: Dial Controls
+        ======================================== */
+        .dial-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .dial-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dial-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dial-wheel {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(20, 20, 20, 0.9), rgba(212, 165, 116, 0.1));
+            border: 2px solid var(--border-color);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dial-wheel:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+            transform: scale(1.05);
+        }
+
+        .dial-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            background: var(--bg-secondary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dial-value {
+            font-size: 1rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .dial-subtext {
+            font-size: 0.55rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .dial-chart {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .dial-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            width: 100%;
+        }
+
+        .dial-option {
+            padding: 0.4rem 0.8rem;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dial-option:hover {
+            background: rgba(212, 165, 116, 0.15);
+            border-color: var(--border-color);
+        }
+
+        .dial-option.active {
+            background: rgba(212, 165, 116, 0.25);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .dial-option-count {
+            opacity: 0.6;
+            font-size: 0.6rem;
+        }
+
+        /* ========================================
+           ITERATION 3: Segmented Slider Strips
+        ======================================== */
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .slider-strip {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .slider-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .slider-track {
+            position: relative;
+            height: 50px;
+            background: linear-gradient(90deg, rgba(212, 165, 116, 0.05), rgba(99, 179, 237, 0.05));
+            border-radius: 25px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .slider-segments {
+            display: flex;
+            height: 100%;
+            position: relative;
+        }
+
+        .slider-segment {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .slider-segment:last-child {
+            border-right: none;
+        }
+
+        .slider-segment:hover {
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--text-primary);
+        }
+
+        .slider-segment.active {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(99, 179, 237, 0.2));
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .slider-segment.active::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gold);
+        }
+
+        /* ========================================
+           ITERATION 4: Tag Cloud with Magnetic Grouping
+        ======================================== */
+        .tagcloud-container {
+            padding: 2rem;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .tagcloud-legend {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .tagcloud-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tag-bubble {
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .tag-bubble:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 25px currentColor;
+            z-index: 10;
+        }
+
+        .tag-bubble.active {
+            transform: scale(1.1);
+            font-weight: 700;
+        }
+
+        /* Different colors for different categories */
+        .tag-media {
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        .tag-source {
+            background: rgba(99, 179, 237, 0.15);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .tag-blockchain {
+            background: rgba(186, 143, 224, 0.15);
+            color: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+
+        .tag-platform {
+            background: rgba(104, 211, 145, 0.15);
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .tag-time {
+            background: rgba(237, 137, 54, 0.15);
+            color: #ed8936;
+            border-color: #ed8936;
+        }
+
+        /* ========================================
+           ITERATION 5: Layered Cards (Swipeable)
+        ======================================== */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .filter-card {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.9));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .filter-card:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 5px 25px rgba(212, 165, 116, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-count {
+            background: rgba(212, 165, 116, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--accent-gold);
+        }
+
+        .card-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(212, 165, 116, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .filter-chip:hover {
+            background: rgba(212, 165, 116, 0.15);
+            border-color: var(--accent-gold);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(244, 162, 97, 0.2));
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .chip-icon {
+            font-size: 0.9rem;
+        }
+
+        .clear-all {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+
+        .clear-all:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1 class="demo-title">Filter System Redesign</h1>
+        <p class="demo-subtitle">5 Innovative Approaches to Multi-Dimensional Filtering</p>
+
+        <div class="data-overview">
+            <h3>Available Filter Dimensions</h3>
+            <div class="data-dimensions">
+                <div class="dimension-item">🎨 <strong>Media Type:</strong> Audio, Video, Images, Text</div>
+                <div class="dimension-item">📦 <strong>Source:</strong> Web, Blockchain, Upload, Written</div>
+                <div class="dimension-item">⛓️ <strong>Network:</strong> Ethereum, Bitcoin, Solana, XRP, Tezos</div>
+                <div class="dimension-item">🏪 <strong>Platform:</strong> SuperRare, Foundation, OpenSea, MakersPlace, Zora</div>
+                <div class="dimension-item">📐 <strong>Resolution:</strong> High, Medium, Low</div>
+                <div class="dimension-item">📅 <strong>Time:</strong> Mint Date, Import Date, Scrape Date</div>
+                <div class="dimension-item">🤖 <strong>Has Metadata:</strong> Transcript, Description, Blockchain</div>
+                <div class="dimension-item">👤 <strong>Subject:</strong> giselxflorez, Other</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showIteration(1)">Iteration 1: Accordion Drawers</button>
+        <button class="tab-btn" onclick="showIteration(2)">Iteration 2: Dial Controls</button>
+        <button class="tab-btn" onclick="showIteration(3)">Iteration 3: Slider Strips</button>
+        <button class="tab-btn" onclick="showIteration(4)">Iteration 4: Tag Cloud</button>
+        <button class="tab-btn" onclick="showIteration(5)">Iteration 5: Layered Cards</button>
+    </div>
+
+    <!-- ITERATION 1: Accordion Drawers -->
+    <div class="iteration-container active" id="iteration-1">
+        <h2 class="iteration-title">Iteration 1: Accordion Drawers</h2>
+        <p class="iteration-desc">
+            Collapsible drawers that expand to reveal filter options. Clean, organized, and familiar pattern.
+            Only shows what you need, when you need it. Click headers to expand/collapse.
+        </p>
+        <div class="accordion-container">
+            <div class="accordion-drawer active">
+                <div class="accordion-header">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">🎨</span>
+                        Media Type
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-options">
+                        <div class="accordion-option active">All Media</div>
+                        <div class="accordion-option">Images</div>
+                        <div class="accordion-option">Video</div>
+                        <div class="accordion-option">Audio</div>
+                        <div class="accordion-option">Text</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-drawer">
+                <div class="accordion-header">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">⛓️</span>
+                        Blockchain Network
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-options">
+                        <div class="accordion-option active">All Networks</div>
+                        <div class="accordion-option">Ethereum</div>
+                        <div class="accordion-option">Bitcoin</div>
+                        <div class="accordion-option">Solana</div>
+                        <div class="accordion-option">Tezos</div>
+                        <div class="accordion-option">No Blockchain</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-drawer">
+                <div class="accordion-header">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">🏪</span>
+                        Platform / Source
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-options">
+                        <div class="accordion-option active">All Platforms</div>
+                        <div class="accordion-option">SuperRare</div>
+                        <div class="accordion-option">Foundation</div>
+                        <div class="accordion-option">OpenSea</div>
+                        <div class="accordion-option">MakersPlace</div>
+                        <div class="accordion-option">Zora</div>
+                        <div class="accordion-option">Web Scrapes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-drawer">
+                <div class="accordion-header">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">📅</span>
+                        Time Period
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-options">
+                        <div class="accordion-option active">All Time</div>
+                        <div class="accordion-option">Minted 2025</div>
+                        <div class="accordion-option">Minted 2024</div>
+                        <div class="accordion-option">Imported Recent</div>
+                        <div class="accordion-option">Scraped Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-drawer">
+                <div class="accordion-header">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">🤖</span>
+                        Has Metadata
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-options">
+                        <div class="accordion-option">With Transcript</div>
+                        <div class="accordion-option">With AI Description</div>
+                        <div class="accordion-option">With Blockchain Data</div>
+                        <div class="accordion-option">Verified NFTs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Familiar, organized, space-efficient • <strong>Best for:</strong> Many filter options, progressive disclosure</p>
+    </div>
+
+    <!-- ITERATION 2: Dial Controls -->
+    <div class="iteration-container" id="iteration-2">
+        <h2 class="iteration-title">Iteration 2: Dial Controls</h2>
+        <p class="iteration-desc">
+            Donut chart dials showing distribution of assets across platforms and categories.
+            Click options to filter by one or multiple selections. Selecting all individual platforms reverts to "All".
+        </p>
+        <div class="dial-container">
+            <div class="dial-control">
+                <div class="dial-label">
+                    <span>🏪</span>
+                    Platform
+                </div>
+                <div class="dial-wheel" id="platform-dial">
+                    <svg class="dial-chart" viewBox="0 0 120 120">
+                        <!-- SuperRare: 40% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                                stroke-dasharray="125.6 314" transform="rotate(-90 60 60)" />
+                        <!-- Foundation: 25% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                                stroke-dasharray="78.5 314" transform="rotate(54 60 60)" />
+                        <!-- OpenSea: 20% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                                stroke-dasharray="62.8 314" transform="rotate(144 60 60)" />
+                        <!-- MakersPlace: 10% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                                stroke-dasharray="31.4 314" transform="rotate(216 60 60)" />
+                        <!-- Zora: 5% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#ed8936" stroke-width="20"
+                                stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                    </svg>
+                    <div class="dial-center">
+                        <div class="dial-value">72</div>
+                        <div class="dial-subtext">total</div>
+                    </div>
+                </div>
+                <div class="dial-options" id="platform-options">
+                    <div class="dial-option active" data-filter="all">
+                        <span>All Platforms</span>
+                        <span class="dial-option-count">72</span>
+                    </div>
+                    <div class="dial-option" data-filter="superrare">
+                        <span>SuperRare</span>
+                        <span class="dial-option-count">29</span>
+                    </div>
+                    <div class="dial-option" data-filter="foundation">
+                        <span>Foundation</span>
+                        <span class="dial-option-count">18</span>
+                    </div>
+                    <div class="dial-option" data-filter="opensea">
+                        <span>OpenSea</span>
+                        <span class="dial-option-count">14</span>
+                    </div>
+                    <div class="dial-option" data-filter="makersplace">
+                        <span>MakersPlace</span>
+                        <span class="dial-option-count">7</span>
+                    </div>
+                    <div class="dial-option" data-filter="zora">
+                        <span>Zora</span>
+                        <span class="dial-option-count">4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dial-control">
+                <div class="dial-label">
+                    <span>⛓️</span>
+                    Network
+                </div>
+                <div class="dial-wheel" id="network-dial">
+                    <svg class="dial-chart" viewBox="0 0 120 120">
+                        <!-- Ethereum: 70% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#627eea" stroke-width="20"
+                                stroke-dasharray="219.8 314" transform="rotate(-90 60 60)" />
+                        <!-- Tezos: 15% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#2c7df7" stroke-width="20"
+                                stroke-dasharray="47.1 314" transform="rotate(162 60 60)" />
+                        <!-- Solana: 10% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#14f195" stroke-width="20"
+                                stroke-dasharray="31.4 314" transform="rotate(216 60 60)" />
+                        <!-- Bitcoin: 5% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#f7931a" stroke-width="20"
+                                stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                    </svg>
+                    <div class="dial-center">
+                        <div class="dial-value">72</div>
+                        <div class="dial-subtext">total</div>
+                    </div>
+                </div>
+                <div class="dial-options" id="network-options">
+                    <div class="dial-option active" data-filter="all">
+                        <span>All Networks</span>
+                        <span class="dial-option-count">72</span>
+                    </div>
+                    <div class="dial-option" data-filter="ethereum">
+                        <span>Ethereum</span>
+                        <span class="dial-option-count">50</span>
+                    </div>
+                    <div class="dial-option" data-filter="tezos">
+                        <span>Tezos</span>
+                        <span class="dial-option-count">11</span>
+                    </div>
+                    <div class="dial-option" data-filter="solana">
+                        <span>Solana</span>
+                        <span class="dial-option-count">7</span>
+                    </div>
+                    <div class="dial-option" data-filter="bitcoin">
+                        <span>Bitcoin</span>
+                        <span class="dial-option-count">4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dial-control">
+                <div class="dial-label">
+                    <span>🎨</span>
+                    Media Type
+                </div>
+                <div class="dial-wheel" id="media-dial">
+                    <svg class="dial-chart" viewBox="0 0 120 120">
+                        <!-- Images: 55% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                                stroke-dasharray="172.7 314" transform="rotate(-90 60 60)" />
+                        <!-- Video: 25% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                                stroke-dasharray="78.5 314" transform="rotate(108 60 60)" />
+                        <!-- Audio: 15% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                                stroke-dasharray="47.1 314" transform="rotate(198 60 60)" />
+                        <!-- Text: 5% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                                stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                    </svg>
+                    <div class="dial-center">
+                        <div class="dial-value">72</div>
+                        <div class="dial-subtext">total</div>
+                    </div>
+                </div>
+                <div class="dial-options" id="media-options">
+                    <div class="dial-option active" data-filter="all">
+                        <span>All Media</span>
+                        <span class="dial-option-count">72</span>
+                    </div>
+                    <div class="dial-option" data-filter="images">
+                        <span>Images</span>
+                        <span class="dial-option-count">40</span>
+                    </div>
+                    <div class="dial-option" data-filter="video">
+                        <span>Video</span>
+                        <span class="dial-option-count">18</span>
+                    </div>
+                    <div class="dial-option" data-filter="audio">
+                        <span>Audio</span>
+                        <span class="dial-option-count">11</span>
+                    </div>
+                    <div class="dial-option" data-filter="text">
+                        <span>Text</span>
+                        <span class="dial-option-count">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dial-control">
+                <div class="dial-label">
+                    <span>📅</span>
+                    Time Period
+                </div>
+                <div class="dial-wheel" id="time-dial">
+                    <svg class="dial-chart" viewBox="0 0 120 120">
+                        <!-- 2025: 45% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#d4a574" stroke-width="20"
+                                stroke-dasharray="141.3 314" transform="rotate(-90 60 60)" />
+                        <!-- 2024: 35% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#63b3ed" stroke-width="20"
+                                stroke-dasharray="109.9 314" transform="rotate(72 60 60)" />
+                        <!-- 2023: 15% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#ba8fe0" stroke-width="20"
+                                stroke-dasharray="47.1 314" transform="rotate(198 60 60)" />
+                        <!-- Older: 5% -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#68d391" stroke-width="20"
+                                stroke-dasharray="15.7 314" transform="rotate(252 60 60)" />
+                    </svg>
+                    <div class="dial-center">
+                        <div class="dial-value">72</div>
+                        <div class="dial-subtext">total</div>
+                    </div>
+                </div>
+                <div class="dial-options" id="time-options">
+                    <div class="dial-option active" data-filter="all">
+                        <span>All Time</span>
+                        <span class="dial-option-count">72</span>
+                    </div>
+                    <div class="dial-option" data-filter="2025">
+                        <span>2025</span>
+                        <span class="dial-option-count">32</span>
+                    </div>
+                    <div class="dial-option" data-filter="2024">
+                        <span>2024</span>
+                        <span class="dial-option-count">25</span>
+                    </div>
+                    <div class="dial-option" data-filter="2023">
+                        <span>2023</span>
+                        <span class="dial-option-count">11</span>
+                    </div>
+                    <div class="dial-option" data-filter="older">
+                        <span>Older</span>
+                        <span class="dial-option-count">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Data visualization, tactile feel, shows distribution at a glance • <strong>Best for:</strong> Understanding data proportions while filtering</p>
+    </div>
+
+    <!-- ITERATION 3: Segmented Slider Strips -->
+    <div class="iteration-container" id="iteration-3">
+        <h2 class="iteration-title">Iteration 3: Segmented Slider Strips</h2>
+        <p class="iteration-desc">
+            Horizontal strips where each segment is a filter option. Click segments to activate.
+            Clean, modern, and space-efficient. Great for quick scanning.
+        </p>
+        <div class="slider-container">
+            <div class="slider-strip">
+                <div class="slider-header">
+                    <span>🎨</span>
+                    Media Type
+                </div>
+                <div class="slider-track">
+                    <div class="slider-segments">
+                        <div class="slider-segment active">All</div>
+                        <div class="slider-segment">Images</div>
+                        <div class="slider-segment">Video</div>
+                        <div class="slider-segment">Audio</div>
+                        <div class="slider-segment">Text</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-strip">
+                <div class="slider-header">
+                    <span>⛓️</span>
+                    Blockchain Network
+                </div>
+                <div class="slider-track">
+                    <div class="slider-segments">
+                        <div class="slider-segment">All Networks</div>
+                        <div class="slider-segment active">Ethereum</div>
+                        <div class="slider-segment">Bitcoin</div>
+                        <div class="slider-segment">Solana</div>
+                        <div class="slider-segment">Tezos</div>
+                        <div class="slider-segment">None</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-strip">
+                <div class="slider-header">
+                    <span>🏪</span>
+                    Platform
+                </div>
+                <div class="slider-track">
+                    <div class="slider-segments">
+                        <div class="slider-segment">All</div>
+                        <div class="slider-segment active">SuperRare</div>
+                        <div class="slider-segment">Foundation</div>
+                        <div class="slider-segment">OpenSea</div>
+                        <div class="slider-segment">MakersPlace</div>
+                        <div class="slider-segment">Zora</div>
+                        <div class="slider-segment">Web</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-strip">
+                <div class="slider-header">
+                    <span>📅</span>
+                    Time Period
+                </div>
+                <div class="slider-track">
+                    <div class="slider-segments">
+                        <div class="slider-segment active">All Time</div>
+                        <div class="slider-segment">2025</div>
+                        <div class="slider-segment">2024</div>
+                        <div class="slider-segment">2023</div>
+                        <div class="slider-segment">Older</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-strip">
+                <div class="slider-header">
+                    <span>📐</span>
+                    Resolution
+                </div>
+                <div class="slider-track">
+                    <div class="slider-segments">
+                        <div class="slider-segment active">All</div>
+                        <div class="slider-segment">High-Res</div>
+                        <div class="slider-segment">Medium-Res</div>
+                        <div class="slider-segment">Low-Res</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Clean, scannable, mobile-friendly • <strong>Best for:</strong> Quick filtering, modern aesthetic</p>
+    </div>
+
+    <!-- ITERATION 4: Tag Cloud with Magnetic Grouping -->
+    <div class="iteration-container" id="iteration-4">
+        <h2 class="iteration-title">Iteration 4: Tag Cloud with Magnetic Grouping</h2>
+        <p class="iteration-desc">
+            Free-flowing tag bubbles color-coded by category. Click tags to filter.
+            Organic, visual, and playful. Tags magnetically group by type.
+        </p>
+        <div class="tagcloud-container">
+            <div class="tagcloud-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--accent-gold);"></div>
+                    Media Type
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--accent-blue);"></div>
+                    Source
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--accent-purple);"></div>
+                    Blockchain
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--accent-green);"></div>
+                    Platform
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ed8936;"></div>
+                    Time
+                </div>
+            </div>
+            <div class="tagcloud-area">
+                <!-- Media Type Tags -->
+                <div class="tag-bubble tag-media active">Images</div>
+                <div class="tag-bubble tag-media">Video</div>
+                <div class="tag-bubble tag-media">Audio</div>
+                <div class="tag-bubble tag-media">Text</div>
+
+                <!-- Source Tags -->
+                <div class="tag-bubble tag-source">Web Scrape</div>
+                <div class="tag-bubble tag-source active">Blockchain</div>
+                <div class="tag-bubble tag-source">Upload</div>
+
+                <!-- Blockchain Tags -->
+                <div class="tag-bubble tag-blockchain active">Ethereum</div>
+                <div class="tag-bubble tag-blockchain">Solana</div>
+                <div class="tag-bubble tag-blockchain">Bitcoin</div>
+                <div class="tag-bubble tag-blockchain">Tezos</div>
+
+                <!-- Platform Tags -->
+                <div class="tag-bubble tag-platform active">SuperRare</div>
+                <div class="tag-bubble tag-platform">Foundation</div>
+                <div class="tag-bubble tag-platform">OpenSea</div>
+                <div class="tag-bubble tag-platform">MakersPlace</div>
+
+                <!-- Time Tags -->
+                <div class="tag-bubble tag-time active">2025</div>
+                <div class="tag-bubble tag-time">2024</div>
+                <div class="tag-bubble tag-time">2023</div>
+
+                <!-- Metadata Tags -->
+                <div class="tag-bubble tag-media">With Transcript</div>
+                <div class="tag-bubble tag-media">Verified NFT</div>
+                <div class="tag-bubble tag-media">High-Res</div>
+            </div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Visual, playful, easy to scan • <strong>Best for:</strong> Creative exploration, casual browsing</p>
+    </div>
+
+    <!-- ITERATION 5: Layered Cards (Swipeable) -->
+    <div class="iteration-container" id="iteration-5">
+        <h2 class="iteration-title">Iteration 5: Layered Cards (Swipeable)</h2>
+        <p class="iteration-desc">
+            Stacked cards for each filter category with chips inside. Hover cards to highlight.
+            Clean, organized, and mobile-friendly. Easy to understand at a glance.
+        </p>
+        <div class="cards-container">
+            <div class="filter-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🎨</span>
+                        Media Type
+                    </div>
+                    <div class="card-count">1 active</div>
+                </div>
+                <div class="card-chips">
+                    <div class="filter-chip">
+                        <span class="chip-icon">🖼️</span>
+                        All Media
+                    </div>
+                    <div class="filter-chip active">
+                        <span class="chip-icon">📸</span>
+                        Images
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">🎬</span>
+                        Video
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">🎙️</span>
+                        Audio
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">📝</span>
+                        Text
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>⛓️</span>
+                        Blockchain Network
+                    </div>
+                    <div class="card-count">1 active</div>
+                </div>
+                <div class="card-chips">
+                    <div class="filter-chip">All Networks</div>
+                    <div class="filter-chip active">Ethereum</div>
+                    <div class="filter-chip">Bitcoin</div>
+                    <div class="filter-chip">Solana</div>
+                    <div class="filter-chip">Tezos</div>
+                    <div class="filter-chip">No Blockchain</div>
+                </div>
+            </div>
+
+            <div class="filter-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🏪</span>
+                        Platform / Marketplace
+                    </div>
+                    <div class="card-count">1 active</div>
+                </div>
+                <div class="card-chips">
+                    <div class="filter-chip">All Platforms</div>
+                    <div class="filter-chip active">SuperRare</div>
+                    <div class="filter-chip">Foundation</div>
+                    <div class="filter-chip">OpenSea</div>
+                    <div class="filter-chip">MakersPlace</div>
+                    <div class="filter-chip">Zora</div>
+                    <div class="filter-chip">Objkt</div>
+                </div>
+            </div>
+
+            <div class="filter-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📅</span>
+                        Time Period
+                    </div>
+                    <div class="card-count">1 active</div>
+                </div>
+                <div class="card-chips">
+                    <div class="filter-chip">All Time</div>
+                    <div class="filter-chip active">Minted 2025</div>
+                    <div class="filter-chip">Minted 2024</div>
+                    <div class="filter-chip">Imported Recently</div>
+                    <div class="filter-chip">Scraped Today</div>
+                </div>
+            </div>
+
+            <div class="filter-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🤖</span>
+                        Metadata
+                    </div>
+                    <div class="card-count">0 active</div>
+                </div>
+                <div class="card-chips">
+                    <div class="filter-chip">
+                        <span class="chip-icon">📝</span>
+                        With Transcript
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">🤖</span>
+                        AI Described
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">✓</span>
+                        Verified NFT
+                    </div>
+                    <div class="filter-chip">
+                        <span class="chip-icon">📐</span>
+                        High-Res
+                    </div>
+                </div>
+            </div>
+
+            <div class="clear-all">Clear All Filters</div>
+        </div>
+        <p class="demo-note">💡 <strong>Pros:</strong> Clean, organized, intuitive • <strong>Best for:</strong> Clear hierarchy, mobile-friendly, familiar UX</p>
+    </div>
+
+    <script>
+        function showIteration(num) {
+            // Hide all iterations
+            document.querySelectorAll('.iteration-container').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected iteration
+            document.getElementById(`iteration-${num}`).classList.add('active');
+
+            // Activate clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Accordion functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.accordion-header')) {
+                const drawer = e.target.closest('.accordion-drawer');
+                drawer.classList.toggle('active');
+            }
+
+            if (e.target.classList.contains('accordion-option')) {
+                const parent = e.target.closest('.accordion-options');
+                parent.querySelectorAll('.accordion-option').forEach(opt => opt.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+
+            if (e.target.classList.contains('dial-option')) {
+                const parent = e.target.closest('.dial-options');
+                const clickedFilter = e.target.dataset.filter;
+                const allOptions = Array.from(parent.querySelectorAll('.dial-option'));
+                const allOption = allOptions.find(opt => opt.dataset.filter === 'all');
+                const individualOptions = allOptions.filter(opt => opt.dataset.filter !== 'all');
+
+                // If "All" is clicked, deselect everything and select only "All"
+                if (clickedFilter === 'all') {
+                    allOptions.forEach(opt => opt.classList.remove('active'));
+                    e.target.classList.add('active');
+                } else {
+                    // Deselect "All" if it was selected
+                    if (allOption) allOption.classList.remove('active');
+
+                    // Toggle the clicked option
+                    e.target.classList.toggle('active');
+
+                    // Check if all individual options are now selected
+                    const allIndividualSelected = individualOptions.every(opt =>
+                        opt.classList.contains('active')
+                    );
+
+                    // If all individual options are selected, switch to "All" only
+                    if (allIndividualSelected) {
+                        allOptions.forEach(opt => opt.classList.remove('active'));
+                        if (allOption) allOption.classList.add('active');
+                    }
+
+                    // If no options are selected at all, default to "All"
+                    const anySelected = individualOptions.some(opt =>
+                        opt.classList.contains('active')
+                    );
+                    if (!anySelected && allOption) {
+                        allOption.classList.add('active');
+                    }
+                }
+            }
+
+            if (e.target.classList.contains('slider-segment')) {
+                const parent = e.target.closest('.slider-segments');
+                parent.querySelectorAll('.slider-segment').forEach(seg => seg.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+
+            if (e.target.classList.contains('tag-bubble')) {
+                e.target.classList.toggle('active');
+            }
+
+            if (e.target.classList.contains('filter-chip')) {
+                e.target.classList.toggle('active');
+            }
+        });
+    </script>
+</body>
+</html>

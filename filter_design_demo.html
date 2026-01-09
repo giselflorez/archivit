@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Design Iterations - Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --accent-gold: #d4a574;
+            --accent-blue: #63b3ed;
+            --accent-purple: #ba8fe0;
+            --text-primary: #f5f5f5;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #666666;
+            --border-color: rgba(212, 165, 116, 0.2);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .demo-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .iteration-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .iteration-container.active {
+            display: block;
+        }
+
+        .iteration-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .iteration-desc {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ===== ITERATION 1: Radial Dial ===== */
+        .radial-dial-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .radial-center {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(244, 162, 97, 0.3));
+            border: 2px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radial-center:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(212, 165, 116, 0.5);
+        }
+
+        .radial-item {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radial-item:hover {
+            transform: scale(1.15);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 25px rgba(212, 165, 116, 0.4);
+            z-index: 5;
+        }
+
+        .radial-item.active {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .radial-icon {
+            font-size: 1.5rem;
+        }
+
+        .radial-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .radial-count {
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* ===== ITERATION 2: Floating Cards ===== */
+        .floating-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+
+        .float-card {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.05), rgba(20, 20, 20, 0.8));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .float-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .float-card:hover::before {
+            left: 100%;
+        }
+
+        .float-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 40px rgba(212, 165, 116, 0.3);
+        }
+
+        .float-card.active {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(20, 20, 20, 0.9));
+            border-color: var(--accent-gold);
+            transform: translateY(-5px);
+        }
+
+        .float-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .float-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .float-count {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        /* ===== ITERATION 3: Timeline Slider ===== */
+        .timeline-container {
+            padding: 3rem 0;
+        }
+
+        .timeline-track {
+            position: relative;
+            height: 8px;
+            background: rgba(212, 165, 116, 0.1);
+            border-radius: 4px;
+            margin: 2rem 0;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-blue));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .timeline-items {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .timeline-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-item:hover .timeline-dot {
+            transform: scale(1.5);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.5);
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 25px rgba(212, 165, 116, 0.6);
+        }
+
+        .timeline-content {
+            text-align: center;
+        }
+
+        .timeline-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-count {
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* ===== ITERATION 4: Hexagonal Grid ===== */
+        .hex-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem 0;
+        }
+
+        .hex-item {
+            width: 140px;
+            height: 161px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .hex-shape {
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), rgba(20, 20, 20, 0.9));
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .hex-item:hover .hex-shape {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(20, 20, 20, 0.95));
+            border-color: var(--accent-gold);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(212, 165, 116, 0.4);
+        }
+
+        .hex-item.active .hex-shape {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.25), rgba(20, 20, 20, 1));
+            border-color: var(--accent-gold);
+        }
+
+        .hex-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hex-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .hex-count {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        /* ===== ITERATION 5: Liquid Morph Buttons ===== */
+        .liquid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            padding: 3rem 0;
+        }
+
+        .liquid-item {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            cursor: pointer;
+        }
+
+        .liquid-blob {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(99, 179, 237, 0.1));
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            animation: morph 8s ease-in-out infinite;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+        }
+
+        @keyframes morph {
+            0%, 100% {
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            }
+            50% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+            }
+        }
+
+        .liquid-item:hover .liquid-blob {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(99, 179, 237, 0.2));
+            border-color: var(--accent-gold);
+            transform: scale(1.15);
+            box-shadow: 0 0 40px rgba(212, 165, 116, 0.4);
+        }
+
+        .liquid-item.active .liquid-blob {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.4), rgba(99, 179, 237, 0.25));
+            border-color: var(--accent-gold);
+            animation: morph 3s ease-in-out infinite;
+        }
+
+        .liquid-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .liquid-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .liquid-count {
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .demo-note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1 class="demo-title">Filter Design Iterations</h1>
+        <p class="demo-subtitle">Choose your preferred design • Click tabs to explore 5 unique approaches</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showIteration(1)">Iteration 1: Radial Dial</button>
+        <button class="tab-btn" onclick="showIteration(2)">Iteration 2: Floating Cards</button>
+        <button class="tab-btn" onclick="showIteration(3)">Iteration 3: Timeline Slider</button>
+        <button class="tab-btn" onclick="showIteration(4)">Iteration 4: Hexagonal Grid</button>
+        <button class="tab-btn" onclick="showIteration(5)">Iteration 5: Liquid Morph</button>
+    </div>
+
+    <!-- ITERATION 1: Radial Dial -->
+    <div class="iteration-container active" id="iteration-1">
+        <h2 class="iteration-title">Iteration 1: Radial Dial</h2>
+        <p class="iteration-desc">
+            A circular navigation system where categories orbit around a central "ALL" hub.
+            Click any category to filter, or click the center to reset. The radial layout creates
+            a visual hierarchy and feels like a control dial.
+        </p>
+        <div class="radial-dial-container">
+            <div class="radial-center">ALL<br><span style="font-size:1.2rem;">29</span></div>
+            <!-- Items positioned in a circle using CSS transform -->
+            <div class="radial-item" style="transform: translate(-50%, -50%) rotate(0deg) translateY(-200px) rotate(0deg);">
+                <div class="radial-icon">🎙️</div>
+                <div class="radial-count">0</div>
+                <div class="radial-label">Audio</div>
+            </div>
+            <div class="radial-item" style="transform: translate(-50%, -50%) rotate(51deg) translateY(-200px) rotate(-51deg);">
+                <div class="radial-icon">🎬</div>
+                <div class="radial-count">0</div>
+                <div class="radial-label">Video</div>
+            </div>
+            <div class="radial-item active" style="transform: translate(-50%, -50%) rotate(102deg) translateY(-200px) rotate(-102deg);">
+                <div class="radial-icon">📸</div>
+                <div class="radial-count">29</div>
+                <div class="radial-label">Images</div>
+            </div>
+            <div class="radial-item" style="transform: translate(-50%, -50%) rotate(154deg) translateY(-200px) rotate(-154deg);">
+                <div class="radial-icon">🌐</div>
+                <div class="radial-count">29</div>
+                <div class="radial-label">Web</div>
+            </div>
+            <div class="radial-item" style="transform: translate(-50%, -50%) rotate(205deg) translateY(-200px) rotate(-205deg);">
+                <div class="radial-icon">✍️</div>
+                <div class="radial-count">0</div>
+                <div class="radial-label">Written</div>
+            </div>
+            <div class="radial-item" style="transform: translate(-50%, -50%) rotate(256deg) translateY(-200px) rotate(-256deg);">
+                <div class="radial-icon">⛓️</div>
+                <div class="radial-count">29</div>
+                <div class="radial-label">NFTs</div>
+            </div>
+        </div>
+        <p class="demo-note">💡 Unique feel: Space-age control panel • Best for: Focused browsing with clear visual hierarchy</p>
+    </div>
+
+    <!-- ITERATION 2: Floating Cards -->
+    <div class="iteration-container" id="iteration-2">
+        <h2 class="iteration-title">Iteration 2: Floating Cards</h2>
+        <p class="iteration-desc">
+            Minimalist card layout with smooth hover animations and a "floating" effect. Each card
+            lifts when hovered, creating depth. The shimmer effect adds a premium feel.
+        </p>
+        <div class="floating-cards-container">
+            <div class="float-card">
+                <div class="float-icon">🎙️</div>
+                <div class="float-label">Audio</div>
+                <div class="float-count">0</div>
+            </div>
+            <div class="float-card">
+                <div class="float-icon">🎬</div>
+                <div class="float-label">Video</div>
+                <div class="float-count">0</div>
+            </div>
+            <div class="float-card active">
+                <div class="float-icon">📸</div>
+                <div class="float-label">Images</div>
+                <div class="float-count">29</div>
+            </div>
+            <div class="float-card">
+                <div class="float-icon">🌐</div>
+                <div class="float-label">Web Scrapes</div>
+                <div class="float-count">29</div>
+            </div>
+            <div class="float-card">
+                <div class="float-icon">✍️</div>
+                <div class="float-label">Written</div>
+                <div class="float-count">0</div>
+            </div>
+            <div class="float-card">
+                <div class="float-icon">⛓️</div>
+                <div class="float-label">NFTs</div>
+                <div class="float-count">29</div>
+            </div>
+        </div>
+        <p class="demo-note">💡 Unique feel: Modern app interface • Best for: Quick scanning and mobile-friendly</p>
+    </div>
+
+    <!-- ITERATION 3: Timeline Slider -->
+    <div class="iteration-container" id="iteration-3">
+        <h2 class="iteration-title">Iteration 3: Timeline Slider</h2>
+        <p class="iteration-desc">
+            A horizontal timeline where categories are arranged chronologically or by priority.
+            The progress bar fills as you select items, creating a journey-like experience.
+        </p>
+        <div class="timeline-container">
+            <div class="timeline-track">
+                <div class="timeline-progress" style="width: 50%;"></div>
+            </div>
+            <div class="timeline-items">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">🎙️</div>
+                        <div class="timeline-label">Audio</div>
+                        <div class="timeline-count">0</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">🎬</div>
+                        <div class="timeline-label">Video</div>
+                        <div class="timeline-count">0</div>
+                    </div>
+                </div>
+                <div class="timeline-item active">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">📸</div>
+                        <div class="timeline-label">Images</div>
+                        <div class="timeline-count">29</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">🌐</div>
+                        <div class="timeline-label">Web</div>
+                        <div class="timeline-count">29</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">✍️</div>
+                        <div class="timeline-label">Written</div>
+                        <div class="timeline-count">0</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-icon">⛓️</div>
+                        <div class="timeline-label">NFTs</div>
+                        <div class="timeline-count">29</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 Unique feel: Story progression • Best for: Sequential browsing and content discovery</p>
+    </div>
+
+    <!-- ITERATION 4: Hexagonal Grid -->
+    <div class="iteration-container" id="iteration-4">
+        <h2 class="iteration-title">Iteration 4: Hexagonal Grid</h2>
+        <p class="iteration-desc">
+            Honeycomb-inspired hexagonal tiles that tessellate organically. The geometric pattern
+            creates visual interest and feels modern and tech-forward.
+        </p>
+        <div class="hex-container">
+            <div class="hex-item">
+                <div class="hex-shape">
+                    <div class="hex-icon">🎙️</div>
+                    <div class="hex-count">0</div>
+                    <div class="hex-label">Audio</div>
+                </div>
+            </div>
+            <div class="hex-item">
+                <div class="hex-shape">
+                    <div class="hex-icon">🎬</div>
+                    <div class="hex-count">0</div>
+                    <div class="hex-label">Video</div>
+                </div>
+            </div>
+            <div class="hex-item active">
+                <div class="hex-shape">
+                    <div class="hex-icon">📸</div>
+                    <div class="hex-count">29</div>
+                    <div class="hex-label">Images</div>
+                </div>
+            </div>
+            <div class="hex-item">
+                <div class="hex-shape">
+                    <div class="hex-icon">🌐</div>
+                    <div class="hex-count">29</div>
+                    <div class="hex-label">Web</div>
+                </div>
+            </div>
+            <div class="hex-item">
+                <div class="hex-shape">
+                    <div class="hex-icon">✍️</div>
+                    <div class="hex-count">0</div>
+                    <div class="hex-label">Written</div>
+                </div>
+            </div>
+            <div class="hex-item">
+                <div class="hex-shape">
+                    <div class="hex-icon">⛓️</div>
+                    <div class="hex-count">29</div>
+                    <div class="hex-label">NFTs</div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 Unique feel: Futuristic honeycomb • Best for: Visual impact and memorable design</p>
+    </div>
+
+    <!-- ITERATION 5: Liquid Morph Buttons -->
+    <div class="iteration-container" id="iteration-5">
+        <h2 class="iteration-title">Iteration 5: Liquid Morph Buttons</h2>
+        <p class="iteration-desc">
+            Organic, blob-like shapes that continuously morph and animate. The fluid motion creates
+            a playful, living interface that feels dynamic and contemporary.
+        </p>
+        <div class="liquid-container">
+            <div class="liquid-item">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">🎙️</div>
+                    <div class="liquid-count">0</div>
+                    <div class="liquid-label">Audio</div>
+                </div>
+            </div>
+            <div class="liquid-item">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">🎬</div>
+                    <div class="liquid-count">0</div>
+                    <div class="liquid-label">Video</div>
+                </div>
+            </div>
+            <div class="liquid-item active">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">📸</div>
+                    <div class="liquid-count">29</div>
+                    <div class="liquid-label">Images</div>
+                </div>
+            </div>
+            <div class="liquid-item">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">🌐</div>
+                    <div class="liquid-count">29</div>
+                    <div class="liquid-label">Web</div>
+                </div>
+            </div>
+            <div class="liquid-item">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">✍️</div>
+                    <div class="liquid-count">0</div>
+                    <div class="liquid-label">Written</div>
+                </div>
+            </div>
+            <div class="liquid-item">
+                <div class="liquid-blob">
+                    <div class="liquid-icon">⛓️</div>
+                    <div class="liquid-count">29</div>
+                    <div class="liquid-label">NFTs</div>
+                </div>
+            </div>
+        </div>
+        <p class="demo-note">💡 Unique feel: Organic & playful • Best for: Artistic brands and creative exploration</p>
+    </div>
+
+    <script>
+        function showIteration(num) {
+            // Hide all iterations
+            document.querySelectorAll('.iteration-container').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected iteration
+            document.getElementById(`iteration-${num}`).classList.add('active');
+
+            // Activate clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

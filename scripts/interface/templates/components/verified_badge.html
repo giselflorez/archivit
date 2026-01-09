@@ -1,0 +1,77 @@
+{#
+VERIFIED Badge Component
+========================
+Small gold badge with shimmer effect.
+Gold like BTC, mini shine in corner.
+
+Usage:
+  {% include 'components/verified_badge.html' %}
+#}
+
+<style>
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    background: linear-gradient(135deg, #f7931a 0%, #d4a574 50%, #f7931a 100%);
+    border-radius: 3px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0a0a0f;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 8px rgba(247, 147, 26, 0.4);
+}
+
+/* Corner shimmer */
+.verified-badge::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+    animation: badge-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes badge-shimmer {
+    0%, 100% {
+        top: -50%;
+        left: -50%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    30% {
+        top: -20%;
+        left: 80%;
+        opacity: 0;
+    }
+    31%, 99% {
+        opacity: 0;
+    }
+}
+
+/* Subtle glow pulse */
+.verified-badge::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(247,147,26,0.5), transparent);
+    z-index: -1;
+    animation: badge-glow 2s ease-in-out infinite;
+}
+
+@keyframes badge-glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+</style>
+
+<span class="verified-badge">VERIFIED</span>

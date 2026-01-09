@@ -1,0 +1,726 @@
+{% extends "base.html" %}
+
+{% block title %}ARCHIV-IT | {{ layer_info.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --accent-gold: #d4a574;
+        --accent-warm: #f4a261;
+        --text-primary: #e8e6e3;
+        --text-muted: rgba(232, 230, 227, 0.5);
+        --success: #68d391;
+        --glow-gold: 0 0 20px rgba(212, 165, 116, 0.4);
+    }
+
+    body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Geist Sans', -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-header h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .layer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--accent-gold);
+        margin-bottom: 1rem;
+    }
+
+    .layer-badge span {
+        color: var(--text-muted);
+    }
+
+    /* Progress */
+    .progress-wrapper {
+        margin-bottom: 2rem;
+    }
+
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .progress-track {
+        height: 2px;
+        background: rgba(212, 165, 116, 0.15);
+        border-radius: 1px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+        width: {{ progress }}%;
+        transition: width 0.5s ease;
+        box-shadow: var(--glow-gold);
+    }
+
+    /* Layer navigation */
+    .layer-nav {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .layer-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(212, 165, 116, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .layer-dot.completed {
+        background: var(--success);
+    }
+
+    .layer-dot.current {
+        background: var(--accent-gold);
+        box-shadow: 0 0 10px var(--accent-gold);
+    }
+
+    /* Form fields */
+    .form-section {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(212, 165, 116, 0.1);
+        border-radius: 4px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .field-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .field-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .field-label {
+        display: block;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .field-hint {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .field-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(212, 165, 116, 0.2);
+        border-radius: 2px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .field-input:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 15px rgba(212, 165, 116, 0.2);
+    }
+
+    .field-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    textarea.field-input {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* Multi-value input */
+    .multi-input {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .multi-input-row {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .multi-input-row .field-input {
+        flex: 1;
+    }
+
+    .btn-add-field {
+        background: transparent;
+        border: 1px dashed rgba(212, 165, 116, 0.3);
+        color: var(--text-muted);
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .btn-add-field:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    /* Actions */
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    .btn-back {
+        background: transparent;
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        color: var(--text-muted);
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        border-color: var(--accent-gold);
+        color: var(--text-primary);
+    }
+
+    .btn-next {
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+        border: none;
+        color: var(--bg-primary);
+        padding: 0.75rem 2rem;
+        font-size: 0.85rem;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+        box-shadow: var(--glow-gold);
+    }
+
+    .btn-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(212, 165, 116, 0.5);
+    }
+
+    .btn-skip {
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .btn-skip:hover {
+        color: var(--text-primary);
+    }
+
+    /* Local reminder */
+    .local-reminder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--success);
+        opacity: 0.7;
+    }
+
+    @media (max-width: 600px) {
+        .form-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <div class="layer-badge">
+            Layer {{ current_idx + 1 }} <span>of {{ total_layers }}</span>
+        </div>
+        <h1>{{ layer_info.title }}</h1>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrapper">
+        <div class="progress-stats">
+            <span>Training Progress</span>
+            <span>{{ "%.0f"|format(progress) }}%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Layer dots -->
+    <div class="layer-nav">
+        {% for l in selected_layers %}
+        <div class="layer-dot {% if loop.index0 < current_idx %}completed{% elif loop.index0 == current_idx %}current{% endif %}"></div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" action="/training/{{ layer }}/save">
+        <div class="form-section">
+            {% if layer == 'identity' %}
+            <div class="field-group">
+                <label class="field-label">Professional Names</label>
+                <div class="field-hint">Names you go by professionally (e.g., GISELFLOREZ, GISELX, WEB3GISEL)</div>
+                <input type="text" name="professional_names" class="field-input" placeholder="Enter names, comma-separated">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Primary Wallet Addresses</label>
+                <div class="field-hint">Your main minting/collecting addresses</div>
+                <div class="multi-input" id="wallet-inputs">
+                    <input type="text" name="wallet_1" class="field-input" placeholder="0x... or tz1... or similar">
+                </div>
+                <button type="button" class="btn-add-field" onclick="addWalletField()">+ Add another wallet</button>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Platform Profiles</label>
+                <div class="field-hint">Links to your profiles on art platforms</div>
+                <textarea name="platform_profiles" class="field-input" placeholder="SuperRare: https://...
+Foundation: https://...
+OpenSea: https://..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Social Handles</label>
+                <div class="field-hint">Twitter/X, Instagram, Warpcast, etc.</div>
+                <input type="text" name="social_handles" class="field-input" placeholder="@handle1, @handle2">
+            </div>
+
+            {% elif layer == 'throughline' %}
+            <div class="field-group">
+                <label class="field-label">Origin Philosophy</label>
+                <div class="field-hint">What drew you to creating? Your foundational artistic belief.</div>
+                <textarea name="origin_philosophy" class="field-input" placeholder="The philosophy or idea that started your artistic journey..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Evolution Points</label>
+                <div class="field-hint">Key moments when your practice shifted or evolved</div>
+                <textarea name="evolution_points" class="field-input" placeholder="2019: Discovered blockchain art...
+2021: Shifted focus to..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Signature Techniques</label>
+                <div class="field-hint">Methods or processes that define your work</div>
+                <input type="text" name="techniques" class="field-input" placeholder="Long exposure, generative algorithms, etc.">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Recurring Themes</label>
+                <div class="field-hint">Concepts you return to across bodies of work</div>
+                <input type="text" name="themes" class="field-input" placeholder="Light, transformation, nature, etc.">
+            </div>
+
+            {% elif layer == 'works' %}
+            <div class="field-group">
+                <label class="field-label">Major Series / Collections</label>
+                <div class="field-hint">Name and describe your main bodies of work</div>
+                <textarea name="series" class="field-input" placeholder="MOONLANGUAGE: 968 visual & audio expressions exploring lunar photography...
+Transmissions of Light: ..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Notable Individual Works</label>
+                <div class="field-hint">Significant standalone pieces worth highlighting</div>
+                <textarea name="notable_works" class="field-input" placeholder="Title: Description, platform, year..."></textarea>
+            </div>
+
+            {% elif layer == 'collaborations' %}
+            <div class="field-group">
+                <label class="field-label">Active Collaborations</label>
+                <div class="field-hint">Current collaborative projects and partners</div>
+                <textarea name="active_collabs" class="field-input" placeholder="MOONLANGUAGE with Plutonic Mind (audio) and SCUUBE (metaverse)..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Historical Projects</label>
+                <div class="field-hint">Past collaborations worth preserving in your archive</div>
+                <textarea name="historical_collabs" class="field-input" placeholder="Arcana Crypto Tarot: 22 women artists, AsyncArt (now revived by Bard Ionson)..."></textarea>
+            </div>
+
+            {% elif layer == 'roles' %}
+            <div class="field-group">
+                <label class="field-label">Founder / Co-founder Roles</label>
+                <input type="text" name="founder_roles" class="field-input" placeholder="Co-founder, Women of Crypto Art (WOCA)">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Advisory Positions</label>
+                <input type="text" name="advisory_roles" class="field-input" placeholder="Art Advisor, TheVerseVerse">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Curatorial / Ambassador Roles</label>
+                <input type="text" name="curator_roles" class="field-input" placeholder="KnownOrigin Photography Ambassador">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Board Positions</label>
+                <input type="text" name="board_roles" class="field-input" placeholder="Saugerties Arts Commission (Treasurer)">
+            </div>
+
+            {% elif layer == 'exhibitions' %}
+            <div class="field-group">
+                <label class="field-label">Physical Exhibitions</label>
+                <textarea name="physical_shows" class="field-input" placeholder="Art Dubai 2024: ...
+Rainbow Room Gala: ..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Virtual Exhibitions</label>
+                <textarea name="virtual_shows" class="field-input" placeholder="ETH Denver 2020: ...
+NFT.NYC 2020: ..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Speaking / Performances</label>
+                <textarea name="speaking" class="field-input" placeholder="Bowery Poetry Club: ..."></textarea>
+            </div>
+
+            {% elif layer == 'recognition' %}
+            <div class="field-group">
+                <label class="field-label">Awards & Honors</label>
+                <input type="text" name="awards" class="field-input" placeholder="Fortune Top 50 NFT Influencers 2021, NFT100 Honoree">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Press Features</label>
+                <textarea name="press" class="field-input" placeholder="Vogue: ...
+Fortune Magazine: ...
+Slate Magazine: ..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Museum Collections</label>
+                <input type="text" name="museums" class="field-input" placeholder="MoCA Museum (permanent collection, 2020)">
+            </div>
+
+            {% elif layer == 'collectors' %}
+            <div class="field-group">
+                <label class="field-label">Notable Collectors</label>
+                <div class="field-hint">Collectors who have significantly supported your work</div>
+                <textarea name="notable_collectors" class="field-input" placeholder="Metapurse: collected Arcana Tarot..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Collector Relationships</label>
+                <div class="field-hint">Deeper connections beyond transactions</div>
+                <textarea name="collector_relationships" class="field-input" placeholder="Ongoing relationships, patron support..."></textarea>
+            </div>
+
+            {% elif layer == 'platforms' %}
+            <div class="field-group">
+                <label class="field-label">Primary Platforms</label>
+                <textarea name="primary_platforms" class="field-input" placeholder="SuperRare (since 2020)
+AsyncArt (historical, platform shut down)
+Foundation..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Platform Health Notes</label>
+                <div class="field-hint">Any platforms at risk or requiring revival solutions</div>
+                <textarea name="platform_health" class="field-input" placeholder="AsyncArt: shut down, works revived by Bard Ionson at https://asyncart-revival.bardionson.com/"></textarea>
+            </div>
+
+            {% elif layer == 'temporal' %}
+            <div class="field-group">
+                <label class="field-label">Interactive / Programmable Works</label>
+                <textarea name="interactive_works" class="field-input" placeholder="Works that respond to viewer input or blockchain events..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Evolving / Living Works</label>
+                <textarea name="living_works" class="field-input" placeholder="Works that change over time, reveal states, or have scheduled events..."></textarea>
+            </div>
+
+            {% elif layer == 'preservation' %}
+            <div class="field-group">
+                <label class="field-label">Platform Dependencies</label>
+                <div class="field-hint">Works dependent on specific platforms that could go offline</div>
+                <textarea name="platform_dependencies" class="field-input" placeholder="AsyncArt collaborations (platform shut down)..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Revival Solutions</label>
+                <div class="field-hint">Backups, alternative hosting, or revival implementations</div>
+                <textarea name="revival_solutions" class="field-input" placeholder="Bard Ionson's AsyncArt revival: https://asyncart-revival.bardionson.com/"></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Legal / IP Notes</label>
+                <textarea name="legal_notes" class="field-input" placeholder="Trademark registrations, copyright filings..."></textarea>
+            </div>
+
+            {% elif layer == 'collection' %}
+            <div class="field-group">
+                <label class="field-label">Collection Overview</label>
+                <div class="field-hint">Describe your collecting focus and philosophy</div>
+                <textarea name="collection_overview" class="field-input" placeholder="Focus areas, favorite artists, collecting themes..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Key Holdings</label>
+                <textarea name="key_holdings" class="field-input" placeholder="Significant pieces in your collection..."></textarea>
+            </div>
+
+            {% elif layer == 'artist_relationships' %}
+            <div class="field-group">
+                <label class="field-label">Artists You Collect In-Depth</label>
+                <textarea name="deep_artists" class="field-input" placeholder="Artists whose work you've collected multiple pieces from..."></textarea>
+            </div>
+            <div class="field-group">
+                <label class="field-label">First Acquisitions</label>
+                <div class="field-hint">Meaningful first purchases from artists</div>
+                <textarea name="first_acquisitions" class="field-input" placeholder="First piece from X artist, significance..."></textarea>
+            </div>
+
+            {% elif layer == 'community' %}
+            <div class="field-group">
+                <label class="field-label">DAO Memberships</label>
+                <input type="text" name="daos" class="field-input" placeholder="PleasrDAO, FlamingoDAO, etc.">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Collector Circles</label>
+                <textarea name="collector_circles" class="field-input" placeholder="Groups you collect with, co-collecting relationships..."></textarea>
+            </div>
+
+            {% elif layer == 'twitter_archive' %}
+            <div class="field-group">
+                <label class="field-label">Twitter Archive Path</label>
+                <div class="field-hint">
+                    Path to your tweets.js file from Twitter data export.
+                    <a href="https://twitter.com/settings/download_your_data" target="_blank" style="color: var(--accent-gold);">Download your archive here</a>
+                </div>
+                <input type="text" name="archive_path" id="archive-path" class="field-input" placeholder="/path/to/twitter-archive/data/tweets.js">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Twitter Username</label>
+                <input type="text" name="username" class="field-input" placeholder="@yourusername (without @)">
+            </div>
+
+            <!-- Cost Estimation -->
+            <div id="cost-estimate-section" style="display: none; margin-top: 1.5rem;">
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    <div style="font-family: 'Geist Mono', monospace; font-size: 0.75rem; color: var(--accent-gold); margin-bottom: 0.75rem;">IMPORT ESTIMATE</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">TWEETS</div>
+                            <div id="est-items" style="font-size: 1.25rem; color: var(--text-primary);">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">BATCHES</div>
+                            <div id="est-batches" style="font-size: 1.25rem; color: var(--text-primary);">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">PAUSE POINTS</div>
+                            <div id="est-checkpoints" style="font-size: 1.25rem; color: var(--text-primary);">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warnings -->
+                <div id="cost-warnings" style="display: none; background: rgba(244, 162, 97, 0.1); border-left: 2px solid var(--accent-warm); padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.8rem; color: var(--accent-warm);">
+                    <strong>Note:</strong>
+                    <ul id="warnings-list" style="margin: 0.5rem 0 0 1rem; padding: 0;"></ul>
+                </div>
+
+                <!-- Pause/Resume Info -->
+                <div style="background: rgba(104, 211, 145, 0.1); padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.8rem;">
+                    <strong style="color: var(--success);">Pause & Resume:</strong>
+                    <span style="color: var(--text-muted);">Large archives automatically create checkpoints. You can pause at any time and resume later without re-importing already processed tweets.</span>
+                </div>
+            </div>
+
+            <div class="field-group" style="margin-top: 1rem;">
+                <button type="button" id="estimate-btn" class="btn-back" onclick="estimateCost()">Check Archive Size</button>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" style="margin-top: 1rem;">Import Options</label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+                    <input type="checkbox" name="include_media" checked style="accent-color: var(--accent-gold);">
+                    Include all media (images, videos, GIFs)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; margin-top: 0.5rem;">
+                    <input type="checkbox" name="scroll_to_oldest" checked style="accent-color: var(--accent-gold);">
+                    Scroll to earliest post (complete history)
+                </label>
+            </div>
+
+            {% elif layer == 'instagram_archive' %}
+            <div class="field-group">
+                <label class="field-label">Instagram Archive Path</label>
+                <div class="field-hint">
+                    Path to your Instagram data export folder.
+                    <a href="https://www.instagram.com/download/request/" target="_blank" style="color: var(--accent-gold);">Download your data here</a>
+                </div>
+                <input type="text" name="archive_path" class="field-input" placeholder="/path/to/instagram-archive/">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Username</label>
+                <input type="text" name="username" class="field-input" placeholder="yourusername">
+            </div>
+            <div class="field-group">
+                <label class="field-label" style="margin-top: 1rem;">Import Options</label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+                    <input type="checkbox" name="include_posts" checked style="accent-color: var(--accent-gold);">
+                    Include posts
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; margin-top: 0.5rem;">
+                    <input type="checkbox" name="include_stories" checked style="accent-color: var(--accent-gold);">
+                    Include stories
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; margin-top: 0.5rem;">
+                    <input type="checkbox" name="include_reels" checked style="accent-color: var(--accent-gold);">
+                    Include reels
+                </label>
+            </div>
+
+            {% else %}
+            <div class="field-group">
+                <label class="field-label">Layer Data</label>
+                <textarea name="layer_data" class="field-input" placeholder="Enter information for this layer..."></textarea>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            {% if current_idx > 0 %}
+            <a href="/training/{{ selected_layers[current_idx - 1] }}" class="btn-back">Back</a>
+            {% else %}
+            <a href="/training-layers" class="btn-back">Back to Layers</a>
+            {% endif %}
+
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <a href="{% if current_idx < total_layers - 1 %}/training/{{ selected_layers[current_idx + 1] }}{% else %}/{% endif %}" class="btn-skip">Skip this layer</a>
+                <button type="submit" class="btn-next">
+                    {% if current_idx < total_layers - 1 %}
+                    Save & Continue
+                    {% else %}
+                    Complete Training
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="local-reminder">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>All training data stays on your local system</span>
+    </div>
+</div>
+
+<script>
+let walletCount = 1;
+
+function addWalletField() {
+    walletCount++;
+    const container = document.getElementById('wallet-inputs');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'wallet_' + walletCount;
+    input.className = 'field-input';
+    input.placeholder = '0x... or tz1... or similar';
+    container.appendChild(input);
+}
+
+// Cost estimation for archive imports
+async function estimateCost() {
+    const archivePath = document.getElementById('archive-path');
+    if (!archivePath) return;
+
+    const path = archivePath.value.trim();
+    if (!path) {
+        alert('Please enter the path to your Twitter archive first');
+        return;
+    }
+
+    const btn = document.getElementById('estimate-btn');
+    btn.textContent = 'Checking...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/scrape-queue/estimate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                source_type: 'twitter_archive',
+                source_path: path,
+                include_embeddings: true,
+                include_vision: false
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert('Error: ' + data.error);
+            btn.textContent = 'Check Archive Size';
+            btn.disabled = false;
+            return;
+        }
+
+        // Display estimate
+        document.getElementById('cost-estimate-section').style.display = 'block';
+        document.getElementById('est-items').textContent = data.item_count.toLocaleString();
+        document.getElementById('est-batches').textContent = data.batches_needed;
+        document.getElementById('est-checkpoints').textContent = data.pause_checkpoints;
+
+        // Show warnings if any
+        if (data.warnings && data.warnings.length > 0) {
+            const warningsDiv = document.getElementById('cost-warnings');
+            const warningsList = document.getElementById('warnings-list');
+            warningsList.innerHTML = data.warnings.map(w => `<li>${w}</li>`).join('');
+            warningsDiv.style.display = 'block';
+        }
+
+        btn.textContent = 'Re-check Archive';
+        btn.disabled = false;
+
+    } catch (e) {
+        alert('Error checking archive: ' + e.message);
+        btn.textContent = 'Check Archive Size';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

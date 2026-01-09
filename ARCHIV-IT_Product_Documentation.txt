@@ -1,0 +1,194 @@
+================================================================================
+ARCHIV-IT by WEB3GISEL
+Personal Archive System for Digital Artists
+================================================================================
+
+Your Data. Your Output. Take Control.
+
+--------------------------------------------------------------------------------
+WHAT IT IS
+--------------------------------------------------------------------------------
+
+A local-first archive system built for artists working across blockchain
+platforms. Everything runs on your machine. Nothing leaves unless you want it to.
+
+Built by an artist, for artists navigating the complexity of maintaining a
+practice across multiple chains, platforms, and formats.
+
+
+--------------------------------------------------------------------------------
+CORE CAPABILITIES
+--------------------------------------------------------------------------------
+
+KNOWLEDGE BASE
+  Import and index documents, research, conversations, and references.
+  Semantic search across everything you've collected.
+  Automatic tagging and cognitive classification.
+
+VISUAL TRANSLATOR
+  Analyze images using local or cloud vision models.
+  Extract metadata, context, and meaning from visual work.
+  Batch processing for large archives.
+
+BLOCKCHAIN TRACKING
+  Multi-chain support: Ethereum, Tezos, Solana, Bitcoin-based (Counterparty,
+  Fake Rares), EOS, WAX.
+  Track minting history across wallets.
+  IPFS link preservation.
+  Platform metadata extraction (SuperRare, Foundation, OpenSea, etc.)
+
+MULTI-WALLET PROFILES
+  Single artist identity across multiple addresses.
+  Organize by project, chain, or collection.
+  Unified view of fragmented on-chain presence.
+
+GOOGLE DRIVE SYNC
+  Pull documents from your Drive.
+  Selective folder sync.
+  Maintains local copies.
+
+SEMANTIC NETWORK
+  Visualize connections between documents.
+  Tag-based navigation.
+  Export structured data for external tools or AI agents.
+
+
+--------------------------------------------------------------------------------
+INTERFACE
+--------------------------------------------------------------------------------
+
+Web interface at localhost:5001
+
+Views:
+  - Main Archive: All documents with cognitive filters
+  - Visual Analyzer: Single image deep analysis
+  - Visual Grid: Batch visual review
+  - Tag Network: Relationship visualization
+  - Semantic Network: Connection mapping
+  - Blockchain Tracker: On-chain activity
+  - Sales Analytics: Transaction history
+  - Collections: Curated groupings
+
+
+--------------------------------------------------------------------------------
+TECHNICAL DETAILS
+--------------------------------------------------------------------------------
+
+Stack:
+  Python / Flask
+  SQLite databases (local)
+  txtai for embeddings and semantic search
+  Web3.py for blockchain queries
+
+Storage:
+  knowledge_base/processed/   Markdown documents
+  knowledge_base/media/       Images and files
+  knowledge_base/raw/         Original source data
+  db/                         SQLite databases
+
+Configuration:
+  config/settings.json        API keys, preferences
+  config/google_drive_token.json   Drive authentication
+
+
+--------------------------------------------------------------------------------
+SUPPORTED SOURCES
+--------------------------------------------------------------------------------
+
+  - Manual file upload (PDF, images, text)
+  - Google Drive sync
+  - Web page import (URL capture)
+  - Blockchain scraping (wallet addresses)
+  - Platform-specific scrapers (SuperRare, Foundation)
+  - Perplexity research queries
+
+
+--------------------------------------------------------------------------------
+PRIVACY ARCHITECTURE
+--------------------------------------------------------------------------------
+
+Local-first design:
+  - All data stored on your machine
+  - No central server
+  - No analytics or tracking
+  - Optional cloud APIs (vision, search) are opt-in
+  - API keys stored locally, never transmitted
+
+What stays local:
+  - Your documents
+  - Your wallet addresses
+  - Your search history
+  - Your connections and tags
+
+
+--------------------------------------------------------------------------------
+GETTING STARTED
+--------------------------------------------------------------------------------
+
+1. Run the server:
+   python scripts/interface/visual_browser.py
+
+2. Open browser:
+   http://localhost:5001
+
+3. Complete setup wizard:
+   - Email (for license/updates)
+   - Artist name
+   - Primary wallet address(es)
+
+4. Start importing:
+   - Upload files
+   - Connect Google Drive
+   - Add blockchain addresses
+
+
+--------------------------------------------------------------------------------
+REQUIREMENTS
+--------------------------------------------------------------------------------
+
+  Python 3.9+
+  ~2GB disk space for dependencies
+  Modern browser
+
+Optional:
+  Google Cloud credentials (for Drive sync)
+  Anthropic API key (for Claude vision)
+  Ethereum RPC endpoint (for direct chain queries)
+
+
+--------------------------------------------------------------------------------
+FILE STRUCTURE
+--------------------------------------------------------------------------------
+
+  scripts/
+    interface/          Web UI and routes
+    collectors/         Data import modules
+    processors/         Analysis and transformation
+    search/             Semantic search
+    analytics/          Sales and metrics
+    protection/         Licensing system
+
+  knowledge_base/
+    processed/          Indexed documents
+    media/              Visual assets
+    raw/                Source data
+
+  db/
+    txtai_index/        Search embeddings
+    user_config.db      Settings
+    blockchain_tracking.db   On-chain data
+    sales_analytics.db  Transaction history
+
+
+--------------------------------------------------------------------------------
+CONTACT
+--------------------------------------------------------------------------------
+
+  WEB3GISEL
+  info@web3photo.com
+  https://web3photo.com
+
+
+================================================================================
+                         Your Data. Your Output. Take Control.
+================================================================================

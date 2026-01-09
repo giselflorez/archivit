@@ -1,0 +1,1435 @@
+{% extends "base.html" %}
+
+{% block title %}{{ nft.name or 'NFT' }} - Temporal View - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* ============================================
+       NFT TEMPORAL DETAIL VIEW
+       ARCHIV-IT Living Works Framework
+       ============================================ */
+
+    :root {
+        --temporal-bg: rgba(30, 30, 40, 0.6);
+        --temporal-accent: #68d391;
+        --temporal-gold: #d4a574;
+        --temporal-future: #ff6b9d;
+        --temporal-past: rgba(104, 211, 145, 0.4);
+    }
+
+    body {
+        font-family: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .temporal-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Back Navigation */
+    .back-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        transition: color 0.2s;
+    }
+
+    .back-nav:hover {
+        color: var(--temporal-accent);
+    }
+
+    /* NFT Header */
+    .nft-header {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .nft-image-container {
+        position: relative;
+    }
+
+    .nft-image {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .living-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .living-indicator.living {
+        background: var(--temporal-accent);
+        color: #000;
+        animation: pulse-glow 2s infinite;
+    }
+
+    .living-indicator.static {
+        background: var(--text-tertiary);
+        color: var(--bg-primary);
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 5px var(--temporal-accent); }
+        50% { box-shadow: 0 0 20px var(--temporal-accent); }
+    }
+
+    .nft-info h1 {
+        font-size: 2rem;
+        font-weight: 300;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .nft-info h1 strong {
+        font-weight: 600;
+        color: var(--temporal-gold);
+    }
+
+    .nft-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .meta-item {
+        background: var(--bg-tertiary);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .meta-label {
+        color: var(--text-tertiary);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .meta-value {
+        color: var(--temporal-accent);
+        font-family: 'Geist Mono', monospace;
+    }
+
+    /* ============================================
+       TIMELINE VISUALIZATION
+       ============================================ */
+
+    .timeline-section {
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--temporal-accent);
+    }
+
+    .timeline-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .timeline-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .timeline-btn:hover, .timeline-btn.active {
+        border-color: var(--temporal-accent);
+        color: var(--temporal-accent);
+    }
+
+    /* Horizontal Timeline */
+    .timeline-wrapper {
+        overflow-x: auto;
+        padding: 2rem 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--temporal-accent) var(--bg-tertiary);
+    }
+
+    .timeline-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .timeline-wrapper::-webkit-scrollbar-track {
+        background: var(--bg-tertiary);
+        border-radius: 3px;
+    }
+
+    .timeline-wrapper::-webkit-scrollbar-thumb {
+        background: var(--temporal-accent);
+        border-radius: 3px;
+    }
+
+    .timeline {
+        display: flex;
+        align-items: center;
+        min-width: max-content;
+        padding: 0 2rem;
+        position: relative;
+    }
+
+    .timeline-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg,
+            var(--temporal-past) 0%,
+            var(--temporal-accent) 50%,
+            var(--temporal-future) 100%
+        );
+        transform: translateY(-50%);
+        z-index: 0;
+    }
+
+    .timeline-node {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 120px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .timeline-node:hover {
+        transform: scale(1.05);
+    }
+
+    .node-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 3px solid;
+        background: var(--bg-primary);
+        position: relative;
+    }
+
+    .node-dot.past {
+        border-color: var(--temporal-past);
+        background: var(--temporal-past);
+    }
+
+    .node-dot.current {
+        border-color: var(--temporal-accent);
+        background: var(--temporal-accent);
+        width: 28px;
+        height: 28px;
+        box-shadow: 0 0 20px var(--temporal-accent);
+    }
+
+    .node-dot.future {
+        border-color: var(--temporal-future);
+        border-style: dashed;
+        animation: pulse-future 2s infinite;
+    }
+
+    @keyframes pulse-future {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+    }
+
+    .node-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-bottom: 0.75rem;
+        border: 2px solid var(--border-color);
+        transition: border-color 0.2s;
+    }
+
+    .timeline-node:hover .node-thumbnail {
+        border-color: var(--temporal-accent);
+    }
+
+    .timeline-node.current .node-thumbnail {
+        border-color: var(--temporal-accent);
+        box-shadow: 0 0 15px rgba(104, 211, 145, 0.3);
+    }
+
+    .node-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        text-align: center;
+        margin-top: 0.5rem;
+        max-width: 100px;
+    }
+
+    .node-date {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        margin-top: 0.25rem;
+    }
+
+    .node-countdown {
+        font-size: 0.7rem;
+        color: var(--temporal-future);
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+
+    /* Timeline Connector */
+    .timeline-connector {
+        flex: 0 0 60px;
+        height: 2px;
+        position: relative;
+        z-index: 0;
+    }
+
+    /* ============================================
+       STATE COMPARISON VIEW
+       ============================================ */
+
+    .comparison-section {
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .comparison-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .state-selectors {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .state-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .state-selector label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+    }
+
+    .state-selector select {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.85rem;
+        min-width: 200px;
+        cursor: pointer;
+    }
+
+    .state-selector select:focus {
+        outline: none;
+        border-color: var(--temporal-accent);
+    }
+
+    .vs-divider {
+        color: var(--text-tertiary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .comparison-panel {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .comparison-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-state-name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .panel-date {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+    }
+
+    .comparison-image {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .comparison-metadata {
+        font-size: 0.85rem;
+    }
+
+    .metadata-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .metadata-row:last-child {
+        border-bottom: none;
+    }
+
+    .metadata-key {
+        color: var(--text-tertiary);
+    }
+
+    .metadata-value {
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .metadata-value.changed {
+        color: var(--temporal-future);
+        position: relative;
+    }
+
+    .metadata-value.changed::after {
+        content: 'CHANGED';
+        position: absolute;
+        right: -60px;
+        font-size: 0.6rem;
+        background: var(--temporal-future);
+        color: #000;
+        padding: 0.1rem 0.3rem;
+        border-radius: 2px;
+    }
+
+    /* ============================================
+       LIVE FEED DISPLAY
+       ============================================ */
+
+    .live-feed-section {
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--temporal-accent);
+        animation: live-pulse 1.5s infinite;
+    }
+
+    @keyframes live-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .live-text {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--temporal-accent);
+    }
+
+    .feeds-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .feed-card {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.25rem;
+        border: 1px solid var(--border-color);
+        transition: border-color 0.2s;
+    }
+
+    .feed-card:hover {
+        border-color: var(--temporal-accent);
+    }
+
+    .feed-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .feed-name {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+    }
+
+    .feed-status {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 10px;
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+    }
+
+    .feed-status.active {
+        background: rgba(104, 211, 145, 0.2);
+        color: var(--temporal-accent);
+    }
+
+    .feed-value {
+        font-size: 1.75rem;
+        font-weight: 300;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .feed-unit {
+        font-size: 0.9rem;
+        color: var(--text-tertiary);
+    }
+
+    .feed-change {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .feed-change.positive {
+        color: var(--temporal-accent);
+    }
+
+    .feed-change.negative {
+        color: var(--temporal-future);
+    }
+
+    .capture-controls {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .last-capture {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    .last-capture strong {
+        color: var(--text-secondary);
+    }
+
+    .refresh-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    .refresh-spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--border-color);
+        border-top-color: var(--temporal-accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .refresh-spinner.paused {
+        animation-play-state: paused;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .capture-btn {
+        background: var(--temporal-accent);
+        color: #000;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-left: auto;
+    }
+
+    .capture-btn:hover {
+        background: #7be3a7;
+        transform: translateY(-1px);
+    }
+
+    .capture-btn:disabled {
+        background: var(--text-tertiary);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ============================================
+       REACTIVITY PROFILE
+       ============================================ */
+
+    .reactivity-section {
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .reactivity-types {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .reactivity-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+
+    .reactivity-badge-icon {
+        font-size: 1rem;
+    }
+
+    .reactivity-badge-label {
+        color: var(--text-secondary);
+    }
+
+    /* ============================================
+       SCHEDULED EVENTS
+       ============================================ */
+
+    .events-section {
+        background: var(--temporal-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .events-list {
+        margin-top: 1.5rem;
+    }
+
+    .event-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        transition: border-color 0.2s;
+    }
+
+    .event-item:hover {
+        border-color: var(--temporal-future);
+    }
+
+    .event-countdown {
+        min-width: 100px;
+        text-align: center;
+    }
+
+    .countdown-value {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--temporal-future);
+    }
+
+    .countdown-unit {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .event-details {
+        flex: 1;
+    }
+
+    .event-type {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--temporal-future);
+        margin-bottom: 0.25rem;
+    }
+
+    .event-description {
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .event-date {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state-text {
+        font-size: 0.9rem;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 900px) {
+        .nft-header {
+            grid-template-columns: 1fr;
+        }
+
+        .comparison-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .state-selectors {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .vs-divider {
+            display: none;
+        }
+    }
+
+    /* Loading state */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 10, 10, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+
+    .loading-overlay.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--temporal-accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="temporal-container">
+    <a href="/blockchain-tracker" class="back-nav">
+        <span>&larr;</span> Back to Tracker
+    </a>
+
+    <!-- NFT Header -->
+    <div class="nft-header">
+        <div class="nft-image-container">
+            <img src="{{ nft.image or '/static/placeholder-nft.png' }}"
+                 alt="{{ nft.name }}"
+                 class="nft-image"
+                 id="currentImage">
+            <span class="living-indicator {{ 'living' if nft.is_living else 'static' }}">
+                {{ 'Living' if nft.is_living else 'Static' }}
+            </span>
+        </div>
+        <div class="nft-info">
+            <h1><strong>{{ nft.name or 'NFT #' + nft.token_id|string }}</strong></h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                {{ nft.description or 'No description available' }}
+            </p>
+
+            <div class="nft-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Contract</span>
+                    <span class="meta-value">{{ nft.contract[:8] }}...{{ nft.contract[-6:] }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Token ID</span>
+                    <span class="meta-value">{{ nft.token_id }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Network</span>
+                    <span class="meta-value">{{ nft.network or 'Ethereum' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">States Recorded</span>
+                    <span class="meta-value" id="stateCount">{{ history|length if history else 0 }}</span>
+                </div>
+                {% if nft.is_living %}
+                <div class="meta-item">
+                    <span class="meta-label">Reactivity</span>
+                    <span class="meta-value">{{ nft.reactivity_types|join(', ') if nft.reactivity_types else 'Unknown' }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Visualization -->
+    <div class="timeline-section">
+        <div class="section-header">
+            <h2 class="section-title">Temporal Timeline</h2>
+            <div class="timeline-controls">
+                <button class="timeline-btn active" data-view="all">All</button>
+                <button class="timeline-btn" data-view="states">States Only</button>
+                <button class="timeline-btn" data-view="events">Events Only</button>
+            </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="timeline" id="timeline">
+                <div class="timeline-line"></div>
+
+                <!-- Past States -->
+                {% if history %}
+                    {% for state in history %}
+                    <div class="timeline-node past-node"
+                         data-state-id="{{ state.state_number }}"
+                         data-timestamp="{{ state.timestamp }}">
+                        <img src="{{ state.image or nft.image or '/static/placeholder-nft.png' }}"
+                             alt="State {{ state.state_number }}"
+                             class="node-thumbnail">
+                        <div class="node-dot past"></div>
+                        <div class="node-label">{{ state.state_type|title }}</div>
+                        <div class="node-date">{{ state.timestamp[:10] if state.timestamp else 'Unknown' }}</div>
+                    </div>
+                    <div class="timeline-connector"></div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Current State -->
+                <div class="timeline-node current-node" data-state-id="current">
+                    <img src="{{ nft.image or '/static/placeholder-nft.png' }}"
+                         alt="Current State"
+                         class="node-thumbnail">
+                    <div class="node-dot current"></div>
+                    <div class="node-label">Current State</div>
+                    <div class="node-date">Now</div>
+                </div>
+
+                <!-- Future Events -->
+                {% if events %}
+                    {% for event in events %}
+                    <div class="timeline-connector"></div>
+                    <div class="timeline-node future-node"
+                         data-event-id="{{ loop.index }}"
+                         data-timestamp="{{ event.scheduled_time }}">
+                        <div class="node-dot future"></div>
+                        <div class="node-label">{{ event.event_type|title }}</div>
+                        <div class="node-countdown" data-countdown="{{ event.scheduled_time }}">
+                            {{ event.countdown_days }} days
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if not history and not events %}
+                <div class="timeline-connector"></div>
+                <div class="empty-state" style="min-width: 200px;">
+                    <div class="empty-state-text">No temporal history available</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- State Comparison View -->
+    <div class="comparison-section">
+        <div class="comparison-header">
+            <h2 class="section-title">State Comparison</h2>
+            <div class="state-selectors">
+                <div class="state-selector">
+                    <label>Left State</label>
+                    <select id="leftStateSelect">
+                        <option value="current">Current State</option>
+                        {% if history %}
+                            {% for state in history %}
+                            <option value="{{ state.state_number }}">
+                                State {{ state.state_number }} - {{ state.state_type|title }} ({{ state.timestamp[:10] if state.timestamp else 'Unknown' }})
+                            </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <span class="vs-divider">VS</span>
+                <div class="state-selector">
+                    <label>Right State</label>
+                    <select id="rightStateSelect">
+                        {% if history and history|length > 0 %}
+                            <option value="{{ history[0].state_number }}">
+                                State {{ history[0].state_number }} - {{ history[0].state_type|title }}
+                            </option>
+                        {% endif %}
+                        <option value="current" {% if not history %}selected{% endif %}>Current State</option>
+                        {% if history %}
+                            {% for state in history[1:] %}
+                            <option value="{{ state.state_number }}">
+                                State {{ state.state_number }} - {{ state.state_type|title }} ({{ state.timestamp[:10] if state.timestamp else 'Unknown' }})
+                            </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="comparison-panel" id="leftPanel">
+                <div class="comparison-panel-header">
+                    <span class="panel-state-name" id="leftStateName">Current State</span>
+                    <span class="panel-date" id="leftStateDate">Now</span>
+                </div>
+                <img src="{{ nft.image or '/static/placeholder-nft.png' }}"
+                     alt="Left State"
+                     class="comparison-image"
+                     id="leftStateImage">
+                <div class="comparison-metadata" id="leftMetadata">
+                    <div class="metadata-row">
+                        <span class="metadata-key">Name</span>
+                        <span class="metadata-value">{{ nft.name }}</span>
+                    </div>
+                    <div class="metadata-row">
+                        <span class="metadata-key">Token URI</span>
+                        <span class="metadata-value">{{ nft.token_uri[:30] if nft.token_uri else 'N/A' }}...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-panel" id="rightPanel">
+                <div class="comparison-panel-header">
+                    <span class="panel-state-name" id="rightStateName">
+                        {% if history %}State {{ history[0].state_number }}{% else %}Current State{% endif %}
+                    </span>
+                    <span class="panel-date" id="rightStateDate">
+                        {% if history %}{{ history[0].timestamp[:10] if history[0].timestamp else 'Unknown' }}{% else %}Now{% endif %}
+                    </span>
+                </div>
+                <img src="{% if history %}{{ history[0].image or nft.image }}{% else %}{{ nft.image }}{% endif %}"
+                     alt="Right State"
+                     class="comparison-image"
+                     id="rightStateImage">
+                <div class="comparison-metadata" id="rightMetadata">
+                    <div class="metadata-row">
+                        <span class="metadata-key">Name</span>
+                        <span class="metadata-value">{% if history %}{{ history[0].metadata.name if history[0].metadata else nft.name }}{% else %}{{ nft.name }}{% endif %}</span>
+                    </div>
+                    <div class="metadata-row">
+                        <span class="metadata-key">Token URI</span>
+                        <span class="metadata-value">{% if history %}{{ history[0].token_uri[:30] if history[0].token_uri else 'N/A' }}...{% else %}{{ nft.token_uri[:30] if nft.token_uri else 'N/A' }}...{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Feed Display (for reactive works) -->
+    {% if nft.is_living %}
+    <div class="live-feed-section">
+        <div class="section-header">
+            <h2 class="section-title">Live Data Feeds</h2>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span class="live-text">Live</span>
+            </div>
+        </div>
+
+        <div class="feeds-grid" id="feedsGrid">
+            {% if live_data and live_data.feeds %}
+                {% for feed in live_data.feeds %}
+                <div class="feed-card" data-feed-type="{{ feed.type }}">
+                    <div class="feed-header">
+                        <span class="feed-name">{{ feed.name }}</span>
+                        <span class="feed-status {{ 'active' if feed.active else '' }}">
+                            {{ 'Active' if feed.active else 'Inactive' }}
+                        </span>
+                    </div>
+                    <div class="feed-value">
+                        {{ feed.value }}<span class="feed-unit">{{ feed.unit }}</span>
+                    </div>
+                    <div class="feed-change {{ 'positive' if feed.change > 0 else 'negative' if feed.change < 0 else '' }}">
+                        {% if feed.change > 0 %}+{% endif %}{{ feed.change }}%
+                        <span style="color: var(--text-tertiary);">24h</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <span class="feed-name">ETH Price</span>
+                        <span class="feed-status active">Active</span>
+                    </div>
+                    <div class="feed-value">
+                        --<span class="feed-unit">USD</span>
+                    </div>
+                    <div class="feed-change">
+                        <span style="color: var(--text-tertiary);">Loading...</span>
+                    </div>
+                </div>
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <span class="feed-name">Block Height</span>
+                        <span class="feed-status active">Active</span>
+                    </div>
+                    <div class="feed-value">
+                        --<span class="feed-unit"></span>
+                    </div>
+                    <div class="feed-change">
+                        <span style="color: var(--text-tertiary);">Loading...</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="capture-controls">
+            <div class="last-capture">
+                Last capture: <strong id="lastCaptureTime">{{ live_data.last_capture if live_data else 'Never' }}</strong>
+            </div>
+            <div class="refresh-indicator">
+                <div class="refresh-spinner" id="refreshSpinner"></div>
+                <span id="refreshStatus">Auto-refresh: 30s</span>
+            </div>
+            <button class="capture-btn" id="captureNowBtn" onclick="captureNow()">
+                Capture Now
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reactivity Profile -->
+    {% if nft.is_living and nft.reactivity_types %}
+    <div class="reactivity-section">
+        <div class="section-header">
+            <h2 class="section-title">Reactivity Profile</h2>
+        </div>
+        <div class="reactivity-types">
+            {% for rtype in nft.reactivity_types %}
+            <div class="reactivity-badge">
+                <span class="reactivity-badge-icon">
+                    {% if rtype == 'oracle_fed' %}
+                    📡
+                    {% elif rtype == 'time_responsive' %}
+                    🕐
+                    {% elif rtype == 'chain_state' %}
+                    ⛓️
+                    {% elif rtype == 'interactive' %}
+                    🎮
+                    {% elif rtype == 'generative_live' %}
+                    🎨
+                    {% else %}
+                    ⚡
+                    {% endif %}
+                </span>
+                <span class="reactivity-badge-label">{{ rtype|replace('_', ' ')|title }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Scheduled Events -->
+    {% if events %}
+    <div class="events-section">
+        <div class="section-header">
+            <h2 class="section-title">Scheduled Events</h2>
+        </div>
+        <div class="events-list">
+            {% for event in events %}
+            <div class="event-item">
+                <div class="event-countdown">
+                    <div class="countdown-value" data-countdown="{{ event.scheduled_time }}">
+                        {{ event.countdown_days }}
+                    </div>
+                    <div class="countdown-unit">days</div>
+                </div>
+                <div class="event-details">
+                    <div class="event-type">{{ event.event_type }}</div>
+                    <div class="event-description">{{ event.description or 'Scheduled event' }}</div>
+                </div>
+                <div class="event-date">
+                    {{ event.scheduled_time[:10] if event.scheduled_time else 'TBD' }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<script>
+    // ============================================
+    // NFT TEMPORAL DETAIL - CLIENT LOGIC
+    // ============================================
+
+    const CONTRACT = '{{ nft.contract }}';
+    const TOKEN_ID = '{{ nft.token_id }}';
+    let refreshInterval = null;
+    let isRefreshing = false;
+
+    // State data cache
+    const statesCache = {
+        current: {
+            image: '{{ nft.image or "/static/placeholder-nft.png" }}',
+            name: '{{ nft.name }}',
+            date: 'Now',
+            metadata: {{ nft|tojson|safe if nft else '{}' }}
+        }
+    };
+
+    // Initialize states cache from history
+    {% if history %}
+    {% for state in history %}
+    statesCache['{{ state.state_number }}'] = {
+        image: '{{ state.image or nft.image or "/static/placeholder-nft.png" }}',
+        name: 'State {{ state.state_number }} - {{ state.state_type|title }}',
+        date: '{{ state.timestamp[:10] if state.timestamp else "Unknown" }}',
+        metadata: {{ state.metadata|tojson|safe if state.metadata else '{}' }},
+        tokenUri: '{{ state.token_uri or "" }}'
+    };
+    {% endfor %}
+    {% endif %}
+
+    // Timeline node click handlers
+    document.querySelectorAll('.timeline-node').forEach(node => {
+        node.addEventListener('click', function() {
+            const stateId = this.dataset.stateId;
+            if (stateId && statesCache[stateId]) {
+                updateComparisonPanel('left', stateId);
+            }
+        });
+    });
+
+    // State selector handlers
+    document.getElementById('leftStateSelect').addEventListener('change', function() {
+        updateComparisonPanel('left', this.value);
+    });
+
+    document.getElementById('rightStateSelect').addEventListener('change', function() {
+        updateComparisonPanel('right', this.value);
+    });
+
+    function updateComparisonPanel(panel, stateId) {
+        const state = statesCache[stateId];
+        if (!state) return;
+
+        const prefix = panel === 'left' ? 'left' : 'right';
+
+        document.getElementById(`${prefix}StateName`).textContent = state.name;
+        document.getElementById(`${prefix}StateDate`).textContent = state.date;
+        document.getElementById(`${prefix}StateImage`).src = state.image;
+
+        // Update metadata display
+        const metadataEl = document.getElementById(`${prefix}Metadata`);
+        if (state.metadata) {
+            let html = '';
+            const fields = ['name', 'description', 'token_uri'];
+            fields.forEach(field => {
+                const value = state.metadata[field] || state[field] || 'N/A';
+                const displayValue = typeof value === 'string' && value.length > 30
+                    ? value.substring(0, 30) + '...'
+                    : value;
+                html += `
+                    <div class="metadata-row">
+                        <span class="metadata-key">${field.replace('_', ' ')}</span>
+                        <span class="metadata-value">${displayValue}</span>
+                    </div>
+                `;
+            });
+            metadataEl.innerHTML = html;
+        }
+    }
+
+    // Timeline view filters
+    document.querySelectorAll('.timeline-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.timeline-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const view = this.dataset.view;
+            const pastNodes = document.querySelectorAll('.past-node');
+            const futureNodes = document.querySelectorAll('.future-node');
+            const currentNode = document.querySelector('.current-node');
+
+            pastNodes.forEach(n => n.style.display = (view === 'all' || view === 'states') ? 'flex' : 'none');
+            futureNodes.forEach(n => n.style.display = (view === 'all' || view === 'events') ? 'flex' : 'none');
+            if (currentNode) currentNode.style.display = 'flex';
+        });
+    });
+
+    // Live feed refresh
+    {% if nft.is_living %}
+    function startAutoRefresh() {
+        refreshInterval = setInterval(refreshLiveData, 30000);
+        document.getElementById('refreshSpinner').classList.remove('paused');
+    }
+
+    function stopAutoRefresh() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+        document.getElementById('refreshSpinner').classList.add('paused');
+    }
+
+    async function refreshLiveData() {
+        if (isRefreshing) return;
+        isRefreshing = true;
+
+        try {
+            const response = await fetch(`/api/nft/${CONTRACT}/${TOKEN_ID}/live`);
+            const data = await response.json();
+
+            if (data.success && data.feeds) {
+                updateFeedsDisplay(data.feeds);
+                document.getElementById('lastCaptureTime').textContent =
+                    new Date().toLocaleTimeString();
+            }
+        } catch (error) {
+            console.error('Error refreshing live data:', error);
+        } finally {
+            isRefreshing = false;
+        }
+    }
+
+    function updateFeedsDisplay(feeds) {
+        const grid = document.getElementById('feedsGrid');
+        if (!feeds || feeds.length === 0) return;
+
+        let html = '';
+        feeds.forEach(feed => {
+            const changeClass = feed.change > 0 ? 'positive' : feed.change < 0 ? 'negative' : '';
+            html += `
+                <div class="feed-card" data-feed-type="${feed.type}">
+                    <div class="feed-header">
+                        <span class="feed-name">${feed.name}</span>
+                        <span class="feed-status ${feed.active ? 'active' : ''}">
+                            ${feed.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="feed-value">
+                        ${feed.value}<span class="feed-unit">${feed.unit || ''}</span>
+                    </div>
+                    <div class="feed-change ${changeClass}">
+                        ${feed.change > 0 ? '+' : ''}${feed.change}%
+                        <span style="color: var(--text-tertiary);">24h</span>
+                    </div>
+                </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+
+    async function captureNow() {
+        const btn = document.getElementById('captureNowBtn');
+        btn.disabled = true;
+        btn.textContent = 'Capturing...';
+
+        showLoading();
+
+        try {
+            const response = await fetch(`/api/nft/${CONTRACT}/${TOKEN_ID}/capture`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('lastCaptureTime').textContent =
+                    new Date().toLocaleTimeString();
+
+                // Update state count
+                const countEl = document.getElementById('stateCount');
+                countEl.textContent = parseInt(countEl.textContent) + 1;
+
+                // Refresh the page to show new state
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                alert('Capture failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error capturing state:', error);
+            alert('Error capturing state');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Capture Now';
+            hideLoading();
+        }
+    }
+
+    // Start auto-refresh on page load
+    startAutoRefresh();
+    {% endif %}
+
+    // Countdown updates
+    function updateCountdowns() {
+        document.querySelectorAll('[data-countdown]').forEach(el => {
+            const targetDate = new Date(el.dataset.countdown);
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                el.textContent = days;
+            }
+        });
+    }
+
+    setInterval(updateCountdowns, 60000);
+
+    // Loading overlay
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('visible');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('visible');
+    }
+
+    // Load history data via API if needed
+    async function loadHistory() {
+        try {
+            const response = await fetch(`/api/nft/${CONTRACT}/${TOKEN_ID}/history`);
+            const data = await response.json();
+
+            if (data.success && data.history) {
+                data.history.forEach(state => {
+                    statesCache[state.state_number] = {
+                        image: state.image || '{{ nft.image or "/static/placeholder-nft.png" }}',
+                        name: `State ${state.state_number} - ${state.state_type}`,
+                        date: state.timestamp ? state.timestamp.substring(0, 10) : 'Unknown',
+                        metadata: state.metadata || {},
+                        tokenUri: state.token_uri || ''
+                    };
+                });
+            }
+        } catch (error) {
+            console.error('Error loading history:', error);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCountdowns();
+        // Optionally load more history data
+        // loadHistory();
+    });
+</script>
+{% endblock %}

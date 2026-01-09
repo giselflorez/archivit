@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT | Welcome to Your Personal Archive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --white: #ffffff;
+            --cream: #fdfbf7;
+            --warm-gray: #f5f3ef;
+            --soft-gray: #e8e6e1;
+            --medium-gray: #9b9590;
+            --charcoal: #2d2926;
+            --deep-charcoal: #1a1816;
+            --accent-blue: #4a6fa5;
+            --accent-gold: #c4a35a;
+            --accent-rose: #b87a7a;
+            --glass-white: rgba(255, 255, 255, 0.85);
+            --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.7;
+            font-weight: 400;
+            font-size: 16px;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
+            font-weight: 300;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+            opacity: 0.9;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(74, 111, 165, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(196, 163, 90, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-white);
+            border: 1px solid var(--soft-gray);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .hero h1 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 span {
+            display: block;
+            font-size: 0.4em;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--medium-gray);
+            margin-top: 0.5rem;
+        }
+
+        .hero-subtitle {
+            max-width: 600px;
+            font-size: 1.2rem;
+            color: var(--medium-gray);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        /* Sections */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--soft-gray);
+            margin: 0 auto 3rem;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--soft-gray);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number.danger { color: var(--accent-rose); }
+        .stat-number.warning { color: var(--accent-gold); }
+        .stat-number.info { color: var(--accent-blue); }
+
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--medium-gray);
+            margin-bottom: 1rem;
+        }
+
+        .stat-description {
+            font-size: 0.95rem;
+            color: var(--charcoal);
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            background: var(--white);
+            padding: 4rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            margin: 4rem 0;
+            border: 1px solid var(--soft-gray);
+        }
+
+        .content-block.highlight {
+            background: linear-gradient(135deg, var(--white) 0%, var(--warm-gray) 100%);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .content-block {
+                padding: 2rem;
+            }
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--soft-gray);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--warm-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Quote Block */
+        .quote-block {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: 24px;
+            margin: 4rem 0;
+            position: relative;
+        }
+
+        .quote-block::before {
+            content: '"';
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8rem;
+            color: var(--soft-gray);
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            line-height: 1;
+        }
+
+        .quote-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.5;
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--soft-gray);
+        }
+
+        .comparison-table th {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--charcoal);
+        }
+
+        .comparison-table thead th {
+            background: var(--warm-gray);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison-table .check { color: #4CAF50; }
+        .comparison-table .x { color: var(--accent-rose); }
+
+        /* Call to Action */
+        .cta-section {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 2.5rem;
+            background: var(--charcoal);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .cta-button:hover {
+            background: var(--deep-charcoal);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-button::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover::after {
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--white);
+            border-top: 1px solid var(--soft-gray);
+        }
+
+        footer p {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+            margin: 0;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--soft-gray);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Prose styling */
+        .prose {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .prose p {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            margin-bottom: 2rem;
+        }
+
+        .prose p:first-of-type::first-letter {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            float: left;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            color: var(--charcoal);
+        }
+
+        /* Visual elements */
+        .visual-element {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, var(--warm-gray) 0%, var(--soft-gray) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-element::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(74, 111, 165, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(196, 163, 90, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 50% 80%, rgba(184, 122, 122, 0.08) 0%, transparent 25%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-10%, -10%) rotate(0deg); }
+            50% { transform: translate(10%, 10%) rotate(180deg); }
+        }
+
+        .visual-element span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--medium-gray);
+            z-index: 1;
+        }
+
+        /* Source links */
+        .sources {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--soft-gray);
+        }
+
+        .sources h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--medium-gray);
+            margin-bottom: 1rem;
+        }
+
+        .sources ul {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .sources li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sources a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .sources a:hover {
+            text-decoration: underline;
+        }
+
+        /* Glass panels */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-badge">Beta Program</div>
+        <h1>
+            ARCHIV-IT
+            <span>Your Life. Your Data. Your Control.</span>
+        </h1>
+        <p class="hero-subtitle">
+            A local-first personal archive system for the visual computing era.
+            This is not another cloud service. This is sovereignty over your creative legacy.
+        </p>
+    </header>
+
+    <!-- The Problem -->
+    <section>
+        <div class="section-divider"></div>
+        <h2 style="text-align: center;">The Quiet Crisis of Digital Memory</h2>
+
+        <div class="prose" style="margin-top: 3rem;">
+            <p>We are living through an unprecedented transformation in how human memory is created, stored, and lost. Every year, humanity captures over 2.1 trillion photographs. Yet here is the uncomfortable truth that no technology company will tell you: the vast majority of these images will vanish within a generation. Not through catastrophe, but through quiet neglect, platform changes, and the silent erosion of access.</p>
+
+            <p>Consider the mathematics of modern memory loss. Fewer than 6% of digital photographs are ever printed or backed up independently. The rest exist in a precarious state of conditional access, dependent on subscription payments, terms of service agreements, and the continued existence of corporations whose primary obligation is to shareholders, not to the preservation of your creative legacy.</p>
+
+            <p>This is not paranoia. This is the documented reality of cloud-dependent digital life. In 2025 alone, 80% of companies experienced cloud security incidents. More troubling still: 82% of all data breaches now involve cloud-stored information. When a breach exposed 17,000 iCloud usernames and passwords in plaintext earlier this year, it included logs of victims' activities, their messages, and their photographs. The cloud, it turns out, is made of other people's computers, subject to other people's priorities.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number danger">82%</div>
+                <div class="stat-label">Cloud Vulnerability</div>
+                <p class="stat-description">Of all data breaches in 2025 involved cloud-stored information, making visibility and monitoring critical priorities.</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number warning">69%</div>
+                <div class="stat-label">Corporate Concern</div>
+                <p class="stat-description">Of companies cite data loss and leakage as their primary worry, yet consumers remain largely unaware of identical risks.</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number info">45%</div>
+                <div class="stat-label">Encryption Gap</div>
+                <p class="stat-description">Only 45% of data stored in the cloud is encrypted. The majority of your memories exist in readable plaintext.</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number danger">2.1T</div>
+                <div class="stat-label">Photos Per Year</div>
+                <p class="stat-description">Trillion photographs captured annually, yet fewer than 6% are preserved outside of conditional cloud access.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Shift -->
+    <section>
+        <div class="content-block highlight">
+            <div class="two-column">
+                <div>
+                    <h2>The Rise of Personal AI Notebooks</h2>
+                    <p class="lead">Something remarkable is happening. People are beginning to understand that their data has value, that their creative output deserves preservation, that artificial intelligence can serve them rather than surveil them.</p>
+                    <p>Google's NotebookLM has grown its market reach by 180% since 2023. Over 100,000 users adopted it within the first two months of beta launch. Why? Because people intuitively understand that synthesizing their own information, creating their own connections, building their own knowledge graphs is fundamentally different from renting access to someone else's analysis of their lives.</p>
+                    <p>This is the visual synthesis moment. We are transitioning from an era of passive cloud storage to active personal intelligence, where your archive becomes a living document of creative evolution rather than a static repository waiting to be monetized by others.</p>
+                </div>
+                <div>
+                    <div class="stat-card" style="margin-bottom: 1.5rem;">
+                        <div class="stat-number info">180%</div>
+                        <div class="stat-label">NotebookLM Growth</div>
+                        <p class="stat-description">Market reach expansion from Q3 2023 to Q1 2025, signaling massive demand for personal AI tools.</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number warning">64%</div>
+                        <div class="stat-label">Young Adopters</div>
+                        <p class="stat-description">Of NotebookLM users are between 18-34, a generation seeking sovereignty over their digital identities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What ARCHIV-IT Is -->
+    <section>
+        <div class="section-divider"></div>
+        <h2 style="text-align: center;">What ARCHIV-IT Actually Is</h2>
+
+        <div class="prose" style="margin-top: 3rem;">
+            <p>ARCHIV-IT emerged from a simple recognition: visual artists, digital creators, and anyone who takes their creative legacy seriously deserves better than a folder of files or a subscription-dependent cloud drive. The application you are testing represents a dissertation in software form, a years-long exploration of what it means to truly own your creative archive in the age of artificial intelligence and spatial computing.</p>
+
+            <p>At its core, ARCHIV-IT is a local-first personal knowledge base. Every file lives on your machine. No subscription will ever lock you out of your memories. No algorithm will ever decide which of your works deserve visibility. But this foundation supports something far more interesting: a visual synthesis layer that transforms static archives into dynamic, navigable creative landscapes.</p>
+        </div>
+
+        <div class="content-block">
+            <h3>The Unexpected Delights</h3>
+            <p>Most archive software is, frankly, dull. Databases are utility. File systems are infrastructure. We believed there was another way, one that honors both the technical requirements of preservation and the aesthetic sensibility of the creative mind.</p>
+
+            <ul class="feature-list">
+                <li>
+                    <div class="feature-icon">&#x2728;</div>
+                    <div class="feature-content">
+                        <h4>Semantic Network Visualization</h4>
+                        <p>Watch your ideas form constellations. Documents connect through meaning, not folders. Navigate your creative evolution as a force-directed graph where related works orbit each other like celestial bodies.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon">&#x1F3A8;</div>
+                    <div class="feature-content">
+                        <h4>Point Cloud Paradigms</h4>
+                        <p>Five distinct 3D visualization modes, each revealing different dimensions of your archive: temporal existence, conceptual nebulae, stewardship constellations, creative rivers, and cultural resonance fields.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon">&#x1F48E;</div>
+                    <div class="feature-content">
+                        <h4>Petri Dish Holdings Ring</h4>
+                        <p>For blockchain-native creators: a magnifying bubble that reveals your holdings with glass-like aesthetics, secure links to block explorers, and physics-based animations that make data inspection feel like scientific discovery.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon">&#x1F984;</div>
+                    <div class="feature-content">
+                        <h4>Unicorn Flyouts & Fizzy Animations</h4>
+                        <p>Yes, really. Whimsical touches throughout the interface because software that handles your memories should occasionally spark joy, not just function.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon">&#x1F50D;</div>
+                    <div class="feature-content">
+                        <h4>Visual Translator</h4>
+                        <p>AI-powered image analysis that works locally. Batch-process your entire archive, extracting meaning and creating searchable metadata without sending your images to external servers.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon">&#x1F517;</div>
+                    <div class="feature-content">
+                        <h4>Deep Provenance Framework</h4>
+                        <p>For NFT artists and collectors: trace the complete ownership history of digital works across blockchains, with temporal tracking of how pieces evolve through editions and collections.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section>
+        <div class="section-divider"></div>
+        <h2 style="text-align: center;">The Difference That Matters</h2>
+
+        <div class="content-block">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Cloud Services</th>
+                        <th>ARCHIV-IT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Data Location</th>
+                        <td>Their servers</td>
+                        <td class="check">Your machine</td>
+                    </tr>
+                    <tr>
+                        <th>Access Dependency</th>
+                        <td>Subscription required</td>
+                        <td class="check">Always yours</td>
+                    </tr>
+                    <tr>
+                        <th>Privacy Model</th>
+                        <td>Scanning for ads/AI training</td>
+                        <td class="check">Zero external transmission</td>
+                    </tr>
+                    <tr>
+                        <th>AI Analysis</th>
+                        <td>Their models, their servers</td>
+                        <td class="check">Local processing options</td>
+                    </tr>
+                    <tr>
+                        <th>Visualization</th>
+                        <td>Flat grid thumbnails</td>
+                        <td class="check">3D semantic navigation</td>
+                    </tr>
+                    <tr>
+                        <th>Blockchain Integration</th>
+                        <td>Basic or none</td>
+                        <td class="check">Deep provenance tracking</td>
+                    </tr>
+                    <tr>
+                        <th>Export Freedom</th>
+                        <td>Often limited/delayed</td>
+                        <td class="check">Standard file formats always</td>
+                    </tr>
+                    <tr>
+                        <th>Delight Factor</th>
+                        <td>Utilitarian</td>
+                        <td class="check">Designed for creative minds</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Quote -->
+    <section>
+        <div class="quote-block">
+            <p class="quote-text">File-based systems are the 1.0 of data. We are about to experience a visual data era with spatial compute of real-time data and infinite iterations.</p>
+            <p class="quote-author">The Vision Behind ARCHIV-IT</p>
+        </div>
+    </section>
+
+    <!-- For Testers -->
+    <section>
+        <div class="section-divider"></div>
+        <h2 style="text-align: center;">For Our Beta Testers</h2>
+
+        <div class="prose" style="margin-top: 3rem;">
+            <p>You are among the first to experience something that has been years in the making. This application represents a personal journey through the intersections of art, technology, privacy, and preservation. Every feature emerged from real needs, from the frustration of watching creative archives scatter across platforms, from the recognition that the tools available to artists for managing their digital legacies were fundamentally inadequate.</p>
+
+            <p>As a beta tester, your observations matter deeply. We are particularly interested in moments of confusion, features that don't behave as expected, visualizations that fail to illuminate, and any instance where the software gets in the way rather than enabling discovery. Equally valuable are the moments of delight, the unexpected connections you find, the features that make you think differently about your own archive.</p>
+        </div>
+
+        <div class="content-block">
+            <h3>Getting Started</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">Step 1</div>
+                    <p><strong>Run the installer:</strong> Open Terminal, navigate to the ARCHIVIT folder, and run <code>./install.sh</code>. This creates your virtual environment and installs dependencies.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Step 2</div>
+                    <p><strong>Start the server:</strong> Run <code>./start_server.sh</code> or activate the virtual environment and run <code>python scripts/interface/visual_browser.py</code>.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Step 3</div>
+                    <p><strong>Open in browser:</strong> Navigate to <code>http://localhost:5001</code> in your preferred browser. Chrome or Firefox recommended for WebGL visualizations.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Step 4</div>
+                    <p><strong>Add your first content:</strong> Use the + button to manually add content, connect Google Drive for sync, or import web pages directly.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Step 5</div>
+                    <p><strong>Explore the visualizations:</strong> Visit the Semantic Network, Tag Cloud, and Point Cloud views to see your archive come alive in new dimensions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-block" style="margin-top: 2rem;">
+            <h3>Providing Feedback</h3>
+            <p>Document your experience as you use ARCHIV-IT. Note bugs, confusion points, and feature requests. Screenshots are invaluable. When something breaks, describe what you were trying to do when it happened.</p>
+            <p>Most importantly: tell us what you wish it could do. This is beta software. Your input directly shapes what it becomes.</p>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Begin Your Archive</h2>
+        <p style="max-width: 500px; margin: 1rem auto 2rem; color: var(--medium-gray);">
+            Your creative legacy deserves more than a folder. It deserves a cosmos.
+        </p>
+        <a href="INSTALL_FOR_TESTERS.md" class="cta-button">Read Installation Guide</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>ARCHIV-IT Beta Program &bull; 2026</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Local-first. Privacy-respecting. Designed for creative minds.</p>
+
+        <div class="sources">
+            <h4>Data Sources</h4>
+            <ul>
+                <li><a href="https://www.getastra.com/blog/security-audit/cloud-security-statistics/" target="_blank" rel="noopener">Astra Cloud Security Statistics 2025</a></li>
+                <li><a href="https://www.sentinelone.com/cybersecurity-101/cloud-security/cloud-security-statistics/" target="_blank" rel="noopener">SentinelOne Cloud Security Statistics</a></li>
+                <li><a href="https://www.datastackhub.com/insights/cloud-breach-statistics/" target="_blank" rel="noopener">DataStackHub Cloud Breach Statistics</a></li>
+                <li><a href="https://seosandwitch.com/notebooklm-statistics/" target="_blank" rel="noopener">NotebookLM Usage Statistics</a></li>
+                <li><a href="https://a16z.com/state-of-consumer-ai-2025-product-hits-misses-and-whats-next/" target="_blank" rel="noopener">Andreessen Horowitz State of Consumer AI 2025</a></li>
+            </ul>
+        </div>
+    </footer>
+
+</body>
+</html>
