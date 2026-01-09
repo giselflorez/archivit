@@ -157,13 +157,59 @@ def fetch_ipfs_content(ipfs_hash: str, timeout: int = 30) -> Optional[bytes]:
     return None
 
 
+def sanitize_ipfs_string(value: str) -> str:
+    """
+    SECURITY: Sanitize strings from IPFS to prevent XSS.
+    Removes script tags, event handlers, and other dangerous content.
+    """
+    if not isinstance(value, str):
+        return value
+
+    import html
+    import re
+
+    # First escape HTML entities
+    sanitized = html.escape(value)
+
+    # Remove any remaining script-like patterns (belt and suspenders)
+    dangerous_patterns = [
+        r'<script[^>]*>.*?</script>',
+        r'javascript:',
+        r'on\w+\s*=',
+        r'data:text/html',
+    ]
+
+    for pattern in dangerous_patterns:
+        sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+
+    return sanitized
+
+def sanitize_ipfs_metadata(data: any) -> any:
+    """
+    SECURITY: Recursively sanitize IPFS metadata.
+    Sanitizes all string values in dict/list structures.
+    """
+    if isinstance(data, dict):
+        return {k: sanitize_ipfs_metadata(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [sanitize_ipfs_metadata(item) for item in data]
+    elif isinstance(data, str):
+        return sanitize_ipfs_string(data)
+    else:
+        return data
+
 def fetch_ipfs_json(ipfs_hash: str) -> Optional[Dict]:
-    """Fetch JSON metadata from IPFS"""
+    """
+    Fetch JSON metadata from IPFS.
+    SECURITY: All returned data is sanitized to prevent XSS.
+    """
     content = fetch_ipfs_content(ipfs_hash)
 
     if content:
         try:
-            return json.loads(content.decode('utf-8'))
+            data = json.loads(content.decode('utf-8'))
+            # SECURITY: Sanitize all string content from IPFS
+            return sanitize_ipfs_metadata(data)
         except Exception as e:
             print(f"  ✗ Failed to parse JSON: {e}")
             return None

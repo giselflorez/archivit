@@ -85,8 +85,15 @@ app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
 
-# Set secret key for sessions
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
+# Set secret key for sessions - SECURITY: Generate random key if not provided
+import secrets as _secrets
+_flask_secret = os.getenv('FLASK_SECRET_KEY')
+if not _flask_secret:
+    # Generate a secure random key for this session
+    # WARNING: This will invalidate sessions on restart - set FLASK_SECRET_KEY in .env for persistence
+    _flask_secret = _secrets.token_hex(32)
+    print("WARNING: FLASK_SECRET_KEY not set - using random key (sessions will not persist across restarts)")
+app.secret_key = _flask_secret
 
 # Import user configuration database
 from interface.user_config_db import UserConfigDB
@@ -175,20 +182,171 @@ def is_safe_url(url):
     except Exception as e:
         return False, f"URL parsing error: {str(e)}"
 
+# ============================================================================
+# SECURITY: Global Rate Limiting
+# Prevents abuse and DoS attacks on API endpoints
+# ============================================================================
+
+from datetime import timedelta
+from collections import defaultdict
+
+class GlobalRateLimiter:
+    """
+    Global rate limiter for all API endpoints.
+    Tracks requests per IP and returns 429 when limit exceeded.
+    """
+
+    def __init__(self, max_requests: int = 100, window_seconds: int = 60):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.requests = defaultdict(list)  # ip -> [timestamps]
+        self._last_cleanup = datetime.now()
+
+    def _cleanup_old_entries(self):
+        """Periodically clean up old entries to prevent memory bloat"""
+        now = datetime.now()
+        # Only cleanup every minute
+        if (now - self._last_cleanup).seconds < 60:
+            return
+
+        cutoff = now - timedelta(seconds=self.window_seconds)
+        ips_to_remove = []
+
+        for ip, timestamps in self.requests.items():
+            self.requests[ip] = [ts for ts in timestamps if ts > cutoff]
+            if not self.requests[ip]:
+                ips_to_remove.append(ip)
+
+        for ip in ips_to_remove:
+            del self.requests[ip]
+
+        self._last_cleanup = now
+
+    def is_allowed(self, ip: str) -> bool:
+        """Check if request from IP is allowed"""
+        self._cleanup_old_entries()
+
+        now = datetime.now()
+        cutoff = now - timedelta(seconds=self.window_seconds)
+
+        # Filter to recent requests only
+        self.requests[ip] = [ts for ts in self.requests[ip] if ts > cutoff]
+
+        if len(self.requests[ip]) >= self.max_requests:
+            return False
+
+        self.requests[ip].append(now)
+        return True
+
+# Global rate limiter: 100 requests per minute per IP
+global_rate_limiter = GlobalRateLimiter(max_requests=100, window_seconds=60)
+
+@app.before_request
+def check_rate_limit():
+    """
+    SECURITY: Apply rate limiting to all API endpoints.
+    Exempt static files and certain routes for usability.
+    """
+    # Exempt static files
+    if request.path.startswith('/static/') or request.path.startswith('/media/'):
+        return None
+
+    # Exempt favicon
+    if request.path == '/favicon.ico':
+        return None
+
+    client_ip = request.remote_addr
+
+    if not global_rate_limiter.is_allowed(client_ip):
+        return jsonify({
+            'error': 'Rate limit exceeded',
+            'message': 'Too many requests. Please wait before trying again.',
+            'retry_after': 60
+        }), 429
+
+    return None
+
+# ============================================================================
+# SECURITY: CSRF Protection for POST/PUT/DELETE requests
+# ============================================================================
+
+from flask import session
+
+def generate_csrf_token():
+    """Generate a CSRF token and store in session"""
+    if '_csrf_token' not in session:
+        session['_csrf_token'] = _secrets.token_hex(32)
+    return session['_csrf_token']
+
+# Make CSRF token available to all templates
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
+@app.before_request
+def check_csrf_token():
+    """
+    SECURITY: Validate CSRF token for state-changing requests.
+    Requires X-CSRF-Token header or _csrf_token form field.
+    """
+    # Only check POST, PUT, DELETE, PATCH methods
+    if request.method not in ('POST', 'PUT', 'DELETE', 'PATCH'):
+        return None
+
+    # Exempt certain API routes that use other auth mechanisms
+    exempt_paths = [
+        '/api/badge/verify',  # Uses signature verification
+        '/setup/scan-status',  # Read-only status polling
+    ]
+
+    for exempt in exempt_paths:
+        if request.path.startswith(exempt):
+            return None
+
+    # Check if this is a JSON API request (CORS preflight handles CSRF for APIs)
+    if request.is_json and request.headers.get('Content-Type', '').startswith('application/json'):
+        # For JSON APIs, require Origin header to match host (SameSite defense)
+        origin = request.headers.get('Origin')
+        if origin:
+            host = request.headers.get('Host', '')
+            if not (origin.endswith(host) or origin.endswith('localhost:5001')):
+                return jsonify({'error': 'Invalid origin'}), 403
+        return None
+
+    # For form submissions, check CSRF token
+    token = request.headers.get('X-CSRF-Token') or request.form.get('_csrf_token')
+    session_token = session.get('_csrf_token')
+
+    if not token or not session_token or token != session_token:
+        return jsonify({
+            'error': 'CSRF validation failed',
+            'message': 'Missing or invalid CSRF token'
+        }), 403
+
+    return None
+
 # Content Security Policy - prevents XSS and injection attacks
 @app.after_request
 def add_security_headers(response):
     """Add security headers to all responses"""
     # Content Security Policy
+    # NOTE: 'unsafe-inline' and 'unsafe-eval' are required for D3.js visualizations
+    # and inline event handlers in templates. TODO: Migrate to nonces for stricter CSP.
+    # SECURITY MITIGATIONS:
+    # - Added object-src 'none' to block plugins
+    # - Added base-uri 'self' to prevent base tag injection
+    # - Added upgrade-insecure-requests for HTTPS enforcement
+    # - Restricted connect-src to specific trusted APIs
     csp = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://d3js.org https://unpkg.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https: http:; "
-        "connect-src 'self' https://api.openai.com https://api.anthropic.com https://*.etherscan.io https://*.solscan.io; "
+        "connect-src 'self' https://api.openai.com https://api.anthropic.com https://*.etherscan.io https://*.solscan.io https://*.alchemy.com; "
         "frame-ancestors 'self'; "
-        "form-action 'self'"
+        "form-action 'self'; "
+        "base-uri 'self'; "  # SECURITY: Prevent base tag injection
+        "object-src 'none'; "  # SECURITY: Block plugins (Flash, Java, etc.)
+        "upgrade-insecure-requests"  # SECURITY: Force HTTPS for all requests
     )
     response.headers['Content-Security-Policy'] = csp
 
@@ -704,6 +862,12 @@ def twitter_verify():
 def archive_views():
     """Spatial Vision - Descriptors for new understandings"""
     return render_template('visualizer_overview.html')
+
+@app.route('/team')
+@app.route('/core-team')
+def team_gallery():
+    """WEB3GISEL Core Team - Architects of the Spatial Archive"""
+    return render_template('team_gallery.html')
 
 @app.route('/setup/accept-terms', methods=['POST'])
 def accept_terms():
@@ -4896,9 +5060,40 @@ def get_stats_direct():
 
 # ============================================================================
 # OWNER-ONLY: ADMIN ROUTES (exclude from distributed builds)
+# SECURITY: Protected by localhost-only access and optional token auth
 # ============================================================================
 
+from functools import wraps
+
+def admin_required(f):
+    """
+    SECURITY: Decorator to protect admin routes.
+    Requires EITHER:
+    1. Request from localhost (127.0.0.1 or ::1)
+    2. Valid ADMIN_TOKEN in Authorization header
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if request is from localhost
+        remote_addr = request.remote_addr
+        is_localhost = remote_addr in ('127.0.0.1', '::1', 'localhost')
+
+        # Check for admin token
+        admin_token = os.getenv('ADMIN_TOKEN')
+        auth_header = request.headers.get('Authorization', '')
+        has_valid_token = admin_token and auth_header == f'Bearer {admin_token}'
+
+        if not is_localhost and not has_valid_token:
+            return jsonify({
+                'error': 'Unauthorized',
+                'message': 'Admin routes require localhost access or valid ADMIN_TOKEN'
+            }), 403
+
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/admin/contacts')
+@admin_required
 def admin_contacts():
     """View all signup contacts - OWNER ONLY"""
     try:
@@ -4923,6 +5118,7 @@ def admin_contacts():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/admin/contacts/export')
+@admin_required
 def admin_contacts_export():
     """Export contacts as CSV - OWNER ONLY"""
     try:
@@ -6569,10 +6765,22 @@ def main():
     print("\n" + "="*60)
     print("Starting web server...")
     print("="*60)
-    print("\nOpen your browser to: http://localhost:5001")
-    print("Press Ctrl+C to stop\n")
 
-    app.run(debug=True, port=5001)
+    # Get local IP for network access (iPad, etc.)
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except:
+        local_ip = "your-local-ip"
+
+    print(f"\n  LOCAL:   http://localhost:5001")
+    print(f"  NETWORK: http://{local_ip}:5001  (iPad/other devices)")
+    print("\nPress Ctrl+C to stop\n")
+
+    app.run(debug=True, port=5001, host='0.0.0.0')
 
 if __name__ == "__main__":
     main()

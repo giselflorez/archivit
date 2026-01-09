@@ -72,8 +72,10 @@ def validate_blockchain_address(address: str, network: str) -> bool:
 def send_confirmation_email(email: str, token: str):
     """Send confirmation email with code"""
     try:
-        # Generate simple 6-digit confirmation code
-        confirmation_code = secrets.token_hex(3).upper()
+        # SECURITY: Generate 8-character confirmation code (32 bits of entropy)
+        # Previous 6-char (24 bits) was too weak - increased for better security
+        # Still user-friendly as it's displayed/typed once and expires quickly
+        confirmation_code = secrets.token_hex(4).upper()  # 8 hex chars = 32 bits
 
         # Store code in session temporarily
         session['confirmation_code'] = confirmation_code

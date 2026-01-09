@@ -35,21 +35,32 @@
     <title>{% block title %}ARCHIV-IT - Personal Archive for Artists{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Typography from PROJECT_BIBLE.md: Inter for UI, JetBrains Mono for data/numbers -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #161616;
-            --bg-tertiary: #1f1f1f;
-            --text-primary: #faf8f5;
-            --text-secondary: #b8b5b0;
-            --text-tertiary: #6a6762;
-            --accent-gold: #d4a574;
+            /* Colors from PROJECT_BIBLE.md - Dark Mode Only */
+            --bg-primary: #0a0a0f;      /* Almost black, slight blue undertone */
+            --bg-secondary: #12121a;    /* Cards - lifted slightly */
+            --bg-tertiary: #1a1a24;     /* Nested - subtle hierarchy */
+
+            /* Text Hierarchy - warm white, not pure */
+            --text-primary: #e8e6e3;
+            --text-secondary: rgba(232, 230, 227, 0.7);
+            --text-tertiary: rgba(232, 230, 227, 0.4);
+
+            /* Accents */
+            --accent-gold: #d4a574;     /* Primary gold - use sparingly */
             --accent-warm: #f4a261;
             --accent-dim: #8b7355;
             --border-color: #2a2a2a;
             --shadow-subtle: 0 2px 12px rgba(0, 0, 0, 0.4);
             --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+            /* Typography - PROJECT_BIBLE.md */
+            --font-ui: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Crimson Pro', serif;
         }
 
         /* ARCHIV-IT Proprietary Icon System - Icon Only, Text on Hover */
@@ -178,7 +189,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .filter-section button:hover {
@@ -193,7 +204,7 @@
         }
 
         body {
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: var(--text-primary);
             background: var(--bg-primary);
@@ -363,7 +374,7 @@
             border: 1px solid var(--border-color);
             border-radius: 2px;
             font-size: 0.9rem;
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg-tertiary);
             color: var(--text-primary);
             transition: all 0.3s ease;
@@ -391,7 +402,7 @@
             border: 1px solid var(--border-color);
             border-radius: 2px;
             font-size: 0.8rem;
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg-tertiary);
             color: var(--text-secondary);
             text-transform: uppercase;

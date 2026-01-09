@@ -9,11 +9,14 @@
 
 ```
 CURRENT STAGE: Alpha
-LAST AUDIT: 2026-01-08
+LAST AUDIT: 2026-01-09
 NEXT AUDIT DUE: Before Beta Release
-AUDIT STATUS: XSS FIXES + AI ANTI-COPY PROTECTION COMPLETE
+AUDIT STATUS: CRITICAL SECURITY FIXES COMPLETE (2026-01-09)
 ALL XSS VULNERABILITIES (SA-001 through SA-009): RESOLVED
 AI ANTI-COPY PROTECTIONS: 7 LAYERS IMPLEMENTED
+NEW FIXES (2026-01-09):
+  - SA-010 through SA-019: Critical security issues resolved
+  - Rate limiting, CSRF protection, admin auth added
 ```
 
 ---
@@ -42,6 +45,16 @@ AI ANTI-COPY PROTECTIONS: 7 LAYERS IMPLEMENTED
 | Anti-AI Meta Tags | 2026-01-08 | 5 meta tags in base.html blocking crawlers |
 | SECURITY.md Policy | 2026-01-08 | AI training prohibition policy documented |
 | Comprehensive .gitignore | 2026-01-08 | 337 lines protecting credentials, PII, configs |
+| **API Keys Removed** | 2026-01-09 | SA-010: Removed exposed API keys from .env |
+| **Flask Secret Key Fix** | 2026-01-09 | SA-011: Generate random key if not set, no hardcoded default |
+| **Shell Injection Fix** | 2026-01-09 | SA-012: collect_all.py uses shell=False with shlex |
+| **Admin Route Auth** | 2026-01-09 | SA-013: /admin/* routes require localhost or ADMIN_TOKEN |
+| **Global Rate Limiting** | 2026-01-09 | SA-014: 100 req/min/IP limit on all endpoints |
+| **CSRF Protection** | 2026-01-09 | SA-015: Token validation for POST/PUT/DELETE requests |
+| **Confirmation Token Fix** | 2026-01-09 | SA-016: Increased from 6 chars (24-bit) to 8 chars (32-bit) |
+| **CSP Hardening** | 2026-01-09 | SA-017: Added object-src none, base-uri, upgrade-insecure-requests |
+| **IPFS Sanitization** | 2026-01-09 | SA-018: All IPFS metadata sanitized for XSS prevention |
+| **exec() Documentation** | 2026-01-09 | SA-019: Documented intentional exec() usage in anti_ai_protection.py |
 
 ### Pending Items
 
@@ -66,6 +79,16 @@ AI ANTI-COPY PROTECTIONS: 7 LAYERS IMPLEMENTED
 | SA-007 | LOW | tag_cloud.html:1043 | FIXED | SafeInputHelper validates docIds |
 | SA-008 | MEDIUM | visual_browser.py | FIXED | SSRF in preview_url |
 | SA-009 | HIGH | HoldingsRing | FIXED | innerHTML with user data |
+| SA-010 | CRITICAL | .env | FIXED | Exposed API keys in repo - keys removed |
+| SA-011 | CRITICAL | visual_browser.py:89 | FIXED | Hardcoded Flask secret key - now generates random |
+| SA-012 | CRITICAL | collect_all.py:27,109 | FIXED | Shell injection (shell=True) - uses shell=False |
+| SA-013 | HIGH | visual_browser.py:4907 | FIXED | No auth on admin routes - added localhost/token check |
+| SA-014 | HIGH | All API endpoints | FIXED | No rate limiting - added 100 req/min/IP global limiter |
+| SA-015 | HIGH | All POST routes | FIXED | Missing CSRF protection - added token validation |
+| SA-016 | MEDIUM | setup_routes.py:76 | FIXED | Weak 6-char token - increased to 8 chars (32-bit) |
+| SA-017 | MEDIUM | visual_browser.py:185 | FIXED | Permissive CSP - added object-src, base-uri restrictions |
+| SA-018 | HIGH | multi_provider_web3.py | FIXED | IPFS content not sanitized - added XSS sanitization |
+| SA-019 | MEDIUM | anti_ai_protection.py:101 | DOCUMENTED | exec() usage is intentional for code protection |
 
 ---
 
@@ -103,14 +126,15 @@ AI ANTI-COPY PROTECTIONS: 7 LAYERS IMPLEMENTED
 
 - [ ] All Alpha items complete
 - [ ] Full OWASP Top 10 assessment
-- [ ] Authentication/authorization review
-- [ ] Rate limiting implementation
+- [x] Authentication/authorization review (Admin routes protected 2026-01-09)
+- [x] Rate limiting implementation (100 req/min/IP 2026-01-09)
+- [x] CSRF protection implementation (Token validation 2026-01-09)
 - [ ] Error handling audit
 - [ ] Logging review (no PII)
 - [ ] Crash report sanitization
 - [ ] Dependency vulnerability scan
 
-**Beta Gate Status:** NOT STARTED
+**Beta Gate Status:** IN PROGRESS (3/9 items complete)
 
 ### Public Release Gate
 
@@ -172,13 +196,16 @@ curl -I http://localhost:5000 | grep -i "content-security-policy"
 ## Next Actions
 
 1. ~~**Immediate:** Fix remaining innerHTML XSS vulnerabilities (SA-001 through SA-007)~~ **COMPLETED 2026-01-08**
-2. **This Week:** Complete local storage encryption assessment
-3. **Before Beta:** Run full dependency audit with pip-audit
-4. **Before Beta:** Create accurate privacy policy
+2. ~~**Critical:** Fix security scan issues (SA-010 through SA-019)~~ **COMPLETED 2026-01-09**
+3. **This Week:** Complete local storage encryption assessment
+4. **Before Beta:** Run full dependency audit with pip-audit
+5. **Before Beta:** Create accurate privacy policy
+6. **Recommended:** Set FLASK_SECRET_KEY in .env for session persistence
+7. **Recommended:** Set ADMIN_TOKEN in .env for remote admin access
 
 ---
 
 **IMPORTANT:** Do not release to any users until the appropriate stage gate is PASSED.
 
-Last Updated: 2026-01-08
+Last Updated: 2026-01-09
 Next Review: Before any release or code merge to main

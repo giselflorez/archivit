@@ -16,15 +16,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from processors.embeddings_generator import rebuild_index, update_index, load_config
 
 def run_command(cmd, description, check=True):
-    """Run a shell command and handle errors"""
+    """Run a command and handle errors. SECURITY: Uses shell=False to prevent injection."""
     print(f"\n{'='*60}")
     print(f"{description}")
     print(f"{'='*60}")
 
     try:
+        # SECURITY: Convert string command to list to prevent shell injection
+        import shlex
+        if isinstance(cmd, str):
+            cmd_list = shlex.split(cmd)
+        else:
+            cmd_list = cmd
+
         result = subprocess.run(
-            cmd,
-            shell=True,
+            cmd_list,
+            shell=False,  # SECURITY: Never use shell=True with user input
             check=check,
             capture_output=True,
             text=True
@@ -103,10 +110,10 @@ def git_commit_changes(message):
     Returns:
         bool: Success status
     """
-    # Check if there are changes
+    # Check if there are changes - SECURITY: shell=False prevents injection
     status_result = subprocess.run(
-        "git status --porcelain",
-        shell=True,
+        ["git", "status", "--porcelain"],
+        shell=False,
         capture_output=True,
         text=True
     )

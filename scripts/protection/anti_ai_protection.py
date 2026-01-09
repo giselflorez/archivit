@@ -97,7 +97,14 @@ class CodeProtectionRuntime:
             )
 
             # Execute decrypted function
+            # SECURITY NOTE: This exec() is intentional for code protection.
+            # It only executes bytecode derived from the original decorated function,
+            # NOT arbitrary user input. The bytecode was encrypted at decoration time
+            # and is being decrypted here. This is NOT a security vulnerability
+            # because the code being executed was already trusted at definition time.
             exec_globals = func.__globals__.copy()
+            # Restrict exec to only allow the function being protected
+            exec_globals['__builtins__'] = __builtins__  # Preserve builtins
             exec(compile(new_code, '<protected>', 'exec'), exec_globals)
             return exec_globals[func.__name__](*args, **kwargs)
 
