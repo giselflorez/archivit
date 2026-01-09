@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Source Manager - ARCHIV-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --text-primary: #e8e6e3;
+            --text-secondary: rgba(232, 230, 227, 0.7);
+            --text-muted: rgba(232, 230, 227, 0.4);
+            --accent-gold: #d4a574;
+            --source-blockchain: #8b5cf6;
+            --source-web: #d4a574;
+            --source-attachment: #6a6762;
+            --source-drive: #4285F4;
+            --status-complete: #22c55e;
+            --status-partial: #eab308;
+            --status-broken: #ef4444;
+            --border-subtle: rgba(212, 165, 116, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Geist', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent-gold); }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card.blockchain .stat-value { color: var(--source-blockchain); }
+        .stat-card.web .stat-value { color: var(--source-web); }
+        .stat-card.attachment .stat-value { color: var(--text-secondary); }
+        .stat-card.broken .stat-value { color: var(--status-broken); }
+
+        .bulk-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .select-all-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bulk-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .bulk-btn-delete {
+            background: transparent;
+            color: var(--status-broken);
+            border: 1px solid var(--status-broken);
+        }
+        .bulk-btn-delete:hover:not(:disabled) {
+            background: var(--status-broken);
+            color: white;
+        }
+        .bulk-btn-delete:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .selection-count {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+
+        .source-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .group-header:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .group-icon {
+            font-size: 1.2rem;
+        }
+
+        .group-title {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .group-count {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .group-toggle {
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .group-header.collapsed .group-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .source-list {
+            background: var(--bg-secondary);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .source-list.collapsed {
+            display: none;
+        }
+
+        .source-item {
+            display: grid;
+            grid-template-columns: 40px 1fr 180px 120px 80px 50px;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s;
+        }
+
+        .source-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .source-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-gold);
+            cursor: pointer;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+
+        .item-title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-source-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            transition: opacity 0.15s;
+        }
+        .item-source-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .item-type {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .type-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--text-secondary);
+            width: fit-content;
+        }
+
+        .type-badge.blockchain { background: rgba(139, 92, 246, 0.15); color: var(--source-blockchain); }
+        .type-badge.web { background: rgba(212, 165, 116, 0.15); color: var(--source-web); }
+        .type-badge.attachment { background: rgba(106, 103, 98, 0.15); }
+        .type-badge.drive { background: rgba(66, 133, 244, 0.15); color: var(--source-drive); }
+
+        .item-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.complete { background: var(--status-complete); }
+        .status-indicator.partial {
+            background: conic-gradient(var(--status-partial) 50%, transparent 50%);
+            border: 2px solid var(--status-partial);
+        }
+        .status-indicator.broken {
+            background: transparent;
+            border: 2px solid var(--status-broken);
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .item-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--status-broken);
+        }
+
+        /* Delete Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .modal-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--status-broken);
+        }
+
+        .modal-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-item-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .modal-warning {
+            color: var(--status-broken);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .modal-btn-cancel:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-delete {
+            background: var(--status-broken);
+            border: none;
+            color: white;
+        }
+        .modal-btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 900px) {
+            .source-item {
+                grid-template-columns: 30px 1fr auto auto;
+            }
+            .item-type, .item-status {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Archive
+    </a>
+
+    <div class="page-header">
+        <h1 class="page-title">Data Source Manager</h1>
+        <p class="page-subtitle">Manage your archive's data sources. Deleting here removes data permanently.</p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-card blockchain">
+            <span class="stat-value" id="stat-blockchain">0</span>
+            <span class="stat-label">Blockchain</span>
+        </div>
+        <div class="stat-card web">
+            <span class="stat-value" id="stat-web">0</span>
+            <span class="stat-label">Web Imports</span>
+        </div>
+        <div class="stat-card attachment">
+            <span class="stat-value" id="stat-attachment">0</span>
+            <span class="stat-label">Uploads</span>
+        </div>
+        <div class="stat-card broken">
+            <span class="stat-value" id="stat-broken">0</span>
+            <span class="stat-label">Broken</span>
+        </div>
+    </div>
+
+    <div class="bulk-actions">
+        <label class="select-all-wrapper">
+            <input type="checkbox" id="select-all" class="item-checkbox" onchange="toggleSelectAll()">
+            <span>Select All</span>
+        </label>
+        <button class="bulk-btn bulk-btn-delete" id="bulk-delete-btn" disabled onclick="bulkDelete()">
+            Delete Selected (0)
+        </button>
+        <span class="selection-count" id="selection-count">0 selected</span>
+    </div>
+
+    <div id="source-groups">
+        <div class="empty-state">
+            <div class="empty-state-icon">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-icon">&#9888;</div>
+            <h2 class="modal-title">Delete Data Source</h2>
+            <div class="modal-body">
+                <p>You are about to permanently delete:</p>
+                <p class="modal-item-name" id="modal-item-name"></p>
+                <p class="modal-warning">This action cannot be undone. The data will be removed from your archive.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-btn modal-btn-delete" onclick="confirmDelete()">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allSources = [];
+        let selectedIds = new Set();
+        let pendingDeleteId = null;
+
+        async function loadDataSources() {
+            try {
+                const response = await fetch('/api/data-sources');
+                const data = await response.json();
+                allSources = data.sources;
+                updateStats(data.stats);
+                renderGroups();
+            } catch (error) {
+                console.error('Failed to load data sources:', error);
+                document.getElementById('source-groups').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">&#x26A0;</div>
+                        <p>Failed to load data sources</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('stat-blockchain').textContent = stats.blockchain || 0;
+            document.getElementById('stat-web').textContent = stats.web_import || 0;
+            document.getElementById('stat-attachment').textContent = stats.attachment || 0;
+            document.getElementById('stat-broken').textContent = stats.broken || 0;
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('source-groups');
+
+            // Group by source type
+            const groups = {
+                'blockchain': { label: 'Blockchain Data', icon: '&#9670;', items: [] },
+                'web_import': { label: 'Web Imports', icon: '&#9678;', items: [] },
+                'attachment': { label: 'Manual Uploads', icon: '&#9671;', items: [] },
+                'google_drive': { label: 'Google Drive', icon: '&#9729;', items: [] },
+                'other': { label: 'Other Sources', icon: '&#9632;', items: [] }
+            };
+
+            allSources.forEach(source => {
+                const type = source.cognitive_type === 'blockchain' ? 'blockchain' :
+                             source.source === 'web_import' ? 'web_import' :
+                             source.source === 'attachment' ? 'attachment' :
+                             source.source === 'google_drive' ? 'google_drive' : 'other';
+                groups[type].items.push(source);
+            });
+
+            let html = '';
+            for (const [key, group] of Object.entries(groups)) {
+                if (group.items.length === 0) continue;
+
+                html += `
+                    <div class="source-group">
+                        <div class="group-header" onclick="toggleGroup('${key}')">
+                            <span class="group-icon">${group.icon}</span>
+                            <span class="group-title">${group.label}</span>
+                            <span class="group-count">${group.items.length} items</span>
+                            <span class="group-toggle">&#9660;</span>
+                        </div>
+                        <div class="source-list" id="group-${key}">
+                            ${group.items.map(item => renderItem(item, key)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (html === '') {
+                html = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">&#128193;</div>
+                        <p>No data sources found</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderItem(item, groupKey) {
+            const status = getDataStatus(item);
+            const date = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-';
+            const sourceUrl = item.url || item.doc_frontmatter?.url || '';
+
+            return `
+                <div class="source-item" data-id="${item.doc_id}">
+                    <input type="checkbox" class="item-checkbox"
+                           onchange="toggleSelection('${item.doc_id}')"
+                           ${selectedIds.has(item.doc_id) ? 'checked' : ''}>
+                    <div class="item-info">
+                        <span class="item-title">${escapeHtml(item.title || item.filename || 'Untitled')}</span>
+                        <span class="item-meta">${item.doc_id.substring(0, 12)}...</span>
+                        ${sourceUrl ? `<a href="${sourceUrl}" target="_blank" class="item-source-link">&#8594; ${getDomain(sourceUrl)}</a>` : ''}
+                    </div>
+                    <div class="item-type">
+                        <span class="type-badge ${groupKey}">${item.cognitive_type || item.source}</span>
+                    </div>
+                    <div class="item-status">
+                        <span class="status-indicator ${status.class}"></span>
+                        <span class="status-label">${status.label}</span>
+                    </div>
+                    <span class="item-date">${date}</span>
+                    <button class="delete-btn" onclick="showDeleteModal('${item.doc_id}', '${escapeHtml(item.title || item.filename || 'Untitled')}')" title="Delete">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function getDataStatus(item) {
+            let score = 0;
+            if (item.title || item.filename) score += 25;
+            if (item.doc_body || item.vision_desc) score += 25;
+            if (item.url || item.path) score += 25;
+            if (!item.is_text_only) score += 25;
+
+            if (score >= 75) return { class: 'complete', label: 'Complete' };
+            if (score >= 50) return { class: 'partial', label: 'Partial' };
+            return { class: 'broken', label: 'Broken' };
+        }
+
+        function getDomain(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch {
+                return url.substring(0, 30);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[m]);
+        }
+
+        function toggleGroup(groupId) {
+            const header = event.currentTarget;
+            const list = document.getElementById(`group-${groupId}`);
+            header.classList.toggle('collapsed');
+            list.classList.toggle('collapsed');
+        }
+
+        function toggleSelection(id) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+            } else {
+                selectedIds.add(id);
+            }
+            updateBulkActions();
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('select-all').checked;
+            const checkboxes = document.querySelectorAll('.source-item .item-checkbox');
+
+            selectedIds.clear();
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+                if (checked) {
+                    const id = cb.closest('.source-item').dataset.id;
+                    selectedIds.add(id);
+                }
+            });
+            updateBulkActions();
+        }
+
+        function updateBulkActions() {
+            const count = selectedIds.size;
+            document.getElementById('bulk-delete-btn').disabled = count === 0;
+            document.getElementById('bulk-delete-btn').textContent = `Delete Selected (${count})`;
+            document.getElementById('selection-count').textContent = `${count} selected`;
+        }
+
+        function showDeleteModal(id, name) {
+            pendingDeleteId = id;
+            document.getElementById('modal-item-name').textContent = name;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            document.getElementById('delete-modal').classList.remove('active');
+        }
+
+        async function confirmDelete() {
+            if (!pendingDeleteId) return;
+
+            try {
+                const response = await fetch('/api/delete-documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_ids: [pendingDeleteId] })
+                });
+
+                if (response.ok) {
+                    allSources = allSources.filter(s => s.doc_id !== pendingDeleteId);
+                    selectedIds.delete(pendingDeleteId);
+                    renderGroups();
+                    updateBulkActions();
+                    closeDeleteModal();
+                } else {
+                    alert('Failed to delete. Please try again.');
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                alert('Failed to delete. Please try again.');
+            }
+        }
+
+        async function bulkDelete() {
+            if (selectedIds.size === 0) return;
+
+            if (!confirm(`Delete ${selectedIds.size} items permanently?`)) return;
+
+            try {
+                const response = await fetch('/api/delete-documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doc_ids: Array.from(selectedIds) })
+                });
+
+                if (response.ok) {
+                    allSources = allSources.filter(s => !selectedIds.has(s.doc_id));
+                    selectedIds.clear();
+                    renderGroups();
+                    updateBulkActions();
+                    document.getElementById('select-all').checked = false;
+                } else {
+                    alert('Failed to delete. Please try again.');
+                }
+            } catch (error) {
+                console.error('Bulk delete failed:', error);
+                alert('Failed to delete. Please try again.');
+            }
+        }
+
+        // Load on page ready
+        loadDataSources();
+    </script>
+</body>
+</html>

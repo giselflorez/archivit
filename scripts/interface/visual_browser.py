@@ -1977,6 +1977,113 @@ def scrape_and_save_url(url, custom_title=None, notes='', source_type='web_impor
 
     return doc_id
 
+
+# ============================================================================
+# DATA SOURCE MANAGER
+# ============================================================================
+
+@app.route('/data-source-manager')
+def data_source_manager():
+    """Data Source Manager - utility view for managing raw data sources"""
+    return render_template('data_source_manager.html')
+
+
+@app.route('/api/data-sources')
+def api_data_sources():
+    """API endpoint for Data Source Manager - returns all data sources with metadata"""
+    try:
+        sources = []
+        stats = {
+            'blockchain': 0,
+            'web_import': 0,
+            'attachment': 0,
+            'google_drive': 0,
+            'other': 0,
+            'broken': 0
+        }
+
+        kb_path = Path("knowledge_base/processed")
+        media_base = Path("knowledge_base/media")
+
+        if kb_path.exists():
+            for md_file in kb_path.rglob("*.md"):
+                try:
+                    frontmatter, body = parse_markdown_file(md_file)
+                    doc_id = frontmatter.get('id', '')
+                    source = frontmatter.get('source', 'unknown')
+                    title = frontmatter.get('title', '')
+
+                    # Classify cognitive type
+                    cognitive_type = classify_document_cognitive_type({
+                        'title': title,
+                        'source': source,
+                        'tags': frontmatter.get('tags', []),
+                        'has_images': frontmatter.get('has_images', False),
+                        'image_count': frontmatter.get('image_count', 0),
+                        'word_count': len(body.split()) if body else 0,
+                        'domain': frontmatter.get('domain', ''),
+                        'body': body[:500] if body else ''
+                    })
+
+                    # Check if has media
+                    has_media = False
+                    for media_dir in media_base.iterdir() if media_base.exists() else []:
+                        if (media_dir / doc_id).exists():
+                            has_media = True
+                            break
+
+                    # Calculate completeness
+                    completeness = 0
+                    if title: completeness += 25
+                    if body and len(body) > 50: completeness += 25
+                    if frontmatter.get('url'): completeness += 25
+                    if has_media: completeness += 25
+
+                    source_entry = {
+                        'doc_id': doc_id,
+                        'title': title,
+                        'filename': md_file.name,
+                        'source': source,
+                        'cognitive_type': cognitive_type,
+                        'url': frontmatter.get('url', ''),
+                        'created_at': frontmatter.get('created_at', ''),
+                        'has_media': has_media,
+                        'is_text_only': not has_media,
+                        'completeness': completeness,
+                        'doc_frontmatter': frontmatter,
+                        'doc_body': body[:200] if body else '',
+                        'vision_desc': frontmatter.get('visual_description', '')[:100] if frontmatter.get('visual_description') else ''
+                    }
+
+                    sources.append(source_entry)
+
+                    # Update stats
+                    if cognitive_type == 'blockchain':
+                        stats['blockchain'] += 1
+                    elif source == 'web_import':
+                        stats['web_import'] += 1
+                    elif source == 'attachment':
+                        stats['attachment'] += 1
+                    elif source == 'google_drive':
+                        stats['google_drive'] += 1
+                    else:
+                        stats['other'] += 1
+
+                    if completeness < 50:
+                        stats['broken'] += 1
+
+                except Exception as e:
+                    continue
+
+        return jsonify({
+            'sources': sources,
+            'stats': stats
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e), 'sources': [], 'stats': {}}), 500
+
+
 @app.route('/api/delete-documents', methods=['POST'])
 def delete_documents():
     """Delete multiple documents"""
