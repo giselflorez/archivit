@@ -1998,7 +1998,10 @@ def api_data_sources():
             'web_import': 0,
             'attachment': 0,
             'google_drive': 0,
+            'perplexity': 0,
+            'ai_conversation': 0,
             'other': 0,
+            'partial': 0,
             'broken': 0
         }
 
@@ -2057,7 +2060,7 @@ def api_data_sources():
 
                     sources.append(source_entry)
 
-                    # Update stats
+                    # Update stats by source type
                     if cognitive_type == 'blockchain':
                         stats['blockchain'] += 1
                     elif source == 'web_import':
@@ -2066,11 +2069,18 @@ def api_data_sources():
                         stats['attachment'] += 1
                     elif source == 'google_drive':
                         stats['google_drive'] += 1
+                    elif source == 'perplexity':
+                        stats['perplexity'] += 1
+                    elif source == 'ai_conversation':
+                        stats['ai_conversation'] += 1
                     else:
                         stats['other'] += 1
 
+                    # Track data health
                     if completeness < 50:
                         stats['broken'] += 1
+                    elif completeness < 75:
+                        stats['partial'] += 1
 
                 except Exception as e:
                     continue
