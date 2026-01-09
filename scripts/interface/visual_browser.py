@@ -4987,6 +4987,283 @@ def collector_network_api(address):
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================
+# PROVENANCE ARTERIES - Blockchain Flow Visualization
+# ============================================================================
+
+@app.route('/provenance-arteries')
+def provenance_arteries_ui():
+    """
+    Provenance Arteries - Visualize blockchain transactions as circulatory system.
+    Demonstrates PyTorch+WebGPU architecture concept with real blockchain data.
+    """
+    import sqlite3
+    import json
+    from datetime import datetime, timedelta
+
+    db_path = 'db/blockchain_tracking.db'
+
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get collector statistics
+        cursor.execute('''
+            SELECT
+                collector_address as address,
+                COUNT(*) as count,
+                SUM(purchase_price_native) as total_value,
+                MAX(purchase_timestamp) as last_active
+            FROM collectors
+            GROUP BY collector_address
+            ORDER BY count DESC
+            LIMIT 50
+        ''')
+        collectors_raw = cursor.fetchall()
+
+        # Process collectors
+        collectors = []
+        now = datetime.now()
+        for row in collectors_raw:
+            # Determine if active (activity within 90 days)
+            active = False
+            if row['last_active']:
+                try:
+                    last_dt = datetime.fromisoformat(row['last_active'].replace('Z', '+00:00'))
+                    active = (now - last_dt.replace(tzinfo=None)).days < 90
+                except:
+                    active = False
+
+            collectors.append({
+                'address': row['address'],
+                'count': row['count'],
+                'total_value': row['total_value'] or 0,
+                'active': active
+            })
+
+        # Get flow data (transactions grouped by collector)
+        cursor.execute('''
+            SELECT
+                collector_address as to_addr,
+                COUNT(*) as volume,
+                SUM(purchase_price_native) as value,
+                MAX(purchase_timestamp) as recent
+            FROM collectors
+            GROUP BY collector_address
+            ORDER BY volume DESC
+            LIMIT 50
+        ''')
+        flows_raw = cursor.fetchall()
+
+        flows = []
+        for row in flows_raw:
+            # Calculate recency score (0-1)
+            recency = 0.5
+            if row['recent']:
+                try:
+                    last_dt = datetime.fromisoformat(row['recent'].replace('Z', '+00:00'))
+                    days_ago = (now - last_dt.replace(tzinfo=None)).days
+                    recency = max(0, 1 - (days_ago / 365))
+                except:
+                    recency = 0.5
+
+            flows.append({
+                'to': row['to_addr'],
+                'volume': row['volume'],
+                'value': row['value'] or 0,
+                'recency': recency
+            })
+
+        # Get overall stats
+        cursor.execute('SELECT COUNT(DISTINCT collector_address) FROM collectors')
+        total_collectors = cursor.fetchone()[0]
+
+        cursor.execute('SELECT COUNT(*) FROM transactions')
+        total_transactions = cursor.fetchone()[0]
+
+        cursor.execute('SELECT COUNT(*) FROM nft_mints')
+        total_works = cursor.fetchone()[0]
+
+        cursor.execute('SELECT SUM(purchase_price_native) FROM collectors')
+        total_flow = cursor.fetchone()[0] or 0
+
+        conn.close()
+
+        graph_data = {
+            'collectors': collectors,
+            'flows': flows
+        }
+
+        stats = {
+            'collectors': total_collectors,
+            'transactions': total_transactions,
+            'works': total_works,
+            'total_flow': total_flow
+        }
+
+        return render_template('provenance_arteries.html',
+                               graph_data=json.dumps(graph_data),
+                               stats=stats)
+
+    except Exception as e:
+        # Return with empty data if database not available
+        graph_data = {'collectors': [], 'flows': []}
+        stats = {'collectors': 0, 'transactions': 0, 'works': 0, 'total_flow': 0}
+        return render_template('provenance_arteries.html',
+                               graph_data=json.dumps(graph_data),
+                               stats=stats)
+
+
+@app.route('/verified-social')
+def verified_social_ui():
+    """
+    Verified Social - Social network prototype with blockchain-verified trust.
+    Demonstrates the Recursive Cross-Platform Verification System concept.
+    """
+    # Team data - pulled from team gallery for prototype
+    artists = [
+        {
+            'name': 'Gisel Florez',
+            'avatar': 'https://unavatar.io/twitter/web3gisel',
+            'role': 'Creator · ARCHIV-IT Founder',
+            'trust_score': 94
+        },
+        {
+            'name': 'TokenFox',
+            'avatar': 'https://unavatar.io/twitter/TokenFoxNFT',
+            'role': 'Ordinals · Inscriptions',
+            'trust_score': 91
+        },
+        {
+            'name': 'Oona',
+            'avatar': 'https://unavatar.io/twitter/madebyoona',
+            'role': 'Performance Art',
+            'trust_score': 89
+        },
+        {
+            'name': 'Rare Scrilla',
+            'avatar': 'https://unavatar.io/twitter/ScrillaVentura',
+            'role': 'Audio NFT Pioneer',
+            'trust_score': 96
+        },
+        {
+            'name': 'XCOPY',
+            'avatar': 'https://unavatar.io/twitter/XCOPYART',
+            'role': 'Digital Artist',
+            'trust_score': 99
+        },
+        {
+            'name': 'Josie Bellini',
+            'avatar': 'https://unavatar.io/twitter/josiebellini',
+            'role': 'Artist · Multi-Chain',
+            'trust_score': 93
+        },
+        {
+            'name': 'Delta Sauce',
+            'avatar': 'https://unavatar.io/twitter/deltasauceart',
+            'role': 'Base · AI Art',
+            'trust_score': 88
+        },
+        {
+            'name': 'Lirona',
+            'avatar': 'https://unavatar.io/twitter/laboratoireun',
+            'role': 'Identity · Performance',
+            'trust_score': 90
+        }
+    ]
+
+    # Sample posts with provenance chains
+    posts = [
+        {
+            'name': 'Gisel Florez',
+            'avatar': 'https://unavatar.io/twitter/web3gisel',
+            'timestamp': '2h ago',
+            'trust_score': 94,
+            'trust_level': 'VERIFIED',
+            'text': 'Excited to share ARCHIV-IT - a new way to explore your creative history through deep provenance. Every connection tells a story.',
+            'artwork': {
+                'icon': '⬡',
+                'platform': 'ARCHIV-IT',
+                'chain': 'Multi-Chain'
+            },
+            'provenance': [
+                {'label': 'Creator', 'type': 'creator'},
+                {'label': 'Minted', 'type': ''},
+                {'label': 'Current', 'type': 'current'}
+            ],
+            'likes': 47,
+            'comments': 12
+        },
+        {
+            'name': 'Rare Scrilla',
+            'avatar': 'https://unavatar.io/twitter/ScrillaVentura',
+            'timestamp': '4h ago',
+            'trust_score': 96,
+            'trust_level': 'VERIFIED',
+            'text': 'The first collectible Audio NFT was minted on Bitcoin in 2016. The journey from then to the Ghostface Killah collab has been wild.',
+            'artwork': {
+                'icon': '🎵',
+                'platform': 'Ordinals',
+                'chain': 'Bitcoin'
+            },
+            'provenance': [
+                {'label': 'Scrilla', 'type': 'creator'},
+                {'label': 'RarePepe', 'type': ''},
+                {'label': 'Ghostface', 'type': ''},
+                {'label': 'Holder', 'type': 'current'}
+            ],
+            'likes': 234,
+            'comments': 45
+        },
+        {
+            'name': 'XCOPY',
+            'avatar': 'https://unavatar.io/twitter/XCOPYART',
+            'timestamp': '6h ago',
+            'trust_score': 99,
+            'trust_level': 'VERIFIED',
+            'text': 'Death is inevitable. Art remains. The glitch persists.',
+            'artwork': {
+                'icon': '💀',
+                'platform': 'SuperRare',
+                'chain': 'Ethereum'
+            },
+            'provenance': [
+                {'label': 'XCOPY', 'type': 'creator'},
+                {'label': 'Cozomo', 'type': ''},
+                {'label': 'Punks', 'type': ''},
+                {'label': 'Current', 'type': 'current'}
+            ],
+            'likes': 892,
+            'comments': 156
+        },
+        {
+            'name': 'Oona',
+            'avatar': 'https://unavatar.io/twitter/madebyoona',
+            'timestamp': '8h ago',
+            'trust_score': 89,
+            'trust_level': 'VERIFIED',
+            'text': 'Look, Touch, Own at Art Basel Miami - 300 touches generated live NFTs. The boundary between viewer and creator dissolves.',
+            'artwork': {
+                'icon': '👁',
+                'platform': 'Art Basel',
+                'chain': 'Live Performance'
+            },
+            'provenance': [
+                {'label': 'Oona', 'type': 'creator'},
+                {'label': 'Touch #1', 'type': ''},
+                {'label': 'Touch #300', 'type': 'current'}
+            ],
+            'likes': 167,
+            'comments': 34
+        }
+    ]
+
+    return render_template('verified_social.html',
+                           artists=artists,
+                           posts=posts)
+
+
+# ============================================================================
 # COLLECTIONS & CREATIVE PERIODS ROUTES
 # ============================================================================
 

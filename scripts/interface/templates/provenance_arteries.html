@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+
+{% block title %}Provenance Arteries - ARCHIV-IT{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    .artery-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(ellipse at center, #0d0d14 0%, #050508 100%);
+    }
+
+    #artery-canvas {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Info Panel */
+    .info-panel {
+        position: fixed;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: rgba(12, 12, 18, 0.95);
+        border: 1px solid rgba(212, 165, 116, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        max-width: 320px;
+        backdrop-filter: blur(20px);
+        z-index: 100;
+    }
+
+    .info-panel h2 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.4rem;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .info-panel p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .stat-box {
+        background: rgba(26, 26, 36, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.2rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 0.25rem;
+    }
+
+    /* Legend */
+    .legend {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        background: rgba(12, 12, 18, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        z-index: 100;
+    }
+
+    .legend-title {
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .legend-line {
+        width: 24px;
+        height: 3px;
+        border-radius: 2px;
+    }
+
+    /* Health indicator */
+    .health-indicator {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(12, 12, 18, 0.95);
+        border: 1px solid rgba(104, 211, 145, 0.3);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .health-pulse {
+        width: 12px;
+        height: 12px;
+        background: #68d391;
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+        box-shadow: 0 0 20px rgba(104, 211, 145, 0.5);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    .health-text {
+        font-size: 0.8rem;
+        color: #68d391;
+        font-weight: 500;
+    }
+
+    /* Node tooltip */
+    .node-tooltip {
+        position: fixed;
+        background: rgba(12, 12, 18, 0.98);
+        border: 1px solid var(--accent-gold);
+        border-radius: 8px;
+        padding: 1rem;
+        max-width: 280px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 200;
+    }
+
+    .node-tooltip.visible {
+        opacity: 1;
+    }
+
+    .tooltip-address {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--accent-gold);
+        margin-bottom: 0.5rem;
+        word-break: break-all;
+    }
+
+    .tooltip-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    /* Controls */
+    .controls {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 100;
+    }
+
+    .control-btn {
+        background: rgba(26, 26, 36, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+
+    .control-btn.active {
+        background: rgba(212, 165, 116, 0.2);
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="artery-container">
+    <canvas id="artery-canvas"></canvas>
+</div>
+
+<!-- Info Panel -->
+<div class="info-panel">
+    <h2>Provenance Arteries</h2>
+    <p>Blockchain transactions visualized as circulatory system. Tube diameter = volume. Pulse = recency. Color = value.</p>
+    <div class="stat-grid">
+        <div class="stat-box">
+            <div class="stat-value" id="stat-collectors">{{ stats.collectors }}</div>
+            <div class="stat-label">Collectors</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="stat-transactions">{{ stats.transactions }}</div>
+            <div class="stat-label">Transactions</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="stat-works">{{ stats.works }}</div>
+            <div class="stat-label">Works</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="stat-flow">{{ "%.1f"|format(stats.total_flow) }}</div>
+            <div class="stat-label">Total Flow</div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Indicator -->
+<div class="health-indicator">
+    <div class="health-pulse"></div>
+    <div class="health-text">Network Healthy</div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-title">Flow Legend</div>
+    <div class="legend-item">
+        <div class="legend-line" style="background: linear-gradient(90deg, #8b2942, #d4574a);"></div>
+        <span>High Value Flow</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-line" style="background: linear-gradient(90deg, #2d5a6b, #4a9eb8);"></div>
+        <span>Standard Flow</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #d4a574;"></div>
+        <span>Artist Node</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #68d391;"></div>
+        <span>Active Collector</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot" style="background: #6a6762;"></div>
+        <span>Dormant Wallet</span>
+    </div>
+</div>
+
+<!-- Node Tooltip -->
+<div class="node-tooltip" id="node-tooltip">
+    <div class="tooltip-address" id="tooltip-address"></div>
+    <div class="tooltip-stats">
+        <span id="tooltip-collected">0 collected</span>
+        <span id="tooltip-value">0 ETH</span>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+    <button class="control-btn active" onclick="setFlowSpeed(1)">Normal</button>
+    <button class="control-btn" onclick="setFlowSpeed(2)">Fast</button>
+    <button class="control-btn" onclick="toggleParticles()">Particles</button>
+</div>
+
+<script>
+// Blockchain data from server
+const graphData = {{ graph_data | safe }};
+
+// Canvas setup
+const canvas = document.getElementById('artery-canvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let flowSpeed = 1;
+let showParticles = true;
+let animationFrame;
+
+// Nodes and edges
+let nodes = [];
+let edges = [];
+let particles = [];
+
+// Initialize
+function init() {
+    resize();
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('mousemove', onMouseMove);
+
+    // Process graph data
+    processGraphData();
+
+    // Start animation
+    animate();
+}
+
+function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+
+function processGraphData() {
+    // Create nodes from collectors
+    const nodeMap = new Map();
+
+    // Artist node at center
+    nodeMap.set('artist', {
+        id: 'artist',
+        x: width / 2,
+        y: height / 2,
+        radius: 20,
+        color: '#d4a574',
+        type: 'artist',
+        label: 'Artist'
+    });
+
+    // Collector nodes in orbits
+    graphData.collectors.forEach((collector, i) => {
+        const angle = (i / graphData.collectors.length) * Math.PI * 2;
+        const orbit = 150 + (collector.count > 5 ? 0 : 100) + Math.random() * 100;
+
+        nodeMap.set(collector.address, {
+            id: collector.address,
+            x: width/2 + Math.cos(angle) * orbit,
+            y: height/2 + Math.sin(angle) * orbit,
+            radius: 5 + Math.min(collector.count * 2, 15),
+            color: collector.active ? '#68d391' : '#6a6762',
+            type: 'collector',
+            count: collector.count,
+            value: collector.total_value || 0
+        });
+    });
+
+    nodes = Array.from(nodeMap.values());
+
+    // Create edges (arteries) from transactions
+    graphData.flows.forEach(flow => {
+        const source = nodeMap.get('artist');
+        const target = nodeMap.get(flow.to);
+
+        if (source && target) {
+            edges.push({
+                source: source,
+                target: target,
+                volume: flow.volume,
+                value: flow.value || 0,
+                recency: flow.recency || 0.5
+            });
+        }
+    });
+
+    // Create particles for flow animation
+    edges.forEach(edge => {
+        const particleCount = Math.ceil(edge.volume * 3);
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                edge: edge,
+                progress: Math.random(),
+                speed: (0.001 + Math.random() * 0.002) * (0.5 + edge.recency)
+            });
+        }
+    });
+}
+
+function animate() {
+    ctx.fillStyle = 'rgba(5, 5, 8, 0.1)';
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw edges (arteries)
+    edges.forEach(drawArtery);
+
+    // Draw particles (blood cells)
+    if (showParticles) {
+        particles.forEach(updateAndDrawParticle);
+    }
+
+    // Draw nodes
+    nodes.forEach(drawNode);
+
+    animationFrame = requestAnimationFrame(animate);
+}
+
+function drawArtery(edge) {
+    const { source, target, volume, value } = edge;
+
+    // Calculate tube width based on volume
+    const tubeWidth = 2 + volume * 3;
+
+    // Color based on value (red = high value, blue = standard)
+    const valueRatio = Math.min(value / 10, 1); // Normalize to 10 ETH max
+    const r = Math.floor(45 + valueRatio * 167);
+    const g = Math.floor(90 - valueRatio * 30);
+    const b = Math.floor(107 - valueRatio * 33);
+
+    // Draw tube
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+
+    // Curved path
+    const midX = (source.x + target.x) / 2;
+    const midY = (source.y + target.y) / 2;
+    const offsetX = (target.y - source.y) * 0.2;
+    const offsetY = (source.x - target.x) * 0.2;
+
+    ctx.quadraticCurveTo(midX + offsetX, midY + offsetY, target.x, target.y);
+
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
+    ctx.lineWidth = tubeWidth;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Inner glow
+    ctx.strokeStyle = `rgba(${r + 50}, ${g + 30}, ${b + 30}, 0.3)`;
+    ctx.lineWidth = tubeWidth * 0.5;
+    ctx.stroke();
+}
+
+function updateAndDrawParticle(particle) {
+    const { edge, progress } = particle;
+    const { source, target } = edge;
+
+    // Update position along curve
+    particle.progress += particle.speed * flowSpeed;
+    if (particle.progress > 1) particle.progress = 0;
+
+    // Calculate position on quadratic bezier
+    const t = particle.progress;
+    const midX = (source.x + target.x) / 2;
+    const midY = (source.y + target.y) / 2;
+    const offsetX = (target.y - source.y) * 0.2;
+    const offsetY = (source.x - target.x) * 0.2;
+    const ctrlX = midX + offsetX;
+    const ctrlY = midY + offsetY;
+
+    const x = (1-t)*(1-t)*source.x + 2*(1-t)*t*ctrlX + t*t*target.x;
+    const y = (1-t)*(1-t)*source.y + 2*(1-t)*t*ctrlY + t*t*target.y;
+
+    // Draw particle
+    const valueRatio = Math.min(edge.value / 10, 1);
+    const alpha = 0.5 + Math.sin(particle.progress * Math.PI) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + edge.volume * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = valueRatio > 0.5
+        ? `rgba(212, 87, 74, ${alpha})`
+        : `rgba(74, 158, 184, ${alpha})`;
+    ctx.fill();
+}
+
+function drawNode(node) {
+    // Outer glow
+    const gradient = ctx.createRadialGradient(
+        node.x, node.y, 0,
+        node.x, node.y, node.radius * 2
+    );
+    gradient.addColorStop(0, node.color);
+    gradient.addColorStop(0.5, node.color + '40');
+    gradient.addColorStop(1, 'transparent');
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Core
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+    ctx.fillStyle = node.color;
+    ctx.fill();
+
+    // Pulse effect for active nodes
+    if (node.type === 'artist' || (node.type === 'collector' && node.color === '#68d391')) {
+        const pulseSize = node.radius * (1.2 + Math.sin(Date.now() / 500) * 0.1);
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, pulseSize, 0, Math.PI * 2);
+        ctx.strokeStyle = node.color + '40';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+}
+
+// Mouse interaction
+function onMouseMove(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const tooltip = document.getElementById('node-tooltip');
+    let hoveredNode = null;
+
+    nodes.forEach(node => {
+        const dist = Math.sqrt((mx - node.x) ** 2 + (my - node.y) ** 2);
+        if (dist < node.radius * 2) {
+            hoveredNode = node;
+        }
+    });
+
+    if (hoveredNode && hoveredNode.type !== 'artist') {
+        tooltip.style.left = (e.clientX + 15) + 'px';
+        tooltip.style.top = (e.clientY + 15) + 'px';
+        tooltip.classList.add('visible');
+
+        document.getElementById('tooltip-address').textContent =
+            hoveredNode.id.substring(0, 8) + '...' + hoveredNode.id.slice(-6);
+        document.getElementById('tooltip-collected').textContent =
+            (hoveredNode.count || 0) + ' collected';
+        document.getElementById('tooltip-value').textContent =
+            (hoveredNode.value || 0).toFixed(2) + ' ETH';
+    } else {
+        tooltip.classList.remove('visible');
+    }
+}
+
+// Controls
+function setFlowSpeed(speed) {
+    flowSpeed = speed;
+    document.querySelectorAll('.control-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === speed - 1);
+    });
+}
+
+function toggleParticles() {
+    showParticles = !showParticles;
+    document.querySelectorAll('.control-btn')[2].classList.toggle('active', showParticles);
+}
+
+// Start
+init();
+</script>
+{% endblock %}

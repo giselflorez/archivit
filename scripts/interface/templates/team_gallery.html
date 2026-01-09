@@ -699,15 +699,21 @@
             filter: blur(1px);
         }
 
-        /* Header - floating glass panel */
+        /* Header - split into left info and right controls */
         .gallery-header {
             position: absolute;
             top: 1.5rem;
             left: 1.5rem;
             right: 1.5rem;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .gallery-artist-info {
+            pointer-events: auto;
             padding: 1rem 1.5rem;
             background: linear-gradient(135deg,
                 rgba(20, 20, 28, 0.8) 0%,
@@ -715,13 +721,26 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
             backdrop-filter: blur(20px);
-            z-index: 100;
             box-shadow:
                 0 8px 32px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
-        .gallery-artist-info {
+        .gallery-counter {
+            pointer-events: auto;
+            padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg,
+                rgba(20, 20, 28, 0.8) 0%,
+                rgba(15, 15, 22, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .gallery-artist-info-inner {
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -1459,13 +1478,15 @@
         <canvas id="gallery-webgl-bg"></canvas>
 
         <div class="gallery-container">
-            <!-- Floating header -->
+            <!-- Floating header - split into two separate panels -->
             <div class="gallery-header">
                 <div class="gallery-artist-info">
-                    <div class="gallery-artist-avatar" id="gallery-avatar"></div>
-                    <div>
-                        <div class="gallery-artist-name" id="gallery-name"></div>
-                        <div class="gallery-artist-label">Notable Works</div>
+                    <div class="gallery-artist-info-inner">
+                        <div class="gallery-artist-avatar" id="gallery-avatar"></div>
+                        <div>
+                            <div class="gallery-artist-name" id="gallery-name"></div>
+                            <div class="gallery-artist-label">Notable Works</div>
+                        </div>
                     </div>
                 </div>
                 <div class="gallery-counter">
@@ -1596,13 +1617,12 @@
                 name: "Oona",
                 role: "Tester · Performance Art",
                 avatar: "https://unavatar.io/twitter/madebyoona",
-                bio: "Anonymous performance artist. 2023: 'Look, Touch, Own' at Art Basel Miami—300 touches generated live NFTs. 2025: Tezos ecosystem performance (700+ attendees). Featured at The Met, NADA Miami. Feminist video art confronting value and visibility.",
+                bio: "Anonymous performance artist. 2023: 'Look, Touch, Own' at Art Basel Miami—300 touches generated live NFTs. Featured at The Met, NADA Miami. Feminist video art confronting value and visibility.",
                 expertise: ["Performance Art", "Video", "Identity", "Physical/Digital"],
                 bubble: "Performance / Identity",
                 links: { twitter: "madebyoona" },
                 notableWorks: [
                     { title: "Look, Touch, Own", platform: "Art Basel Miami", year: "2023", image: null },
-                    { title: "Tezos Ecosystem Performance", platform: "Objkt (XTZ)", year: "2025", image: null },
                     { title: "The NFT Bubble", platform: "OpenSea (ETH)", year: "2021", image: null },
                     { title: "NADA Miami Exhibition", platform: "Live Performance", year: "2023", image: null }
                 ]
