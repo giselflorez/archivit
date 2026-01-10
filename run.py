@@ -3,6 +3,9 @@ import os
 import sys
 from pathlib import Path
 
+print("=== run.py starting ===")
+print(f"PORT env var: {os.environ.get('PORT', 'NOT SET')}")
+
 # Set up paths
 project_root = Path(__file__).parent
 scripts_dir = project_root / "scripts"
@@ -11,6 +14,7 @@ sys.path.insert(0, str(scripts_dir))
 
 # Get port from environment
 port = int(os.environ.get("PORT", 5001))
+print(f"Using port: {port}")
 
 # Import and run app
 from interface.visual_browser import app
