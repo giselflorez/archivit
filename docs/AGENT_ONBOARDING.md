@@ -6,12 +6,26 @@
 
 ---
 
-## WHAT IS ARCHIVIT?
+## WHAT IS ARCHIV-IT?
 
-ARCHIVIT is a **digital sovereignty platform** with three pillars:
-1. **ARCHIV-IT** - Archive and preserve creative work with provenance
-2. **IT-R8** - Rate and value creative work through behavioral analysis
-3. **SOCI-8** - Share and connect through sovereign identity
+**ARCHIV-IT** is the **umbrella ecosystem** for digital sovereignty. It contains three apps:
+
+```
+ARCHIV-IT (Umbrella Ecosystem)
+├── DOC-8   - DATABASE & ARCHIVE (Foundation - comes first)
+├── IT-R8   - CREATE & RATE (Creative output engine)
+└── SOCI-8  - SHARE & CONNECT (Sovereign social layer)
+```
+
+### The -8 Naming Convention
+- **8** = Infinity (∞) rotated 90° = Infinite potential, grounded
+- All apps follow [CONCEPT]-8 pattern
+
+### DOC-8 is the Foundation
+Everything depends on DOC-8. Without the database, nothing else works:
+- IT-R8 needs organized data to create from
+- SOCI-8 needs identity data to connect
+- DOC-8 is where the sovereign seed lives
 
 **Core Mission:** Enable any individual to create from their own power, at their natural frequency, with their patterns preserved and honored.
 

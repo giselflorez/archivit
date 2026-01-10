@@ -6,13 +6,17 @@
 
 ---
 
-## THE THREE PILLARS (Public Names)
+## THE ECOSYSTEM STRUCTURE (Public Names)
 
 ```
-ARCHIV-IT  →  Archive & Preserve
-IT-R8      →  Rate & Create
-SOCI-8     →  Share & Connect
+ARCHIV-IT  →  Umbrella Ecosystem Brand
+   │
+   ├── DOC-8   →  Database & Archive (Foundation)
+   ├── IT-R8   →  Create & Rate
+   └── SOCI-8  →  Share & Connect
 ```
+
+**The -8 Pattern:** 8 = Infinity rotated = Infinite potential, grounded
 
 ---
 
@@ -40,9 +44,10 @@ SOCI-8     →  Share & Connect
 ## PUBLIC TERMINOLOGY (Safe to Use)
 
 ### Product Names
-- ARCHIV-IT
-- IT-R8
-- SOCI-8
+- ARCHIV-IT (umbrella ecosystem)
+- DOC-8 (database/archive)
+- IT-R8 (create/rate)
+- SOCI-8 (share/connect)
 - NorthStar (as brand, not as API)
 
 ### Generic Descriptions
