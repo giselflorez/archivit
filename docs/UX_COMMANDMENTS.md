@@ -44,6 +44,19 @@
 
 If a user (non-technical artist) can't figure out how to do something in under 30 seconds, the UI has failed. Not the user.
 
+## Version Control for Humans
+
+Users need to browse and restore previous versions without technical knowledge:
+- Visual timeline of changes
+- One-click preview of any version
+- One-click restore
+- No git/terminal required
+- Automatic snapshots on meaningful changes
+
+This is a STARG8 core feature requirement.
+
+---
+
 ## Menu Consistency Checklist (Pre-Launch)
 
 - [ ] Audit all screens for "..." hidden menus - eliminate or replace with labeled buttons
