@@ -177,6 +177,21 @@ curl -I http://localhost:5000 | grep -i "content-security-policy"
 
 ---
 
+## Intentional Security Decisions (DO NOT "FIX")
+
+These items may appear as vulnerabilities in automated scans but are **intentional design decisions**:
+
+| Item | Location | Reason | Date Documented |
+|------|----------|--------|-----------------|
+| `exec()` dynamic code | `anti_ai_protection.py:108` | Required for runtime code protection against AI scraping. Only executes trusted internal code, never user input. | 2026-01-09 |
+| CSRF exempt: `/login` | `visual_browser.py:298` | Login is entry point before session exists. Users cannot have CSRF token yet. Password submission itself is the authentication. | 2026-01-09 |
+| CSRF exempt: `/api/badge/verify` | `visual_browser.py:296` | Uses cryptographic signature verification instead of session tokens. | 2026-01-09 |
+| CSRF exempt: `/setup/scan-status` | `visual_browser.py:297` | Read-only status polling endpoint, no state changes. | 2026-01-09 |
+
+**WARNING:** Do not remove these exemptions or "fix" the exec() usage without understanding their purpose. They are documented security trade-offs, not oversights.
+
+---
+
 ## Incident Log
 
 | Date | Incident | Severity | Resolution | Post-Mortem |
