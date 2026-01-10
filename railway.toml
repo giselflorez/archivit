@@ -1,9 +1,0 @@
-[build]
-builder = "nixpacks"
-
-[deploy]
-startCommand = "cd scripts/interface && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 visual_browser:app"
-healthcheckPath = "/"
-healthcheckTimeout = 300
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
