@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "ffmpeg", "tesseract"]
+nixPkgs = ["python311", "python311Packages.pip", "ffmpeg", "tesseract"]
 
 [phases.install]
-cmds = ["pip install --upgrade pip", "pip install -r requirements.txt"]
+cmds = ["python -m pip install --upgrade pip", "python -m pip install -r requirements.txt"]
 
 [start]
-cmd = "cd scripts/interface && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 visual_browser:app"
+cmd = "cd scripts/interface && python -m gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 visual_browser:app"
