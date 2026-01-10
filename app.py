@@ -56,6 +56,24 @@ def home():
 def health():
     return "OK"
 
+@app.route("/debug")
+def debug():
+    """Debug endpoint to diagnose deployment issues"""
+    import json
+    info = {
+        "base_dir": BASE_DIR,
+        "template_dir": TEMPLATE_DIR,
+        "docs_dir": DOCS_DIR,
+        "template_exists": os.path.exists(TEMPLATE_DIR),
+        "docs_exists": os.path.exists(DOCS_DIR),
+        "templates_contents": os.listdir(TEMPLATE_DIR) if os.path.exists(TEMPLATE_DIR) else [],
+        "docs_contents": os.listdir(DOCS_DIR)[:10] if os.path.exists(DOCS_DIR) else [],
+        "has_markdown": HAS_MARKDOWN,
+        "python_version": sys.version,
+        "cwd": os.getcwd()
+    }
+    return f"<pre>{json.dumps(info, indent=2)}</pre>"
+
 @app.route("/counsel", methods=["GET", "POST"])
 def counsel_login():
     """Password-protected entry point for legal counsel documents"""
