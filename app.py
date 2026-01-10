@@ -31,8 +31,8 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.secret_key = os.environ.get('SECRET_KEY', 'archivit-counsel-2026-secure-key')
 logger.info("Flask app created successfully")
 
-# Access code for legal counsel
-COUNSEL_ACCESS_CODE = "ARCHIVIT-COUNSEL-2026"
+# Access code for legal counsel (can be changed via Railway environment variable)
+COUNSEL_ACCESS_CODE = os.environ.get('COUNSEL_ACCESS_CODE', 'ARCHIVIT-COUNSEL-2026')
 
 def render_markdown(filepath):
     """Safely render markdown file to HTML"""
