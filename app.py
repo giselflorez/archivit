@@ -1,6 +1,15 @@
 import os
 import sys
+import logging
 from flask import Flask, render_template, request, session, redirect, url_for
+
+# Configure logging for Railway
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 # Try to import markdown, fall back gracefully
 try:
@@ -14,8 +23,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 DOCS_DIR = os.path.join(BASE_DIR, 'docs')
 
+logger.info(f"Starting app - BASE_DIR: {BASE_DIR}")
+logger.info(f"Template dir exists: {os.path.exists(TEMPLATE_DIR)}")
+logger.info(f"Docs dir exists: {os.path.exists(DOCS_DIR)}")
+
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.secret_key = os.environ.get('SECRET_KEY', 'archivit-counsel-2026-secure-key')
+logger.info("Flask app created successfully")
 
 # Access code for legal counsel
 COUNSEL_ACCESS_CODE = "ARCHIVIT-COUNSEL-2026"
