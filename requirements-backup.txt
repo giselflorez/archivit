@@ -1,0 +1,43 @@
+# Production server
+gunicorn>=21.0.0
+
+txtai>=9.0.0
+sentence-transformers>=2.7.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+numpy>=2.0.0
+torch>=2.0.0
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+Pillow>=10.0.0
+pytesseract>=0.3.10
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+google-api-python-client>=2.0.0
+flask>=3.0.0
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+anthropic>=0.18.0
+openai-whisper>=20231117
+ffmpeg-python>=0.2.0
+
+# Vision models (local inference)
+transformers>=4.36.0
+torchvision>=0.15.0
+accelerate>=0.25.0
+bitsandbytes>=0.41.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+
+# PDF generation (press kits)
+weasyprint>=60.0
+
+# Background jobs & scheduling
+schedule>=1.2.0
+aiohttp>=3.9.0
+
+# Blockchain tracking
+web3>=6.0.0

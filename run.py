@@ -5,18 +5,22 @@ from pathlib import Path
 
 print("=== run.py starting ===", flush=True)
 
-# Set up paths
-project_root = Path(__file__).parent
-scripts_dir = project_root / "scripts"
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(scripts_dir))
-
-# Get port from environment
+# Get port from environment FIRST
 port = int(os.environ.get("PORT", 5001))
-print(f"Starting Flask on port {port}", flush=True)
+print(f"Will use port {port}", flush=True)
 
-# Import and run app
-from interface.visual_browser import app
+# Minimal Flask app to test deployment
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "<h1>ARCHIVIT - Deployment Test OK</h1><p>Basic Flask is working. Full app loading next...</p>"
+
+@app.route("/health")
+def health():
+    return "OK"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+    print(f"Starting minimal Flask on port {port}", flush=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
