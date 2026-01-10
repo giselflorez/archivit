@@ -16,8 +16,7 @@ This document provides a comprehensive analysis of intellectual property assets 
 | Asset | Risk Level | Issue |
 |-------|------------|-------|
 | **ARCHIV-IT** | 🔴 HIGH | Phonetically identical to "Archive-It" (Internet Archive service since 2006) |
-| **NorthStar** | 🔴 HIGH | Multiple existing registrations (COFORGE NORTHSTAR, NORTHSTARAI, etc.) |
-| **STARG8** | 🟢 LOW | No registrations found; recommended replacement for NorthStar |
+| **STARG8** | 🟢 LOW | No registrations found; unique -8 pattern |
 | **DOC-8** | 🟡 MEDIUM | No direct conflicts found; search recommended |
 | **IT-R8** | 🟢 LOW | Unique construction; search recommended |
 | **SOCI-8** | 🟡 MEDIUM | Phonetically similar to "sociate"; search recommended |
@@ -58,30 +57,7 @@ This document provides a comprehensive analysis of intellectual property assets 
 
 ---
 
-### 1.2 NorthStar (Internal System Name)
-
-**HIGH CONFLICT RISK**
-
-**Existing Marks Found:**
-
-| Mark | Owner | Status | Goods/Services |
-|------|-------|--------|----------------|
-| COFORGE NORTHSTAR | Coforge Limited | Active | SaaS, enterprise software |
-| NORTHSTARAI | [Pending] | Filed 2025 | AI software, business analysis |
-| NORTHSTAR | Northern Tool | Registered | Equipment (different class) |
-
-**Conflict Analysis:**
-- "NorthStar" is extremely common in software/tech
-- Multiple active registrations in software class
-- Descriptive term (guiding light metaphor)
-- Difficult to defend exclusivity
-
-**Recommendation:**
-- ⚠️ **DO NOT USE** "NorthStar" as external brand
-- Acceptable for internal documentation only
-- **RECOMMENDED ALTERNATIVE: STARG8**
-
-### 1.2.1 STARG8 (Recommended Replacement for NorthStar)
+### 1.2 STARG8 (Internal System / API Gateway)
 
 **FAVORABLE - RECOMMENDED**
 
@@ -98,10 +74,9 @@ This document provides a comprehensive analysis of intellectual property assets 
 
 **Recommendation:**
 - 🟢 **FAVORABLE FOR USE**
-- Lower risk than NorthStar
 - Maintains -8 branding pattern
 - Run comprehensive search before filing trademark
-- Consider as internal system name (API entry point)
+- Use as internal system name (API entry point)
 
 ---
 
