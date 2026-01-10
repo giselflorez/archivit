@@ -11,7 +11,7 @@
 ARCHIVIT is a **digital sovereignty platform** with three pillars:
 1. **ARCHIV-IT** - Archive and preserve creative work with provenance
 2. **IT-R8** - Rate and value creative work through behavioral analysis
-3. **SOCIAL** - Share and connect through sovereign identity
+3. **SOCI-8** - Share and connect through sovereign identity
 
 **Core Mission:** Enable any individual to create from their own power, at their natural frequency, with their patterns preserved and honored.
 

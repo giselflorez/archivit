@@ -343,3 +343,81 @@ docs/INTERNET_ARCHIVE_EMAIL.html
 docs/INTERNET_ARCHIVE_EMAIL_DRAFT.md
 docs/INTERNET_ARCHIVE_PROPOSAL.html
 docs/team_gallery_web3photo.html
+
+# ============================================================================
+# SECTION 18: TRADE SECRET PROTECTION (Added 2026-01-10)
+# CRITICAL: These files contain proprietary algorithms and IP
+# NEVER commit to public repositories
+# ============================================================================
+
+# Core Algorithm Modules - TRADE SECRETS
+scripts/interface/static/js/core/pi_quadratic_seed.js
+scripts/interface/static/js/core/balance_principle.js
+scripts/interface/static/js/core/energetic_core.js
+scripts/interface/static/js/core/expansion_engine.js
+scripts/interface/static/js/core/spiral_compression.js
+scripts/interface/static/js/core/creative_engine.js
+scripts/interface/static/js/core/authority_matrix.js
+scripts/interface/static/js/core/seed_pqs_integration.js
+scripts/interface/static/js/core/north_star_principles.js
+scripts/interface/static/js/core/creation_spiral.js
+scripts/interface/static/js/core/seed_profile.js
+scripts/interface/static/js/core/immutable_core.js
+scripts/interface/static/js/core/preservation_mode.js
+scripts/interface/static/js/core/ipfs_storage.js
+scripts/interface/static/js/core/knowledge_updater.js
+scripts/interface/static/js/core/app_manifest.js
+scripts/interface/static/js/core/index.js
+
+# IP Documentation - CONFIDENTIAL
+docs/IP_PRIORITY_REGISTER.md
+docs/IP_LEGAL_FOUNDATION.md
+docs/PATENT_CLAIMS_DRAFT.md
+docs/BEHAVIORAL_FINGERPRINTING_SYSTEM.md
+
+# Security Documentation - INTERNAL ONLY
+docs/SECURITY_CLASSIFICATION.md
+docs/SPATIAL_SECURITY_THREAT_MODEL.md
+docs/SECURITY_AUDIT_TRACKER.md
+docs/QUANTUM_FUTURE_ARCHITECTURE.md
+
+# Founder Records - INTERNAL ONLY
+docs/FOUNDER_JOURNEY.md
+docs/FOUNDER_QUOTES.md
+docs/SESSION_LOGS.md
+docs/AGENT_ONBOARDING.md
+
+# Architecture Deep Details - INTERNAL ONLY
+docs/COMPLETE_ARCHITECTURE.md
+docs/ARCHITECTURE_PRINCIPLES.md
+docs/ENERGETIC_FOUNDATIONS.md
+docs/NORTH_STAR_SEED_ENGINE.md
+docs/IMMUTABLE_CORE_ARCHITECTURE.md
+docs/ADAPTIVE_COMPRESSION_ARCHITECTURE.md
+docs/PUBLICATION_PHILOSOPHY.md
+
+# Technical Specifications - INTERNAL ONLY
+docs/PRODUCT_ARCHITECTURE_SPLIT.md
+docs/ITR8_TECHNICAL_SPEC.md
+docs/SOCIAL_TIMELINE_DESIGN.md
+docs/PYTORCH_WEBGPU_ARCHITECTURE.md
+docs/DEEP_PROVENANCE_FRAMEWORK.md
+docs/LIVING_WORKS_TEMPORAL_FRAMEWORK.md
+docs/CREATIVE_PROVENANCE_SOLUTIONS.md
+
+# Vision Notes - INTERNAL ONLY
+docs/IT-R8_VISION_NOTES.md
+
+# ============================================================================
+# SECTION 19: AI AGENT SESSION FILES
+# Development history that could reveal architecture
+# ============================================================================
+
+# Claude session transcripts
+.claude/
+**/*.jsonl
+
+# ============================================================================
+# END OF TRADE SECRET PROTECTION
+# Last Updated: 2026-01-10
+# ============================================================================

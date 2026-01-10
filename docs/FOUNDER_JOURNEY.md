@@ -11,7 +11,7 @@
 **Start Date:** January 1, 2026
 **Project:** ARCHIVIT_01 - Digital Sovereignty Platform
 **Founder:** Gisel Florez
-**Three Pillars:** ARCHIV-IT (Archive) | IT-R8 (Rate/Create) | SOCIAL (Share)
+**Three Pillars:** ARCHIV-IT (Archive) | IT-R8 (Rate/Create) | SOCI-8 (Share)
 
 ---
 
@@ -152,7 +152,7 @@
 
 ### 2. The Three Pillars
 **Source:** Product architecture
-**Implementation:** ARCHIV-IT (input/organize) → IT-R8 (create/output) → SOCIAL (share/connect)
+**Implementation:** ARCHIV-IT (input/organize) → IT-R8 (create/output) → SOCI-8 (share/connect)
 **Application:** Clear separation of concerns, each pillar sovereign
 
 ### 3. Bubbles as MicroLLMs
