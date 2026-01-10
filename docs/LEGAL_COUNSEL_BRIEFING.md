@@ -69,23 +69,57 @@ The software was developed using **AI-assisted programming**:
 
 ### What This Means Legally
 
-**The founder:**
-- Provided all creative direction, specifications, and decisions
-- Reviewed and approved all code
-- Owns all intellectual property as the directing mind
+**The founder's role (Human Creative Direction):**
+- Conceived the entire product vision, architecture, and philosophy
+- Wrote detailed specifications for every feature in natural language
+- Made all design decisions (what to build, how it should work, what principles to embed)
+- Reviewed, tested, and approved all generated code
+- Directed revisions and corrections when output didn't match intent
+- Provided domain expertise (digital art, blockchain, creator economy)
+- Named all products, features, and concepts
+- Wrote all philosophical/conceptual content (the "why")
 
-**The AI:**
-- Generated code based on instructions
-- Has no ownership claims (per Anthropic's terms of service)
-- Functioned as a tool, similar to using any other software
+**The AI's role (Code Generation Tool):**
+- Translated founder's natural language specifications into code
+- Generated syntax based on founder's architectural decisions
+- Suggested implementations that founder accepted, rejected, or modified
+- Similar to: autocomplete, code generators, or design software
+- No independent creative decisions - all directed by founder
+
+**The AI (Claude Opus 4.5 by Anthropic):**
+- Has no ownership claims per Anthropic's Terms of Service
+- Anthropic's ToS Section 4: "As between you and Anthropic, and to the extent permitted by applicable law, you own all Inputs and Outputs"
+- The AI has no legal personhood and cannot hold IP rights
+- Functions as a sophisticated tool, not a co-creator
 
 ### Relevant Precedent Considerations
 
-1. **Copyright:** US Copyright Office guidance on AI-generated works is evolving. The founder provided substantial creative direction, specification, and review of all code. Current requirements should be discussed with counsel.
+1. **Copyright:** US Copyright Office guidance on AI-generated works is evolving. Key factors in favor of registration:
+   - Founder provided substantial creative direction at every step
+   - Founder made all selection and arrangement decisions
+   - Founder's specifications constitute the creative expression
+   - The code implements founder's original architectural concepts
+   - Current requirements should be discussed with counsel
 
-2. **Work Product:** The AI was used as a tool in the creative process, similar to using Photoshop or other software.
+2. **Work Product - Tool Analogy:**
+   - Photoshop doesn't own the images you create with it
+   - Excel doesn't own the spreadsheets you build
+   - GitHub Copilot doesn't own the code it suggests
+   - Claude doesn't own the code it generates from your specifications
+   - The tool amplifies human creativity; it doesn't replace human authorship
 
-3. **Documentation:** Full development history is preserved in git commits with timestamps, demonstrating human direction throughout.
+3. **Documentation (Evidence of Human Direction):**
+   - Complete git commit history with timestamps (65+ commits)
+   - Every commit represents human review and approval
+   - Session transcripts preserved showing founder's specifications
+   - FOUNDER_JOURNEY.md documents all founder input chronologically
+   - SESSION_LOGS.md preserves exact founder instructions
+   - No code was committed without founder's explicit approval
+
+4. **Anthropic's Position:**
+   - Anthropic explicitly assigns output ownership to users
+   - Anthropic does not claim copyright on Claude's outputs
+   - This is documented in their Terms of Service (verify current version)
 
 ---
 
