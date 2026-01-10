@@ -81,7 +81,7 @@ The software was developed using **AI-assisted programming**:
 
 ### Relevant Precedent Considerations
 
-1. **Copyright:** US Copyright Office currently requires human authorship for registration. The founder provided substantial creative input and direction.
+1. **Copyright:** US Copyright Office guidance on AI-generated works is evolving. The founder provided substantial creative direction, specification, and review of all code. Current requirements should be discussed with counsel.
 
 2. **Work Product:** The AI was used as a tool in the creative process, similar to using Photoshop or other software.
 

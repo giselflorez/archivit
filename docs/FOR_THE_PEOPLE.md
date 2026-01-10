@@ -94,7 +94,7 @@ Finally, social that doesn't sell you out.
 
 - Share what you choose
 - Connect with who matters
-- Discover through resonance, not algorithms
+- Discover through systems designed to serve you, not advertisers
 - **Your identity. Your connections.**
 
 ---
@@ -118,10 +118,10 @@ No internet? No problem. Your tools still work. Your data is still there. Becaus
 ## WHY NOW
 
 The technology finally exists to build this properly:
-- Local AI that runs on your device
+- Privacy-preserving architecture where your data stays local
 - Decentralized storage options
 - Blockchain verification without blockchain dependency
-- Privacy-preserving computation
+- AI assistance that respects your sovereignty
 
 And the need has never been greater:
 - Platform enshittification accelerating
