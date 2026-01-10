@@ -14,6 +14,7 @@ COPY . .
 
 # Set environment
 ENV PYTHONUNBUFFERED=1
+ENV PORT=5001
 
-# Start server
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app
+# Start server with shell to expand $PORT
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 2 --timeout 120 wsgi:app"]
