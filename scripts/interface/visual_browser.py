@@ -295,6 +295,7 @@ def check_csrf_token():
     exempt_paths = [
         '/api/badge/verify',  # Uses signature verification
         '/setup/scan-status',  # Read-only status polling
+        '/login',  # Entry point before session exists
     ]
 
     for exempt in exempt_paths:
