@@ -50,7 +50,10 @@ def render_markdown(filepath):
 
 @app.route("/")
 def home():
-    return "<h1>ARCHIVIT</h1><p>Deployment working!</p>"
+    try:
+        return render_template("team_gallery.html")
+    except Exception as e:
+        return "<h1>ARCHIVIT</h1><p>Deployment working!</p>"
 
 @app.route("/health")
 def health():

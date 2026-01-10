@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT | Testing Phase 1 Preview</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================
+           PASSWORD GATE - ULTRATHINK
+           ========================================== */
+        .password-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: linear-gradient(135deg, #0a0a0a 0%, #0d0d10 50%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+        }
+        .password-gate.unlocked {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .gate-container {
+            text-align: center;
+            max-width: 380px;
+            padding: 2.5rem;
+            position: relative;
+        }
+        .gate-logo {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: #f5f5f0;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.02em;
+        }
+        .gate-subtitle {
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(212, 165, 116, 0.6);
+            margin-bottom: 3rem;
+        }
+        .gate-label {
+            font-size: 0.55rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 0.6rem;
+            display: block;
+        }
+        .gate-input-wrap {
+            position: relative;
+        }
+        .gate-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(15, 15, 20, 0.9);
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 6px;
+            color: #f5f5f0;
+            font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            letter-spacing: 0.4em;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .gate-input:focus {
+            border-color: rgba(212, 165, 116, 0.4);
+            box-shadow: 0 0 30px rgba(212, 165, 116, 0.08);
+        }
+        .gate-input::placeholder {
+            color: #333;
+            letter-spacing: 0.15em;
+            font-size: 0.9rem;
+        }
+        .gate-input.error {
+            border-color: rgba(239, 68, 68, 0.5);
+            animation: shake 0.4s ease;
+        }
+        .gate-input.success {
+            border-color: rgba(80, 200, 120, 0.5);
+            box-shadow: 0 0 30px rgba(80, 200, 120, 0.1);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .gate-hint {
+            margin-top: 1.5rem;
+            font-size: 0.6rem;
+            color: #3a3a3a;
+        }
+        .gate-footer {
+            margin-top: 4rem;
+            font-size: 0.55rem;
+            color: #2a2a2a;
+            letter-spacing: 0.08em;
+        }
+        /* Liquid shimmer */
+        .gate-shimmer {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 300%;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 30%,
+                rgba(212, 165, 116, 0.3) 50%,
+                transparent 70%,
+                transparent 100%);
+            animation: gateShimmer 4s ease-in-out infinite;
+        }
+        @keyframes gateShimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(33%); }
+        }
+        /* Floating particles */
+        .gate-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(212, 165, 116, 0.3);
+            border-radius: 50%;
+            animation: floatUp 8s ease-in-out infinite;
+        }
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-200px) scale(0); opacity: 0; }
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --text-primary: #f5f5f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --accent-gold: #d4a574;
+            --accent-gold-dim: rgba(212, 165, 116, 0.3);
+            --border: #2a2a2a;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header - compact */
+        .header {
+            padding: 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 15, 20, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-label {
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.4rem;
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Navigation - compact glassy */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 0.6rem 2rem;
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+        }
+
+        .nav a:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav a.active {
+            color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        /* Main content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Section intro - compact */
+        .section-intro {
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            text-align: center;
+        }
+
+        .section-intro h2 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-intro p {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            line-height: 1.7;
+        }
+
+        /* Team grid - 2 rows max, no scroll */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(2, auto);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            max-height: calc(100vh - 280px);
+            overflow: hidden;
+        }
+
+        @media (max-width: 1600px) {
+            .team-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .team-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Team card - compact glassy design */
+        .team-card {
+            background: rgba(15, 15, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            padding: 1rem;
+            padding-bottom: 2.5rem; /* Space for db icon */
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible; /* Allow tooltip to show */
+            backdrop-filter: blur(12px);
+            min-height: 180px; /* Consistent height */
+        }
+
+        /* Shine effect on top edge */
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 20%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.1) 80%,
+                transparent 100%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Glow effect */
+        .team-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 6px;
+            padding: 1px;
+            background: linear-gradient(135deg,
+                rgba(212, 165, 116, 0) 0%,
+                rgba(212, 165, 116, 0.1) 50%,
+                rgba(212, 165, 116, 0) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .team-card:hover {
+            background: rgba(20, 20, 28, 0.85);
+            border-color: rgba(212, 165, 116, 0.3);
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 50; /* Ensure tooltips show above other cards */
+        }
+
+        .team-card:hover::after {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-identity h3 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.1rem;
+            line-height: 1.2;
+        }
+
+        .card-identity .role {
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .bubble-tag {
+            display: inline-block;
+            font-size: 0.55rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.25);
+            border-radius: 2px;
+            padding: 0.15rem 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-bio-wrapper {
+            position: relative;
+            margin-bottom: 0.6rem;
+        }
+
+        .card-bio {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        /* 4D Data Panel - appears on hover with rich dimensional data */
+        .card-data-panel {
+            position: absolute;
+            left: -1rem;
+            right: -1rem;
+            top: 100%;
+            margin-top: 0.5rem;
+            padding: 0;
+            background: linear-gradient(135deg,
+                rgba(12, 12, 18, 0.96) 0%,
+                rgba(8, 8, 14, 0.98) 100%);
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) perspective(1000px) rotateX(-5deg);
+            transform-origin: top center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            backdrop-filter: blur(16px);
+            overflow: hidden;
+        }
+
+        /* Liquid shimmer across top */
+        .card-data-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 300%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 30%,
+                rgba(212, 165, 116, 0.4) 50%,
+                transparent 70%,
+                transparent 100%);
+            animation: panelShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes panelShimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(33%); }
+        }
+
+        .card-bio-wrapper:hover .card-data-panel {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) perspective(1000px) rotateX(0deg);
+            pointer-events: auto;
+        }
+
+        /* Panel sections */
+        .panel-section {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .panel-label {
+            font-size: 0.5rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(212, 165, 116, 0.6);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Timeline visualization */
+        .panel-timeline {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+
+        .timeline-node {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .timeline-year {
+            font-size: 0.55rem;
+            color: var(--accent-gold);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .timeline-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.3);
+            border: 1px solid rgba(212, 165, 116, 0.5);
+            position: relative;
+        }
+
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 20px;
+            height: 1px;
+            background: rgba(212, 165, 116, 0.2);
+        }
+
+        .timeline-node:last-child .timeline-dot::after {
+            display: none;
+        }
+
+        .timeline-title {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            max-width: 60px;
+            text-align: center;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Chain badges */
+        .panel-chains {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+
+        .chain-badge {
+            font-size: 0.45rem;
+            padding: 0.15rem 0.35rem;
+            border-radius: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .chain-badge.eth { background: rgba(98, 126, 234, 0.2); color: #627eea; border: 1px solid rgba(98, 126, 234, 0.3); }
+        .chain-badge.btc { background: rgba(247, 147, 26, 0.2); color: #f7931a; border: 1px solid rgba(247, 147, 26, 0.3); }
+        .chain-badge.xtz { background: rgba(44, 125, 247, 0.2); color: #2c7df7; border: 1px solid rgba(44, 125, 247, 0.3); }
+        .chain-badge.sol { background: rgba(153, 69, 255, 0.2); color: #9945ff; border: 1px solid rgba(153, 69, 255, 0.3); }
+
+        /* Stats row */
+        .panel-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-mini {
+            text-align: center;
+        }
+
+        .stat-mini-value {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .stat-mini-label {
+            font-size: 0.45rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .card-expertise {
+            margin-bottom: 0.6rem;
+        }
+
+        .expertise-label {
+            font-size: 0.55rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .tag {
+            font-size: 0.55rem;
+            padding: 0.15rem 0.4rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .team-card:hover .tag {
+            border-color: rgba(212, 165, 116, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .card-links {
+            display: flex;
+            gap: 0.6rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-links a {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            text-transform: lowercase;
+        }
+
+        .card-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        /* Database icon - ultrathink: minimal, liquid, trusted */
+        .card-db-icon {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+            width: 22px;
+            height: 22px;
+            background: rgba(15, 12, 10, 0.6);
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0.4;
+            z-index: 10;
+            pointer-events: auto;
+            overflow: hidden;
+        }
+
+        /* Liquid shimmer animation */
+        .card-db-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 40%,
+                rgba(212, 175, 126, 0.15) 50%,
+                transparent 60%,
+                transparent 100%);
+            animation: dbLiquid 5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes dbLiquid {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100%); }
+        }
+
+        .team-card:hover .card-db-icon {
+            opacity: 0.8;
+            border-color: rgba(212, 165, 116, 0.25);
+        }
+
+        .card-db-icon:hover {
+            opacity: 1;
+            background: rgba(20, 18, 15, 0.85);
+            border-color: rgba(212, 165, 116, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-db-icon:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .card-db-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: rgba(212, 165, 116, 0.6);
+            stroke-width: 1.5;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .card-db-icon:hover svg {
+            stroke: var(--accent-gold);
+        }
+
+        /* ==========================================
+           ULTRA-LUX GALLERY MODAL
+           3D depth, slideshow, gold accents, glass
+           ========================================== */
+
+        .gallery-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            perspective: 2000px;
+        }
+
+        .gallery-modal.visible {
+            display: flex;
+        }
+
+        /* Semi-transparent backdrop - keeps cards visible */
+        .gallery-backdrop {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center,
+                rgba(0, 0, 0, 0.7) 0%,
+                rgba(0, 0, 0, 0.85) 100%);
+            backdrop-filter: blur(8px);
+        }
+
+        /* WebGL canvas behind modal */
+        #gallery-webgl-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Main container - large, 3D transformed */
+        .gallery-container {
+            position: relative;
+            z-index: 10;
+            width: 95vw;
+            max-width: 1400px;
+            height: 85vh;
+            background: linear-gradient(135deg,
+                rgba(12, 12, 18, 0.92) 0%,
+                rgba(8, 8, 14, 0.96) 100%);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: galleryEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            box-shadow:
+                0 50px 100px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes galleryEnter {
+            0% {
+                opacity: 0;
+                transform: rotateX(10deg) translateY(60px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: rotateX(0) translateY(0) scale(1);
+            }
+        }
+
+        /* Top shine line - animated */
+        .gallery-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(212, 165, 116, 0.3) 25%,
+                rgba(255, 215, 150, 0.6) 50%,
+                rgba(212, 165, 116, 0.3) 75%,
+                transparent 100%);
+            animation: shineMove 3s ease-in-out infinite;
+        }
+
+        @keyframes shineMove {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Gold gradient border glow */
+        .gallery-container::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: linear-gradient(135deg,
+                rgba(212, 165, 116, 0.3) 0%,
+                transparent 30%,
+                transparent 70%,
+                rgba(212, 165, 116, 0.2) 100%);
+            z-index: -1;
+            filter: blur(1px);
+        }
+
+        /* Header - floating glass panel */
+        .gallery-header {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg,
+                rgba(20, 20, 28, 0.8) 0%,
+                rgba(15, 15, 22, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .gallery-artist-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .gallery-artist-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,
+                rgba(212, 165, 116, 0.2) 0%,
+                rgba(212, 165, 116, 0.1) 100%);
+            border: 2px solid rgba(212, 165, 116, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+        }
+
+        .gallery-artist-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-artist-name {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .gallery-artist-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-top: 0.2rem;
+        }
+
+        /* Slideshow counter */
+        .gallery-counter {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .gallery-counter-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+        }
+
+        .gallery-close {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-close:hover {
+            background: rgba(212, 165, 116, 0.1);
+            border-color: rgba(212, 165, 116, 0.3);
+            color: var(--accent-gold);
+            transform: rotate(90deg);
+        }
+
+        /* Main slideshow area */
+        .gallery-slideshow {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 3rem 3rem;
+        }
+
+        /* Individual slide */
+        .gallery-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .gallery-slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .gallery-slide.prev {
+            opacity: 0;
+            transform: translateX(-100px) scale(0.9);
+        }
+
+        /* Artwork card - 3D glass */
+        .slide-artwork {
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            background: linear-gradient(145deg,
+                rgba(25, 25, 35, 0.9) 0%,
+                rgba(15, 15, 22, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .slide-artwork:hover {
+            transform: translateY(-10px) rotateX(2deg);
+            box-shadow:
+                0 50px 80px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(212, 165, 116, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* Artwork shine overlay */
+        .slide-artwork::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                transparent 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Gold corner accents */
+        .slide-artwork::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg,
+                rgba(212, 165, 116, 0.4) 0%,
+                transparent 50%);
+            border-radius: 16px 0 0 0;
+            pointer-events: none;
+        }
+
+        .slide-image {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg,
+                rgba(30, 30, 40, 1) 0%,
+                rgba(20, 20, 28, 1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .slide-artwork:hover .slide-image img {
+            transform: scale(1.05);
+        }
+
+        .slide-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .slide-placeholder-icon {
+            font-size: 4rem;
+            color: var(--accent-gold);
+            opacity: 0.6;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 40px rgba(212, 165, 116, 0.4);
+        }
+
+        .slide-placeholder-text {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Slide info panel - glass */
+        .slide-info {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(180deg,
+                rgba(0, 0, 0, 0.2) 0%,
+                rgba(0, 0, 0, 0.4) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .slide-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .slide-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .slide-platform {
+            padding: 0.3rem 0.8rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 4px;
+            color: var(--accent-gold);
+            font-weight: 500;
+        }
+
+        /* Navigation dots */
+        .gallery-nav {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(15, 15, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .gallery-nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-nav-dot:hover {
+            background: rgba(212, 165, 116, 0.4);
+            border-color: rgba(212, 165, 116, 0.5);
+        }
+
+        .gallery-nav-dot.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(212, 165, 116, 0.5);
+            transform: scale(1.2);
+        }
+
+        /* Click to advance hint */
+        .gallery-hint {
+            position: absolute;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            opacity: 0.6;
+            animation: hintPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Side navigation arrows */
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(15, 15, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .gallery-arrow:hover {
+            background: rgba(212, 165, 116, 0.15);
+            border-color: rgba(212, 165, 116, 0.3);
+            color: var(--accent-gold);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .gallery-arrow-prev { left: 2rem; }
+        .gallery-arrow-next { right: 2rem; }
+
+        /* Floating particles container */
+        .gallery-particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        /* Hide the old grid - we use slideshow now */
+        .gallery-content { display: none; }
+        .gallery-grid { display: none; }
+
+        /* IPFS Pin Indicator - Ultrathink: Minimal, Liquid, Trust */
+        .ipfs-pin-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            background: rgba(8, 12, 8, 0.7);
+            border: 1px solid rgba(90, 160, 90, 0.15);
+            border-radius: 4px;
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            overflow: hidden;
+        }
+
+        /* Liquid shimmer - flows across like water */
+        .ipfs-pin-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 40%,
+                rgba(120, 200, 140, 0.08) 50%,
+                transparent 60%,
+                transparent 100%);
+            animation: liquidFlow 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes liquidFlow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ipfs-pin-indicator:hover {
+            background: rgba(12, 18, 12, 0.85);
+            border-color: rgba(100, 180, 110, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Pinned state - trusted, verified feel */
+        .ipfs-pin-indicator.pinned {
+            border-color: rgba(90, 180, 110, 0.25);
+        }
+
+        /* Soft outer glow for pinned - very subtle */
+        .ipfs-pin-indicator.pinned::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 5px;
+            background: radial-gradient(ellipse at center,
+                rgba(90, 180, 110, 0.1) 0%,
+                transparent 70%);
+            z-index: -1;
+            animation: trustPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes trustPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+
+        /* Icon - very small, clean */
+        .ipfs-icon {
+            width: 10px;
+            height: 10px;
+            fill: none;
+            stroke: rgba(100, 170, 110, 0.5);
+            stroke-width: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .ipfs-pin-indicator.pinned .ipfs-icon {
+            stroke: rgba(100, 190, 120, 0.85);
+        }
+
+        .ipfs-pin-indicator:hover .ipfs-icon {
+            stroke: rgba(120, 200, 140, 1);
+        }
+
+        /* Status text - whisper small */
+        .ipfs-status {
+            font-size: 0.5rem;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(100, 170, 110, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .ipfs-pin-indicator.pinned .ipfs-status {
+            color: rgba(100, 190, 120, 0.8);
+        }
+
+        .ipfs-pin-indicator:hover .ipfs-status {
+            color: rgba(120, 200, 140, 1);
+        }
+
+        /* Local state - even more subtle */
+        .ipfs-pin-indicator:not(.pinned) {
+            opacity: 0.5;
+        }
+
+        .ipfs-pin-indicator:not(.pinned):hover {
+            opacity: 0.8;
+        }
+
+        /* Gold tier for high-reputation pieces */
+        .ipfs-pin-indicator.tier-gold {
+            border-color: rgba(212, 165, 116, 0.2);
+        }
+
+        .ipfs-pin-indicator.tier-gold::before {
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 40%,
+                rgba(212, 175, 126, 0.1) 50%,
+                transparent 60%,
+                transparent 100%);
+        }
+
+        .ipfs-pin-indicator.tier-gold .ipfs-icon {
+            stroke: rgba(212, 165, 116, 0.7);
+        }
+
+        .ipfs-pin-indicator.tier-gold .ipfs-status {
+            color: rgba(212, 165, 116, 0.7);
+        }
+
+        /* Featured work section */
+        .featured-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .featured-section h2 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.05em;
+        }
+
+        .webgl-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .showcase-item {
+            background: rgba(15, 15, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .showcase-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.15) 50%,
+                transparent 100%);
+        }
+
+        .showcase-item:hover {
+            border-color: rgba(212, 165, 116, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .showcase-preview {
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .showcase-preview canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .showcase-placeholder {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .showcase-info {
+            padding: 0.75rem;
+        }
+
+        .showcase-info h4 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .showcase-info p {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .showcase-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .showcase-meta a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        /* Mission statement - glassy */
+        .mission-section {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(15, 15, 20, 0.6);
+            border: 1px solid rgba(212, 165, 116, 0.15);
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(212, 165, 116, 0.3) 50%,
+                transparent 100%);
+        }
+
+        .mission-section h2 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--accent-gold);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .mission-section p {
+            max-width: 550px;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            line-height: 1.7;
+        }
+
+        .mission-section blockquote {
+            max-width: 450px;
+            margin: 1rem auto 0;
+            padding: 1rem;
+            border-left: 2px solid rgba(212, 165, 116, 0.5);
+            text-align: left;
+            background: rgba(212, 165, 116, 0.05);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .mission-section blockquote p {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 2.5rem;
+        }
+
+        .footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* WebGL Background Animation */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PASSWORD GATE -->
+    <div class="password-gate" id="passwordGate">
+        <div class="gate-shimmer"></div>
+        <div class="gate-container">
+            <div class="gate-logo">ARCHIV-IT</div>
+            <div class="gate-subtitle">Testing Phase 1 Preview</div>
+
+            <label class="gate-label">Enter Access Code</label>
+            <div class="gate-input-wrap">
+                <input type="password" class="gate-input" id="gatePassword" placeholder="localhost:" autocomplete="off" autofocus>
+            </div>
+
+            <p class="gate-hint">Tester access only</p>
+
+            <div class="gate-footer">
+                localhost: where your art history lives
+            </div>
+        </div>
+    </div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="header">
+        <p class="header-label">ARCHIV-IT Development</p>
+        <h1>Testing Phase 1</h1>
+        <p class="header-subtitle">Building the Future of Artist Sovereignty Together</p>
+    </header>
+
+    <nav class="nav">
+        <a href="#" style="opacity: 0.4; cursor: default;" title="Available on localhost:">Archive</a>
+        <a href="#" style="opacity: 0.4; cursor: default;" title="Available on localhost:">Spatial Vision</a>
+        <a href="#" style="opacity: 0.4; cursor: default;" title="Available on localhost:">Network</a>
+        <a href="#" class="active">Team</a>
+    </nav>
+
+    <main class="main">
+        <section class="section-intro">
+            <h2>Cross-Chain Collaborators Shaping the Tool</h2>
+            <p>These artists, developers, and blockchain pioneers span the full spectrum of on-chain culture—from Bitcoin's RarePepe origins to Ethereum's art market boom, from Tezos's artist-first ethos to Solana's speed and accessibility. Their collective experience across chains shapes what true artist sovereignty looks like: portable, interoperable, and chain-agnostic.</p>
+        </section>
+
+        <div class="team-grid" id="team-grid">
+            <!-- Cards populated by JavaScript -->
+        </div>
+
+        <section class="featured-section">
+            <h2>WebGL Developments</h2>
+            <div class="webgl-showcase" id="webgl-showcase">
+                <!-- Showcase items populated by JavaScript -->
+            </div>
+        </section>
+
+        <section class="mission-section">
+            <h2>Our North Star</h2>
+            <p>Spectacle without sovereignty is capture. We build tools that let artists navigate the new atmosphere of spatial data on their own terms—local-first, chain-agnostic, extraction-free, forever. Your work, your history, portable across any blockchain.</p>
+            <blockquote>
+                <p>"The CN Tower kid who saw shapes in the air doesn't need to be famous. The shapes do."</p>
+            </blockquote>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>ARCHIV-IT Testing Phase 1 · WEB3GISEL Nonprofit · Your Data. Your Future. Take Control.</p>
+    </footer>
+
+    <!-- Ultra-Lux Gallery Modal -->
+    <div class="gallery-modal" id="gallery-modal">
+        <div class="gallery-backdrop" onclick="closeGallery()"></div>
+        <canvas id="gallery-webgl-bg"></canvas>
+
+        <div class="gallery-container">
+            <!-- Floating header -->
+            <div class="gallery-header">
+                <div class="gallery-artist-info">
+                    <div class="gallery-artist-avatar" id="gallery-avatar"></div>
+                    <div>
+                        <div class="gallery-artist-name" id="gallery-name"></div>
+                        <div class="gallery-artist-label">Notable Works</div>
+                    </div>
+                </div>
+                <div class="gallery-counter">
+                    <span class="gallery-counter-text" id="gallery-counter">1 / 5</span>
+                    <button class="gallery-close" onclick="closeGallery()">&times;</button>
+                </div>
+            </div>
+
+            <!-- Slideshow area -->
+            <div class="gallery-slideshow" id="gallery-slideshow">
+                <!-- Slides injected by JS -->
+            </div>
+
+            <!-- Navigation arrows -->
+            <div class="gallery-arrow gallery-arrow-prev" onclick="prevSlide()">‹</div>
+            <div class="gallery-arrow gallery-arrow-next" onclick="nextSlide()">›</div>
+
+            <!-- Click hint -->
+            <div class="gallery-hint">Click artwork or press → to continue</div>
+
+            <!-- Navigation dots -->
+            <div class="gallery-nav" id="gallery-nav">
+                <!-- Dots injected by JS -->
+            </div>
+
+            <!-- Particles layer -->
+            <div class="gallery-particles" id="gallery-particles"></div>
+        </div>
+
+        <!-- Hidden old grid for data -->
+        <div class="gallery-content" style="display:none;">
+            <div class="gallery-grid" id="gallery-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Team data - populated from database or config
+        const teamMembers = [
+            {
+                name: "GISELX",
+                role: "Founder & Creative Director",
+                avatar: "https://unavatar.io/x/GiselFlorez",
+                bio: "22 years in photographic arts (since 2004). RISD graduate, leading Alumni Photo Association. First-wave crypto artist (2019). Co-founder WOCA, founder OFF/ON and ICE CREAM GALLERY. Fortune TOP50 NFT #36, WOCA in Vogue, Coindesk. Commercial: L'Oreal, ESPN, NYTimes. Currently: #MoonLanguage.",
+                expertise: ["Photography", "Light Studies", "Community Building", "Cross-Chain Strategy"],
+                bubble: "Community Infrastructure",
+                links: { twitter: "GiselFlorez", superrare: "giselx", ens: "giselx.eth" },
+                notableWorks: [
+                    { title: "#MoonLanguage", platform: "In Development", year: "2025", image: null },
+                    { title: "L1210070 : An omen of the skies", platform: "SuperRare (ETH)", year: "2024", image: null },
+                    { title: "UrVenus", platform: "SuperRare (ETH)", year: "2019", image: null, ipfsHash: "QmbiEPTJZ4nbdTCQxzwQgmahgoUt9qXwWuRvkm9XWfG46y" },
+                    { title: "ICANWECANEXIST", platform: "KnownOrigin (ETH)", year: "2020", image: null }
+                ]
+            },
+            {
+                name: "Robness",
+                role: "Tester · Trash Art Movement",
+                avatar: "https://unavatar.io/twitter/robnessofficial",
+                bio: "Founder Trash Art movement (2016). RarePepe OG on Bitcoin. Highest-selling cryptoartist by volume. Centre Pompidou, Hermitage, Sotheby's. Burned a Bored Ape and CryptoPunk. The $252K 64 Gallon Toter sparked the first NFT rebellion. Multi-chain: BTC, ETH, XTZ, Ordinals.",
+                expertise: ["Trash Art", "Anti-Censorship", "RarePepe (BTC)", "Multi-Chain Pioneer"],
+                bubble: "Trash Art / Cross-Chain",
+                links: { twitter: "robnessofficial" },
+                notableWorks: [
+                    { title: "64 Gallon Toter", platform: "SuperRare (ETH)", year: "2020", image: null },
+                    { title: "My Fucking Keys!", platform: "SuperRare (ETH)", year: "2022", image: null },
+                    { title: "Convergence", platform: "SuperRare (ETH)", year: "2023", image: null },
+                    { title: "Ethereum", platform: "SuperRare (ETH)", year: "2021", image: null },
+                    { title: "RarePepe Genesis", platform: "Counterparty (BTC)", year: "2016", image: null }
+                ]
+            },
+            {
+                name: "Coldie",
+                role: "Tester · Stereoscopic 3D Pioneer",
+                avatar: "https://unavatar.io/twitter/Coldie",
+                bio: "First to tokenize stereoscopic 3D on blockchain (2017). SuperRare since July 2018. Co-established 10% royalty standard (2019). Decentral Eyes: Vitalik, Snoop Dogg, Jack Dorsey, Warren Buffett, Trump. SuperRare 100/100 club. Bonhams, Sotheby's.",
+                expertise: ["3D Stereoscopic", "Auction Standards", "Movement History", "Cross-Chain Icons"],
+                bubble: "3D Art / Chain History",
+                links: { twitter: "Coldie" },
+                notableWorks: [
+                    { title: "Jack Dorsey - Decentral Eyes - Safe Passage Variant", platform: "SuperRare (ETH)", year: "2024", image: null },
+                    { title: "Donald Trump - Decentral Eyes - Crypto President Variant", platform: "SuperRare (ETH)", year: "2024", image: null },
+                    { title: "Decentral Eyes Dogg (w/ Snoop Dogg)", platform: "SuperRare (ETH)", year: "2021", image: null },
+                    { title: "The Lost Vitalik - Decentral Eyes Genesis", platform: "SuperRare (ETH)", year: "2018", image: null },
+                    { title: "Gary Gensler - Decentral Eyes", platform: "SuperRare (ETH)", year: "2023", image: null }
+                ]
+            },
+            {
+                name: "TokenFox",
+                role: "Tester · Technical",
+                avatar: null,
+                bio: "Blockchain architecture and smart contract expertise. Building the rails that let art live on-chain.",
+                expertise: ["Smart Contracts", "Blockchain Architecture", "Security"],
+                bubble: "Technical Infrastructure",
+                links: {},
+                notableWorks: []
+            },
+            {
+                name: "BigComicArt",
+                role: "Tester · Founding Crypto Artist",
+                avatar: "https://unavatar.io/twitter/BigComicArt",
+                bio: "25+ years painting. Original founding artist of the Metaverse web3 movement. Work collected in 100+ countries. First sale on SuperRare was to Coldie for $5. Bridging traditional fine art into the blockchain era.",
+                expertise: ["Traditional Painting", "Fine Art Bridge", "NFT Platforms"],
+                bubble: "Traditional Art → Crypto",
+                links: { twitter: "BigComicArt" },
+                notableWorks: [
+                    { title: "First SuperRare Sale", platform: "SuperRare", price: "$5 (Historic)", year: "2018", image: null },
+                    { title: "Cosmic Visions", platform: "Foundation", price: "8 ETH", year: "2021", image: null },
+                    { title: "Traditional Meets Digital", platform: "KnownOrigin", price: "5 ETH", year: "2020", image: null }
+                ]
+            },
+            {
+                name: "Bård Ionson",
+                role: "Tester · Platform Preservation",
+                avatar: "https://unavatar.io/twitter/bardionson",
+                bio: "Virginia artist. AI/GAN pioneer since 2018. Feb 2025: 'Battledore' acquired by Bodleian Library—first NFT in their collection. Uses oscilloscopes, AR, blockchain. SAGE Anomaly series. Museum of Crypto Art (Paris/NYC). Reconstructing Async Art database.",
+                expertise: ["AI Art", "Platform Preservation", "Art Blocks (ETH)", "Institutional Collections"],
+                bubble: "Generative / Preservation",
+                links: { twitter: "bardionson", website: "bardionson.com" },
+                notableWorks: [
+                    { title: "Battledore", platform: "Bodleian Library (ETH)", year: "2025", image: null },
+                    { title: "SAGE Anomaly Redux", platform: "SuperRare (ETH)", year: "2019", image: null },
+                    { title: "The Entity (SAGE Anomaly)", platform: "Async Art (ETH)", year: "2022", image: null },
+                    { title: "The Great Crypto Art Heist", platform: "SuperRare (ETH)", year: "2021", image: null },
+                    { title: "AI Biennale Exhibition", platform: "EXPANDED.ART", year: "2024", image: null }
+                ]
+            },
+            {
+                name: "Oona",
+                role: "Tester · Performance Art",
+                avatar: "https://unavatar.io/twitter/madebyoona",
+                bio: "Anonymous performance artist. 2023: 'Look, Touch, Own' at Art Basel Miami—300 touches generated live NFTs. 2025: Tezos ecosystem performance (700+ attendees). Featured at The Met, NADA Miami. Feminist video art confronting value and visibility.",
+                expertise: ["Performance Art", "Video", "Identity", "Physical/Digital"],
+                bubble: "Performance / Identity",
+                links: { twitter: "madebyoona" },
+                notableWorks: [
+                    { title: "Look, Touch, Own", platform: "Art Basel Miami", year: "2023", image: null },
+                    { title: "Tezos Ecosystem Performance", platform: "Objkt (XTZ)", year: "2025", image: null },
+                    { title: "The NFT Bubble", platform: "OpenSea (ETH)", year: "2021", image: null },
+                    { title: "NADA Miami Exhibition", platform: "Live Performance", year: "2023", image: null }
+                ]
+            },
+            {
+                name: "Rare Scrilla",
+                role: "Tester · Audio NFT Pioneer",
+                avatar: "https://unavatar.io/twitter/ScrillaVentura",
+                bio: "Created first collectible Audio NFT on Bitcoin (2016). RarePepe founding artist. Apr 2024: Ghostface Killah Ordinals collab (10K Bitcoin inscriptions). Hosts 'Art on the Blockchain' podcast. Minted across BTC, ETH, XTZ, SOL.",
+                expertise: ["Audio NFTs (Multi-Chain)", "RarePepe (BTC)", "Music Production", "Podcasting"],
+                bubble: "Music / Cross-Chain Audio",
+                links: { twitter: "ScrillaVentura" },
+                notableWorks: [
+                    { title: "Ghostface Killah x Rare Scrilla", platform: "Ordinals (BTC)", year: "2024", image: null },
+                    { title: "First Audio NFT", platform: "RarePepe (BTC)", year: "2016", image: null },
+                    { title: "Rare Scrilla Sounds", platform: "Ordinals (BTC)", year: "2023", image: null },
+                    { title: "Art on the Blockchain Podcast", platform: "Sound.xyz (ETH)", year: "2022", image: null },
+                    { title: "Cross-Chain Audio Collection", platform: "Multi-Platform", year: "2023", image: null }
+                ]
+            },
+            {
+                name: "Heyneff",
+                role: "Tester · Art + Technology",
+                avatar: "https://unavatar.io/twitter/heyneff",
+                bio: "RISD alum. Product designer and multimedia/installation artist. Exploring where art and technology meet—web3, plotter art, AR. Building interfaces that make complex systems feel intuitive.",
+                expertise: ["Product Design", "Installation Art", "Plotter Art", "AR"],
+                bubble: "Design / Installation",
+                links: { twitter: "heyneff" },
+                notableWorks: [
+                    { title: "Plotter Series", platform: "Foundation", price: "2 ETH", year: "2022", image: null },
+                    { title: "AR Interventions", platform: "SuperRare", price: "3 ETH", year: "2023", image: null }
+                ]
+            },
+            {
+                name: "Plutonic Mind",
+                role: "Tester · Music & Audiovisual",
+                avatar: "https://unavatar.io/twitter/plutonicmind",
+                bio: "Pianist, composer, and audiovisual artist. Synthesizes classical and electronic music with intricate harmonies and polyrhythmic structures. Grant recipient from Hamburg Authority for Culture & Media. Exhibited across Europe, Asia, and USA. Live performance at NFC Lisbon 2024.",
+                expertise: ["Contemporary Classical", "Generative Music", "Audiovisual Art", "Electronica"],
+                bubble: "Music / Audiovisual",
+                links: { twitter: "plutonicmind", website: "plutonicmind.com" },
+                notableWorks: [
+                    { title: "NFC Lisbon Live", platform: "Live Performance", price: "Event", year: "2024", image: null },
+                    { title: "Polyrhythmic Dreams", platform: "Foundation", price: "4 ETH", year: "2023", image: null },
+                    { title: "Hamburg Grant Series", platform: "Institutional", price: "Grant", year: "2022", image: null },
+                    { title: "Classical Synthesis", platform: "Sound.xyz", price: "3 ETH", year: "2023", image: null }
+                ]
+            },
+            {
+                name: "Micola Pruzzese",
+                role: "Tester · Development",
+                avatar: "https://unavatar.io/github/micolapruzzese-bit",
+                bio: "Technical implementation and spatial computing integration. Turning architectural vision into working code.",
+                expertise: ["Development", "Integration", "Spatial Systems"],
+                bubble: "Development",
+                links: { github: "micolapruzzese-bit" },
+                notableWorks: []
+            },
+            {
+                name: "Scuube",
+                role: "Tester · Spatial / Metaverse",
+                avatar: "https://unavatar.io/twitter/scuube",
+                bio: "Creating immersive digital experiences across virtual worlds. Featured at NFTNYC and Mona galleries. Exploring the intersection of art and virtual space on Ethereum and emerging chains.",
+                expertise: ["Metaverse", "Spatial Art", "Immersive Experiences", "Virtual Worlds"],
+                bubble: "Spatial / Metaverse Art",
+                links: { twitter: "scuube", website: "scuube.xyz" },
+                notableWorks: [
+                    { title: "NFTNYC Exhibition", platform: "Mona (ETH)", year: "2023", image: null },
+                    { title: "Spatial Dreamscapes", platform: "Mona (ETH)", year: "2024", image: null },
+                    { title: "Anima", platform: "Mona Gallery (ETH)", year: "2024", image: null }
+                ]
+            },
+            {
+                name: "ewharton",
+                role: "Tester · Cross-Chain Creator",
+                avatar: null, // Will show initials - update with correct Twitter handle when available
+                bio: "Digital artist navigating the multi-chain landscape. Creating and collecting across blockchain ecosystems.",
+                expertise: ["Digital Art", "Cross-Chain", "Collecting", "Community"],
+                bubble: "Cross-Chain / Community",
+                links: { twitter: "ewharton" },
+                notableWorks: [
+                    { title: "Cross-Chain Collection", platform: "Multi-Platform", year: "2024", image: null }
+                ]
+            }
+        ];
+
+        const webglShowcases = [
+            {
+                title: "Semantic Network",
+                description: "3D force-directed graph visualization of archive connections. Navigate through your knowledge in space.",
+                tech: "Three.js · WebGL · Force Physics",
+                route: "/semantic-network"
+            },
+            {
+                title: "Point Cloud Paradigms",
+                description: "Five visualization modes for exploring collections: Temporal Flow, Conceptual Clustering, Stewardship Mapping, River Flow, Cultural Resonance.",
+                tech: "WebGL · Custom Shaders · GLSL",
+                route: "/point-cloud"
+            },
+            {
+                title: "Edition Constellation",
+                description: "Edition relationships displayed as star maps with gravitational physics. See how works relate across editions and time.",
+                tech: "Three.js · Particle Systems",
+                route: "/edition-constellation"
+            },
+            {
+                title: "968 Moons (Proposed)",
+                description: "AI-trained visualization of Moon Language's complete collection. Navigate through infinite lunar variations in WebGL space.",
+                tech: "WebGL · Diffusion Models · CLIP Embeddings",
+                route: null
+            }
+        ];
+
+        // Custom database icon SVG
+        const dbIconSvg = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="12" cy="6" rx="8" ry="3"/>
+            <path d="M4 6v4c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+            <path d="M4 10v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+            <path d="M4 14v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+        </svg>`;
+
+        // IPFS pin icon SVG - ultrathink: minimal, trust symbol
+        const ipfsIconSvg = `<svg class="ipfs-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1L2 4.5v7L8 15l6-3.5v-7L8 1z" stroke-linejoin="round"/>
+            <circle cx="8" cy="8" r="1.5" fill="currentColor" opacity="0.6"/>
+        </svg>`;
+
+        // Render team cards
+        function renderTeam() {
+            const grid = document.getElementById('team-grid');
+
+            teamMembers.forEach((member, index) => {
+                const initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+
+                // Avatar: use image if available, fallback to initials
+                const avatarContent = member.avatar
+                    ? `<img src="${member.avatar}" alt="${member.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='${initials}';">`
+                    : initials;
+
+                const linksHtml = Object.entries(member.links || {}).map(([platform, handle]) => {
+                    const urls = {
+                        twitter: `https://twitter.com/${handle}`,
+                        superrare: `https://superrare.com/${handle}`,
+                        website: `https://${handle}`,
+                        ens: `https://app.ens.domains/name/${handle}`,
+                        github: `https://github.com/${handle}`
+                    };
+                    return `<a href="${urls[platform] || '#'}" target="_blank">${platform}</a>`;
+                }).join('');
+
+                const bubbleHtml = member.bubble ? `<span class="bubble-tag">${member.bubble}</span>` : '';
+
+                const tagsHtml = (member.expertise || []).map(tag =>
+                    `<span class="tag">${tag}</span>`
+                ).join('');
+
+                // Only show db icon if member has notable works
+                const hasWorks = member.notableWorks && member.notableWorks.length > 0;
+                const dbIconHtml = hasWorks
+                    ? `<div class="card-db-icon" data-member-index="${index}" title="View Notable Works">${dbIconSvg}</div>`
+                    : '';
+
+                // Generate 4D data panel content
+                const works = member.notableWorks || [];
+                const chains = new Set();
+                works.forEach(w => {
+                    if (w.platform.includes('ETH')) chains.add('eth');
+                    if (w.platform.includes('BTC') || w.platform.includes('Counterparty') || w.platform.includes('Ordinals') || w.platform.includes('RarePepe')) chains.add('btc');
+                    if (w.platform.includes('XTZ') || w.platform.includes('Tezos') || w.platform.includes('Objkt') || w.platform.includes('fxhash')) chains.add('xtz');
+                    if (w.platform.includes('SOL') || w.platform.includes('Solana')) chains.add('sol');
+                });
+
+                const chainBadges = Array.from(chains).map(c =>
+                    `<span class="chain-badge ${c}">${c.toUpperCase()}</span>`
+                ).join('');
+
+                const timelineNodes = works.slice(0, 4).map(w => `
+                    <div class="timeline-node">
+                        <span class="timeline-year">${w.year}</span>
+                        <div class="timeline-dot"></div>
+                        <span class="timeline-title">${w.title.split(' - ')[0].substring(0, 12)}</span>
+                    </div>
+                `).join('');
+
+                const years = works.map(w => parseInt(w.year)).filter(y => !isNaN(y));
+                const earliestYear = years.length ? Math.min(...years) : 2020;
+                const yearsActive = new Date().getFullYear() - earliestYear;
+
+                const dataPanelHtml = works.length > 0 ? `
+                    <div class="card-data-panel">
+                        <div class="panel-section">
+                            <div class="panel-label">Timeline</div>
+                            <div class="panel-timeline">${timelineNodes}</div>
+                        </div>
+                        <div class="panel-section">
+                            <div class="panel-label">Chains</div>
+                            <div class="panel-chains">${chainBadges || '<span class="chain-badge eth">ETH</span>'}</div>
+                        </div>
+                        <div class="panel-section">
+                            <div class="panel-stats">
+                                <div class="stat-mini">
+                                    <div class="stat-mini-value">${works.length}</div>
+                                    <div class="stat-mini-label">Works</div>
+                                </div>
+                                <div class="stat-mini">
+                                    <div class="stat-mini-value">${chains.size || 1}</div>
+                                    <div class="stat-mini-label">Chains</div>
+                                </div>
+                                <div class="stat-mini">
+                                    <div class="stat-mini-value">${yearsActive}+</div>
+                                    <div class="stat-mini-label">Years</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="avatar">${avatarContent}</div>
+                        <div class="card-identity">
+                            <h3>${member.name}</h3>
+                            <span class="role">${member.role}</span>
+                        </div>
+                    </div>
+                    ${bubbleHtml}
+                    <div class="card-bio-wrapper">
+                        <p class="card-bio">${member.bio}</p>
+                        ${dataPanelHtml}
+                    </div>
+                    <div class="card-expertise">
+                        <p class="expertise-label">Expertise</p>
+                        <div class="expertise-tags">${tagsHtml}</div>
+                    </div>
+                    ${linksHtml ? `<div class="card-links">${linksHtml}</div>` : ''}
+                    ${dbIconHtml}
+                `;
+
+                // Add click handler for db icon
+                if (hasWorks) {
+                    const dbIcon = card.querySelector('.card-db-icon');
+                    if (dbIcon) {
+                        dbIcon.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openGallery(index);
+                        });
+                    }
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Render WebGL showcases
+        function renderShowcases() {
+            const container = document.getElementById('webgl-showcase');
+
+            webglShowcases.forEach(item => {
+                const showcase = document.createElement('div');
+                showcase.className = 'showcase-item';
+                showcase.innerHTML = `
+                    <div class="showcase-preview">
+                        <div class="showcase-placeholder">
+                            <p>[ WebGL Preview ]</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.7rem;">${item.tech}</p>
+                        </div>
+                    </div>
+                    <div class="showcase-info">
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                        <p class="showcase-meta">${item.route ? `<a href="${item.route}" style="color: var(--accent-gold);">View Live →</a>` : 'In Development'}</p>
+                    </div>
+                `;
+                container.appendChild(showcase);
+            });
+        }
+
+        // Simple WebGL background animation
+        function initBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            const gl = canvas.getContext('webgl');
+            if (!gl) return;
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            // Simple point field
+            const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader, `
+                attribute vec2 position;
+                uniform float time;
+                void main() {
+                    vec2 p = position;
+                    p.y += sin(position.x * 3.0 + time) * 0.05;
+                    gl_Position = vec4(p, 0.0, 1.0);
+                    gl_PointSize = 2.0;
+                }
+            `);
+            gl.compileShader(vertexShader);
+
+            const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader, `
+                precision mediump float;
+                void main() {
+                    gl_FragColor = vec4(0.83, 0.65, 0.46, 0.5);
+                }
+            `);
+            gl.compileShader(fragmentShader);
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            gl.useProgram(program);
+
+            // Generate points
+            const points = [];
+            for (let i = 0; i < 200; i++) {
+                points.push(Math.random() * 2 - 1);
+                points.push(Math.random() * 2 - 1);
+            }
+
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
+
+            const positionLoc = gl.getAttribLocation(program, 'position');
+            gl.enableVertexAttribArray(positionLoc);
+            gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+            const timeLoc = gl.getUniformLocation(program, 'time');
+
+            function render(t) {
+                gl.uniform1f(timeLoc, t * 0.001);
+                gl.clearColor(0.04, 0.04, 0.04, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(gl.POINTS, 0, 100);
+                requestAnimationFrame(render);
+            }
+            render(0);
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+            });
+        }
+
+        // ============================================
+        // PHYSICS-BASED GALLERY SYSTEM
+        // Gravitational dynamics, spring physics, particle effects
+        // ============================================
+
+        let galleryGL = null;
+        let galleryParticles = [];
+        let galleryCards = [];
+        let mousePos = { x: 0, y: 0 };
+        let currentMember = null;
+        let galleryAnimationId = null;
+
+        // Physics constants
+        const GRAVITY_STRENGTH = 0.00015;
+        const MOUSE_REPEL_STRENGTH = 0.08;
+        const SPRING_STIFFNESS = 0.03;
+        const DAMPING = 0.92;
+        const TURBULENCE = 0.002;
+
+        // Particle class for physics simulation
+        class PhysicsParticle {
+            constructor(x, y, size, color) {
+                this.x = x;
+                this.y = y;
+                this.originX = x;
+                this.originY = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.size = size;
+                this.color = color;
+                this.life = 1;
+                this.decay = 0.005 + Math.random() * 0.01;
+                this.angle = Math.random() * Math.PI * 2;
+                this.spin = (Math.random() - 0.5) * 0.1;
+            }
+
+            update(mouseX, mouseY, time) {
+                // Spring force back to origin
+                const dx = this.originX - this.x;
+                const dy = this.originY - this.y;
+                this.vx += dx * SPRING_STIFFNESS;
+                this.vy += dy * SPRING_STIFFNESS;
+
+                // Mouse repulsion
+                const mdx = this.x - mouseX;
+                const mdy = this.y - mouseY;
+                const mouseDist = Math.sqrt(mdx * mdx + mdy * mdy);
+                if (mouseDist < 150) {
+                    const force = (150 - mouseDist) / 150 * MOUSE_REPEL_STRENGTH;
+                    this.vx += (mdx / mouseDist) * force;
+                    this.vy += (mdy / mouseDist) * force;
+                }
+
+                // Turbulence (noise-like movement)
+                this.vx += Math.sin(time * 0.001 + this.y * 0.01) * TURBULENCE;
+                this.vy += Math.cos(time * 0.001 + this.x * 0.01) * TURBULENCE;
+
+                // Apply velocity with damping
+                this.vx *= DAMPING;
+                this.vy *= DAMPING;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Rotation
+                this.angle += this.spin;
+
+                return this.life > 0;
+            }
+        }
+
+        // Gallery card with physics
+        class GalleryCard {
+            constructor(work, index, total) {
+                this.work = work;
+                this.index = index;
+                // Arrange in a loose grid with orbital positions
+                const cols = Math.ceil(Math.sqrt(total));
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+                const spacing = 220;
+                const offsetX = (cols * spacing) / 2;
+                const offsetY = (Math.ceil(total / cols) * spacing) / 2;
+
+                this.originX = col * spacing - offsetX + spacing / 2 + (Math.random() - 0.5) * 40;
+                this.originY = row * spacing - offsetY + spacing / 2 + (Math.random() - 0.5) * 40;
+                this.x = this.originX + (Math.random() - 0.5) * 100;
+                this.y = this.originY + (Math.random() - 0.5) * 100;
+                this.z = Math.random() * 50 - 25;
+                this.vx = 0;
+                this.vy = 0;
+                this.vz = 0;
+                this.rotation = (Math.random() - 0.5) * 0.2;
+                this.rotationV = 0;
+                this.scale = 0.8 + Math.random() * 0.4;
+                this.particles = [];
+
+                // Spawn trailing particles
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push(new PhysicsParticle(
+                        this.x + (Math.random() - 0.5) * 50,
+                        this.y + (Math.random() - 0.5) * 50,
+                        2 + Math.random() * 3,
+                        `hsla(${30 + Math.random() * 20}, 70%, 60%, ${0.3 + Math.random() * 0.4})`
+                    ));
+                }
+            }
+
+            update(mouseX, mouseY, time) {
+                // Spring to origin
+                const dx = this.originX - this.x;
+                const dy = this.originY - this.y;
+                this.vx += dx * SPRING_STIFFNESS * 0.5;
+                this.vy += dy * SPRING_STIFFNESS * 0.5;
+
+                // Mouse attraction (gentle pull toward cursor)
+                const mdx = mouseX - this.x;
+                const mdy = mouseY - this.y;
+                const mouseDist = Math.sqrt(mdx * mdx + mdy * mdy);
+                if (mouseDist < 300 && mouseDist > 50) {
+                    const force = GRAVITY_STRENGTH * (300 - mouseDist);
+                    this.vx += (mdx / mouseDist) * force;
+                    this.vy += (mdy / mouseDist) * force;
+                } else if (mouseDist < 50) {
+                    // Repel when too close
+                    const force = (50 - mouseDist) / 50 * 0.5;
+                    this.vx -= (mdx / mouseDist) * force;
+                    this.vy -= (mdy / mouseDist) * force;
+                }
+
+                // Inter-card repulsion (avoid overlap)
+                galleryCards.forEach(other => {
+                    if (other === this) return;
+                    const odx = this.x - other.x;
+                    const ody = this.y - other.y;
+                    const dist = Math.sqrt(odx * odx + ody * ody);
+                    if (dist < 180 && dist > 0) {
+                        const force = (180 - dist) / 180 * 0.02;
+                        this.vx += (odx / dist) * force;
+                        this.vy += (ody / dist) * force;
+                    }
+                });
+
+                // Gentle floating motion
+                this.vx += Math.sin(time * 0.0005 + this.index) * 0.01;
+                this.vy += Math.cos(time * 0.0007 + this.index * 1.5) * 0.01;
+                this.vz += Math.sin(time * 0.0003 + this.index * 2) * 0.005;
+
+                // Apply with damping
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+                this.vz *= 0.9;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.z += this.vz;
+                this.z = Math.max(-30, Math.min(30, this.z));
+
+                // Rotation responds to velocity
+                this.rotationV += this.vx * 0.001;
+                this.rotationV *= 0.95;
+                this.rotation += this.rotationV;
+
+                // Update trailing particles
+                this.particles.forEach(p => {
+                    p.originX = this.x + (Math.random() - 0.5) * 30;
+                    p.originY = this.y + (Math.random() - 0.5) * 30;
+                    p.update(mouseX, mouseY, time);
+                });
+            }
+        }
+
+        let currentSlide = 0;
+        let totalSlides = 0;
+
+        function openGallery(memberIndex) {
+            currentMember = teamMembers[memberIndex];
+            if (!currentMember || !currentMember.notableWorks || currentMember.notableWorks.length === 0) return;
+
+            const modal = document.getElementById('gallery-modal');
+            const avatarEl = document.getElementById('gallery-avatar');
+            const nameEl = document.getElementById('gallery-name');
+            const counterEl = document.getElementById('gallery-counter');
+            const slideshowEl = document.getElementById('gallery-slideshow');
+            const navEl = document.getElementById('gallery-nav');
+
+            // Set header info
+            const initials = currentMember.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+            avatarEl.innerHTML = currentMember.avatar
+                ? `<img src="${currentMember.avatar}" alt="${currentMember.name}">`
+                : initials;
+            nameEl.textContent = currentMember.name;
+
+            // Get top 5 works (or all if less than 5)
+            const works = currentMember.notableWorks.slice(0, 5);
+            totalSlides = works.length;
+            currentSlide = 0;
+
+            // Update counter
+            counterEl.textContent = `1 / ${totalSlides}`;
+
+            // Create slides with IPFS indicators
+            slideshowEl.innerHTML = works.map((work, i) => {
+                const isPinned = work.ipfsHash ? true : false;
+                const ipfsUrl = work.ipfsHash ? `https://ipfs.io/ipfs/${work.ipfsHash}` : '#';
+                // Ultrathink: show text only when pinned, icon-only for local
+                const ipfsIndicator = `
+                    <a href="${isPinned ? ipfsUrl : 'javascript:void(0)'}"
+                       ${isPinned ? 'target="_blank"' : ''}
+                       class="ipfs-pin-indicator ${isPinned ? 'pinned' : ''}"
+                       onclick="event.stopPropagation();"
+                       title="${isPinned ? 'Verified on IPFS · Trusted' : 'Local only'}">
+                        ${ipfsIconSvg}
+                        ${isPinned ? '<span class="ipfs-status">Pinned</span>' : ''}
+                    </a>
+                `;
+
+                return `
+                <div class="gallery-slide ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="nextSlide()">
+                    <div class="slide-artwork">
+                        <div class="slide-image">
+                            ${ipfsIndicator}
+                            ${work.image ? `<img src="${work.image}" alt="${work.title}">` : `
+                                <div class="slide-placeholder">
+                                    <div class="slide-placeholder-icon">◇</div>
+                                    <div class="slide-placeholder-text">${work.platform}</div>
+                                </div>
+                            `}
+                        </div>
+                        <div class="slide-info">
+                            <div class="slide-title">${work.title}</div>
+                            <div class="slide-meta">
+                                <span class="slide-platform">${work.platform}</span>
+                                <span>${work.year}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            // Create navigation dots
+            navEl.innerHTML = works.map((_, i) => `
+                <div class="gallery-nav-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>
+            `).join('');
+
+            // Create gallery cards with physics for WebGL background
+            galleryCards = works.map((work, i) =>
+                new GalleryCard(work, i, works.length)
+            );
+
+            // Spawn ambient particles
+            galleryParticles = [];
+            for (let i = 0; i < 80; i++) {
+                galleryParticles.push(new PhysicsParticle(
+                    (Math.random() - 0.5) * 1200,
+                    (Math.random() - 0.5) * 800,
+                    1 + Math.random() * 3,
+                    `hsla(${25 + Math.random() * 20}, 70%, ${50 + Math.random() * 20}%, ${0.15 + Math.random() * 0.25})`
+                ));
+            }
+
+            modal.classList.add('visible');
+            initGalleryWebGL();
+        }
+
+        function nextSlide() {
+            if (totalSlides === 0) return;
+            const prevIndex = currentSlide;
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlides(prevIndex);
+        }
+
+        function prevSlide() {
+            if (totalSlides === 0) return;
+            const prevIndex = currentSlide;
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlides(prevIndex);
+        }
+
+        function goToSlide(index) {
+            if (index === currentSlide || totalSlides === 0) return;
+            const prevIndex = currentSlide;
+            currentSlide = index;
+            updateSlides(prevIndex);
+        }
+
+        function updateSlides(prevIndex) {
+            const slides = document.querySelectorAll('.gallery-slide');
+            const dots = document.querySelectorAll('.gallery-nav-dot');
+            const counterEl = document.getElementById('gallery-counter');
+
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === currentSlide) {
+                    slide.classList.add('active');
+                } else if (i === prevIndex) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+
+            counterEl.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function closeGallery() {
+            const modal = document.getElementById('gallery-modal');
+            modal.classList.remove('visible');
+            if (galleryAnimationId) {
+                cancelAnimationFrame(galleryAnimationId);
+                galleryAnimationId = null;
+            }
+            galleryCards = [];
+            galleryParticles = [];
+        }
+
+        function initGalleryWebGL() {
+            const canvas = document.getElementById('gallery-webgl-bg');
+            const container = document.querySelector('.gallery-container');
+            if (!canvas || !container) return;
+
+            const rect = container.getBoundingClientRect();
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Track mouse in modal
+            canvas.addEventListener('mousemove', (e) => {
+                mousePos.x = e.clientX - window.innerWidth / 2;
+                mousePos.y = e.clientY - window.innerHeight / 2;
+            });
+
+            function renderGalleryFrame(time) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+
+                // Draw connection lines between cards (gravitational web)
+                ctx.strokeStyle = 'rgba(212, 165, 116, 0.1)';
+                ctx.lineWidth = 1;
+                galleryCards.forEach((card, i) => {
+                    galleryCards.forEach((other, j) => {
+                        if (j <= i) return;
+                        const dist = Math.sqrt(
+                            Math.pow(card.x - other.x, 2) +
+                            Math.pow(card.y - other.y, 2)
+                        );
+                        if (dist < 250) {
+                            ctx.globalAlpha = (250 - dist) / 250 * 0.3;
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + card.x, centerY + card.y);
+                            ctx.lineTo(centerX + other.x, centerY + other.y);
+                            ctx.stroke();
+                        }
+                    });
+                });
+                ctx.globalAlpha = 1;
+
+                // Draw ambient particles
+                galleryParticles.forEach(p => {
+                    p.update(mousePos.x, mousePos.y, time);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(centerX + p.x, centerY + p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Update and draw card trailing particles
+                galleryCards.forEach(card => {
+                    card.update(mousePos.x, mousePos.y, time);
+
+                    // Draw particle trails
+                    card.particles.forEach(p => {
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(centerX + p.x, centerY + p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Draw card glow
+                    const gradient = ctx.createRadialGradient(
+                        centerX + card.x, centerY + card.y, 0,
+                        centerX + card.x, centerY + card.y, 100
+                    );
+                    gradient.addColorStop(0, 'rgba(212, 165, 116, 0.15)');
+                    gradient.addColorStop(1, 'rgba(212, 165, 116, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(centerX + card.x, centerY + card.y, 100, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Draw gravitational field lines from mouse
+                const fieldLines = 8;
+                for (let i = 0; i < fieldLines; i++) {
+                    const angle = (i / fieldLines) * Math.PI * 2 + time * 0.0002;
+                    const length = 80 + Math.sin(time * 0.002 + i) * 20;
+                    ctx.strokeStyle = `rgba(212, 165, 116, ${0.1 + Math.sin(time * 0.003 + i) * 0.05})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + mousePos.x, centerY + mousePos.y);
+                    ctx.lineTo(
+                        centerX + mousePos.x + Math.cos(angle) * length,
+                        centerY + mousePos.y + Math.sin(angle) * length
+                    );
+                    ctx.stroke();
+                }
+
+                galleryAnimationId = requestAnimationFrame(renderGalleryFrame);
+            }
+
+            renderGalleryFrame(0);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTeam();
+            renderShowcases();
+            initBackground();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeGallery();
+            if (document.getElementById('gallery-modal').classList.contains('visible')) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    nextSlide();
+                }
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevSlide();
+                }
+            }
+        });
+
+        // ==========================================
+        // PASSWORD GATE - ULTRATHINK
+        // ==========================================
+        const VALID_PASSWORDS = ['localhost:', 'localhost', 'WOCA2026', 'archivit', 'testing123'];
+        const passwordInput = document.getElementById('gatePassword');
+        const passwordGate = document.getElementById('passwordGate');
+
+        // Check if already unlocked (session storage)
+        if (sessionStorage.getItem('archivit_unlocked') === 'true') {
+            passwordGate.classList.add('unlocked');
+        }
+
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const entered = passwordInput.value.trim();
+                if (VALID_PASSWORDS.includes(entered)) {
+                    passwordInput.classList.remove('error');
+                    passwordInput.classList.add('success');
+                    sessionStorage.setItem('archivit_unlocked', 'true');
+                    setTimeout(() => {
+                        passwordGate.classList.add('unlocked');
+                    }, 400);
+                } else {
+                    passwordInput.classList.remove('success');
+                    passwordInput.classList.add('error');
+                    setTimeout(() => {
+                        passwordInput.classList.remove('error');
+                    }, 400);
+                    passwordInput.value = '';
+                }
+            }
+        });
+
+        // Clear error state on input
+        passwordInput.addEventListener('input', () => {
+            passwordInput.classList.remove('error');
+        });
+    </script>
+</body>
+</html>
