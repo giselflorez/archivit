@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consent Gateway | Your Data, Your Choice</title>
+    <style>
+        :root {
+            --void: #050508;
+            --surface: #0a0a0f;
+            --surface-elevated: #12121a;
+            --border: #1a1a25;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --accent-cyan: #00f5ff;
+            --accent-magenta: #ff00ff;
+            --accent-gold: #ffaa00;
+            --approve-green: #00ff88;
+            --reject-red: #ff4466;
+            --warning-yellow: #ffcc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--void);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .gateway-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .gateway-header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .gateway-title {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            color: var(--accent-cyan);
+            margin-bottom: 10px;
+        }
+
+        .gateway-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+            background: var(--surface);
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Queue Section */
+        .queue-section {
+            margin-bottom: 30px;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .queue-title {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .queue-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Queue Items */
+        .queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .queue-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .queue-item:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.1);
+        }
+
+        .queue-item.expanded {
+            border-color: var(--accent-cyan);
+        }
+
+        .queue-item-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+            gap: 20px;
+        }
+
+        .queue-item-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: var(--surface-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .queue-item-info {
+            flex: 1;
+        }
+
+        .queue-item-source {
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .queue-item-summary {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .queue-item-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .queue-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-approve {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--approve-green);
+            color: var(--approve-green);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-approve:hover {
+            background: var(--approve-green);
+            color: var(--void);
+        }
+
+        .btn-reject {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--reject-red);
+            color: var(--reject-red);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-reject:hover {
+            background: var(--reject-red);
+            color: var(--void);
+        }
+
+        /* Expanded Content */
+        .queue-item-details {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .queue-item.expanded .queue-item-details {
+            display: block;
+        }
+
+        .details-section {
+            margin-top: 20px;
+        }
+
+        .details-title {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .patterns-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pattern-tag {
+            padding: 6px 12px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .pattern-tag.highlight {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .preview-content {
+            background: var(--surface-elevated);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Auto-Approve Section */
+        .auto-approve-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+        }
+
+        .auto-approve-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+        }
+
+        .auto-approve-label input {
+            accent-color: var(--accent-gold);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        /* Sovereignty Reminder */
+        .sovereignty-banner {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .sovereignty-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .sovereignty-highlight {
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .queue-item-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .queue-item-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gateway-container">
+        <!-- Header -->
+        <header class="gateway-header">
+            <h1 class="gateway-title">CONSENT GATEWAY</h1>
+            <p class="gateway-subtitle">Nothing enters your seed without your approval</p>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="pending-count">0</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="approved-count">0</div>
+                <div class="stat-label">Approved Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="rejected-count">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="seed-interactions">0</div>
+                <div class="stat-label">Seed Interactions</div>
+            </div>
+        </div>
+
+        <!-- Queue -->
+        <section class="queue-section">
+            <div class="queue-header">
+                <h2 class="queue-title">Pending Approval</h2>
+                <div class="queue-actions">
+                    <button class="action-btn" onclick="approveAll()">Approve All</button>
+                    <button class="action-btn" onclick="rejectAll()">Reject All</button>
+                    <button class="action-btn" onclick="refreshQueue()">Refresh</button>
+                </div>
+            </div>
+
+            <div class="queue-list" id="queue-list">
+                <!-- Items populated by JavaScript -->
+            </div>
+
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">&#10003;</div>
+                <div class="empty-title">All Clear</div>
+                <p>No items waiting for review. Your seed is up to date.</p>
+            </div>
+        </section>
+
+        <!-- Sovereignty Reminder -->
+        <div class="sovereignty-banner">
+            <p class="sovereignty-text">
+                <span class="sovereignty-highlight">Your data belongs to you.</span><br>
+                Every item you approve trains your personal seed algorithm.
+                Every item you reject is truly deleted - we cannot recover it.
+                This is <span class="sovereignty-highlight">digital sovereignty</span>.
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import seedEngine from '/static/js/core/seed_profile.js';
+
+        let pendingItems = [];
+        let approvedToday = 0;
+        let rejectedToday = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await seedEngine.initialize();
+
+            // Listen for events
+            seedEngine.on('queued', updateQueue);
+            seedEngine.on('approved', () => { approvedToday++; updateStats(); });
+            seedEngine.on('rejected', () => { rejectedToday++; updateStats(); });
+
+            // Load pending items
+            refreshQueue();
+        });
+
+        function refreshQueue() {
+            pendingItems = seedEngine.getPendingItems();
+            renderQueue();
+            updateStats();
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('queue-list');
+            const emptyState = document.getElementById('empty-state');
+
+            if (pendingItems.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            container.innerHTML = pendingItems.map(item => `
+                <div class="queue-item" id="item-${item.id}">
+                    <div class="queue-item-header" onclick="toggleExpand('${item.id}')">
+                        <div class="queue-item-icon">${getSourceIcon(item.source)}</div>
+                        <div class="queue-item-info">
+                            <div class="queue-item-source">${item.source}</div>
+                            <div class="queue-item-summary">${item.preview || 'Data captured'}</div>
+                            <div class="queue-item-time">${formatTime(item.timestamp)}</div>
+                        </div>
+                        <div class="queue-item-actions">
+                            <button class="btn-approve" onclick="event.stopPropagation(); approveItem('${item.id}')">
+                                Approve
+                            </button>
+                            <button class="btn-reject" onclick="event.stopPropagation(); rejectItem('${item.id}')">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="queue-item-details">
+                        <div class="details-section">
+                            <div class="details-title">Patterns to Train</div>
+                            <div class="patterns-list">
+                                ${renderPatterns(item.extracted_patterns)}
+                            </div>
+                        </div>
+                        <div class="details-section">
+                            <div class="details-title">Raw Data Preview</div>
+                            <div class="preview-content">${JSON.stringify(item.raw_data, null, 2) || 'No raw data'}</div>
+                        </div>
+                        <div class="auto-approve-section">
+                            <label class="auto-approve-label">
+                                <input type="checkbox" onchange="setAutoApprove('${item.category}', this.checked)">
+                                Auto-approve similar items from ${item.source}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPatterns(patterns) {
+            if (!patterns) return '<span class="pattern-tag">No patterns</span>';
+
+            const tags = [];
+            if (patterns.temporal) {
+                tags.push(`<span class="pattern-tag">Time: ${patterns.temporal.hour || 'active'}h</span>`);
+            }
+            if (patterns.topics) {
+                patterns.topics.forEach(t => {
+                    tags.push(`<span class="pattern-tag highlight">${t.name}</span>`);
+                });
+            }
+            if (patterns.linguistic) {
+                tags.push(`<span class="pattern-tag">Words: ${patterns.linguistic.words?.length || 0}</span>`);
+            }
+            if (patterns.aesthetic) {
+                tags.push(`<span class="pattern-tag">Visual patterns</span>`);
+            }
+            if (patterns.entities?.people) {
+                patterns.entities.people.forEach(p => {
+                    tags.push(`<span class="pattern-tag highlight">Person: ${p.name}</span>`);
+                });
+            }
+
+            return tags.join('') || '<span class="pattern-tag">No patterns</span>';
+        }
+
+        function updateStats() {
+            document.getElementById('pending-count').textContent = pendingItems.length;
+            document.getElementById('approved-count').textContent = approvedToday;
+            document.getElementById('rejected-count').textContent = rejectedToday;
+
+            if (seedEngine.seed) {
+                document.getElementById('seed-interactions').textContent =
+                    seedEngine.seed.meta.total_interactions || 0;
+            }
+        }
+
+        function getSourceIcon(source) {
+            const icons = {
+                'screen_capture': '📸',
+                'import': '📥',
+                'creation': '✨',
+                'social': '💬',
+                'photo': '🖼️',
+                'text': '📝',
+                'default': '📄'
+            };
+            return icons[source] || icons.default;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Global functions for onclick handlers
+        window.toggleExpand = function(id) {
+            const item = document.getElementById(`item-${id}`);
+            item.classList.toggle('expanded');
+        };
+
+        window.approveItem = async function(id) {
+            await seedEngine.approveItem(id);
+            refreshQueue();
+        };
+
+        window.rejectItem = function(id) {
+            seedEngine.rejectItem(id, true);
+            refreshQueue();
+        };
+
+        window.approveAll = async function() {
+            for (const item of pendingItems) {
+                await seedEngine.approveItem(item.id);
+            }
+            refreshQueue();
+        };
+
+        window.rejectAll = function() {
+            for (const item of pendingItems) {
+                seedEngine.rejectItem(item.id, true);
+            }
+            refreshQueue();
+        };
+
+        window.setAutoApprove = function(category, enabled) {
+            if (enabled) {
+                seedEngine.addAutoApproveRule({
+                    category: category,
+                    conditions: [{ type: 'category_equals', value: category }],
+                    description: `Auto-approve ${category}`
+                });
+            }
+        };
+
+        window.refreshQueue = refreshQueue;
+
+        // Demo: Add some sample items for visualization
+        function addDemoItems() {
+            seedEngine.queueForConsent({
+                source: 'screen_capture',
+                category: 'browsing',
+                raw: { app: 'Chrome', duration: '12 minutes', urls: ['example.com'] },
+                patterns: {
+                    temporal: { hour: 14 },
+                    topics: [{ name: 'photography', confidence: 0.8 }]
+                },
+                preview: 'Browsing session: 12 minutes on photography sites'
+            });
+
+            seedEngine.queueForConsent({
+                source: 'photo',
+                category: 'creation',
+                raw: { filename: 'IMG_1234.jpg', size: '4.2MB' },
+                patterns: {
+                    aesthetic: { brightness: 0.7, dominant_colors: [{ r: 100, g: 150, b: 200 }] },
+                    topics: [{ name: 'family', confidence: 0.9 }],
+                    entities: { people: [{ name: 'Grandma', relationship: 'family' }] }
+                },
+                preview: 'Photo uploaded: Family gathering'
+            });
+
+            seedEngine.queueForConsent({
+                source: 'text',
+                category: 'creation',
+                raw: { text: 'Thinking about the old days...' },
+                patterns: {
+                    linguistic: { words: ['thinking', 'old', 'days'], sentiment: 0.6 },
+                    topics: [{ name: 'memories', confidence: 0.7 }]
+                },
+                preview: 'Post created: Reflective thought'
+            });
+
+            refreshQueue();
+        }
+
+        // Uncomment to see demo items:
+        // setTimeout(addDemoItems, 1000);
+    </script>
+</body>
+</html>

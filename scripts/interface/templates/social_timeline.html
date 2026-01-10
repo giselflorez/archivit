@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IT-R8 | Social Timeline - Living Light Network</title>
+    <meta name="description" content="Dimensional spiral timeline with seashell spark formations">
+
+    <!-- IT-R8 Social Timeline Styles -->
+    <link rel="stylesheet" href="/static/css/itr8/social_timeline.css">
+
+    <!-- Preconnect to CDNs -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spiral">
+            <div class="loading-text">INITIALIZING</div>
+        </div>
+    </div>
+
+    <!-- WebGL Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlays -->
+    <div class="ui-overlay header">
+        <div class="title">IT-R8 SOCIAL</div>
+        <div class="subtitle">Living Light Network</div>
+    </div>
+
+    <div class="ui-overlay controls">
+        <div class="control-group">
+            <div class="control-label">VIEW</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-view="all">All</button>
+                <button class="control-btn" data-view="living">Living</button>
+                <button class="control-btn" data-view="legacy">Legacy</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">SPARKS</div>
+            <div class="control-buttons">
+                <button class="control-btn active" data-sparks="on">On</button>
+                <button class="control-btn" data-sparks="off">Off</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">EFFECTS</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-effect="none">None</button>
+                <button class="control-btn active" data-effect="glow">Glow</button>
+                <button class="control-btn" data-effect="neon">Neon</button>
+                <button class="control-btn" data-effect="cosmic">Cosmic</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="control-label">FILTER</div>
+            <div class="control-buttons">
+                <button class="control-btn" data-filter="chromatic">Chromatic</button>
+                <button class="control-btn" data-filter="hologram">Hologram</button>
+                <button class="control-btn" data-filter="vortex">Vortex</button>
+                <button class="control-btn" data-filter="random">Random</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-overlay legend">
+        <div class="legend-item">
+            <div class="legend-dot living"></div>
+            <span>Living Beings</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot legacy"></div>
+            <span>Art & Legacy</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot spark"></div>
+            <span>Sparks</span>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="info-panel">
+        <button class="info-close" id="info-close">&times;</button>
+        <img class="info-thumbnail" id="info-thumbnail" alt="">
+        <div class="info-content">
+            <div class="info-title" id="info-title"></div>
+            <div class="info-date" id="info-date"></div>
+            <div class="info-type" id="info-type"></div>
+            <div class="info-tags" id="info-tags"></div>
+            <div class="info-comments" id="info-comments">
+                <div class="info-comments-title">SPARKS (COMMENTS)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- IT-R8 Modules (loaded dynamically for memory optimization) -->
+    <script type="module">
+        // ============================================
+        // IT-R8 SOCIAL TIMELINE - MAIN INTEGRATION
+        // Living Light Network - Dimensional Spiral
+        // ============================================
+
+        // Capability detection
+        function detectCapability() {
+            const canvas = document.createElement('canvas');
+            const gl2 = canvas.getContext('webgl2');
+            if (gl2) return { tier: 1, context: gl2, name: 'WebGL 2.0' };
+
+            const gl1 = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl1) return { tier: 2, context: gl1, name: 'WebGL 1.0' };
+
+            const ctx2d = canvas.getContext('2d');
+            if (ctx2d) return { tier: 3, context: ctx2d, name: 'Canvas 2D' };
+
+            return { tier: 4, context: null, name: 'Static' };
+        }
+
+        // Module loader with fallback
+        async function loadModule(path, fallbackFn) {
+            try {
+                const module = await import(path);
+                return module;
+            } catch (e) {
+                console.warn(`Failed to load ${path}, using fallback`);
+                return fallbackFn ? fallbackFn() : null;
+            }
+        }
+
+        // Main application class
+        class SocialTimelineApp {
+            constructor() {
+                this.capability = detectCapability();
+                this.container = document.getElementById('canvas-container');
+                this.loading = document.getElementById('loading');
+                this.infoPanel = document.getElementById('info-panel');
+
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+
+                this.spiralGeometry = null;
+                this.sparkSystem = null;
+                this.photoNodes = null;
+                this.animationController = null;
+                this.filterEffects = null;
+                this.spatialOutput = null;
+
+                this.nodes = [];
+                this.currentView = 'all';
+                this.sparksEnabled = true;
+                this.currentEffect = 'glow';
+
+                console.log(`IT-R8 Social Timeline initializing with ${this.capability.name}`);
+            }
+
+            async init() {
+                if (this.capability.tier <= 2) {
+                    await this.initWebGL();
+                } else if (this.capability.tier === 3) {
+                    this.initCanvas2D();
+                } else {
+                    this.initStatic();
+                }
+
+                this.setupEventListeners();
+                await this.loadData();
+                this.hideLoading();
+                this.animate();
+            }
+
+            async initWebGL() {
+                // Scene setup
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x050508);
+                this.scene.fog = new THREE.FogExp2(0x050508, 0.003);
+
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    2000
+                );
+                this.camera.position.set(100, 50, 200);
+
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({
+                    antialias: true,
+                    alpha: true,
+                    powerPreference: 'high-performance'
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.outputEncoding = THREE.sRGBEncoding;
+                this.container.appendChild(this.renderer.domElement);
+
+                // Controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.maxDistance = 800;
+                this.controls.minDistance = 50;
+                this.controls.autoRotate = true;
+                this.controls.autoRotateSpeed = 0.3;
+
+                // Load modules
+                await this.loadModules();
+
+                // Build scene
+                this.buildSpiral();
+                this.addAmbientEffects();
+            }
+
+            async loadModules() {
+                // Try to load IT-R8 modules, use inline fallbacks if needed
+                try {
+                    const SpiralGeometry = await loadModule('/static/js/itr8/spiral_geometry.js');
+                    if (SpiralGeometry) this.spiralGeometry = new SpiralGeometry.default();
+                } catch (e) {
+                    console.log('Using inline spiral geometry');
+                    this.spiralGeometry = this.createInlineSpiralGeometry();
+                }
+
+                try {
+                    const SparkSystem = await loadModule('/static/js/itr8/spark_system.js');
+                    if (SparkSystem) this.sparkSystem = new SparkSystem.default(this.scene);
+                } catch (e) {
+                    console.log('Using inline spark system');
+                    this.sparkSystem = this.createInlineSparkSystem();
+                }
+            }
+
+            // Inline fallback for spiral geometry
+            createInlineSpiralGeometry() {
+                return {
+                    generatePath: (count) => {
+                        const positions = [];
+                        for (let i = 0; i < count; i++) {
+                            const theta = i * (Math.PI / 8);
+                            const r = 50 * Math.exp(0.05 * theta);
+                            const y = -i * 15;
+                            positions.push(new THREE.Vector3(
+                                r * Math.cos(theta),
+                                y,
+                                r * Math.sin(theta)
+                            ));
+                        }
+                        return positions;
+                    },
+                    getGoldenAnglePositions: (center, count, baseRadius) => {
+                        const positions = [];
+                        const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // 137.5°
+                        for (let i = 0; i < count; i++) {
+                            const angle = i * goldenAngle;
+                            const radius = baseRadius + i * 2;
+                            positions.push(new THREE.Vector3(
+                                center.x + radius * Math.cos(angle),
+                                center.y + (Math.random() - 0.5) * 10,
+                                center.z + radius * Math.sin(angle)
+                            ));
+                        }
+                        return positions;
+                    }
+                };
+            }
+
+            // Inline fallback for spark system
+            createInlineSparkSystem() {
+                const sparks = [];
+                const geometry = new THREE.BufferGeometry();
+                const material = new THREE.PointsMaterial({
+                    size: 3,
+                    color: 0xff1493,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+                const points = new THREE.Points(geometry, material);
+                this.scene.add(points);
+
+                return {
+                    emit: (position, count, color) => {
+                        for (let i = 0; i < count; i++) {
+                            sparks.push({
+                                position: position.clone(),
+                                velocity: new THREE.Vector3(
+                                    (Math.random() - 0.5) * 2,
+                                    Math.random() * 2,
+                                    (Math.random() - 0.5) * 2
+                                ),
+                                life: 1.0,
+                                color: color
+                            });
+                        }
+                    },
+                    update: (delta) => {
+                        const positions = [];
+                        for (let i = sparks.length - 1; i >= 0; i--) {
+                            const spark = sparks[i];
+                            spark.position.add(spark.velocity.clone().multiplyScalar(delta));
+                            spark.life -= delta * 0.5;
+                            if (spark.life <= 0) {
+                                sparks.splice(i, 1);
+                            } else {
+                                positions.push(spark.position.x, spark.position.y, spark.position.z);
+                            }
+                        }
+                        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                    }
+                };
+            }
+
+            buildSpiral() {
+                // Generate spiral path
+                const pathPositions = this.spiralGeometry.generatePath(50);
+
+                // Create glowing cable
+                const curve = new THREE.CatmullRomCurve3(pathPositions);
+                const tubeGeometry = new THREE.TubeGeometry(curve, 200, 1.5, 16, false);
+
+                // Gradient material for cable
+                const cableMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        time: { value: 0 },
+                        color1: { value: new THREE.Color(0x00f5ff) },
+                        color2: { value: new THREE.Color(0xff00ff) },
+                        color3: { value: new THREE.Color(0xffaa00) }
+                    },
+                    vertexShader: `
+                        varying vec2 vUv;
+                        varying vec3 vPosition;
+                        void main() {
+                            vUv = uv;
+                            vPosition = position;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform float time;
+                        uniform vec3 color1;
+                        uniform vec3 color2;
+                        uniform vec3 color3;
+                        varying vec2 vUv;
+                        varying vec3 vPosition;
+
+                        void main() {
+                            float t = vUv.x + time * 0.1;
+                            vec3 color = mix(color1, color2, sin(t * 3.14159) * 0.5 + 0.5);
+                            color = mix(color, color3, sin(t * 3.14159 + 2.0) * 0.5 + 0.5);
+
+                            // Pulse effect
+                            float pulse = sin(t * 10.0 - time * 3.0) * 0.3 + 0.7;
+
+                            // Edge glow
+                            float edge = 1.0 - abs(vUv.y - 0.5) * 2.0;
+                            float glow = pow(edge, 2.0) * pulse;
+
+                            gl_FragColor = vec4(color * glow * 1.5, glow);
+                        }
+                    `,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.DoubleSide
+                });
+
+                const cable = new THREE.Mesh(tubeGeometry, cableMaterial);
+                this.scene.add(cable);
+                this.cable = cable;
+                this.cableMaterial = cableMaterial;
+
+                // Add photo nodes
+                this.addPhotoNodes(pathPositions);
+            }
+
+            addPhotoNodes(positions) {
+                const nodeGeometry = new THREE.CircleGeometry(5, 32);
+
+                positions.forEach((pos, i) => {
+                    const isLiving = Math.random() > 0.4;
+
+                    const nodeMaterial = new THREE.ShaderMaterial({
+                        uniforms: {
+                            time: { value: 0 },
+                            baseColor: { value: new THREE.Color(isLiving ? 0xff6b9d : 0x00f5ff) },
+                            glowColor: { value: new THREE.Color(isLiving ? 0xffaa00 : 0xa855f7) },
+                            intensity: { value: 1.0 }
+                        },
+                        vertexShader: `
+                            varying vec2 vUv;
+                            void main() {
+                                vUv = uv;
+                                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                            }
+                        `,
+                        fragmentShader: `
+                            uniform float time;
+                            uniform vec3 baseColor;
+                            uniform vec3 glowColor;
+                            uniform float intensity;
+                            varying vec2 vUv;
+
+                            void main() {
+                                vec2 center = vec2(0.5);
+                                float dist = distance(vUv, center);
+
+                                // Inner circle
+                                float inner = 1.0 - smoothstep(0.3, 0.35, dist);
+
+                                // Glow ring
+                                float ring = smoothstep(0.35, 0.4, dist) * (1.0 - smoothstep(0.45, 0.5, dist));
+
+                                // Outer glow
+                                float outer = (1.0 - smoothstep(0.4, 0.6, dist)) * 0.5;
+
+                                // Pulse
+                                float pulse = sin(time * 2.0) * 0.2 + 0.8;
+
+                                vec3 color = baseColor * inner + glowColor * ring * pulse + glowColor * outer * 0.3;
+                                float alpha = inner + ring + outer * 0.5;
+
+                                gl_FragColor = vec4(color * intensity, alpha * intensity);
+                            }
+                        `,
+                        transparent: true,
+                        blending: THREE.AdditiveBlending,
+                        side: THREE.DoubleSide
+                    });
+
+                    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+                    node.position.copy(pos);
+                    node.lookAt(this.camera.position);
+                    node.userData = {
+                        index: i,
+                        type: isLiving ? 'living' : 'legacy',
+                        material: nodeMaterial
+                    };
+
+                    this.scene.add(node);
+                    this.nodes.push(node);
+                });
+            }
+
+            addAmbientEffects() {
+                // Ambient particles (stars/dust)
+                const particleCount = 2000;
+                const particleGeometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+
+                for (let i = 0; i < particleCount; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 1000;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 1000;
+
+                    const color = new THREE.Color();
+                    color.setHSL(Math.random() * 0.2 + 0.5, 0.8, 0.6);
+                    colors[i * 3] = color.r;
+                    colors[i * 3 + 1] = color.g;
+                    colors[i * 3 + 2] = color.b;
+                }
+
+                particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 1,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.6,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const particles = new THREE.Points(particleGeometry, particleMaterial);
+                this.scene.add(particles);
+                this.ambientParticles = particles;
+            }
+
+            initCanvas2D() {
+                // Fallback for non-WebGL browsers
+                console.log('Initializing Canvas 2D fallback');
+                const canvas = document.createElement('canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                this.container.appendChild(canvas);
+                this.ctx = canvas.getContext('2d');
+                // TODO: Implement 2D spiral visualization
+            }
+
+            initStatic() {
+                // Static image fallback
+                console.log('Initializing static fallback');
+                this.container.innerHTML = '<div class="fallback-container"><p style="color: #00f5ff; text-align: center; padding-top: 40vh;">IT-R8 Social Timeline requires WebGL</p></div>';
+            }
+
+            async loadData() {
+                // Load timeline data from API
+                try {
+                    const response = await fetch('/api/social-timeline/data');
+                    const data = await response.json();
+                    if (data.success) {
+                        // Update nodes with real data
+                        console.log('Loaded timeline data:', data.nodes?.length || 0, 'nodes');
+                    }
+                } catch (e) {
+                    console.log('Using sample data');
+                }
+            }
+
+            setupEventListeners() {
+                // Window resize
+                window.addEventListener('resize', () => this.onResize());
+
+                // Control buttons
+                document.querySelectorAll('[data-view]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.setView(e.target.dataset.view);
+                    });
+                });
+
+                document.querySelectorAll('[data-sparks]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-sparks]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.sparksEnabled = e.target.dataset.sparks === 'on';
+                    });
+                });
+
+                document.querySelectorAll('[data-effect]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-effect]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.setEffect(e.target.dataset.effect);
+                    });
+                });
+
+                document.querySelectorAll('[data-filter]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.applyFilter(e.target.dataset.filter);
+                    });
+                });
+
+                // Info panel close
+                document.getElementById('info-close').addEventListener('click', () => {
+                    this.infoPanel.classList.remove('visible');
+                });
+
+                // Node click detection
+                if (this.renderer) {
+                    this.renderer.domElement.addEventListener('click', (e) => this.onNodeClick(e));
+                }
+            }
+
+            onResize() {
+                if (this.camera && this.renderer) {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                }
+            }
+
+            setView(view) {
+                this.currentView = view;
+                this.nodes.forEach(node => {
+                    const type = node.userData.type;
+                    if (view === 'all') {
+                        node.visible = true;
+                    } else if (view === 'living') {
+                        node.visible = type === 'living';
+                    } else if (view === 'legacy') {
+                        node.visible = type === 'legacy';
+                    }
+                });
+            }
+
+            setEffect(effect) {
+                this.currentEffect = effect;
+                // Apply effect modifications to materials
+                const intensity = effect === 'none' ? 0.5 : effect === 'neon' ? 2.0 : effect === 'cosmic' ? 1.5 : 1.0;
+                this.nodes.forEach(node => {
+                    if (node.userData.material) {
+                        node.userData.material.uniforms.intensity.value = intensity;
+                    }
+                });
+            }
+
+            applyFilter(filter) {
+                console.log('Applying filter:', filter);
+                if (filter === 'random') {
+                    // Generate random equation-based effect
+                    const randomHue = Math.random();
+                    this.nodes.forEach(node => {
+                        if (node.userData.material) {
+                            const color = new THREE.Color();
+                            color.setHSL(randomHue + Math.random() * 0.2, 0.9, 0.6);
+                            node.userData.material.uniforms.glowColor.value = color;
+                        }
+                    });
+                }
+                // Other filters would be implemented in filter_effects.js
+            }
+
+            onNodeClick(event) {
+                if (!this.camera) return;
+
+                const mouse = new THREE.Vector2(
+                    (event.clientX / window.innerWidth) * 2 - 1,
+                    -(event.clientY / window.innerHeight) * 2 + 1
+                );
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, this.camera);
+
+                const intersects = raycaster.intersectObjects(this.nodes);
+                if (intersects.length > 0) {
+                    const node = intersects[0].object;
+                    this.showInfoPanel(node);
+
+                    // Emit sparks on click
+                    if (this.sparksEnabled && this.sparkSystem) {
+                        this.sparkSystem.emit(node.position, 20, 0xff1493);
+                    }
+                }
+            }
+
+            showInfoPanel(node) {
+                const panel = this.infoPanel;
+                panel.classList.add('visible');
+
+                document.getElementById('info-title').textContent = `Memory #${node.userData.index + 1}`;
+                document.getElementById('info-date').textContent = new Date().toLocaleDateString();
+
+                const typeEl = document.getElementById('info-type');
+                typeEl.textContent = node.userData.type === 'living' ? 'LIVING BEING' : 'LEGACY';
+                typeEl.className = `info-type ${node.userData.type}`;
+            }
+
+            hideLoading() {
+                this.loading.classList.add('hidden');
+                setTimeout(() => {
+                    this.loading.style.display = 'none';
+                }, 500);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                const time = performance.now() * 0.001;
+
+                // Update controls
+                if (this.controls) {
+                    this.controls.update();
+                }
+
+                // Update cable shader
+                if (this.cableMaterial) {
+                    this.cableMaterial.uniforms.time.value = time;
+                }
+
+                // Update node shaders
+                this.nodes.forEach(node => {
+                    if (node.userData.material) {
+                        node.userData.material.uniforms.time.value = time;
+                    }
+                    // Billboard effect - nodes face camera
+                    if (this.camera) {
+                        node.lookAt(this.camera.position);
+                    }
+                });
+
+                // Update spark system
+                if (this.sparkSystem && this.sparksEnabled) {
+                    this.sparkSystem.update(0.016);
+                }
+
+                // Rotate ambient particles
+                if (this.ambientParticles) {
+                    this.ambientParticles.rotation.y += 0.0001;
+                }
+
+                // Render
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const app = new SocialTimelineApp();
+            app.init();
+            window.ITR8 = app; // Expose for debugging
+        });
+    </script>
+</body>
+</html>
