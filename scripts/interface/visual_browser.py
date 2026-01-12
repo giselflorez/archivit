@@ -4463,6 +4463,21 @@ def semantic_network():
     """Semantic network visualization page"""
     return render_template('semantic_network.html')
 
+@app.route('/masters-spectral')
+def masters_spectral():
+    """NORTHSTAR 4D Spectral - 22 Masters visualization with halos and sparks"""
+    return render_template('masters_point_cloud_v3_spectral.html')
+
+@app.route('/masters-compare')
+def masters_compare():
+    """Masters comparison - V2 vs V3 spectral side-by-side"""
+    return render_template('masters_point_cloud_compare.html')
+
+@app.route('/masters-v2')
+def masters_v2():
+    """Masters V2 - Original electric glow visualization"""
+    return render_template('masters_point_cloud_v2.html')
+
 @app.route('/module-sandbox')
 def module_sandbox():
     """Module sandbox - testing environment for data visualization modules"""
