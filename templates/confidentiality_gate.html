@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confidentiality Agreement | ARCHIV-IT</title>
+    <style>
+        :root {
+            --void: #030308;
+            --panel: #0a0a12;
+            --border: rgba(212, 165, 116, 0.2);
+            --gold: #d4a574;
+            --gold-dim: rgba(212, 165, 116, 0.6);
+            --text: #f0ece7;
+            --text-dim: #8a8680;
+            --danger: #c44;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--void);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .gate-container {
+            max-width: 680px;
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        .gate-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .gate-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .gate-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .gate-subtitle {
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .agreement-content {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+
+        .agreement-content::-webkit-scrollbar { width: 4px; }
+        .agreement-content::-webkit-scrollbar-thumb {
+            background: var(--gold-dim);
+            border-radius: 2px;
+        }
+
+        .agreement-content h3 {
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 16px 0 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .agreement-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .agreement-content p {
+            margin-bottom: 12px;
+        }
+
+        .agreement-content ul {
+            margin: 12px 0 12px 20px;
+        }
+
+        .agreement-content li {
+            margin-bottom: 6px;
+        }
+
+        .agreement-content strong {
+            color: var(--text);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 20px;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            background: rgba(212, 165, 116, 0.08);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold);
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .checkbox-label strong {
+            color: var(--gold);
+        }
+
+        .name-input-group {
+            margin-bottom: 24px;
+        }
+
+        .name-input-group label {
+            display: block;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .name-input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .name-input-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.1);
+        }
+
+        .name-input-group input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.1));
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .submit-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .submit-btn.enabled:hover {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(212, 165, 116, 0.2));
+            box-shadow: 0 0 30px rgba(212, 165, 116, 0.2);
+        }
+
+        .legal-note {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .legal-note a {
+            color: var(--gold-dim);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="gate-container">
+        <div class="gate-header">
+            <div class="gate-icon">🔒</div>
+            <h1 class="gate-title">Confidentiality Agreement</h1>
+            <p class="gate-subtitle">Pre-Release Technology Preview</p>
+        </div>
+
+        <div class="agreement-content">
+            <h3>CONFIDENTIAL TECHNOLOGY PREVIEW</h3>
+            <p>You are about to access proprietary technology, visualizations, and intellectual property developed by <strong>WEB3GISEL / ARCHIV-IT</strong> ("Company"). This material is shared with you solely for evaluation and feedback purposes as part of a limited beta testing program.</p>
+
+            <h3>CONFIDENTIALITY OBLIGATIONS</h3>
+            <p>By proceeding, you agree to the following:</p>
+            <ul>
+                <li><strong>Non-Disclosure:</strong> You will not disclose, share, publish, or otherwise communicate any aspect of this technology, including but not limited to: visual designs, interaction patterns, data structures, algorithms, concepts, or implementation details to any third party.</li>
+                <li><strong>Non-Use:</strong> You will not use any information gained from this preview to develop, design, or create any similar or competing product, service, or technology.</li>
+                <li><strong>Non-Reproduction:</strong> You will not copy, screenshot, record, or otherwise reproduce any portion of this preview without explicit written consent.</li>
+                <li><strong>No Reverse Engineering:</strong> You will not attempt to reverse engineer, decompile, or derive source code or underlying algorithms from any demonstrated technology.</li>
+            </ul>
+
+            <h3>INTELLECTUAL PROPERTY</h3>
+            <p>All materials presented are the exclusive intellectual property of WEB3GISEL / ARCHIV-IT. This includes but is not limited to:</p>
+            <ul>
+                <li>4D Spectral Visualization Technology</li>
+                <li>NORTHSTAR Masters Framework & Architecture</li>
+                <li>Character Archetype Physics Systems</li>
+                <li>Sacred Halo Rendering Algorithms</li>
+                <li>Time Stream Particle Systems</li>
+                <li>All associated visual designs and interaction patterns</li>
+            </ul>
+            <p>Patent applications may be pending. Unauthorized use may result in legal action.</p>
+
+            <h3>DURATION & SURVIVAL</h3>
+            <p>These obligations shall remain in effect for a period of <strong>five (5) years</strong> from the date of acceptance, or until such time as the Company publicly releases the technology, whichever occurs first. Certain obligations, including non-use of proprietary algorithms and trade secrets, shall survive indefinitely.</p>
+
+            <h3>ACKNOWLEDGMENT OF VALUE</h3>
+            <p>You acknowledge that the confidential information has significant commercial value and that any breach of this agreement could cause irreparable harm to the Company, entitling it to seek injunctive relief in addition to any other available remedies.</p>
+
+            <h3>GOVERNING LAW</h3>
+            <p>This agreement shall be governed by the laws of the State of New York, United States.</p>
+        </div>
+
+        <div class="name-input-group">
+            <label for="full-name">Your Full Legal Name</label>
+            <input type="text" id="full-name" placeholder="Enter your full name as acknowledgment" autocomplete="name">
+            <p class="error-msg" id="name-error">Please enter your full name</p>
+        </div>
+
+        <label class="checkbox-group" for="agree-checkbox">
+            <input type="checkbox" id="agree-checkbox">
+            <span class="checkbox-label">
+                I, the undersigned, have read and understood the above Confidentiality Agreement. I agree to be bound by its terms and acknowledge that this constitutes a <strong>legally binding agreement</strong>. I understand that violation of these terms may result in legal action.
+            </span>
+        </label>
+
+        <button class="submit-btn" id="submit-btn" onclick="submitAgreement()">
+            Accept & Continue to Preview
+        </button>
+
+        <p class="legal-note">
+            By proceeding, you confirm you have the legal capacity to enter into this agreement.<br>
+            A record of your acceptance will be stored. Questions? Contact <a href="mailto:legal@archivit.app">legal@archivit.app</a>
+        </p>
+    </div>
+
+    <script>
+        const checkbox = document.getElementById('agree-checkbox');
+        const nameInput = document.getElementById('full-name');
+        const submitBtn = document.getElementById('submit-btn');
+        const nameError = document.getElementById('name-error');
+
+        // Get the target page from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = urlParams.get('next') || '/masters-spectral';
+
+        function validateForm() {
+            const nameValid = nameInput.value.trim().length >= 3;
+            const agreed = checkbox.checked;
+
+            if (nameValid && agreed) {
+                submitBtn.classList.add('enabled');
+            } else {
+                submitBtn.classList.remove('enabled');
+            }
+        }
+
+        checkbox.addEventListener('change', validateForm);
+        nameInput.addEventListener('input', () => {
+            nameError.classList.remove('visible');
+            validateForm();
+        });
+
+        function submitAgreement() {
+            const name = nameInput.value.trim();
+            const agreed = checkbox.checked;
+
+            if (name.length < 3) {
+                nameError.classList.add('visible');
+                nameInput.focus();
+                return;
+            }
+
+            if (!agreed) {
+                return;
+            }
+
+            // Record acceptance
+            const acceptance = {
+                name: name,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                targetPage: targetPage
+            };
+
+            // Store locally
+            const acceptances = JSON.parse(localStorage.getItem('nda_acceptances') || '[]');
+            acceptances.push(acceptance);
+            localStorage.setItem('nda_acceptances', JSON.stringify(acceptances));
+            localStorage.setItem('nda_accepted', 'true');
+            localStorage.setItem('nda_accepted_name', name);
+            localStorage.setItem('nda_accepted_date', acceptance.timestamp);
+
+            // Send to server for record keeping
+            fetch('/api/nda/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(acceptance)
+            }).catch(() => {
+                // Continue even if server record fails
+            });
+
+            // Redirect to target page
+            window.location.href = targetPage;
+        }
+
+        // Check if already accepted
+        if (localStorage.getItem('nda_accepted') === 'true') {
+            const acceptedName = localStorage.getItem('nda_accepted_name');
+            const acceptedDate = localStorage.getItem('nda_accepted_date');
+            // Could show a "Welcome back" message or auto-redirect
+            // For now, still require re-acknowledgment for each session
+        }
+    </script>
+</body>
+</html>

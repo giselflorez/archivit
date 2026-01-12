@@ -4463,6 +4463,53 @@ def semantic_network():
     """Semantic network visualization page"""
     return render_template('semantic_network.html')
 
+@app.route('/confidentiality')
+def confidentiality_gate():
+    """Confidentiality agreement gate for proprietary previews"""
+    return render_template('confidentiality_gate.html')
+
+@app.route('/api/nda/accept', methods=['POST'])
+def record_nda_acceptance():
+    """Record NDA acceptance for legal tracking"""
+    try:
+        data = request.get_json()
+        acceptance_record = {
+            'name': data.get('name'),
+            'timestamp': data.get('timestamp'),
+            'user_agent': data.get('userAgent'),
+            'target_page': data.get('targetPage'),
+            'ip_address': request.remote_addr,
+            'recorded_at': datetime.now().isoformat()
+        }
+
+        # Store in a JSON file for record keeping
+        nda_file = DATA_DIR / 'nda_acceptances.json'
+        acceptances = []
+        if nda_file.exists():
+            try:
+                acceptances = json.loads(nda_file.read_text())
+            except:
+                acceptances = []
+
+        acceptances.append(acceptance_record)
+        nda_file.write_text(json.dumps(acceptances, indent=2))
+
+        return jsonify({'status': 'recorded', 'id': len(acceptances)})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/nda/records')
+def get_nda_records():
+    """Get all NDA acceptance records (admin only)"""
+    nda_file = DATA_DIR / 'nda_acceptances.json'
+    if nda_file.exists():
+        try:
+            acceptances = json.loads(nda_file.read_text())
+            return jsonify({'acceptances': acceptances, 'count': len(acceptances)})
+        except:
+            return jsonify({'acceptances': [], 'count': 0})
+    return jsonify({'acceptances': [], 'count': 0})
+
 @app.route('/masters-spectral')
 def masters_spectral():
     """NORTHSTAR 4D Spectral - 22 Masters visualization with halos and sparks"""
