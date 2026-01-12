@@ -111,6 +111,13 @@ try:
 except ImportError as e:
     print(f"Warning: Could not load API routes: {e}")
 
+# Import and register Contribution routes (User Micro TX Protocol)
+try:
+    from contributions.contribution_routes import register_contribution_routes
+    register_contribution_routes(app)
+except ImportError as e:
+    print(f"Warning: Could not load contribution routes: {e}")
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SECURITY: URL Validation and Content Security Policy
 # Protects against SSRF, XSS, and malicious redirects
@@ -296,6 +303,7 @@ def check_csrf_token():
         '/api/badge/verify',  # Uses signature verification
         '/setup/scan-status',  # Read-only status polling
         '/login',  # Entry point before session exists
+        '/api/agent/init',  # Agent initialization - read-only context
     ]
 
     for exempt in exempt_paths:
@@ -436,8 +444,9 @@ def check_site_password():
     if not SITE_PASSWORD:
         return None
 
-    # Allow login page and static files
-    if request.path in ('/login', '/favicon.ico') or request.path.startswith('/static/'):
+    # Allow login page, static files, and agent init endpoint
+    allowed_paths = ['/login', '/favicon.ico', '/api/agent/init']
+    if request.path in allowed_paths or request.path.startswith('/static/'):
         return None
 
     # Check if authenticated
@@ -1468,6 +1477,127 @@ def api_stats():
         'visual_documents': visual_count,
         'sources': sources
     })
+
+@app.route('/api/agent/init')
+def api_agent_init():
+    """
+    Agent Initialization Endpoint
+    =============================
+    Returns critical context that AI agents MUST read before doing work.
+
+    This endpoint consolidates:
+    - Current state from AGENT_CONTEXT_STATE.md
+    - TODO queue
+    - Architecture overview
+    - Critical rules
+    - Founder terminology
+
+    Usage: curl http://localhost:5001/api/agent/init
+    """
+    from pathlib import Path
+    import yaml
+
+    project_root = Path(__file__).parent.parent.parent
+
+    def read_file(filepath):
+        full_path = project_root / filepath
+        if full_path.exists():
+            return full_path.read_text(encoding='utf-8')
+        return None
+
+    def extract_todos(content):
+        if not content:
+            return []
+        todos = []
+        lines = content.split('\n')
+        for line in lines:
+            if '- [ ]' in line:
+                todos.append(line.strip().replace('- [ ]', '').strip())
+        return todos[:10]  # Top 10
+
+    # Read context state
+    context = read_file("AGENT_CONTEXT_STATE.md")
+    onboarding = read_file("docs/AGENT_ONBOARDING.md")
+
+    # Extract last action
+    last_action = None
+    if context:
+        import re
+        match = re.search(r'ACTION:\s*(.+?)(?:\n|STATUS)', context, re.DOTALL)
+        if match:
+            last_action = match.group(1).strip()
+
+    # Extract TODOs
+    todos = extract_todos(context)
+
+    # Build response
+    response = {
+        'initialized': True,
+        'timestamp': datetime.now().isoformat(),
+        'project': 'ARCHIV-IT',
+
+        'current_state': {
+            'last_action': last_action,
+            'todo_queue': todos,
+            'server_url': 'http://localhost:5001'
+        },
+
+        'architecture': {
+            'ecosystem': {
+                'DOC-8': 'DATABASE & ARCHIVE (Foundation - current focus)',
+                'IT-R8': 'CREATE & RATE (spatial design tool)',
+                'SOCI-8': 'SHARE & CONNECT (future)'
+            },
+            'northstar_masters': {
+                'feminine': ['Hildegard', 'Gisel', 'Rand', 'Starhawk', 'Tori', 'Bjork', 'Swan', 'Hicks', 'Byrne'],
+                'masculine': ['da Vinci', 'Tesla', 'Fuller', 'Jung', 'Suleyman', 'Grant', 'Prince', 'Coltrane', 'Bowie', 'Koe', 'Jobs', 'Cherny', 'Rene']
+            },
+            'physics_constants': {
+                'PHI': 1.618033988749895,
+                'GOLDEN_ANGLE': 137.5077640500378,
+                'SCHUMANN': 7.83,
+                'TESLA_PATTERN': [3, 6, 9]
+            }
+        },
+
+        'rules': {
+            'non_negotiables': [
+                'User owns their seed (mathematical identity)',
+                'No tracking without explicit consent',
+                'All data transformations are reversible',
+                'Local-first, cloud-optional',
+                'Balance polarity in all outputs (PHI threshold)'
+            ],
+            'terminology': {
+                'ultrathink': 'Deep comprehensive analysis required',
+                'seed': 'User\'s mathematical identity (local, sovereign)',
+                'vertex': 'User\'s optimal state/position',
+                'spiral': 'Natural flow pattern (creation direction)'
+            }
+        },
+
+        'files_to_read': [
+            'AGENT_CONTEXT_STATE.md',
+            'docs/AGENT_ONBOARDING.md',
+            'docs/FOUNDER_QUOTES.md',
+            'docs/ULTRATHINK_SYNTHESIS.md'
+        ],
+
+        'commands': {
+            'start_server': 'KMP_DUPLICATE_LIB_OK=TRUE ./venv/bin/python scripts/interface/visual_browser.py',
+            'init_agent': './venv/bin/python scripts/agent/init_agent.py',
+            'search': 'KMP_DUPLICATE_LIB_OK=TRUE python scripts/search/semantic_search.py "query"'
+        },
+
+        'session_end_protocol': [
+            'Update AGENT_CONTEXT_STATE.md with last action',
+            'Create backup if significant work done',
+            'Do NOT leave work incomplete without documenting'
+        ]
+    }
+
+    return jsonify(response)
+
 
 @app.route('/api/document-content')
 def api_document_content():
