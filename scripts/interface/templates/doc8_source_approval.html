@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Source Cartography | DOC-8 | ARCHIV-IT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Shared site colors */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #f5f5f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --accent-gold: #d4a574;
+            --border: #2a2a2a;
+
+            /* Archivist - Paper palette */
+            --paper-base: #f7f5f0;
+            --paper-warm: #f3efe8;
+            --paper-aged: #ebe7de;
+            --paper-shadow: #ddd8cc;
+            --ink-primary: #1c1917;
+            --ink-secondary: #44403c;
+            --ink-tertiary: #78716c;
+            --ink-ghost: #a8a29e;
+
+            /* Artist - Void palette */
+            --void: #06060a;
+            --void-panel: #12121c;
+            --glow-gold: #d4a574;
+            --glow-emerald: #4ade80;
+            --glow-rose: #f472b6;
+            --glow-violet: #a78bfa;
+            --star-white: #f0ece7;
+
+            /* Status */
+            --accent-verified: #166534;
+            --accent-pending: #854d0e;
+            --accent-excluded: #991b1b;
+
+            /* Reliability spectrum */
+            --rel-high: #16a34a;
+            --rel-good: #65a30d;
+            --rel-caution: #ea580c;
+            --rel-low: #dc2626;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           SITE HEADER & NAV (from main site)
+           ======================================== */
+        .site-header {
+            padding: 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 15, 20, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .site-header-label {
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.4rem;
+        }
+
+        .site-header h1 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .site-header-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .site-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 0.6rem 2rem;
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .site-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+        }
+
+        .site-nav a:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .site-nav a.active {
+            color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        /* ========================================
+           MAIN CONTENT AREA
+           ======================================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Mode switcher within content */
+        .mode-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mode-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .mode-switcher {
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: var(--text-secondary);
+        }
+
+        /* ========================================
+           ARCHIVIST VIEW - Paper Style
+           ======================================== */
+        .archivist-view {
+            display: none;
+            background: var(--paper-base);
+            border-radius: 8px;
+            padding: 32px;
+            color: var(--ink-primary);
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+                linear-gradient(180deg, var(--paper-base) 0%, var(--paper-warm) 100%);
+        }
+
+        .archivist-view.active { display: block; }
+
+        .arch-section {
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .arch-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-tertiary);
+            margin-bottom: 6px;
+        }
+
+        .arch-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--ink-primary);
+            outline: none;
+            padding: 4px 0;
+            border-bottom: 1px solid transparent;
+        }
+
+        .arch-input:focus { border-bottom-color: var(--ink-ghost); }
+        .arch-input::placeholder { color: var(--ink-ghost); }
+
+        .arch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .arch-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--ink-tertiary);
+            background: var(--paper-warm);
+            border-bottom: 1px solid var(--paper-shadow);
+        }
+
+        .arch-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--paper-aged);
+        }
+
+        .arch-table tr:hover td { background: rgba(0,0,0,0.015); }
+        .arch-table tr.active td { background: rgba(22, 101, 52, 0.04); }
+
+        .arch-checkbox {
+            width: 14px; height: 14px;
+            border: 1.5px solid var(--ink-ghost);
+            background: var(--paper-base);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arch-checkbox.checked {
+            background: var(--accent-verified);
+            border-color: var(--accent-verified);
+        }
+
+        .arch-checkbox.checked::after {
+            content: '';
+            width: 8px; height: 5px;
+            border: solid white;
+            border-width: 0 0 2px 2px;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .arch-actions {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid var(--paper-shadow);
+        }
+
+        .arch-btn {
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid;
+        }
+
+        .arch-btn-secondary { background: var(--paper-base); border-color: var(--paper-shadow); color: var(--ink-secondary); }
+        .arch-btn-primary { background: var(--ink-primary); border-color: var(--ink-primary); color: var(--paper-base); }
+
+        .arch-results {
+            display: none;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--ink-primary);
+        }
+
+        .arch-results.show { display: block; }
+
+        /* Archivist Tabs */
+        .arch-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--paper-shadow);
+            margin-bottom: 20px;
+        }
+
+        .arch-tab {
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: var(--ink-tertiary);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .arch-tab:hover { color: var(--ink-secondary); }
+        .arch-tab.active {
+            color: var(--ink-primary);
+            border-bottom-color: var(--ink-primary);
+        }
+
+        .arch-tab-panel { display: none; }
+        .arch-tab-panel.active { display: block; }
+
+        /* Queries table */
+        .queries-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--paper-aged);
+        }
+
+        .queries-count {
+            font-size: 11px;
+            color: var(--ink-tertiary);
+        }
+
+        .queries-sort {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .queries-sort label {
+            font-size: 10px;
+            color: var(--ink-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .queries-sort select {
+            font-family: inherit;
+            font-size: 11px;
+            padding: 4px 8px;
+            border: 1px solid var(--paper-shadow);
+            background: var(--paper-base);
+            color: var(--ink-secondary);
+            cursor: pointer;
+        }
+
+        /* Compact query table - many lines visible */
+        .queries-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        .queries-table th {
+            text-align: left;
+            padding: 6px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-ghost);
+            background: var(--paper-warm);
+            border-bottom: 1px solid var(--paper-shadow);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .queries-table th:hover { color: var(--ink-secondary); }
+        .queries-table th.sorted { color: var(--ink-primary); }
+        .queries-table th .sort-arrow { margin-left: 4px; font-size: 8px; }
+
+        .queries-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--paper-aged);
+            vertical-align: middle;
+        }
+
+        .queries-table tr:hover td { background: rgba(0,0,0,0.015); }
+
+        .q-type {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: 700;
+            border-radius: 3px;
+        }
+
+        .q-type.doc { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .q-type.img { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .q-type.txt { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .q-type.vid { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .q-type.aud { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+
+        .q-name {
+            max-width: 180px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+            color: var(--ink-primary);
+        }
+
+        .q-domain {
+            color: var(--ink-ghost);
+            font-size: 9px;
+        }
+
+        .q-meta { color: var(--ink-tertiary); }
+
+        .q-source {
+            font-size: 9px;
+            padding: 1px 5px;
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            white-space: nowrap;
+        }
+
+        /* Compact reliability indicator */
+        .rel-bar {
+            width: 40px;
+            height: 4px;
+            background: var(--paper-shadow);
+            border-radius: 2px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .rel-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .rel-fill.high { background: var(--rel-high); }
+        .rel-fill.good { background: var(--rel-good); }
+        .rel-fill.caution { background: var(--rel-caution); }
+        .rel-fill.low { background: var(--rel-low); }
+
+        .rel-pct {
+            font-size: 9px;
+            margin-left: 4px;
+            font-weight: 500;
+        }
+
+        .rel-pct.high { color: var(--rel-high); }
+        .rel-pct.good { color: var(--rel-good); }
+        .rel-pct.caution { color: var(--rel-caution); }
+        .rel-pct.low { color: var(--rel-low); }
+
+        /* Queries container with scroll */
+        .queries-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--paper-shadow);
+        }
+
+        .queries-container::-webkit-scrollbar { width: 6px; }
+        .queries-container::-webkit-scrollbar-track { background: var(--paper-aged); }
+        .queries-container::-webkit-scrollbar-thumb { background: var(--paper-shadow); border-radius: 3px; }
+
+        /* Links list */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            font-size: 11px;
+        }
+
+        .link-item a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .link-item a:hover { text-decoration: underline; }
+
+        .link-source {
+            font-size: 10px;
+            color: var(--ink-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* ========================================
+           ARTIST VIEW - Constellation Style
+           ======================================== */
+        .artist-view {
+            display: none;
+            position: relative;
+        }
+
+        .artist-view.active { display: block; }
+
+        .artist-ambient {
+            position: absolute;
+            inset: -100px;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 30%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 70%, rgba(74, 222, 128, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .artist-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .artist-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .artist-header .tag {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            color: var(--glow-gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .artist-header h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--star-white) 0%, var(--glow-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .artist-header .sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .query-orb {
+            background: var(--void-panel);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .query-orb::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.4), transparent);
+        }
+
+        .query-orb label {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: rgba(212, 165, 116, 0.6);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .query-orb input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 300;
+            color: var(--star-white);
+            outline: none;
+        }
+
+        .query-orb input::placeholder {
+            color: rgba(240, 236, 231, 0.25);
+            font-style: italic;
+        }
+
+        .constellation-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .constellation-label .count { color: var(--glow-emerald); }
+
+        .constellation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .source-node {
+            background: var(--void-panel);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .source-node::before {
+            content: '';
+            position: absolute;
+            top: 14px; right: 14px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .source-node:hover {
+            border-color: rgba(212, 165, 116, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .source-node.selected {
+            border-color: rgba(74, 222, 128, 0.4);
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .source-node.selected::before {
+            background: var(--glow-emerald);
+            box-shadow: 0 0 10px var(--glow-emerald);
+        }
+
+        .source-node.excluded { opacity: 0.3; }
+        .source-node.excluded::before { background: var(--glow-rose); }
+
+        .node-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; padding-right: 16px; }
+        .node-domain { font-size: 10px; color: var(--text-muted); margin-bottom: 10px; }
+
+        .node-type {
+            font-size: 8px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+
+        .node-type.institutional { color: var(--glow-emerald); background: rgba(74, 222, 128, 0.1); }
+        .node-type.archive { color: var(--glow-gold); background: rgba(212, 165, 116, 0.1); }
+        .node-type.verification { color: var(--glow-violet); background: rgba(167, 139, 250, 0.1); }
+        .node-type.community { color: var(--glow-rose); background: rgba(244, 114, 182, 0.1); }
+
+        /* Artist Tabs */
+        .artist-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+
+        .artist-tab {
+            padding: 8px 20px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .artist-tab:hover {
+            color: var(--text-secondary);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .artist-tab.active {
+            color: var(--glow-gold);
+            border-color: rgba(212, 165, 116, 0.4);
+            background: rgba(212, 165, 116, 0.08);
+        }
+
+        .artist-tab-panel { display: none; }
+        .artist-tab-panel.active { display: block; }
+
+        /* Artist queries grid */
+        .artist-queries {
+            display: grid;
+            gap: 10px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .artist-queries::-webkit-scrollbar { width: 4px; }
+        .artist-queries::-webkit-scrollbar-track { background: transparent; }
+        .artist-queries::-webkit-scrollbar-thumb { background: rgba(212, 165, 116, 0.3); border-radius: 2px; }
+
+        .aq-item {
+            display: grid;
+            grid-template-columns: 24px 1fr auto auto auto auto 28px;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--void-panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+
+        .aq-item:hover {
+            border-color: rgba(212, 165, 116, 0.2);
+            background: rgba(18, 18, 28, 0.8);
+        }
+
+        .aq-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .aq-icon.doc { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .aq-icon.img { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .aq-icon.txt { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .aq-icon.vid { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .aq-icon.aud { background: rgba(251, 146, 60, 0.2); color: #fdba74; }
+
+        .aq-name {
+            font-weight: 500;
+            color: var(--star-white);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .aq-name .sub {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .aq-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .aq-rel {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .aq-rel-bar {
+            width: 32px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .aq-rel-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .aq-rel-fill.high { background: var(--glow-emerald); box-shadow: 0 0 6px var(--glow-emerald); }
+        .aq-rel-fill.good { background: #a3e635; box-shadow: 0 0 6px #a3e635; }
+        .aq-rel-fill.caution { background: #fb923c; box-shadow: 0 0 6px #fb923c; }
+        .aq-rel-fill.low { background: var(--glow-rose); box-shadow: 0 0 6px var(--glow-rose); }
+
+        .aq-trash {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .aq-trash:hover {
+            background: rgba(244, 114, 182, 0.15);
+            border-color: rgba(244, 114, 182, 0.4);
+            color: var(--glow-rose);
+        }
+
+        /* Artist links */
+        .artist-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .al-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--void-panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .al-item a {
+            color: var(--glow-gold);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .al-item a:hover { text-decoration: underline; }
+
+        .al-source {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Trash action for archivist */
+        .q-trash {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--paper-shadow);
+            color: var(--ink-ghost);
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+
+        .q-trash:hover {
+            background: rgba(153, 27, 27, 0.1);
+            border-color: rgba(153, 27, 27, 0.3);
+            color: var(--accent-excluded);
+        }
+
+        /* ========================================
+           ANALYSIS OUTPUT - 4D Visualization
+           ======================================== */
+        .analysis-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--paper-shadow);
+        }
+
+        .analysis-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-primary);
+        }
+
+        .analysis-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .analysis-ctrl {
+            padding: 5px 12px;
+            font-size: 10px;
+            font-weight: 500;
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            color: var(--ink-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .analysis-ctrl:hover { background: var(--paper-aged); }
+        .analysis-ctrl.active {
+            background: var(--ink-primary);
+            color: var(--paper-base);
+            border-color: var(--ink-primary);
+        }
+
+        /* Module Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .module {
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            padding: 16px;
+            min-height: 240px;
+            position: relative;
+        }
+
+        .module.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .module-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ink-secondary);
+        }
+
+        .module-subtitle {
+            font-size: 9px;
+            color: var(--ink-ghost);
+            margin-top: 2px;
+        }
+
+        .module-badge {
+            font-size: 8px;
+            padding: 2px 6px;
+            background: rgba(22, 101, 52, 0.1);
+            color: var(--accent-verified);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Temporal Flow Timeline */
+        .temporal-flow {
+            position: relative;
+            height: 160px;
+            margin-top: 8px;
+        }
+
+        .temporal-axis {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--paper-shadow);
+        }
+
+        .temporal-axis::before,
+        .temporal-axis::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            width: 7px;
+            height: 7px;
+            border: 1px solid var(--ink-ghost);
+            border-radius: 50%;
+            background: var(--paper-warm);
+        }
+
+        .temporal-axis::before { left: 0; }
+        .temporal-axis::after { right: 0; }
+
+        .temporal-labels {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: var(--ink-ghost);
+        }
+
+        .temporal-point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translate(-50%, 50%);
+            cursor: pointer;
+            transition: all 0.2s;
+            bottom: 24px;
+        }
+
+        .temporal-point:hover {
+            transform: translate(-50%, 50%) scale(1.5);
+            z-index: 10;
+        }
+
+        .temporal-point .tp-line {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            width: 1px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+
+        .temporal-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink-primary);
+            color: var(--paper-base);
+            padding: 6px 10px;
+            font-size: 9px;
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        .temporal-point:hover .temporal-tooltip { display: block; }
+
+        /* Reliability Matrix */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 60px repeat(5, 1fr);
+            gap: 2px;
+            font-size: 9px;
+        }
+
+        .matrix-cell {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .matrix-header {
+            background: transparent;
+            color: var(--ink-tertiary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-size: 8px;
+        }
+
+        .matrix-row-label {
+            background: transparent;
+            color: var(--ink-tertiary);
+            font-size: 8px;
+            justify-content: flex-end;
+            padding-right: 8px;
+        }
+
+        .matrix-value {
+            background: var(--paper-aged);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .matrix-value:hover {
+            transform: scale(1.1);
+            z-index: 5;
+        }
+
+        .matrix-value.high { background: var(--rel-high); color: white; }
+        .matrix-value.good { background: var(--rel-good); color: white; }
+        .matrix-value.caution { background: var(--rel-caution); color: white; }
+        .matrix-value.low { background: var(--rel-low); color: white; }
+        .matrix-value.empty { background: var(--paper-aged); color: var(--ink-ghost); }
+
+        /* Source Network */
+        .network-canvas {
+            position: relative;
+            height: 180px;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(22, 101, 52, 0.03) 0%, transparent 50%);
+        }
+
+        .network-node {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .network-node:hover { transform: translate(-50%, -50%) scale(1.15); }
+
+        .network-orb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .network-orb.institutional { background: linear-gradient(135deg, #16a34a, #15803d); }
+        .network-orb.archive { background: linear-gradient(135deg, #d4a574, #b8956a); }
+        .network-orb.verification { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+        .network-orb.community { background: linear-gradient(135deg, #f472b6, #ec4899); }
+
+        .network-label {
+            font-size: 8px;
+            color: var(--ink-tertiary);
+            text-align: center;
+            max-width: 60px;
+        }
+
+        .network-line {
+            position: absolute;
+            height: 1px;
+            background: var(--paper-shadow);
+            transform-origin: left center;
+            pointer-events: none;
+        }
+
+        .network-stat {
+            position: absolute;
+            font-size: 9px;
+            color: var(--ink-ghost);
+            padding: 2px 6px;
+            background: var(--paper-base);
+        }
+
+        /* 4D Dimensional Scatter */
+        .scatter-4d {
+            position: relative;
+            height: 200px;
+            background:
+                linear-gradient(90deg, var(--paper-aged) 1px, transparent 1px),
+                linear-gradient(0deg, var(--paper-aged) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-left: 1px solid var(--ink-ghost);
+            border-bottom: 1px solid var(--ink-ghost);
+        }
+
+        .scatter-axis-label {
+            position: absolute;
+            font-size: 8px;
+            color: var(--ink-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .scatter-axis-label.x { bottom: -16px; left: 50%; transform: translateX(-50%); }
+        .scatter-axis-label.y { left: -24px; top: 50%; transform: rotate(-90deg) translateX(-50%); transform-origin: left center; }
+        .scatter-axis-label.z { top: -16px; right: 0; }
+
+        .scatter-point {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .scatter-point:hover {
+            transform: scale(1.4);
+            z-index: 20;
+        }
+
+        .scatter-point .sp-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink-primary);
+            color: var(--paper-base);
+            padding: 4px 8px;
+            font-size: 8px;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+
+        .scatter-point:hover .sp-tooltip { display: block; }
+
+        /* Dimension Legend */
+        .dimension-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--paper-shadow);
+        }
+
+        .dim-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8px;
+            color: var(--ink-tertiary);
+        }
+
+        .dim-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .dim-icon.x { background: linear-gradient(90deg, var(--ink-ghost), var(--ink-primary)); }
+        .dim-icon.y { background: linear-gradient(0deg, var(--rel-low), var(--rel-high)); }
+        .dim-icon.z { background: var(--ink-tertiary); opacity: 0.5; }
+        .dim-icon.w {
+            background: conic-gradient(#16a34a, #d4a574, #a78bfa, #f472b6, #16a34a);
+            border-radius: 50%;
+        }
+
+        /* Comparison Engine */
+        .comparison-slots {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .compare-slot {
+            background: var(--paper-base);
+            border: 2px dashed var(--paper-shadow);
+            padding: 12px;
+            min-height: 120px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .compare-slot.filled {
+            border-style: solid;
+            border-color: var(--ink-ghost);
+        }
+
+        .compare-slot.highlight {
+            border-color: var(--accent-verified);
+            background: rgba(22, 101, 52, 0.02);
+        }
+
+        .compare-slot-label {
+            font-size: 9px;
+            color: var(--ink-ghost);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .compare-slot-empty {
+            font-size: 10px;
+            color: var(--ink-ghost);
+            font-style: italic;
+        }
+
+        .compare-item {
+            text-align: left;
+        }
+
+        .compare-item-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-primary);
+            margin-bottom: 4px;
+        }
+
+        .compare-item-meta {
+            font-size: 9px;
+            color: var(--ink-tertiary);
+            line-height: 1.5;
+        }
+
+        .compare-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--paper-aged);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--ink-tertiary);
+            margin-top: 40px;
+        }
+
+        .compare-metrics {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--paper-shadow);
+        }
+
+        .compare-metric {
+            text-align: center;
+            padding: 8px;
+            background: var(--paper-base);
+        }
+
+        .compare-metric-label {
+            font-size: 8px;
+            color: var(--ink-ghost);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+        }
+
+        .compare-metric-values {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .compare-metric-values .a { color: #2563eb; }
+        .compare-metric-values .b { color: #9333ea; }
+        .compare-metric-values .vs { color: var(--ink-ghost); font-weight: 400; font-size: 10px; }
+
+        /* Insight Panel */
+        .insight-panel {
+            background: linear-gradient(135deg, rgba(22, 101, 52, 0.05), rgba(212, 165, 116, 0.05));
+            border: 1px solid var(--paper-shadow);
+            padding: 14px 16px;
+            margin-top: 16px;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .insight-icon {
+            width: 18px;
+            height: 18px;
+            background: var(--accent-verified);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+        }
+
+        .insight-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--ink-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .insight-text {
+            font-size: 11px;
+            color: var(--ink-secondary);
+            line-height: 1.6;
+        }
+
+        .insight-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .insight-tag {
+            font-size: 8px;
+            padding: 2px 8px;
+            background: var(--paper-warm);
+            border: 1px solid var(--paper-shadow);
+            color: var(--ink-tertiary);
+        }
+
+        .launch-section { text-align: center; }
+
+        .launch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, var(--glow-gold), #c4956a);
+            border: none;
+            border-radius: 24px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--void);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(212, 165, 116, 0.25);
+        }
+
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(212, 165, 116, 0.35);
+        }
+
+        .launch-btn::after { content: '→'; font-size: 14px; }
+
+        .artist-results {
+            display: none;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(212, 165, 116, 0.2);
+        }
+
+        .artist-results.show { display: block; }
+
+        .result-card {
+            background: var(--void-panel);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-left: 3px solid var(--glow-gold);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 14px;
+        }
+
+        .result-card .quote {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.7;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .result-card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .result-card .status {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-card .status.verified { background: rgba(74, 222, 128, 0.15); color: var(--glow-emerald); }
+        .result-card .status.disputed { background: rgba(244, 114, 182, 0.15); color: var(--glow-rose); }
+        .result-card .status.pending { background: rgba(212, 165, 116, 0.15); color: var(--glow-gold); }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 6, 10, 0.9);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show { display: flex; }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 2px solid rgba(212, 165, 116, 0.2);
+            border-top-color: var(--glow-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        .site-footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Site Header -->
+    <header class="site-header">
+        <p class="site-header-label">ARCHIV-IT Development</p>
+        <h1>Source Cartography</h1>
+        <p class="site-header-sub">DOC-8 Research Interface</p>
+    </header>
+
+    <!-- Site Navigation -->
+    <nav class="site-nav">
+        <a href="/">Archive</a>
+        <a href="/spatial-vision">Spatial Vision</a>
+        <a href="/semantic-network">Network</a>
+        <a href="/doc8" class="active">DOC-8</a>
+        <a href="/in-testing">Preview</a>
+        <a href="/team">Team</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Mode Bar -->
+        <div class="mode-bar">
+            <span class="mode-title">View Mode</span>
+            <div class="mode-switcher">
+                <button class="mode-btn" onclick="setMode('archivist')">Archivist</button>
+                <button class="mode-btn active" onclick="setMode('artist')">Artist</button>
+            </div>
+        </div>
+
+        <!-- ARCHIVIST VIEW -->
+        <div class="archivist-view" id="archivist-view">
+            <div class="arch-section">
+                <label class="arch-label">Research Query</label>
+                <input type="text" class="arch-input" id="arch-query" placeholder="Enter subject, author, or topic...">
+            </div>
+
+            <!-- Archivist Tabs -->
+            <div class="arch-tabs">
+                <button class="arch-tab active" onclick="setArchTab('sources')">Sources</button>
+                <button class="arch-tab" onclick="setArchTab('links')">Links</button>
+                <button class="arch-tab" onclick="setArchTab('queries')">Queries</button>
+                <button class="arch-tab" onclick="setArchTab('output')">Output</button>
+            </div>
+
+            <!-- Sources Tab -->
+            <div class="arch-tab-panel active" id="arch-sources-panel">
+                <div class="arch-section">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                        <span class="arch-label">Source Registry</span>
+                        <span style="font-size:11px;color:var(--ink-tertiary)"><span id="arch-count" style="color:var(--accent-verified);font-weight:600;">6</span> of 8 active</span>
+                    </div>
+                    <table class="arch-table">
+                        <thead><tr><th style="width:28px"></th><th>Source</th><th>Type</th><th>Status</th></tr></thead>
+                        <tbody id="arch-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Links Tab -->
+            <div class="arch-tab-panel" id="arch-links-panel">
+                <div class="arch-section">
+                    <div class="arch-label" style="margin-bottom:12px;">Source URLs for Verification</div>
+                    <div class="links-list" id="arch-links-list"></div>
+                </div>
+            </div>
+
+            <!-- Queries Tab (Data Bank) -->
+            <div class="arch-tab-panel" id="arch-queries-panel">
+                <div class="arch-section">
+                    <div class="queries-controls">
+                        <span class="queries-count"><span id="arch-queries-count">0</span> items in data bank</span>
+                        <div class="queries-sort">
+                            <label>Sort:</label>
+                            <select id="arch-sort" onchange="sortQueries('archivist')">
+                                <option value="date-desc">Date (newest)</option>
+                                <option value="date-asc">Date (oldest)</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                                <option value="size-desc">Size (largest)</option>
+                                <option value="size-asc">Size (smallest)</option>
+                                <option value="rel-desc">Reliability (high)</option>
+                                <option value="rel-asc">Reliability (low)</option>
+                                <option value="type">Type</option>
+                                <option value="source">Source</option>
+                                <option value="creator">Creator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="queries-container">
+                        <table class="queries-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:30px">T</th>
+                                    <th>Name</th>
+                                    <th>Creator</th>
+                                    <th>Date</th>
+                                    <th>Length</th>
+                                    <th>Size</th>
+                                    <th>Source</th>
+                                    <th>Reliability</th>
+                                    <th style="width:28px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="arch-queries-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Tab (4D Analysis Visualization) -->
+            <div class="arch-tab-panel" id="arch-output-panel">
+                <div class="analysis-container">
+                    <div class="analysis-header">
+                        <div>
+                            <div class="analysis-title">Dimensional Analysis Output</div>
+                            <div style="font-size:10px;color:var(--ink-tertiary);margin-top:2px;">4D visualization across time, reliability, volume, and source</div>
+                        </div>
+                        <div class="analysis-controls">
+                            <button class="analysis-ctrl active" onclick="setAnalysisView('all')">All</button>
+                            <button class="analysis-ctrl" onclick="setAnalysisView('temporal')">Temporal</button>
+                            <button class="analysis-ctrl" onclick="setAnalysisView('matrix')">Matrix</button>
+                            <button class="analysis-ctrl" onclick="setAnalysisView('network')">Network</button>
+                        </div>
+                    </div>
+
+                    <div class="modules-grid" id="analysis-modules">
+                        <!-- Module 1: Temporal Flow -->
+                        <div class="module" data-module="temporal">
+                            <div class="module-header">
+                                <div>
+                                    <div class="module-title">Temporal Flow</div>
+                                    <div class="module-subtitle">Chronological distribution with reliability altitude</div>
+                                </div>
+                                <span class="module-badge">Live</span>
+                            </div>
+                            <div class="temporal-flow" id="temporal-flow">
+                                <div class="temporal-axis"></div>
+                                <div class="temporal-labels">
+                                    <span>Jan 5</span>
+                                    <span>Jan 8</span>
+                                    <span>Jan 11</span>
+                                    <span>Jan 15</span>
+                                </div>
+                                <!-- Points rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Module 2: Reliability Matrix -->
+                        <div class="module" data-module="matrix">
+                            <div class="module-header">
+                                <div>
+                                    <div class="module-title">Reliability Matrix</div>
+                                    <div class="module-subtitle">Source vs Type cross-analysis heatmap</div>
+                                </div>
+                            </div>
+                            <div class="matrix-grid" id="reliability-matrix">
+                                <!-- Header row -->
+                                <div class="matrix-cell"></div>
+                                <div class="matrix-cell matrix-header">DOC</div>
+                                <div class="matrix-cell matrix-header">IMG</div>
+                                <div class="matrix-cell matrix-header">TXT</div>
+                                <div class="matrix-cell matrix-header">VID</div>
+                                <div class="matrix-cell matrix-header">AUD</div>
+                                <!-- Rows rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Module 3: Source Network -->
+                        <div class="module" data-module="network">
+                            <div class="module-header">
+                                <div>
+                                    <div class="module-title">Source Network</div>
+                                    <div class="module-subtitle">Interconnection strength by shared references</div>
+                                </div>
+                            </div>
+                            <div class="network-canvas" id="source-network">
+                                <!-- Nodes rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Module 4: 4D Scatter -->
+                        <div class="module" data-module="scatter">
+                            <div class="module-header">
+                                <div>
+                                    <div class="module-title">4D Dimensional Scatter</div>
+                                    <div class="module-subtitle">X: Time | Y: Reliability | Size: Volume | Color: Source</div>
+                                </div>
+                            </div>
+                            <div class="scatter-4d" id="scatter-4d">
+                                <span class="scatter-axis-label x">Time</span>
+                                <span class="scatter-axis-label y">Reliability</span>
+                                <!-- Points rendered by JS -->
+                            </div>
+                            <div class="dimension-legend">
+                                <div class="dim-item"><span class="dim-icon x"></span> Time (X)</div>
+                                <div class="dim-item"><span class="dim-icon y"></span> Reliability (Y)</div>
+                                <div class="dim-item"><span class="dim-icon z"></span> File Size (radius)</div>
+                                <div class="dim-item"><span class="dim-icon w"></span> Source (color)</div>
+                            </div>
+                        </div>
+
+                        <!-- Module 5: Comparison Engine -->
+                        <div class="module full-width" data-module="compare">
+                            <div class="module-header">
+                                <div>
+                                    <div class="module-title">Comparison Engine</div>
+                                    <div class="module-subtitle">Side-by-side analysis for connection discovery</div>
+                                </div>
+                                <button class="analysis-ctrl" onclick="randomCompare()">Random Pair</button>
+                            </div>
+                            <div class="comparison-slots" id="comparison-engine">
+                                <div class="compare-slot filled" id="compare-slot-a">
+                                    <div class="compare-slot-label">Item A</div>
+                                    <div class="compare-item" id="compare-item-a">
+                                        <!-- Filled by JS -->
+                                    </div>
+                                </div>
+                                <div class="compare-vs">vs</div>
+                                <div class="compare-slot filled" id="compare-slot-b">
+                                    <div class="compare-slot-label">Item B</div>
+                                    <div class="compare-item" id="compare-item-b">
+                                        <!-- Filled by JS -->
+                                    </div>
+                                </div>
+                                <div class="compare-metrics" id="compare-metrics">
+                                    <div class="compare-metric">
+                                        <div class="compare-metric-label">Reliability</div>
+                                        <div class="compare-metric-values">
+                                            <span class="a" id="cmp-rel-a">--</span>
+                                            <span class="vs">|</span>
+                                            <span class="b" id="cmp-rel-b">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="compare-metric">
+                                        <div class="compare-metric-label">File Size</div>
+                                        <div class="compare-metric-values">
+                                            <span class="a" id="cmp-size-a">--</span>
+                                            <span class="vs">|</span>
+                                            <span class="b" id="cmp-size-b">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="compare-metric">
+                                        <div class="compare-metric-label">Source Type</div>
+                                        <div class="compare-metric-values">
+                                            <span class="a" id="cmp-src-a">--</span>
+                                            <span class="vs">|</span>
+                                            <span class="b" id="cmp-src-b">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="compare-metric">
+                                        <div class="compare-metric-label">Date Delta</div>
+                                        <div class="compare-metric-values">
+                                            <span id="cmp-delta">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insight Panel -->
+                    <div class="insight-panel" id="insight-panel">
+                        <div class="insight-header">
+                            <div class="insight-icon">i</div>
+                            <div class="insight-title">Pattern Recognition Insight</div>
+                        </div>
+                        <div class="insight-text" id="insight-text">
+                            Analyzing data patterns... Select items or hover over visualization points to discover connections. The institutional sources (LOC, JSTOR, Smithsonian) show consistently higher reliability scores (avg 93%) compared to community sources (avg 62%). Consider cross-referencing community findings with institutional records for verification.
+                        </div>
+                        <div class="insight-tags" id="insight-tags">
+                            <span class="insight-tag">High Correlation</span>
+                            <span class="insight-tag">Temporal Clustering</span>
+                            <span class="insight-tag">Source Verification</span>
+                            <span class="insight-tag">Cross-Reference Suggested</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arch-actions">
+                <span style="font-size:11px;color:var(--ink-tertiary);"><kbd style="padding:2px 5px;background:var(--paper-warm);border:1px solid var(--paper-shadow);font-size:10px;">Enter</kbd> to search</span>
+                <div style="display:flex;gap:8px;">
+                    <button class="arch-btn arch-btn-secondary" onclick="history.back()">Cancel</button>
+                    <button class="arch-btn arch-btn-primary" onclick="executeSearch('archivist')">Begin Search</button>
+                </div>
+            </div>
+
+            <div class="arch-results" id="arch-results">
+                <div id="arch-results-list"></div>
+            </div>
+        </div>
+
+        <!-- ARTIST VIEW -->
+        <div class="artist-view active" id="artist-view">
+            <div class="artist-ambient"></div>
+            <div class="artist-content">
+                <header class="artist-header">
+                    <p class="tag">Chart Your Knowledge Terrain</p>
+                    <h2>Source Constellation</h2>
+                    <p class="sub">Select trusted sources for your research journey</p>
+                </header>
+
+                <div class="query-orb">
+                    <label>What truth are you seeking?</label>
+                    <input type="text" id="artist-query" placeholder="Enter your research query...">
+                </div>
+
+                <!-- Artist Tabs -->
+                <div class="artist-tabs">
+                    <button class="artist-tab active" onclick="setArtistTab('sources')">Sources</button>
+                    <button class="artist-tab" onclick="setArtistTab('links')">Links</button>
+                    <button class="artist-tab" onclick="setArtistTab('queries')">Queries</button>
+                </div>
+
+                <!-- Sources Tab -->
+                <div class="artist-tab-panel active" id="artist-sources-panel">
+                    <div class="constellation-label">
+                        <span>Available Sources</span>
+                        <span><span class="count" id="artist-count">6</span> charted</span>
+                    </div>
+                    <div class="constellation-grid" id="artist-grid"></div>
+                </div>
+
+                <!-- Links Tab -->
+                <div class="artist-tab-panel" id="artist-links-panel">
+                    <div class="constellation-label">
+                        <span>Source URLs</span>
+                        <span>Verification links</span>
+                    </div>
+                    <div class="artist-links" id="artist-links-list"></div>
+                </div>
+
+                <!-- Queries Tab (Data Bank) -->
+                <div class="artist-tab-panel" id="artist-queries-panel">
+                    <div class="constellation-label">
+                        <span>Data Bank</span>
+                        <span><span id="artist-queries-count">0</span> items</span>
+                    </div>
+                    <div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+                        <select id="artist-sort" onchange="sortQueries('artist')" style="font-size:10px;padding:6px 12px;background:var(--void-panel);border:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);border-radius:12px;">
+                            <option value="date-desc">Newest</option>
+                            <option value="date-asc">Oldest</option>
+                            <option value="name-asc">A-Z</option>
+                            <option value="size-desc">Largest</option>
+                            <option value="rel-desc">Most Reliable</option>
+                            <option value="type">By Type</option>
+                            <option value="source">By Source</option>
+                        </select>
+                    </div>
+                    <div class="artist-queries" id="artist-queries-list"></div>
+                </div>
+
+                <div class="launch-section" style="margin-top:24px;">
+                    <button class="launch-btn" onclick="executeSearch('artist')">Begin Exploration</button>
+                </div>
+
+                <div class="artist-results" id="artist-results">
+                    <div class="constellation-label">
+                        <span>Discoveries</span>
+                        <span><span id="artist-result-count">0</span> found</span>
+                    </div>
+                    <div id="artist-results-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        ARCHIV-IT Development · DOC-8 Source Verification · Your Data. Your Future.
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Charting sources...</div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirm-modal" id="confirm-modal">
+        <div class="confirm-box">
+            <div class="confirm-title">Remove from Data Bank?</div>
+            <div class="confirm-msg" id="confirm-msg">Are you sure you want to remove this item?</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn cancel" onclick="closeConfirm()">Cancel</button>
+                <button class="confirm-btn confirm" onclick="confirmTrash()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .confirm-modal.show { display: flex; }
+        .confirm-box {
+            background: var(--paper-base);
+            padding: 24px 32px;
+            border-radius: 8px;
+            max-width: 360px;
+            text-align: center;
+        }
+        body.artist-mode .confirm-box {
+            background: var(--void-panel);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .confirm-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--ink-primary);
+        }
+        body.artist-mode .confirm-title { color: var(--star-white); }
+        .confirm-msg {
+            font-size: 12px;
+            color: var(--ink-tertiary);
+            margin-bottom: 20px;
+        }
+        body.artist-mode .confirm-msg { color: var(--text-muted); }
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .confirm-btn {
+            padding: 8px 20px;
+            font-size: 11px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .confirm-btn.cancel {
+            background: var(--paper-shadow);
+            color: var(--ink-secondary);
+        }
+        body.artist-mode .confirm-btn.cancel {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+        }
+        .confirm-btn.confirm {
+            background: var(--accent-excluded);
+            color: white;
+        }
+    </style>
+
+    <script>
+        const sources = [
+            { id: 'loc', name: 'Library of Congress', domain: 'loc.gov', type: 'institutional', active: true, locked: false },
+            { id: 'archive', name: 'Internet Archive', domain: 'archive.org', type: 'archive', active: true, locked: false },
+            { id: 'jstor', name: 'JSTOR', domain: 'jstor.org', type: 'institutional', active: true, locked: false },
+            { id: 'smith', name: 'Smithsonian', domain: 'si.edu', type: 'institutional', active: true, locked: false },
+            { id: 'qi', name: 'Quote Investigator', domain: 'quoteinvestigator.com', type: 'verification', active: true, locked: false },
+            { id: 'wiki', name: 'Wikiquote', domain: 'wikiquote.org', type: 'community', active: true, locked: false },
+            { id: 'gr', name: 'Goodreads', domain: 'goodreads.com', type: 'community', active: false, locked: false },
+            { id: 'bq', name: 'BrainyQuote', domain: 'brainyquote.com', type: 'community', active: false, locked: true },
+        ];
+
+        // Data Bank - all callback items (transcoded files, images, text snippets, etc.)
+        let dataBank = [
+            { id: 1, name: 'historical_records_1924.pdf', type: 'doc', creator: 'National Archives', date: '2024-01-15', length: '48 pages', size: 2450000, source: 'loc', reliability: 95 },
+            { id: 2, name: 'artifact_photo_001.jpg', type: 'img', creator: 'Smithsonian Digital', date: '2024-01-14', length: '4032x3024', size: 3200000, source: 'smith', reliability: 92 },
+            { id: 3, name: 'quote_verification_tesla.txt', type: 'txt', creator: 'Quote Investigator', date: '2024-01-14', length: '1,240 words', size: 8500, source: 'qi', reliability: 88 },
+            { id: 4, name: 'documentary_excerpt.mp4', type: 'vid', creator: 'Internet Archive', date: '2024-01-13', length: '4:32', size: 45000000, source: 'archive', reliability: 78 },
+            { id: 5, name: 'oral_history_interview.mp3', type: 'aud', creator: 'LOC Audio', date: '2024-01-12', length: '12:45', size: 18000000, source: 'loc', reliability: 85 },
+            { id: 6, name: 'manuscript_scan_pg12.jpg', type: 'img', creator: 'JSTOR Archives', date: '2024-01-12', length: '2400x3200', size: 4100000, source: 'jstor', reliability: 94 },
+            { id: 7, name: 'census_data_1890.pdf', type: 'doc', creator: 'National Archives', date: '2024-01-11', length: '124 pages', size: 8900000, source: 'loc', reliability: 97 },
+            { id: 8, name: 'newspaper_clipping.txt', type: 'txt', creator: 'Archive.org OCR', date: '2024-01-11', length: '580 words', size: 3200, source: 'archive', reliability: 65 },
+            { id: 9, name: 'photo_collection_batch.zip', type: 'doc', creator: 'Smithsonian', date: '2024-01-10', length: '45 files', size: 125000000, source: 'smith', reliability: 90 },
+            { id: 10, name: 'speech_transcript.txt', type: 'txt', creator: 'Wikiquote', date: '2024-01-10', length: '2,100 words', size: 14200, source: 'wiki', reliability: 72 },
+            { id: 11, name: 'map_scan_1856.jpg', type: 'img', creator: 'LOC Maps', date: '2024-01-09', length: '6000x4500', size: 12000000, source: 'loc', reliability: 96 },
+            { id: 12, name: 'letter_correspondence.pdf', type: 'doc', creator: 'JSTOR Primary', date: '2024-01-09', length: '8 pages', size: 1200000, source: 'jstor', reliability: 91 },
+            { id: 13, name: 'audio_recording_1942.mp3', type: 'aud', creator: 'Internet Archive', date: '2024-01-08', length: '3:18', size: 4800000, source: 'archive', reliability: 82 },
+            { id: 14, name: 'photograph_portrait.jpg', type: 'img', creator: 'Smithsonian NPG', date: '2024-01-08', length: '3000x4000', size: 5600000, source: 'smith', reliability: 98 },
+            { id: 15, name: 'diary_excerpt.txt', type: 'txt', creator: 'Quote Investigator', date: '2024-01-07', length: '890 words', size: 5800, source: 'qi', reliability: 75 },
+            { id: 16, name: 'film_reel_digitized.mp4', type: 'vid', creator: 'LOC Film', date: '2024-01-07', length: '8:15', size: 89000000, source: 'loc', reliability: 88 },
+            { id: 17, name: 'poster_artwork.jpg', type: 'img', creator: 'Internet Archive', date: '2024-01-06', length: '2000x3000', size: 3400000, source: 'archive', reliability: 70 },
+            { id: 18, name: 'academic_paper.pdf', type: 'doc', creator: 'JSTOR Scholarly', date: '2024-01-06', length: '32 pages', size: 1800000, source: 'jstor', reliability: 93 },
+            { id: 19, name: 'interview_audio.mp3', type: 'aud', creator: 'Smithsonian Oral', date: '2024-01-05', length: '25:40', size: 37000000, source: 'smith', reliability: 86 },
+            { id: 20, name: 'web_snippet_quote.txt', type: 'txt', creator: 'Wikiquote User', date: '2024-01-05', length: '120 words', size: 820, source: 'wiki', reliability: 45 },
+        ];
+
+        let currentMode = 'artist';
+        let pendingTrashId = null;
+
+        // Mode switching
+        function setMode(mode) {
+            currentMode = mode;
+            document.body.classList.toggle('artist-mode', mode === 'artist');
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === mode);
+            });
+            document.getElementById('archivist-view').classList.toggle('active', mode === 'archivist');
+            document.getElementById('artist-view').classList.toggle('active', mode === 'artist');
+        }
+
+        // Tab switching
+        function setArchTab(tab) {
+            document.querySelectorAll('.arch-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === tab));
+            document.getElementById('arch-sources-panel').classList.toggle('active', tab === 'sources');
+            document.getElementById('arch-links-panel').classList.toggle('active', tab === 'links');
+            document.getElementById('arch-queries-panel').classList.toggle('active', tab === 'queries');
+            document.getElementById('arch-output-panel').classList.toggle('active', tab === 'output');
+            if (tab === 'output') renderAnalysis();
+        }
+
+        function setArtistTab(tab) {
+            document.querySelectorAll('.artist-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === tab));
+            document.getElementById('artist-sources-panel').classList.toggle('active', tab === 'sources');
+            document.getElementById('artist-links-panel').classList.toggle('active', tab === 'links');
+            document.getElementById('artist-queries-panel').classList.toggle('active', tab === 'queries');
+        }
+
+        // Reliability class based on percentage
+        function getRelClass(rel) {
+            if (rel >= 85) return 'high';
+            if (rel >= 70) return 'good';
+            if (rel >= 50) return 'caution';
+            return 'low';
+        }
+
+        // Format file size
+        function formatSize(bytes) {
+            if (bytes >= 1000000) return (bytes / 1000000).toFixed(1) + ' MB';
+            if (bytes >= 1000) return (bytes / 1000).toFixed(0) + ' KB';
+            return bytes + ' B';
+        }
+
+        // Get source name by id
+        function getSourceName(srcId) {
+            const src = sources.find(s => s.id === srcId);
+            return src ? src.name : srcId;
+        }
+
+        // Render source lists
+        function renderArchivist() {
+            const tbody = document.getElementById('arch-tbody');
+            tbody.innerHTML = sources.map(s => `
+                <tr class="${s.active ? 'active' : ''}" data-id="${s.id}">
+                    <td><div class="arch-checkbox ${s.active ? 'checked' : ''} ${s.locked ? 'disabled' : ''}" onclick="toggleSource('${s.id}')"></div></td>
+                    <td><div style="font-weight:500;">${s.name}</div><div style="font-size:11px;color:var(--ink-tertiary);">${s.domain}</div></td>
+                    <td><span style="font-size:10px;text-transform:uppercase;color:var(--ink-tertiary);">${s.type}</span></td>
+                    <td style="font-size:11px;color:var(--ink-tertiary);">${s.locked ? 'Excluded' : (s.active ? 'Active' : 'Inactive')}</td>
+                </tr>
+            `).join('');
+            document.getElementById('arch-count').textContent = sources.filter(s => s.active && !s.locked).length;
+        }
+
+        function renderArtist() {
+            const grid = document.getElementById('artist-grid');
+            grid.innerHTML = sources.map(s => `
+                <div class="source-node ${s.active ? 'selected' : ''} ${s.locked ? 'excluded' : ''}" onclick="toggleSource('${s.id}')">
+                    <div class="node-name">${s.name}</div>
+                    <div class="node-domain">${s.domain}</div>
+                    <span class="node-type ${s.type}">${s.type}</span>
+                </div>
+            `).join('');
+            document.getElementById('artist-count').textContent = sources.filter(s => s.active && !s.locked).length;
+        }
+
+        // Render links
+        function renderLinks() {
+            const activeSources = sources.filter(s => s.active && !s.locked);
+
+            // Archivist links
+            document.getElementById('arch-links-list').innerHTML = activeSources.map(s => `
+                <div class="link-item">
+                    <a href="https://${s.domain}" target="_blank">https://${s.domain}</a>
+                    <span class="link-source">${s.type}</span>
+                </div>
+            `).join('');
+
+            // Artist links
+            document.getElementById('artist-links-list').innerHTML = activeSources.map(s => `
+                <div class="al-item">
+                    <a href="https://${s.domain}" target="_blank">${s.domain}</a>
+                    <span class="al-source">${s.type}</span>
+                </div>
+            `).join('');
+        }
+
+        // Render queries (data bank)
+        function renderQueries(sortKey = 'date-desc') {
+            let sorted = [...dataBank];
+
+            // Sort logic
+            switch(sortKey) {
+                case 'date-desc': sorted.sort((a,b) => new Date(b.date) - new Date(a.date)); break;
+                case 'date-asc': sorted.sort((a,b) => new Date(a.date) - new Date(b.date)); break;
+                case 'name-asc': sorted.sort((a,b) => a.name.localeCompare(b.name)); break;
+                case 'name-desc': sorted.sort((a,b) => b.name.localeCompare(a.name)); break;
+                case 'size-desc': sorted.sort((a,b) => b.size - a.size); break;
+                case 'size-asc': sorted.sort((a,b) => a.size - b.size); break;
+                case 'rel-desc': sorted.sort((a,b) => b.reliability - a.reliability); break;
+                case 'rel-asc': sorted.sort((a,b) => a.reliability - b.reliability); break;
+                case 'type': sorted.sort((a,b) => a.type.localeCompare(b.type)); break;
+                case 'source': sorted.sort((a,b) => a.source.localeCompare(b.source)); break;
+                case 'creator': sorted.sort((a,b) => a.creator.localeCompare(b.creator)); break;
+            }
+
+            // Archivist queries table
+            document.getElementById('arch-queries-tbody').innerHTML = sorted.map(q => `
+                <tr>
+                    <td><span class="q-type ${q.type}">${q.type.toUpperCase()}</span></td>
+                    <td><span class="q-name">${q.name}</span></td>
+                    <td class="q-meta">${q.creator}</td>
+                    <td class="q-meta">${q.date}</td>
+                    <td class="q-meta">${q.length}</td>
+                    <td class="q-meta">${formatSize(q.size)}</td>
+                    <td><span class="q-source">${getSourceName(q.source).split(' ')[0]}</span></td>
+                    <td>
+                        <span class="rel-bar"><span class="rel-fill ${getRelClass(q.reliability)}" style="width:${q.reliability}%"></span></span>
+                        <span class="rel-pct ${getRelClass(q.reliability)}">${q.reliability}</span>
+                    </td>
+                    <td><button class="q-trash" onclick="askTrash(${q.id}, '${q.name}')">x</button></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('arch-queries-count').textContent = dataBank.length;
+
+            // Artist queries list
+            document.getElementById('artist-queries-list').innerHTML = sorted.map(q => `
+                <div class="aq-item">
+                    <span class="aq-icon ${q.type}">${q.type.toUpperCase()}</span>
+                    <div class="aq-name">${q.name}<span class="sub">${q.creator}</span></div>
+                    <span class="aq-meta">${q.date}</span>
+                    <span class="aq-meta">${formatSize(q.size)}</span>
+                    <span class="aq-meta">${q.length}</span>
+                    <div class="aq-rel">
+                        <span class="aq-rel-bar"><span class="aq-rel-fill ${getRelClass(q.reliability)}" style="width:${q.reliability}%"></span></span>
+                    </div>
+                    <button class="aq-trash" onclick="askTrash(${q.id}, '${q.name}')">x</button>
+                </div>
+            `).join('');
+
+            document.getElementById('artist-queries-count').textContent = dataBank.length;
+        }
+
+        function sortQueries(mode) {
+            const sortVal = document.getElementById(mode === 'artist' ? 'artist-sort' : 'arch-sort').value;
+            renderQueries(sortVal);
+        }
+
+        // Trash confirmation
+        function askTrash(id, name) {
+            pendingTrashId = id;
+            document.getElementById('confirm-msg').textContent = `Are you sure you want to remove "${name}" from the data bank?`;
+            document.getElementById('confirm-modal').classList.add('show');
+        }
+
+        function closeConfirm() {
+            pendingTrashId = null;
+            document.getElementById('confirm-modal').classList.remove('show');
+        }
+
+        function confirmTrash() {
+            if (pendingTrashId !== null) {
+                dataBank = dataBank.filter(q => q.id !== pendingTrashId);
+                renderQueries(document.getElementById(currentMode === 'artist' ? 'artist-sort' : 'arch-sort').value);
+            }
+            closeConfirm();
+        }
+
+        function toggleSource(id) {
+            const source = sources.find(s => s.id === id);
+            if (source && !source.locked) {
+                source.active = !source.active;
+                renderArchivist();
+                renderArtist();
+                renderLinks();
+            }
+        }
+
+        function generateResults(query) {
+            const topic = query.toLowerCase().split(/\s+/).filter(t => t.length > 2).join(' ');
+            const capTopic = topic.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            const activeSources = sources.filter(s => s.active && !s.locked);
+            const randomSource = () => activeSources[Math.floor(Math.random() * activeSources.length)]?.name || 'Library of Congress';
+
+            return [
+                { quote: `Research on ${topic} shows significant findings across multiple disciplines.`, author: 'Academic Review', source: 'Journal of Applied Research, 2023', verifier: randomSource(), status: 'verified' },
+                { quote: `Historical documentation of ${topic} reveals patterns scholars continue to analyze.`, author: 'Historical Archive', source: 'National Archives', verifier: randomSource(), status: 'verified' },
+                { quote: `${capTopic} remains an area where primary source verification is essential.`, author: 'Source Analysis', source: 'Methodology report', verifier: randomSource(), status: 'pending' },
+                { quote: `Claims about ${topic} require cross-referencing with institutional records.`, author: 'Fact-Check', source: 'Community submissions', verifier: randomSource(), status: 'disputed' }
+            ];
+        }
+
+        async function executeSearch(mode) {
+            const queryId = mode === 'artist' ? 'artist-query' : 'arch-query';
+            const query = document.getElementById(queryId).value.trim();
+            if (!query) { document.getElementById(queryId).focus(); return; }
+
+            document.getElementById('loading').classList.add('show');
+            await new Promise(r => setTimeout(r, 1000));
+            document.getElementById('loading').classList.remove('show');
+
+            const results = generateResults(query);
+
+            if (mode === 'artist') {
+                document.getElementById('artist-result-count').textContent = results.length;
+                document.getElementById('artist-results-list').innerHTML = results.map(r => `
+                    <div class="result-card">
+                        <p class="quote">"${r.quote}"</p>
+                        <div class="meta">
+                            <span><strong>${r.author}</strong></span>
+                            <span>Source: ${r.source}</span>
+                            <span>Via: ${r.verifier}</span>
+                            <span class="status ${r.status}">${r.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('artist-results').classList.add('show');
+                document.getElementById('artist-results').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                document.getElementById('arch-results-list').innerHTML = `
+                    <div style="padding:12px;background:var(--paper-warm);border:1px dashed var(--paper-shadow);margin-bottom:16px;font-size:11px;color:var(--ink-tertiary);">
+                        <strong>Demo</strong> — Placeholder results for "${query}"
+                    </div>
+                ` + results.map(r => `
+                    <div style="padding:14px 0;border-bottom:1px solid var(--paper-shadow);">
+                        <p style="font-size:13px;line-height:1.6;margin-bottom:8px;">"${r.quote}"</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:var(--ink-tertiary);">
+                            <span><strong style="color:var(--ink-secondary);">${r.author}</strong></span>
+                            <span>Source: ${r.source}</span>
+                            <span>Via: ${r.verifier}</span>
+                            <span style="padding:2px 6px;font-size:9px;font-weight:600;text-transform:uppercase;background:${r.status === 'verified' ? 'rgba(22,101,52,0.1)' : r.status === 'disputed' ? 'rgba(153,27,27,0.1)' : 'rgba(133,77,14,0.1)'};color:${r.status === 'verified' ? 'var(--accent-verified)' : r.status === 'disputed' ? 'var(--accent-excluded)' : 'var(--accent-pending)'};">${r.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('arch-results').classList.add('show');
+                document.getElementById('arch-results').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const activeQuery = currentMode === 'artist' ? 'artist-query' : 'arch-query';
+                if (document.activeElement.id === activeQuery) executeSearch(currentMode);
+            }
+            if (e.key === 'Escape') closeConfirm();
+        });
+
+        // ========================================
+        // ANALYSIS OUTPUT VISUALIZATIONS
+        // ========================================
+
+        const sourceColors = {
+            loc: '#16a34a',
+            archive: '#d4a574',
+            jstor: '#3b82f6',
+            smith: '#8b5cf6',
+            qi: '#a78bfa',
+            wiki: '#f472b6',
+            gr: '#fb923c',
+            bq: '#94a3b8'
+        };
+
+        function setAnalysisView(view) {
+            document.querySelectorAll('.analysis-ctrl').forEach(c => c.classList.toggle('active', c.textContent.toLowerCase() === view));
+            document.querySelectorAll('.module').forEach(m => {
+                if (view === 'all') {
+                    m.style.display = '';
+                } else {
+                    const moduleType = m.dataset.module;
+                    m.style.display = (moduleType === view || moduleType === 'compare' || moduleType === 'scatter') ? '' : 'none';
+                }
+            });
+        }
+
+        function renderAnalysis() {
+            renderTemporalFlow();
+            renderReliabilityMatrix();
+            renderSourceNetwork();
+            render4DScatter();
+            randomCompare();
+        }
+
+        // Temporal Flow - points on timeline with reliability as height
+        function renderTemporalFlow() {
+            const container = document.getElementById('temporal-flow');
+            // Clear existing points
+            container.querySelectorAll('.temporal-point').forEach(p => p.remove());
+
+            const dates = dataBank.map(d => new Date(d.date).getTime());
+            const minDate = Math.min(...dates);
+            const maxDate = Math.max(...dates);
+            const range = maxDate - minDate || 1;
+
+            dataBank.forEach(item => {
+                const dateVal = new Date(item.date).getTime();
+                const xPct = ((dateVal - minDate) / range) * 90 + 5; // 5-95% range
+                const yPct = (item.reliability / 100) * 100; // Height based on reliability
+                const color = sourceColors[item.source] || '#666';
+
+                const point = document.createElement('div');
+                point.className = 'temporal-point';
+                point.style.left = `${xPct}%`;
+                point.style.color = color;
+                point.style.background = color;
+
+                const line = document.createElement('div');
+                line.className = 'tp-line';
+                line.style.height = `${yPct}px`;
+                point.appendChild(line);
+
+                const tooltip = document.createElement('div');
+                tooltip.className = 'temporal-tooltip';
+                tooltip.textContent = `${item.name} (${item.reliability}%)`;
+                point.appendChild(tooltip);
+
+                container.appendChild(point);
+            });
+        }
+
+        // Reliability Matrix - heatmap of source vs type
+        function renderReliabilityMatrix() {
+            const container = document.getElementById('reliability-matrix');
+            // Keep header, clear rest
+            const headers = container.querySelectorAll('.matrix-header');
+            container.innerHTML = '';
+            container.appendChild(document.createElement('div')); // empty corner
+            headers.forEach(h => container.appendChild(h.cloneNode(true)));
+
+            const types = ['doc', 'img', 'txt', 'vid', 'aud'];
+            const sourceList = ['loc', 'jstor', 'smith', 'archive', 'qi', 'wiki'];
+            const sourceNames = { loc: 'LOC', jstor: 'JSTOR', smith: 'Smith', archive: 'Archive', qi: 'QI', wiki: 'Wiki' };
+
+            sourceList.forEach(src => {
+                // Row label
+                const label = document.createElement('div');
+                label.className = 'matrix-cell matrix-row-label';
+                label.textContent = sourceNames[src];
+                container.appendChild(label);
+
+                // Values for each type
+                types.forEach(type => {
+                    const items = dataBank.filter(d => d.source === src && d.type === type);
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell matrix-value';
+
+                    if (items.length > 0) {
+                        const avgRel = Math.round(items.reduce((a, b) => a + b.reliability, 0) / items.length);
+                        cell.textContent = avgRel;
+                        cell.classList.add(getRelClass(avgRel));
+                        cell.title = `${items.length} item(s), avg ${avgRel}% reliability`;
+                    } else {
+                        cell.textContent = '-';
+                        cell.classList.add('empty');
+                    }
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        // Source Network - constellation of sources
+        function renderSourceNetwork() {
+            const container = document.getElementById('source-network');
+            container.innerHTML = '';
+
+            const activeSources = sources.filter(s => s.active && !s.locked);
+            const centerX = 50, centerY = 50;
+            const radius = 35;
+
+            // Count items per source
+            const sourceCounts = {};
+            dataBank.forEach(d => {
+                sourceCounts[d.source] = (sourceCounts[d.source] || 0) + 1;
+            });
+
+            activeSources.forEach((src, i) => {
+                const angle = (i / activeSources.length) * Math.PI * 2 - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+
+                const node = document.createElement('div');
+                node.className = 'network-node';
+                node.style.left = `${x}%`;
+                node.style.top = `${y}%`;
+
+                const orb = document.createElement('div');
+                orb.className = `network-orb ${src.type}`;
+                orb.textContent = sourceCounts[src.id] || 0;
+                node.appendChild(orb);
+
+                const label = document.createElement('div');
+                label.className = 'network-label';
+                label.textContent = src.name.split(' ')[0];
+                node.appendChild(label);
+
+                container.appendChild(node);
+
+                // Draw connection lines to center
+                const line = document.createElement('div');
+                line.className = 'network-line';
+                const dx = x - centerX;
+                const dy = y - centerY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angleRad = Math.atan2(dy, dx);
+                line.style.width = `${length}%`;
+                line.style.left = `${centerX}%`;
+                line.style.top = `${centerY}%`;
+                line.style.transform = `rotate(${angleRad}rad)`;
+                container.appendChild(line);
+            });
+
+            // Center node
+            const center = document.createElement('div');
+            center.className = 'network-stat';
+            center.style.left = '50%';
+            center.style.top = '50%';
+            center.style.transform = 'translate(-50%, -50%)';
+            center.textContent = `${dataBank.length} items`;
+            container.appendChild(center);
+        }
+
+        // 4D Scatter - X:time, Y:reliability, Size:filesize, Color:source
+        function render4DScatter() {
+            const container = document.getElementById('scatter-4d');
+            container.querySelectorAll('.scatter-point').forEach(p => p.remove());
+
+            const dates = dataBank.map(d => new Date(d.date).getTime());
+            const minDate = Math.min(...dates);
+            const maxDate = Math.max(...dates);
+            const dateRange = maxDate - minDate || 1;
+
+            const sizes = dataBank.map(d => d.size);
+            const maxSize = Math.max(...sizes);
+
+            dataBank.forEach(item => {
+                const dateVal = new Date(item.date).getTime();
+                const xPct = ((dateVal - minDate) / dateRange) * 85 + 5;
+                const yPct = 95 - (item.reliability / 100) * 85; // Invert Y
+                const sizePct = Math.max(10, Math.min(28, (item.size / maxSize) * 28));
+                const color = sourceColors[item.source] || '#666';
+
+                const point = document.createElement('div');
+                point.className = 'scatter-point';
+                point.style.left = `${xPct}%`;
+                point.style.top = `${yPct}%`;
+                point.style.width = `${sizePct}px`;
+                point.style.height = `${sizePct}px`;
+                point.style.background = color;
+                point.style.opacity = '0.8';
+                point.textContent = item.type.charAt(0).toUpperCase();
+
+                const tooltip = document.createElement('div');
+                tooltip.className = 'sp-tooltip';
+                tooltip.textContent = `${item.name} | ${item.reliability}% | ${formatSize(item.size)}`;
+                point.appendChild(tooltip);
+
+                container.appendChild(point);
+            });
+        }
+
+        // Comparison Engine
+        let compareA = null, compareB = null;
+
+        function randomCompare() {
+            const shuffled = [...dataBank].sort(() => Math.random() - 0.5);
+            compareA = shuffled[0];
+            compareB = shuffled[1];
+            renderComparison();
+        }
+
+        function renderComparison() {
+            if (!compareA || !compareB) return;
+
+            // Item A
+            document.getElementById('compare-item-a').innerHTML = `
+                <div class="compare-item-name">${compareA.name}</div>
+                <div class="compare-item-meta">
+                    Creator: ${compareA.creator}<br>
+                    Date: ${compareA.date}<br>
+                    Type: ${compareA.type.toUpperCase()} | ${compareA.length}
+                </div>
+            `;
+
+            // Item B
+            document.getElementById('compare-item-b').innerHTML = `
+                <div class="compare-item-name">${compareB.name}</div>
+                <div class="compare-item-meta">
+                    Creator: ${compareB.creator}<br>
+                    Date: ${compareB.date}<br>
+                    Type: ${compareB.type.toUpperCase()} | ${compareB.length}
+                </div>
+            `;
+
+            // Metrics
+            document.getElementById('cmp-rel-a').textContent = compareA.reliability + '%';
+            document.getElementById('cmp-rel-b').textContent = compareB.reliability + '%';
+            document.getElementById('cmp-size-a').textContent = formatSize(compareA.size);
+            document.getElementById('cmp-size-b').textContent = formatSize(compareB.size);
+            document.getElementById('cmp-src-a').textContent = getSourceName(compareA.source).split(' ')[0];
+            document.getElementById('cmp-src-b').textContent = getSourceName(compareB.source).split(' ')[0];
+
+            // Date delta
+            const dateA = new Date(compareA.date);
+            const dateB = new Date(compareB.date);
+            const delta = Math.abs(dateA - dateB) / (1000 * 60 * 60 * 24);
+            document.getElementById('cmp-delta').textContent = delta === 0 ? 'Same day' : `${Math.round(delta)} days`;
+
+            // Update insight
+            updateInsight();
+        }
+
+        function updateInsight() {
+            if (!compareA || !compareB) return;
+
+            const relDiff = Math.abs(compareA.reliability - compareB.reliability);
+            const sameSource = compareA.source === compareB.source;
+            const sameType = compareA.type === compareB.type;
+
+            let insight = '';
+            let tags = [];
+
+            if (relDiff < 10) {
+                insight += `These items have similar reliability scores (within ${relDiff}%). `;
+                tags.push('Reliability Match');
+            } else if (relDiff > 30) {
+                insight += `Significant reliability gap (${relDiff}%) suggests verification priority. `;
+                tags.push('Verification Gap');
+            }
+
+            if (sameSource) {
+                insight += `Both sourced from ${getSourceName(compareA.source)}, enabling direct provenance comparison. `;
+                tags.push('Same Provenance');
+            } else {
+                insight += `Cross-source analysis between ${getSourceName(compareA.source).split(' ')[0]} and ${getSourceName(compareB.source).split(' ')[0]} can strengthen verification. `;
+                tags.push('Cross-Reference');
+            }
+
+            if (sameType) {
+                insight += `Matching file types (${compareA.type.toUpperCase()}) allow format-specific analysis.`;
+                tags.push('Type Match');
+            }
+
+            document.getElementById('insight-text').textContent = insight || 'Select items to analyze connections and patterns.';
+            document.getElementById('insight-tags').innerHTML = tags.map(t => `<span class="insight-tag">${t}</span>`).join('');
+        }
+
+        // Initialize
+        document.body.classList.add('artist-mode');
+        renderArchivist();
+        renderArtist();
+        renderLinks();
+        renderQueries();
+    </script>
+</body>
+</html>
