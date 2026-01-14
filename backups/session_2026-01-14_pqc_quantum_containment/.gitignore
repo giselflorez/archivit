@@ -1,0 +1,458 @@
+# ============================================================================
+# ARCHIV-IT SECURITY-HARDENED .gitignore
+# Generated: 2026-01-08 by Security Audit
+# CRITICAL: This file protects against credential exposure, PII leakage,
+#           and sensitive data exposure to sophisticated threat actors
+# ============================================================================
+
+# ============================================================================
+# SECTION 1: ENVIRONMENT VARIABLES & SECRETS
+# These files contain API keys, passwords, and authentication tokens
+# NEVER commit these - they grant full access to external services
+# ============================================================================
+
+# Environment files - NEVER commit
+.env
+.env.*
+!.env.example
+*.env
+
+# ============================================================================
+# SECTION 2: OAUTH & API CREDENTIALS
+# Critical: OAuth tokens provide full account access
+# These were found committed in git history - MUST be purged
+# ============================================================================
+
+# Google OAuth credentials and tokens (CRITICAL - found exposed)
+**/google_drive_credentials.json
+**/google_drive_token.json
+**/gmail_credentials.json
+**/gmail_token.json
+**/credentials.json
+**/*_credentials.json
+**/*_token.json
+**/client_secret*.json
+
+# Generic credential patterns
+**/*credential*.json
+**/*token*.json
+!**/*token*.json.example
+
+# API authentication files
+**/archivit_auth.json
+**/*_auth.json
+
+# ============================================================================
+# SECTION 3: CONFIGURATION FILES WITH SENSITIVE DATA
+# These contain folder IDs, endpoints, internal settings, business logic
+# ============================================================================
+
+# Config directory - protect all JSON except examples
+config/*.json
+!config/*.json.example
+!config/ignored_drive_files.json.example
+
+# Specific sensitive configs found in audit
+config/google_drive_credentials.json
+config/google_drive_token.json
+config/settings.json
+config/api_config.json
+config/usage_tracking.json
+
+# Obfuscation and protection configs
+.obfuscate_config.json
+
+# ============================================================================
+# SECTION 4: CRYPTOGRAPHIC KEYS & SECRETS
+# Private keys, signing keys, certificates - found in two locations
+# ============================================================================
+
+# All key files (found: config/badge_secret.key, scripts/interface/config/badge_secret.key)
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Specific secret files
+**/badge_secret.key
+**/*_secret.key
+**/*.secret
+
+# Hardware binding files
+hardware_id.txt
+
+# License files (may contain user-specific data)
+license.key
+*.license
+
+# Scripts interface config directory (contains duplicate badge_secret.key)
+scripts/interface/config/
+
+# ============================================================================
+# SECTION 5: PERSONAL DATA & KNOWLEDGE BASE
+# User-generated content, PII, personal documents
+# CRITICAL: Found 53+ files with email, wallet, social handles exposed
+# ============================================================================
+
+# Entire knowledge base - contains extensive PII
+knowledge_base/
+
+# Training data (contains personal info, emails, profiles)
+**/training_data.json
+
+# Session logs (may contain conversation history)
+sessions/
+
+# ============================================================================
+# SECTION 6: DATABASES
+# All database files contain user data - already gitignored but reinforcing
+# ============================================================================
+
+# SQLite databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.db.backup*
+
+# Database directory
+db/
+
+# Scan status with wallet addresses
+db/scan_status.json
+
+# Chroma vector DB
+**/chroma/
+
+# txtai index (contains embeddings of personal data)
+**/txtai_index/
+
+# Visual cache (may contain processed images)
+**/visual_cache/
+
+# ============================================================================
+# SECTION 7: BUILD ARTIFACTS & PROTECTED BUILDS
+# Compiled code, obfuscated builds
+# ============================================================================
+
+# Protected/obfuscated builds
+protected_build/
+
+# Compiled Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Obfuscated JavaScript
+*.obfuscated.js
+
+# ============================================================================
+# SECTION 8: LOGS & DEBUG OUTPUT
+# May contain sensitive runtime information
+# ============================================================================
+
+# Log files
+*.log
+logs/
+**/server.log
+usage.log
+
+# Debug files (found: debug_foundation.html, debug_foundation_screenshot.png)
+debug_*.html
+debug_*.png
+debug_*.jpg
+debug_*.json
+
+# ============================================================================
+# SECTION 9: TEMPORARY & CACHE FILES
+# Runtime artifacts that should never be committed
+# ============================================================================
+
+# OS-specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-*
+
+# ============================================================================
+# SECTION 10: PACKAGE & DEPENDENCY DIRECTORIES
+# These are reproducible from requirements files
+# ============================================================================
+
+# Python virtual environment
+venv/
+env/
+.venv/
+.env/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ============================================================================
+# SECTION 11: DISTRIBUTION & ARCHIVES
+# May contain bundled secrets or builds
+# ============================================================================
+
+# Archive files (found: multiple .zip files with potentially sensitive content)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Distribution packages
+dist/
+build/
+*.egg-info/
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# ============================================================================
+# SECTION 12: EXPORT & OUTPUT DIRECTORIES
+# User-generated exports that may contain PII
+# ============================================================================
+
+# Export directories
+exports/
+**/press_kits/
+
+# Screenshot uploads (found: Screenshot*.png files)
+Screenshot*.png
+Screenshot*.jpg
+
+# ============================================================================
+# SECTION 13: SMART CONTRACT DEVELOPMENT
+# Deployment artifacts may contain private keys or addresses
+# ============================================================================
+
+# Hardhat/Truffle artifacts
+artifacts/
+cache/
+deployments/
+
+# Contract build outputs
+contracts/build/
+contracts/deployments/
+
+# Deployment logs (may contain wallet info)
+**/deploy*.log
+
+# ============================================================================
+# SECTION 14: TESTING & COVERAGE
+# Test artifacts
+# ============================================================================
+
+# Test databases
+**/test*.db
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# pytest
+.pytest_cache/
+.tox/
+
+# ============================================================================
+# SECTION 15: DEVELOPMENT SESSION LOGS
+# AI development history and agent instructions
+# ============================================================================
+
+# Claude/AI session files
+CLAUDE_SESSIONS.md
+AGENT_HANDOFF.md
+AGENT_INSTRUCTIONS.md
+PROJECT_BIBLE.md
+
+# ============================================================================
+# SECTION 16: MISCELLANEOUS SENSITIVE PATTERNS
+# Catch-all for common sensitive file patterns
+# ============================================================================
+
+# Anything with 'private' in the name
+*private*
+*PRIVATE*
+
+# Anything with 'secret' in the name
+*secret*
+*SECRET*
+
+# JSON files that might contain sensitive data
+**/scan_status.json
+**/scrape_queue.json
+**/orchestration_state.json
+
+# Weird artifacts found in audit
+=1.0.0
+WEB3AUTOMATE-work
+
+# ============================================================================
+# SECTION 17: EXPLICIT ALLOWLIST
+# Files that match above patterns but SHOULD be committed
+# ============================================================================
+
+# Example/template files (safe to commit)
+!*.example
+!**/*.example
+!.env.example
+!config/*.example
+
+# Documentation about secrets (not the secrets themselves)
+!docs/*SETUP*.md
+!docs/*GUIDE*.md
+
+# Public configuration templates
+!config/ignored_drive_files.json.example
+
+# ============================================================================
+# END OF SECURITY-HARDENED .gitignore
+# Last Updated: 2026-01-08
+# ============================================================================
+
+# Private proposals and drafts - DO NOT COMMIT
+docs/DATALAND_RESIDENCY_PROPOSAL.html
+docs/INTERNET_ARCHIVE_COLLABORATION_PROPOSAL.md
+docs/INTERNET_ARCHIVE_EMAIL.html
+docs/INTERNET_ARCHIVE_EMAIL_DRAFT.md
+docs/INTERNET_ARCHIVE_PROPOSAL.html
+docs/team_gallery_web3photo.html
+
+# ============================================================================
+# SECTION 18: TRADE SECRET PROTECTION (Added 2026-01-10)
+# CRITICAL: These files contain proprietary algorithms and IP
+# NEVER commit to public repositories
+# ============================================================================
+
+# Core Algorithm Modules - TRADE SECRETS
+scripts/interface/static/js/core/pi_quadratic_seed.js
+scripts/interface/static/js/core/balance_principle.js
+scripts/interface/static/js/core/energetic_core.js
+scripts/interface/static/js/core/expansion_engine.js
+scripts/interface/static/js/core/spiral_compression.js
+scripts/interface/static/js/core/creative_engine.js
+scripts/interface/static/js/core/authority_matrix.js
+scripts/interface/static/js/core/seed_pqs_integration.js
+scripts/interface/static/js/core/north_star_principles.js
+scripts/interface/static/js/core/creation_spiral.js
+scripts/interface/static/js/core/seed_profile.js
+scripts/interface/static/js/core/immutable_core.js
+scripts/interface/static/js/core/preservation_mode.js
+scripts/interface/static/js/core/ipfs_storage.js
+scripts/interface/static/js/core/knowledge_updater.js
+scripts/interface/static/js/core/app_manifest.js
+scripts/interface/static/js/core/index.js
+
+# IP Documentation - CONFIDENTIAL
+docs/IP_PRIORITY_REGISTER.md
+docs/IP_LEGAL_FOUNDATION.md
+docs/PATENT_CLAIMS_DRAFT.md
+docs/BEHAVIORAL_FINGERPRINTING_SYSTEM.md
+
+# Security Documentation - INTERNAL ONLY
+docs/SECURITY_CLASSIFICATION.md
+docs/SPATIAL_SECURITY_THREAT_MODEL.md
+docs/SECURITY_AUDIT_TRACKER.md
+docs/QUANTUM_FUTURE_ARCHITECTURE.md
+
+# Founder Records - INTERNAL ONLY
+docs/FOUNDER_JOURNEY.md
+docs/FOUNDER_QUOTES.md
+docs/SESSION_LOGS.md
+docs/AGENT_ONBOARDING.md
+
+# Architecture Deep Details - INTERNAL ONLY
+docs/COMPLETE_ARCHITECTURE.md
+docs/ARCHITECTURE_PRINCIPLES.md
+docs/ENERGETIC_FOUNDATIONS.md
+docs/NORTH_STAR_SEED_ENGINE.md
+docs/IMMUTABLE_CORE_ARCHITECTURE.md
+docs/ADAPTIVE_COMPRESSION_ARCHITECTURE.md
+docs/PUBLICATION_PHILOSOPHY.md
+
+# Technical Specifications - INTERNAL ONLY
+docs/PRODUCT_ARCHITECTURE_SPLIT.md
+docs/ITR8_TECHNICAL_SPEC.md
+docs/SOCIAL_TIMELINE_DESIGN.md
+docs/PYTORCH_WEBGPU_ARCHITECTURE.md
+docs/DEEP_PROVENANCE_FRAMEWORK.md
+docs/LIVING_WORKS_TEMPORAL_FRAMEWORK.md
+docs/CREATIVE_PROVENANCE_SOLUTIONS.md
+
+# Vision Notes - INTERNAL ONLY
+docs/IT-R8_VISION_NOTES.md
+
+# ============================================================================
+# SECTION 19: AI AGENT SESSION FILES
+# Development history that could reveal architecture
+# ============================================================================
+
+# Claude session transcripts
+.claude/
+**/*.jsonl
+
+# ============================================================================
+# END OF TRADE SECRET PROTECTION
+# Last Updated: 2026-01-10
+# ============================================================================
+
+# ============================================================================
+# SECTION 20: MEDIA FILES & SCRAPED CONTENT (Added 2026-01-13)
+# Large media files should not be in git - use IPFS instead
+# ============================================================================
+
+# DataLand proposal media (scraped WhatsApp content)
+dataland_proposal/media/
+dataland_proposal/videos/
+dataland_proposal/audio/
+dataland_proposal/video_frames/
+dataland_proposal/top_10/
+
+# General media file extensions (large binaries)
+*.mp4
+*.mov
+*.mpg
+*.mpeg
+*.avi
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.flac
+
+# NorthStar video downloads (should be on IPFS)
+northstar_knowledge_bank/videos/downloads/
+
+# Static frontend packages
+scripts/interface/static/node_modules/
+scripts/interface/static/package-lock.json
+
+# ============================================================================
+# END OF MEDIA FILES SECTION
+# ============================================================================
