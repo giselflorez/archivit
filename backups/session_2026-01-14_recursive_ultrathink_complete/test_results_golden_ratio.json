@@ -1,0 +1,247 @@
+{
+  "timestamp": "2026-01-14 10:41:28",
+  "phi": 1.618033988749895,
+  "tests": {
+    "thresholds": {
+      "BLOCKED": {
+        "formula": "\u03c6^(-2)",
+        "expected": 0.236,
+        "actual": 0.3819660113,
+        "error": 0.1459660113,
+        "passed": false
+      },
+      "DEGRADED": {
+        "formula": "1-\u03c6^(-1)",
+        "expected": 0.382,
+        "actual": 0.3819660113,
+        "error": 3.39887e-05,
+        "passed": true
+      },
+      "FULL": {
+        "formula": "\u03c6^(-1)",
+        "expected": 0.618,
+        "actual": 0.6180339887,
+        "error": 3.39887e-05,
+        "passed": true
+      },
+      "SOVEREIGN": {
+        "formula": "\u03c6^(-0.5)",
+        "expected": 0.786,
+        "actual": 0.7861513778,
+        "error": 0.0001513778,
+        "passed": true
+      }
+    },
+    "self_similarity": {
+      "thresholds": [
+        0.236,
+        0.382,
+        0.618,
+        0.786
+      ],
+      "ratios": [
+        1.6186,
+        1.6178,
+        1.2718
+      ],
+      "phi": 1.618,
+      "sqrt_phi": 1.272,
+      "phi_matches": 2,
+      "sqrt_phi_matches": 1,
+      "is_self_similar": true
+    },
+    "gaming_attacks": {
+      "burst": {
+        "attack_type": "BURST",
+        "bad_history": 50,
+        "perfect_actions": 21,
+        "v1": {
+          "acu": 1.0,
+          "tier": "FULL",
+          "vulnerable": true
+        },
+        "v2": {
+          "acu": 0.35,
+          "raw_acu": 0.35,
+          "tier": "BLOCKED",
+          "light_ratio": 0.2958,
+          "resistant": true
+        }
+      },
+      "oscillation": {
+        "attack_type": "OSCILLATION",
+        "cycles": 50,
+        "v1": {
+          "acu": 0.382,
+          "tier": "DEGRADED",
+          "vulnerable": false
+        },
+        "v2": {
+          "acu": 0.618,
+          "variance": 0.2485,
+          "variance_penalty": 0,
+          "tier": "PARTIAL",
+          "resistant": false
+        }
+      },
+      "minimum_viable": {
+        "attack_type": "MINIMUM_VIABLE",
+        "total_actions": 100,
+        "positive_ratio": 0.62,
+        "v1": {
+          "acu": 0.9142,
+          "tier": "FULL",
+          "vulnerable": true
+        },
+        "v2": {
+          "acu": 0.6579,
+          "light_ratio": 0.62,
+          "in_equilibrium": true,
+          "tier": "FULL",
+          "tier_capped": false,
+          "resistant": false
+        }
+      },
+      "v2_resistant_to_all": false
+    },
+    "compression": {
+      "benchmark": {
+        "gzip": {
+          "compressed_size": 10023,
+          "ratio": 0.9977052778609199,
+          "time_ms": 0.1
+        },
+        "zlib": {
+          "compressed_size": 10011,
+          "ratio": 0.9989012086704625,
+          "time_ms": 0.07
+        },
+        "spiral_zlib": {
+          "compressed_size": 10011,
+          "ratio": 0.9989012086704625,
+          "time_ms": 16882.37
+        },
+        "winner": "zlib",
+        "original_size": 10000
+      },
+      "fidelity": {
+        "original_size": 1000,
+        "transformed_size": 1000,
+        "size_preserved": true,
+        "unique_values_original": 249,
+        "unique_values_transformed": 222,
+        "entropy_preserved": true
+      }
+    },
+    "recursive_proofs": {
+      "fibonacci_convergence": {
+        "final_ratio": 1.6180339887482036,
+        "phi": 1.618033988749895,
+        "final_error": 1.6913137557139635e-12,
+        "convergence_rate": 2.617828541420507,
+        "converges_to_phi": true,
+        "is_recursive": true
+      },
+      "golden_spiral": {
+        "sqrt_phi": 1.272019649514069,
+        "computed": 1.272019649514069,
+        "match": true,
+        "quarter_turn_scale": 1.272019649514069,
+        "full_turn_scale": 2.618033988749895
+      },
+      "threshold_structure": {
+        "thresholds": {
+          "BLOCKED": 0.381966,
+          "DEGRADED": 0.381966,
+          "FULL": 0.618034,
+          "SOVEREIGN": 0.786151
+        },
+        "relations": [
+          {
+            "from": "BLOCKED",
+            "to": "DEGRADED",
+            "ratio": 1.0,
+            "phi_power": 0.0,
+            "is_golden": true
+          },
+          {
+            "from": "DEGRADED",
+            "to": "FULL",
+            "ratio": 1.618,
+            "phi_power": 1.0,
+            "is_golden": true
+          },
+          {
+            "from": "FULL",
+            "to": "SOVEREIGN",
+            "ratio": 1.272,
+            "phi_power": 0.5,
+            "is_golden": false
+          }
+        ],
+        "all_golden": false
+      },
+      "hash_chain": {
+        "chain_length": 8,
+        "total_references": 28,
+        "chain": [
+          {
+            "index": 0,
+            "fibonacci_lookback": 1,
+            "hash": "3a3970f31baae483",
+            "refs_previous": 0
+          },
+          {
+            "index": 1,
+            "fibonacci_lookback": 1,
+            "hash": "daa895ed346ae993",
+            "refs_previous": 1
+          },
+          {
+            "index": 2,
+            "fibonacci_lookback": 2,
+            "hash": "258e2894805cb4f0",
+            "refs_previous": 2
+          },
+          {
+            "index": 3,
+            "fibonacci_lookback": 3,
+            "hash": "d5f7a4ddb887e58c",
+            "refs_previous": 3
+          },
+          {
+            "index": 4,
+            "fibonacci_lookback": 5,
+            "hash": "ed1933d0c90f8e23",
+            "refs_previous": 4
+          },
+          {
+            "index": 5,
+            "fibonacci_lookback": 8,
+            "hash": "e05009b4009cf45c",
+            "refs_previous": 5
+          },
+          {
+            "index": 6,
+            "fibonacci_lookback": 13,
+            "hash": "3cd675969f43dc69",
+            "refs_previous": 6
+          },
+          {
+            "index": 7,
+            "fibonacci_lookback": 21,
+            "hash": "e4a9e3b9718af5f7",
+            "refs_previous": 7
+          }
+        ],
+        "demonstrates_recursive_memory": true
+      }
+    }
+  },
+  "summary": {
+    "all_thresholds_valid": false,
+    "gaming_resistant": false,
+    "recursive_proofs_complete": true,
+    "phi_0_5_corrected": true
+  }
+}
