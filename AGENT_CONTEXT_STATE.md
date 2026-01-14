@@ -69,9 +69,26 @@ PRIORITY 3 (Read when relevant):
 
 ### Last Action Completed
 ```
-ACTION: ULTRATHINK - Post-Quantum Cryptography Implementation (ML-KEM-768, ML-DSA-65)
+ACTION: ULTRATHINK - Algorithm Proof Requirements Analysis
 STATUS: COMPLETED
-TIMESTAMP: 2026-01-13 (latest session)
+TIMESTAMP: 2026-01-14
+
+CRITICAL FINDING:
+  ACU formula (0.618 × previous + 0.382 × current) does NOT prevent gaming!
+  Mathematical proof shows only 2-3 perfect actions needed to reach FULL tier.
+  REQUIRES IMMEDIATE REDESIGN.
+
+FILES_CREATED:
+  - docs/proofs/ALGORITHM_PROOF_REQUIREMENTS.md (comprehensive proof roadmap)
+  - docs/internal/SESSION_2026-01-14_CHANGELOG.md
+  - docs/public/ARC8_FOR_USERS.md
+  - docs/technical/ARC8_TECHNICAL_DEEP_DIVE.md
+  - scripts/agent/quantum_checkpoint.py (crash recovery)
+  - scripts/agent/quantum_checkpoint.js
+
+PREVIOUS ACTION: ULTRATHINK - Post-Quantum Cryptography Implementation (ML-KEM-768, ML-DSA-65)
+PREVIOUS STATUS: COMPLETED
+PREVIOUS TIMESTAMP: 2026-01-13 (previous session)
 
 FILES_CREATED:
   - docs/POST_QUANTUM_CRYPTOGRAPHY_SPEC.md (Full PQC specification ~1000 lines)
@@ -367,6 +384,19 @@ VERIFIED REPLACEMENTS FOUND:
 ---
 
 ## TODO QUEUE (From WhatsApp + Session)
+
+### CRITICAL PRIORITY (Algorithm Proofs)
+- [ ] **FIX ACU FORMULA** - Current formula does NOT prevent gaming (2-3 actions to FULL tier)
+  - Option A: Higher history weight (0.95 × previous + 0.05 × current)
+  - Option B: Minimum history length (require 20+ actions before tier calc)
+  - Option C: Sliding window EMA (window=50 actions)
+- [ ] **BUILD SPIRAL COMPRESSION BENCHMARK** - Compare vs gzip, lz4, zstd
+  - Test lossless reconstruction (must be bit-exact)
+  - Test PSNR at various compression ratios
+  - Test speed performance
+- [ ] **CORRECT φ THRESHOLD DOCUMENTATION** - Change "optimal" to "elegant"
+  - Fix φ^(-0.5) = 0.786, not 0.854 as stated
+  - Document that elegance ≠ functional superiority
 
 ### HIGH PRIORITY
 - [x] Post-Quantum Cryptography Implementation (ML-KEM-768, ML-DSA-65) - COMPLETED
