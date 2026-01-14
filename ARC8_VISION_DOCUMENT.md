@@ -1,4 +1,4 @@
-# ARC-8: THE ARK
+# ARC-8
 ## Digital Sovereignty Platform for Creators
 
 ---
@@ -29,7 +29,7 @@ ARC-8 is not a single application but an ecosystem of interconnected tools, each
 ┌─────────────────────────────────────────────────────────────────────┐
 │                                                                     │
 │                           ARC-8                                     │
-│                        "THE ARK"                                    │
+│                  Digital Sovereignty Platform                        │
 │              Digital Sovereignty Platform                           │
 │                                                                     │
 │   ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐      │

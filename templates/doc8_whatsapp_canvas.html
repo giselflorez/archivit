@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOC-8 | WhatsApp Knowledge Canvas</title>
+    <style>
+        :root {
+            --void: #0a0a0f;
+            --void-light: #12121a;
+            --void-lighter: #1a1a25;
+            --warm-white: #faf8f5;
+            --moon-silver: #c0c0c0;
+            --fuller-green: #00ff88;
+            --green-glow: rgba(0, 255, 136, 0.4);
+            --cyan: #00f5ff;
+            --cyan-dim: rgba(0, 245, 255, 0.2);
+            --warning-red: #ff6b6b;
+            --amber: #ffaa00;
+            --whatsapp-green: #25D366;
+            --whatsapp-dark: #1a1a1a;
+            --whatsapp-bubble-out: #005c4b;
+            --whatsapp-bubble-in: #202c33;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--void);
+            color: var(--warm-white);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header Bar */
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--void-light);
+            border-bottom: 1px solid var(--cyan-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--cyan);
+            opacity: 0.8;
+        }
+
+        .page-title {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--warm-white);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: 1px solid var(--cyan-dim);
+            color: var(--moon-silver);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-btn:hover {
+            border-color: var(--cyan);
+            color: var(--warm-white);
+        }
+
+        .header-btn.primary {
+            background: var(--fuller-green);
+            border-color: var(--fuller-green);
+            color: var(--void);
+        }
+
+        .header-btn.primary:hover {
+            box-shadow: 0 0 20px var(--green-glow);
+        }
+
+        /* Action Bar (appears when items selected) */
+        .action-bar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--void-light);
+            border: 1px solid var(--cyan);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            gap: 16px;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .action-bar.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--cyan-dim);
+            color: var(--moon-silver);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--cyan);
+            color: var(--warm-white);
+            background: rgba(0, 245, 255, 0.1);
+        }
+
+        .action-btn.research {
+            border-color: var(--fuller-green);
+            color: var(--fuller-green);
+        }
+
+        .action-btn.research:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .action-btn.archive {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .action-btn.archive:hover {
+            background: rgba(255, 170, 0, 0.1);
+        }
+
+        .action-btn.delete {
+            border-color: var(--warning-red);
+            color: var(--warning-red);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .selected-count {
+            color: var(--cyan);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            padding-right: 16px;
+            border-right: 1px solid var(--cyan-dim);
+        }
+
+        /* Canvas */
+        .canvas {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .canvas:active {
+            cursor: grabbing;
+        }
+
+        .canvas-inner {
+            position: absolute;
+            width: 4000px;
+            height: 3000px;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(0, 245, 255, 0.1) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        /* WhatsApp Bubble */
+        .bubble {
+            position: absolute;
+            min-width: 200px;
+            max-width: 380px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            cursor: move;
+            transition: transform 0.1s, box-shadow 0.2s;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .bubble.outgoing {
+            background: var(--whatsapp-bubble-out);
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.incoming {
+            background: var(--whatsapp-bubble-in);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 12px;
+            height: 12px;
+        }
+
+        .bubble.outgoing::before {
+            right: -6px;
+            background: var(--whatsapp-bubble-out);
+            clip-path: polygon(0 0, 0 100%, 100% 100%);
+        }
+
+        .bubble.incoming::before {
+            left: -6px;
+            background: var(--whatsapp-bubble-in);
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        }
+
+        .bubble:hover {
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .bubble.selected {
+            z-index: 20;
+            box-shadow: 0 0 0 2px var(--cyan), 0 8px 32px rgba(0, 245, 255, 0.3);
+        }
+
+        .bubble.dragging {
+            z-index: 100;
+            transform: scale(1.02);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            cursor: grabbing;
+        }
+
+        /* Bubble Content */
+        .bubble-sender {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 4px;
+        }
+
+        .bubble.outgoing .bubble-sender {
+            color: var(--fuller-green);
+        }
+
+        .bubble-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--warm-white);
+            word-wrap: break-word;
+        }
+
+        .bubble-meta {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .bubble-time {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .bubble-status {
+            font-size: 12px;
+            color: var(--cyan);
+        }
+
+        /* Tags on bubbles */
+        .bubble-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bubble-tag {
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bubble-tag.research {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--fuller-green);
+        }
+
+        .bubble-tag.quote {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--cyan);
+        }
+
+        .bubble-tag.todo {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--amber);
+        }
+
+        .bubble-tag.verified {
+            background: rgba(0, 255, 136, 0.3);
+            color: var(--fuller-green);
+            font-weight: 600;
+        }
+
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .connection-line line {
+            stroke: var(--cyan);
+            stroke-width: 1;
+            stroke-dasharray: 4 4;
+            opacity: 0.4;
+        }
+
+        /* Minimap */
+        .minimap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 180px;
+            height: 120px;
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 50;
+        }
+
+        .minimap-viewport {
+            position: absolute;
+            border: 1px solid var(--cyan);
+            background: rgba(0, 245, 255, 0.1);
+            pointer-events: none;
+        }
+
+        .minimap-bubble {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--whatsapp-green);
+            border-radius: 1px;
+        }
+
+        /* Import Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 15, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: var(--moon-silver);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--cyan-dim);
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--cyan);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .drop-zone-text {
+            color: var(--moon-silver);
+            font-size: 14px;
+        }
+
+        .drop-zone-hint {
+            color: rgba(192, 192, 192, 0.5);
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            position: fixed;
+            top: 60px;
+            right: -400px;
+            width: 400px;
+            height: calc(100vh - 60px);
+            background: var(--void-light);
+            border-left: 1px solid var(--cyan-dim);
+            z-index: 80;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .detail-panel.visible {
+            right: 0;
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--cyan-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-title {
+            font-size: 14px;
+            color: var(--moon-silver);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-close {
+            background: transparent;
+            border: none;
+            color: var(--moon-silver);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .detail-close:hover {
+            color: var(--warm-white);
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--moon-silver);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: fixed;
+            bottom: 150px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 8px;
+            color: var(--moon-silver);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            border-color: var(--cyan);
+            color: var(--warm-white);
+        }
+
+        .zoom-level {
+            text-align: center;
+            font-size: 10px;
+            color: var(--moon-silver);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-bar">
+        <div class="header-left">
+            <span class="logo">DOC-8</span>
+            <span class="page-title">WhatsApp Knowledge Canvas</span>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="showImportModal()">
+                <span>📱</span> Import Chat
+            </button>
+            <button class="header-btn" onclick="autoArrange()">
+                <span>⚡</span> Auto-Arrange
+            </button>
+            <button class="header-btn primary" onclick="sendToResearch()">
+                <span>🔬</span> Send to DOC-8
+            </button>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas" id="canvas">
+        <div class="canvas-inner" id="canvasInner">
+            <svg class="connection-line" id="connectionLines" width="4000" height="3000"></svg>
+            <!-- Bubbles will be added here -->
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar" id="actionBar">
+        <span class="selected-count"><span id="selectedCount">0</span> selected</span>
+        <button class="action-btn research" onclick="tagAsResearch()">
+            <span>🔬</span> Research
+        </button>
+        <button class="action-btn" onclick="tagAsQuote()">
+            <span>💬</span> Quote
+        </button>
+        <button class="action-btn archive" onclick="tagAsTodo()">
+            <span>📋</span> Todo
+        </button>
+        <button class="action-btn" onclick="connectSelected()">
+            <span>🔗</span> Connect
+        </button>
+        <button class="action-btn delete" onclick="deleteSelected()">
+            <span>🗑</span> Remove
+        </button>
+    </div>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <button class="zoom-btn" onclick="resetView()" style="font-size: 12px;">⟲</button>
+    </div>
+
+    <!-- Minimap -->
+    <div class="minimap" id="minimap">
+        <div class="minimap-viewport" id="minimapViewport"></div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <h2 class="modal-title">Import WhatsApp Chat</h2>
+            <p class="modal-subtitle">Drop a chat export file or paste messages directly</p>
+
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="drop-zone-icon">📱</div>
+                <div class="drop-zone-text">Drop chat export here or click to browse</div>
+                <div class="drop-zone-hint">Supports .txt exports from WhatsApp</div>
+            </div>
+            <input type="file" id="fileInput" accept=".txt" style="display: none" onchange="handleFileSelect(event)">
+
+            <div class="modal-actions">
+                <button class="header-btn" onclick="hideImportModal()">Cancel</button>
+                <button class="header-btn" onclick="loadDemoData()">Load Demo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <span class="detail-title">Message Details</span>
+            <button class="detail-close" onclick="hideDetailPanel()">×</button>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+
+    <script>
+        // State
+        let bubbles = [];
+        let selectedBubbles = new Set();
+        let connections = [];
+        let zoom = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let isPanning = false;
+        let dragTarget = null;
+        let dragOffset = { x: 0, y: 0 };
+        let panStart = { x: 0, y: 0 };
+
+        const canvas = document.getElementById('canvas');
+        const canvasInner = document.getElementById('canvasInner');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCanvasControls();
+            loadDemoData();
+            updateMinimap();
+        });
+
+        // Demo Data - WhatsApp style messages
+        const DEMO_MESSAGES = [
+            {
+                id: 1,
+                sender: 'Research Notes',
+                text: 'Need to find verified Tesla quotes from institutional sources. #RESEARCH',
+                time: '10:23 AM',
+                outgoing: true,
+                x: 200,
+                y: 150,
+                tags: ['research']
+            },
+            {
+                id: 2,
+                sender: 'You',
+                text: '"Be alone, that is the secret of invention; be alone, that is when ideas are born." - Tesla, NYT 1934',
+                time: '10:45 AM',
+                outgoing: true,
+                x: 450,
+                y: 180,
+                tags: ['quote', 'verified']
+            },
+            {
+                id: 3,
+                sender: 'Ideas',
+                text: 'The 4D spectral visualization could map cognitive patterns across all masters - time as visible dimension',
+                time: '11:02 AM',
+                outgoing: true,
+                x: 180,
+                y: 380,
+                tags: []
+            },
+            {
+                id: 4,
+                sender: 'You',
+                text: 'Jung BBC Face to Face 1959 - download and transcribe for NORTHSTAR bank',
+                time: '11:15 AM',
+                outgoing: true,
+                x: 500,
+                y: 420,
+                tags: ['todo']
+            },
+            {
+                id: 5,
+                sender: 'Collaborator',
+                text: 'Check out archive.org for Fuller "Everything I Know" - 42 hours of lectures!',
+                time: '11:30 AM',
+                outgoing: false,
+                x: 750,
+                y: 200,
+                tags: []
+            },
+            {
+                id: 6,
+                sender: 'You',
+                text: 'Quote Investigator is the best source for verification - always cross-reference',
+                time: '11:45 AM',
+                outgoing: true,
+                x: 720,
+                y: 450,
+                tags: ['research']
+            },
+            {
+                id: 7,
+                sender: 'Research Notes',
+                text: 'Hildegard of Bingen - find primary sources for music theory quotes. Pre-AI era crucial.',
+                time: '12:01 PM',
+                outgoing: true,
+                x: 300,
+                y: 600,
+                tags: ['research', 'todo']
+            },
+            {
+                id: 8,
+                sender: 'Collaborator',
+                text: 'The DOC-8 interface is brilliant - source pre-approval changes everything',
+                time: '12:15 PM',
+                outgoing: false,
+                x: 600,
+                y: 650,
+                tags: []
+            },
+            {
+                id: 9,
+                sender: 'You',
+                text: '"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration." - DISPUTED, no primary source!',
+                time: '12:30 PM',
+                outgoing: true,
+                x: 900,
+                y: 350,
+                tags: ['quote']
+            },
+            {
+                id: 10,
+                sender: 'Ideas',
+                text: 'What if each master had their own halo style? Artists = flame, Mystics = aurora, Builders = geometric...',
+                time: '1:00 PM',
+                outgoing: true,
+                x: 150,
+                y: 800,
+                tags: []
+            }
+        ];
+
+        function loadDemoData() {
+            hideImportModal();
+            bubbles = DEMO_MESSAGES.map(msg => ({...msg}));
+            renderBubbles();
+            updateMinimap();
+        }
+
+        function renderBubbles() {
+            // Remove existing bubbles
+            document.querySelectorAll('.bubble').forEach(el => el.remove());
+
+            bubbles.forEach(bubble => {
+                const el = createBubbleElement(bubble);
+                canvasInner.appendChild(el);
+            });
+
+            renderConnections();
+        }
+
+        function createBubbleElement(bubble) {
+            const el = document.createElement('div');
+            el.className = `bubble ${bubble.outgoing ? 'outgoing' : 'incoming'} ${selectedBubbles.has(bubble.id) ? 'selected' : ''}`;
+            el.dataset.id = bubble.id;
+            el.style.left = bubble.x + 'px';
+            el.style.top = bubble.y + 'px';
+
+            let tagsHtml = '';
+            if (bubble.tags && bubble.tags.length > 0) {
+                tagsHtml = `<div class="bubble-tags">
+                    ${bubble.tags.map(tag => `<span class="bubble-tag ${tag}">${tag}</span>`).join('')}
+                </div>`;
+            }
+
+            el.innerHTML = `
+                <div class="bubble-sender">${bubble.sender}</div>
+                <div class="bubble-text">${bubble.text}</div>
+                <div class="bubble-meta">
+                    <span class="bubble-time">${bubble.time}</span>
+                    ${bubble.outgoing ? '<span class="bubble-status">✓✓</span>' : ''}
+                </div>
+                ${tagsHtml}
+            `;
+
+            // Event listeners
+            el.addEventListener('mousedown', (e) => startDrag(e, bubble));
+            el.addEventListener('click', (e) => handleBubbleClick(e, bubble));
+            el.addEventListener('dblclick', (e) => showBubbleDetail(bubble));
+
+            return el;
+        }
+
+        function setupCanvasControls() {
+            // Pan canvas
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.target === canvas || e.target === canvasInner) {
+                    isPanning = true;
+                    panStart = { x: e.clientX - panX, y: e.clientY - panY };
+                    canvas.style.cursor = 'grabbing';
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    panX = e.clientX - panStart.x;
+                    panY = e.clientY - panStart.y;
+                    updateCanvasTransform();
+                    updateMinimap();
+                }
+
+                if (isDragging && dragTarget) {
+                    const bubble = bubbles.find(b => b.id === dragTarget.id);
+                    if (bubble) {
+                        bubble.x = (e.clientX - dragOffset.x - panX) / zoom;
+                        bubble.y = (e.clientY - dragOffset.y - panY - 60) / zoom;
+
+                        const el = document.querySelector(`.bubble[data-id="${bubble.id}"]`);
+                        if (el) {
+                            el.style.left = bubble.x + 'px';
+                            el.style.top = bubble.y + 'px';
+                        }
+                        renderConnections();
+                        updateMinimap();
+                    }
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    const el = document.querySelector(`.bubble[data-id="${dragTarget?.id}"]`);
+                    if (el) el.classList.remove('dragging');
+                }
+                isDragging = false;
+                isPanning = false;
+                dragTarget = null;
+                canvas.style.cursor = 'grab';
+            });
+
+            // Zoom with wheel
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                zoom = Math.max(0.3, Math.min(2, zoom * delta));
+                updateCanvasTransform();
+                updateMinimap();
+                document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    selectedBubbles.clear();
+                    updateSelection();
+                    hideDetailPanel();
+                }
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    if (selectedBubbles.size > 0) {
+                        deleteSelected();
+                    }
+                }
+                if (e.key === 'a' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    bubbles.forEach(b => selectedBubbles.add(b.id));
+                    updateSelection();
+                }
+            });
+        }
+
+        function startDrag(e, bubble) {
+            e.stopPropagation();
+            isDragging = true;
+            dragTarget = bubble;
+            dragOffset = {
+                x: e.clientX - (bubble.x * zoom + panX),
+                y: e.clientY - (bubble.y * zoom + panY + 60)
+            };
+
+            const el = e.currentTarget;
+            el.classList.add('dragging');
+        }
+
+        function handleBubbleClick(e, bubble) {
+            e.stopPropagation();
+
+            if (e.shiftKey) {
+                // Multi-select
+                if (selectedBubbles.has(bubble.id)) {
+                    selectedBubbles.delete(bubble.id);
+                } else {
+                    selectedBubbles.add(bubble.id);
+                }
+            } else {
+                // Single select
+                selectedBubbles.clear();
+                selectedBubbles.add(bubble.id);
+            }
+
+            updateSelection();
+        }
+
+        function updateSelection() {
+            document.querySelectorAll('.bubble').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                el.classList.toggle('selected', selectedBubbles.has(id));
+            });
+
+            const actionBar = document.getElementById('actionBar');
+            const count = selectedBubbles.size;
+            document.getElementById('selectedCount').textContent = count;
+            actionBar.classList.toggle('visible', count > 0);
+        }
+
+        function updateCanvasTransform() {
+            canvasInner.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            canvasInner.style.transformOrigin = '0 0';
+        }
+
+        // Zoom controls
+        function zoomIn() {
+            zoom = Math.min(2, zoom * 1.2);
+            updateCanvasTransform();
+            updateMinimap();
+            document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+        }
+
+        function zoomOut() {
+            zoom = Math.max(0.3, zoom * 0.8);
+            updateCanvasTransform();
+            updateMinimap();
+            document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+        }
+
+        function resetView() {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            updateCanvasTransform();
+            updateMinimap();
+            document.getElementById('zoomLevel').textContent = '100%';
+        }
+
+        // Minimap
+        function updateMinimap() {
+            const minimap = document.getElementById('minimap');
+            const viewport = document.getElementById('minimapViewport');
+
+            // Update bubble positions on minimap
+            minimap.querySelectorAll('.minimap-bubble').forEach(el => el.remove());
+
+            const scale = 180 / 4000; // minimap width / canvas width
+
+            bubbles.forEach(bubble => {
+                const dot = document.createElement('div');
+                dot.className = 'minimap-bubble';
+                dot.style.left = (bubble.x * scale) + 'px';
+                dot.style.top = (bubble.y * scale * (120/3000)) + 'px';
+                if (selectedBubbles.has(bubble.id)) {
+                    dot.style.background = 'var(--cyan)';
+                }
+                minimap.appendChild(dot);
+            });
+
+            // Update viewport rectangle
+            const viewWidth = (window.innerWidth / zoom) * scale;
+            const viewHeight = ((window.innerHeight - 60) / zoom) * scale * (120/3000);
+            viewport.style.width = viewWidth + 'px';
+            viewport.style.height = viewHeight + 'px';
+            viewport.style.left = (-panX / zoom * scale) + 'px';
+            viewport.style.top = (-panY / zoom * scale * (120/3000)) + 'px';
+        }
+
+        // Action functions
+        function tagAsResearch() {
+            selectedBubbles.forEach(id => {
+                const bubble = bubbles.find(b => b.id === id);
+                if (bubble && !bubble.tags.includes('research')) {
+                    bubble.tags.push('research');
+                }
+            });
+            renderBubbles();
+        }
+
+        function tagAsQuote() {
+            selectedBubbles.forEach(id => {
+                const bubble = bubbles.find(b => b.id === id);
+                if (bubble && !bubble.tags.includes('quote')) {
+                    bubble.tags.push('quote');
+                }
+            });
+            renderBubbles();
+        }
+
+        function tagAsTodo() {
+            selectedBubbles.forEach(id => {
+                const bubble = bubbles.find(b => b.id === id);
+                if (bubble && !bubble.tags.includes('todo')) {
+                    bubble.tags.push('todo');
+                }
+            });
+            renderBubbles();
+        }
+
+        function connectSelected() {
+            const ids = Array.from(selectedBubbles);
+            if (ids.length < 2) {
+                alert('Select at least 2 bubbles to connect');
+                return;
+            }
+
+            // Connect sequentially
+            for (let i = 0; i < ids.length - 1; i++) {
+                connections.push({ from: ids[i], to: ids[i + 1] });
+            }
+            renderConnections();
+        }
+
+        function renderConnections() {
+            const svg = document.getElementById('connectionLines');
+            svg.innerHTML = '';
+
+            connections.forEach(conn => {
+                const fromBubble = bubbles.find(b => b.id === conn.from);
+                const toBubble = bubbles.find(b => b.id === conn.to);
+
+                if (fromBubble && toBubble) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', fromBubble.x + 100);
+                    line.setAttribute('y1', fromBubble.y + 40);
+                    line.setAttribute('x2', toBubble.x + 100);
+                    line.setAttribute('y2', toBubble.y + 40);
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        function deleteSelected() {
+            bubbles = bubbles.filter(b => !selectedBubbles.has(b.id));
+            connections = connections.filter(c =>
+                !selectedBubbles.has(c.from) && !selectedBubbles.has(c.to)
+            );
+            selectedBubbles.clear();
+            renderBubbles();
+            updateSelection();
+            updateMinimap();
+        }
+
+        function autoArrange() {
+            // Simple grid arrangement
+            const cols = 4;
+            const spacing = { x: 320, y: 180 };
+            const offset = { x: 100, y: 100 };
+
+            bubbles.forEach((bubble, i) => {
+                bubble.x = offset.x + (i % cols) * spacing.x;
+                bubble.y = offset.y + Math.floor(i / cols) * spacing.y;
+            });
+
+            renderBubbles();
+            updateMinimap();
+        }
+
+        function sendToResearch() {
+            const researchBubbles = bubbles.filter(b =>
+                selectedBubbles.size > 0
+                    ? selectedBubbles.has(b.id) && b.tags.includes('research')
+                    : b.tags.includes('research')
+            );
+
+            if (researchBubbles.length === 0) {
+                alert('No research-tagged items found. Select bubbles and tag them with Research first.');
+                return;
+            }
+
+            // Build query from research items
+            const queries = researchBubbles.map(b => b.text).join('\n\n');
+
+            // Store and redirect
+            localStorage.setItem('doc8_queries', JSON.stringify(researchBubbles));
+            window.location.href = '/doc8?queries=' + encodeURIComponent(queries);
+        }
+
+        // Detail panel
+        function showBubbleDetail(bubble) {
+            const panel = document.getElementById('detailPanel');
+            const content = document.getElementById('detailContent');
+
+            content.innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-label">Message</div>
+                    <div class="detail-value">${bubble.text}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">From</div>
+                    <div class="detail-value">${bubble.sender}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Time</div>
+                    <div class="detail-value">${bubble.time}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Tags</div>
+                    <div class="detail-value">
+                        ${bubble.tags.length > 0
+                            ? bubble.tags.map(t => `<span class="bubble-tag ${t}">${t}</span>`).join(' ')
+                            : '<span style="color: var(--moon-silver)">No tags</span>'
+                        }
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Actions</div>
+                    <div class="detail-actions">
+                        <button class="action-btn research" onclick="tagSingle(${bubble.id}, 'research')">🔬 Research</button>
+                        <button class="action-btn" onclick="tagSingle(${bubble.id}, 'quote')">💬 Quote</button>
+                        <button class="action-btn archive" onclick="tagSingle(${bubble.id}, 'todo')">📋 Todo</button>
+                    </div>
+                </div>
+            `;
+
+            panel.classList.add('visible');
+        }
+
+        function hideDetailPanel() {
+            document.getElementById('detailPanel').classList.remove('visible');
+        }
+
+        function tagSingle(id, tag) {
+            const bubble = bubbles.find(b => b.id === id);
+            if (bubble && !bubble.tags.includes(tag)) {
+                bubble.tags.push(tag);
+                renderBubbles();
+                showBubbleDetail(bubble);
+            }
+        }
+
+        // Import modal
+        function showImportModal() {
+            document.getElementById('importModal').classList.add('visible');
+        }
+
+        function hideImportModal() {
+            document.getElementById('importModal').classList.remove('visible');
+        }
+
+        // File handling
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                parseWhatsAppExport(file);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                parseWhatsAppExport(file);
+            }
+        }
+
+        function parseWhatsAppExport(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const messages = parseWhatsAppText(text);
+
+                bubbles = messages.map((msg, i) => ({
+                    id: i + 1,
+                    sender: msg.sender,
+                    text: msg.text,
+                    time: msg.time,
+                    outgoing: msg.sender === 'You',
+                    x: 100 + (i % 4) * 300,
+                    y: 100 + Math.floor(i / 4) * 180,
+                    tags: detectTags(msg.text)
+                }));
+
+                hideImportModal();
+                renderBubbles();
+                updateMinimap();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseWhatsAppText(text) {
+            const messages = [];
+            // WhatsApp export format: [date, time] sender: message
+            const regex = /\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s*(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)\]?\s*-?\s*([^:]+):\s*(.+)/gi;
+
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                messages.push({
+                    date: match[1],
+                    time: match[2],
+                    sender: match[3].trim(),
+                    text: match[4].trim()
+                });
+            }
+
+            // If no standard format found, try simple line-by-line
+            if (messages.length === 0) {
+                text.split('\n').filter(line => line.trim()).forEach((line, i) => {
+                    messages.push({
+                        time: '',
+                        sender: 'Message',
+                        text: line.trim()
+                    });
+                });
+            }
+
+            return messages;
+        }
+
+        function detectTags(text) {
+            const tags = [];
+            const lowerText = text.toLowerCase();
+
+            if (lowerText.includes('#research') || lowerText.includes('research') && lowerText.includes('find')) {
+                tags.push('research');
+            }
+            if (lowerText.includes('#todo') || lowerText.includes('todo') || lowerText.includes('need to')) {
+                tags.push('todo');
+            }
+            if (text.includes('"') && text.includes('-')) {
+                tags.push('quote');
+            }
+
+            return tags;
+        }
+
+        // Handle canvas click to deselect
+        canvas.addEventListener('click', (e) => {
+            if (e.target === canvas || e.target === canvasInner) {
+                selectedBubbles.clear();
+                updateSelection();
+            }
+        });
+    </script>
+</body>
+</html>

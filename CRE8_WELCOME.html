@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRE-8 | Your Creative Legacy, Sovereign Forever</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --accent-gold: #d4af37;
+            --accent-chrome: #c0c0c0;
+            --accent-warm: #b8860b;
+            --border-subtle: #2a2a2a;
+            --glow-gold: rgba(212, 175, 55, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        .logo {
+            font-size: 5rem;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-chrome) 50%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px var(--glow-gold);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 3rem;
+        }
+
+        .hero-description {
+            max-width: 600px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Product Suite */
+        .suite-section {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+        }
+
+        .suite-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+        }
+
+        .suite-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 30px var(--glow-gold);
+            transform: translateY(-4px);
+        }
+
+        .product-card.primary {
+            border-color: var(--accent-gold);
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(212, 175, 55, 0.05) 100%);
+        }
+
+        .product-name {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            color: var(--accent-gold);
+        }
+
+        .product-full-name {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .product-status {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+        }
+
+        .status-active {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--accent-gold);
+        }
+
+        .status-planned {
+            background: rgba(160, 160, 160, 0.2);
+            color: var(--text-secondary);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 6rem 2rem;
+            background: var(--bg-primary);
+        }
+
+        .features-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 4rem;
+            color: var(--text-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: var(--accent-chrome);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Philosophy Section */
+        .philosophy-section {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+
+        .philosophy-section h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 3rem;
+            color: var(--accent-gold);
+        }
+
+        .principles {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .principle {
+            flex: 1 1 200px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+        }
+
+        .principle h4 {
+            color: var(--accent-chrome);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .principle p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 2rem;
+            background:
+                radial-gradient(ellipse at 50% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                var(--bg-primary);
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-warm) 100%);
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 30px var(--glow-gold);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            background: var(--bg-secondary);
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        /* The 8 */
+        .eight-meaning {
+            margin-top: 4rem;
+            padding: 2rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .eight-meaning h3 {
+            color: var(--accent-gold);
+            font-weight: 300;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .eight-meaning ul {
+            list-style: none;
+            color: var(--text-secondary);
+        }
+
+        .eight-meaning li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .eight-meaning li:last-child {
+            border-bottom: none;
+        }
+
+        .eight-symbol {
+            font-size: 3rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1 class="logo">CRE-8</h1>
+        <p class="tagline">YOUR CREATIVE LEGACY, SOVEREIGN FOREVER</p>
+        <p class="hero-description">
+            A suite of tools for artists, collectors, and digital creators to archive, iterate,
+            document, and share their work. Local-first. Blockchain-native. Yours forever.
+        </p>
+    </section>
+
+    <!-- Product Suite -->
+    <section class="suite-section">
+        <h2>THE SUITE</h2>
+        <p class="suite-subtitle">Five tools. One ecosystem. Complete creative sovereignty.</p>
+
+        <div class="products">
+            <div class="product-card primary">
+                <h3 class="product-name">ARC-8</h3>
+                <p class="product-full-name">Archive-8</p>
+                <p class="product-description">
+                    Your personal knowledge archive. Import multimedia, connect wallets,
+                    visualize your creative history through spatial interfaces.
+                    All data stays on your machine.
+                </p>
+                <span class="product-status status-active">BETA</span>
+            </div>
+
+            <div class="product-card">
+                <h3 class="product-name">ITR-8</h3>
+                <p class="product-full-name">Iterate-8</p>
+                <p class="product-description">
+                    Creative iteration and generation tools. Transform archived works
+                    into new expressions. Recognition feeds generation.
+                </p>
+                <span class="product-status status-planned">PLANNED</span>
+            </div>
+
+            <div class="product-card">
+                <h3 class="product-name">DOC-8</h3>
+                <p class="product-full-name">Document-8</p>
+                <p class="product-description">
+                    Writing and documentation synthesis. Capture thoughts,
+                    compile knowledge, create lasting records of your process.
+                </p>
+                <span class="product-status status-planned">PLANNED</span>
+            </div>
+
+            <div class="product-card">
+                <h3 class="product-name">SOCI-8</h3>
+                <p class="product-full-name">Social-8</p>
+                <p class="product-description">
+                    Community connection and sharing. Build trust networks,
+                    share selectively, maintain sovereignty over your social graph.
+                </p>
+                <span class="product-status status-planned">CONCEPT</span>
+            </div>
+
+            <div class="product-card">
+                <h3 class="product-name">STR-8</h3>
+                <p class="product-full-name">Stream-8</p>
+                <p class="product-description">
+                    AI training and data streaming layer. The intelligent backbone
+                    that connects all CRE-8 tools with machine learning capabilities.
+                </p>
+                <span class="product-status status-planned">CONCEPT</span>
+            </div>
+        </div>
+
+        <div class="eight-meaning">
+            <div class="eight-symbol">8</div>
+            <h3>Why 8?</h3>
+            <ul>
+                <li>Infinity rotated 90 degrees</li>
+                <li>The byte: fundamental unit of digital information</li>
+                <li>Symbol of abundance and manifestation</li>
+                <li>Cycles, eternal return, continuous creation</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-section">
+        <h2>BUILT DIFFERENT</h2>
+
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">&#x1F512;</div>
+                <h3>Local-First</h3>
+                <p>All your data lives on your machine. No cloud dependency. No subscription lock-in. Delete when you want.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">&#x26D3;</div>
+                <h3>Blockchain-Native</h3>
+                <p>Connect wallets, track on-chain activity, verify provenance. Built for Web3 creators from the ground up.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">&#x1F310;</div>
+                <h3>Spatial Visualization</h3>
+                <p>Navigate your archive in 3D space. See connections. Discover patterns. Experience your creative history.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">&#x1F3A8;</div>
+                <h3>Artist-Built</h3>
+                <p>Created by an artist for artists. Not another Silicon Valley product. A tool born from real creative needs.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Philosophy -->
+    <section class="philosophy-section">
+        <h2>CORE PRINCIPLES</h2>
+
+        <div class="principles">
+            <div class="principle">
+                <h4>Data Sovereignty</h4>
+                <p>You own your data. Period. No extraction. No monetization. No access without consent.</p>
+            </div>
+
+            <div class="principle">
+                <h4>Creative Freedom</h4>
+                <p>No algorithms deciding visibility. No platforms gatekeeping. Your archive, your rules.</p>
+            </div>
+
+            <div class="principle">
+                <h4>Permanent Legacy</h4>
+                <p>Built for longevity. No subscription expiry. Your creative legacy outlasts any company.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOONLANGUAGE -->
+    <section class="features-section" style="background: var(--bg-secondary);">
+        <h2>MOONLANGUAGE</h2>
+        <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 0 auto 3rem auto;">
+            968 multimedia artworks. A visual language born from lunar cycles.
+            ARC-8 serves as the archive and visualization layer for this collection.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; max-width: 800px; margin: 0 auto;">
+            <div class="principle">
+                <h4>968 Moons</h4>
+                <p>Each a unique cosmic transmission captured and translated into visual form.</p>
+            </div>
+            <div class="principle">
+                <h4>5 Variants</h4>
+                <p>Multiple expressions per moon across different mediums and blockchains.</p>
+            </div>
+            <div class="principle">
+                <h4>4D Navigation</h4>
+                <p>Timeline-based exploration from first moon to last. Time as a dimension.</p>
+            </div>
+        </div>
+
+        <p style="text-align: center; margin-top: 3rem;">
+            <a href="https://moonlanguage-web3d-demoenv.vercel.app" target="_blank"
+               style="color: var(--accent-gold); text-decoration: none; border-bottom: 1px solid var(--accent-gold);">
+                View Live Demo
+            </a>
+        </p>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Join the Beta</h2>
+        <p>ARC-8 is currently in private beta. Request access to start building your sovereign archive.</p>
+        <a href="mailto:info@web3photo.com" class="cta-button">REQUEST ACCESS</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>CRE-8 Suite &bull; 2026 &bull; <a href="mailto:info@web3photo.com">info@web3photo.com</a></p>
+        <p style="margin-top: 0.5rem;">Built with sovereignty in mind.</p>
+    </footer>
+
+</body>
+</html>

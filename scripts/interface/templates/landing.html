@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIV-IT | Your Data. Your Future.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Paper texture palette */
+            --bg-primary: #f4f0e6;
+            --bg-secondary: #ebe6da;
+            --bg-card: #fffdf8;
+            --text-primary: #1a1510;
+            --text-secondary: #3d3328;
+            --text-muted: #5a4d3e;
+            --accent-gold: #8a6b3f;
+            --accent-gold-dim: rgba(154, 123, 79, 0.3);
+            --border: #c4b9a8;
+            --emboss-light: rgba(255, 255, 255, 0.7);
+            --emboss-shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            font-size: 18px;
+        }
+
+        body {
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(255,252,245,0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(235,230,218,0.4) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-primary) 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.75rem;
+            text-shadow: 0 1px 0 var(--emboss-light);
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            text-shadow:
+                0 1px 0 var(--emboss-light),
+                0 -1px 2px var(--emboss-shadow);
+        }
+
+        .header-subtitle {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main content */
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Mission statement */
+        .mission {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 2rem;
+        }
+
+        .mission h2 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .mission p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* App grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .app-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.8) 50%,
+                transparent 100%);
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-gold);
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .app-code {
+            font-family: 'Geist', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .app-card h3 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .app-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .app-status {
+            margin-top: 1rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.3rem 0.8rem;
+            background: rgba(138, 107, 63, 0.1);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .app-status.active {
+            background: rgba(84, 168, 118, 0.15);
+            color: #3d7a4f;
+        }
+
+        /* Archive link - prominent */
+        .archive-section {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .archive-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: var(--text-primary);
+            color: var(--bg-card);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .archive-link:hover {
+            background: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .archive-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        .footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footer-tagline {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <p class="header-label">Welcome to</p>
+        <h1>ARCHIV-IT</h1>
+        <p class="header-subtitle">Your Data. Your Future. Take Control.</p>
+    </header>
+
+    <main class="main">
+        <section class="mission">
+            <h2>Artist Sovereignty Through Technology</h2>
+            <p>Local-first tools that let you store, verify, create, and share on your own terms. No middlemen. No extraction. Your work, your history, portable across any platform.</p>
+        </section>
+
+        <div class="app-grid">
+            <a href="/doc8" class="app-card">
+                <div class="app-code">DOC-8</div>
+                <h3>Document & Archive</h3>
+                <p>Store, verify, and track provenance. Build your knowledge base with verified sources.</p>
+                <span class="app-status active">Active</span>
+            </a>
+
+            <a href="/itr8/stream" class="app-card">
+                <div class="app-code">IT-R8</div>
+                <h3>Create & Rate</h3>
+                <p>Capture ideas as fragments. Drag, connect, and tag spatially. Your thought stream.</p>
+                <span class="app-status active">Active</span>
+            </a>
+
+            <a href="/cre8" class="app-card">
+                <div class="app-code">CRE-8</div>
+                <h3>Create from Data</h3>
+                <p>Transform your archive into new creations. AI-assisted with verified sources only.</p>
+                <span class="app-status">In Development</span>
+            </a>
+
+            <a href="/nft8" class="app-card">
+                <div class="app-code">NFT-8</div>
+                <h3>Collect & Display</h3>
+                <p>Track your collection across chains. Provenance, editions, and portable history.</p>
+                <span class="app-status">Planned</span>
+            </a>
+
+            <a href="/soci8" class="app-card">
+                <div class="app-code">SOCI-8</div>
+                <h3>Share & Connect</h3>
+                <p>Build community around verified truth. No algorithms. No manipulation.</p>
+                <span class="app-status">Future</span>
+            </a>
+
+            <a href="/confidentiality?next=/masters-spectral" class="app-card">
+                <div class="app-code">NORTHSTAR</div>
+                <h3>22 Masters</h3>
+                <p>Explore the wisdom constellation. 4D visualization of verified truths from visionaries.</p>
+                <span class="app-status">Preview</span>
+            </a>
+        </div>
+
+        <section class="archive-section">
+            <a href="/archive" class="archive-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
+                </svg>
+                Enter Full Archive
+            </a>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p class="footer-tagline">Spectacle without sovereignty is capture.</p>
+        <p>ARCHIV-IT by WEB3GISEL Nonprofit</p>
+    </footer>
+</body>
+</html>

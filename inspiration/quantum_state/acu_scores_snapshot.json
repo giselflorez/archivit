@@ -1,0 +1,32 @@
+{
+  "ALIGNMENT_STATUS": "ACTIVE",
+  "HEART_FORWARD_GATE": "ACTIVE",
+  "WISDOM_SYNC": "OPERATIONAL",
+  "USER_TX_BUFFER": "PROCESSING",
+  "LAST_OBSERVATION": "2026-01-11T16:42:56.926743",
+  "metrics": {
+    "total_contributors": 1,
+    "total_contributions": 1,
+    "avg_acu_score": 0.17437785388127852,
+    "contributions_by_type": {
+      "wisdom_share": 1
+    },
+    "contributions_by_status": {
+      "pending": 1
+    },
+    "access_distribution": {
+      "restricted": 1
+    }
+  },
+  "alignment_weights": {
+    "intent": 1.0,
+    "wisdom": 1.0,
+    "application": 1.0,
+    "legacy": 1.0
+  },
+  "thresholds": {
+    "restricted": 0,
+    "standard": 75,
+    "elevated": 90
+  }
+}

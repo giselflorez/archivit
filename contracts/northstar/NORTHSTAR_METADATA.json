@@ -1,0 +1,422 @@
+{
+  "_GENESIS_RECORD": {
+    "notice": "This is the metadata schema for the NORTHSTAR PRINCIPALS EXPERIENCE NFT",
+    "created": "2026-01-13",
+    "purpose": "First blockchain entry of the 22 Masters wisdom framework",
+    "rights": "Artist art is PROTECTED - only techniques and teachings encoded"
+  },
+  "name": "NORTHSTAR PRINCIPALS EXPERIENCE #0",
+  "description": "The first blockchain entry of the 22 Masters wisdom framework. A 4D spectral visualization of verified truths across 3000+ years of human knowledge. This NFT encodes the TEACHINGS and TECHNIQUES of 22 visionary masters - not their artwork. The experience can be expanded infinitely while preserving the original genesis state.",
+  "image": "ar://[ARWEAVE_SVG_CID]",
+  "animation_url": "ar://[ARWEAVE_HTML_CID]",
+  "external_url": "https://archiv-it.xyz/northstar/0",
+  "background_color": "030308",
+  "attributes": [
+    {
+      "trait_type": "Masters",
+      "value": 22,
+      "display_type": "number"
+    },
+    {
+      "trait_type": "Truths",
+      "value": 100,
+      "display_type": "number"
+    },
+    {
+      "trait_type": "Feminine Masters",
+      "value": 9,
+      "display_type": "number"
+    },
+    {
+      "trait_type": "Masculine Masters",
+      "value": 13,
+      "display_type": "number"
+    },
+    {
+      "trait_type": "Era Span",
+      "value": "1098-2026"
+    },
+    {
+      "trait_type": "Visualization Type",
+      "value": "4D Spectral"
+    },
+    {
+      "trait_type": "Halo System",
+      "value": "Sacred Religious"
+    },
+    {
+      "trait_type": "Physics Constants",
+      "value": "PHI + GOLDEN_ANGLE + SCHUMANN + TESLA"
+    },
+    {
+      "trait_type": "Content Hash",
+      "value": "[SHA256_OF_V3_SPECTRAL]"
+    },
+    {
+      "trait_type": "Version",
+      "value": "1.0.0"
+    },
+    {
+      "trait_type": "Expandable",
+      "value": "Yes"
+    },
+    {
+      "trait_type": "Artist Rights",
+      "value": "Protected - Teachings Only"
+    }
+  ],
+  "properties": {
+    "masters": {
+      "feminine": [
+        {
+          "id": "hildegard",
+          "name": "Hildegard of Bingen",
+          "dates": "1098-1179",
+          "domain": "Sacred Geometry + Sound + Divine Revelation",
+          "archetype": "MYSTIC",
+          "haloStyle": "sacred",
+          "color": "#ba6587",
+          "quote": {
+            "text": "All living creatures are sparks from the radiation of God's brilliance.",
+            "source": "Scivias (1142-1151)"
+          }
+        },
+        {
+          "id": "gisel",
+          "name": "Gisel Florez",
+          "dates": "Contemporary",
+          "domain": "Photography + Lunar Dance + Data Sovereignty",
+          "archetype": "ARTIST",
+          "haloStyle": "lunar",
+          "color": "#aa5498",
+          "quote": {
+            "text": "I fell in love with DATA and I'll never be the same again.",
+            "source": "Dataland Proposal (2026)"
+          }
+        },
+        {
+          "id": "rand",
+          "name": "Ayn Rand",
+          "dates": "1905-1982",
+          "domain": "Individual Sovereignty + Objectivism",
+          "archetype": "THINKER",
+          "haloStyle": "geometric",
+          "color": "#b9a85a",
+          "quote": {
+            "text": "Contradictions do not exist. Check your premises.",
+            "source": "Atlas Shrugged (1957)"
+          }
+        },
+        {
+          "id": "starhawk",
+          "name": "Starhawk",
+          "dates": "1951-present",
+          "domain": "Decentralized Power + Earth Spirituality",
+          "archetype": "MYSTIC",
+          "haloStyle": "spiral",
+          "color": "#54a876",
+          "quote": {
+            "text": "Power-from-within is transcendent and creative power.",
+            "source": "The Spiral Dance (1979)"
+          }
+        },
+        {
+          "id": "tori",
+          "name": "Tori Amos",
+          "dates": "1963-present",
+          "domain": "Breath as Structure + Emotional Archaeology",
+          "archetype": "ARTIST",
+          "haloStyle": "flame",
+          "color": "#ba6587",
+          "quote": {
+            "text": "Healing takes courage, and we all have courage.",
+            "source": "Interviews"
+          }
+        },
+        {
+          "id": "bjork",
+          "name": "Bjork",
+          "dates": "1965-present",
+          "domain": "Nature-Technology Synthesis + Boundary Dissolution",
+          "archetype": "ARTIST",
+          "haloStyle": "aurora",
+          "color": "#6598cb",
+          "quote": {
+            "text": "If you can make nature and technology friends, you can make everyone friends.",
+            "source": "Interview (2011)"
+          }
+        },
+        {
+          "id": "swan",
+          "name": "Teal Swan",
+          "dates": "1984-present",
+          "domain": "Shadow Work + Spiritual Integration",
+          "archetype": "MYSTIC",
+          "haloStyle": "sacred",
+          "color": "#7865ba",
+          "quote": {
+            "text": "Triggers are messengers for the unhealed parts of our being.",
+            "source": "Shadows Before Dawn (2015)"
+          }
+        },
+        {
+          "id": "hicks",
+          "name": "Esther Hicks / Abraham",
+          "dates": "1948-present",
+          "domain": "Law of Attraction + Vibrational Alignment",
+          "archetype": "VISIONARY",
+          "haloStyle": "radiant",
+          "color": "#ba7799",
+          "quote": {
+            "text": "The universe responds to vibration, not words.",
+            "source": "Ask and It Is Given (2004)"
+          }
+        },
+        {
+          "id": "byrne",
+          "name": "Rhonda Byrne",
+          "dates": "1951-present",
+          "domain": "Universal Laws + Manifestation",
+          "archetype": "VISIONARY",
+          "haloStyle": "radiant",
+          "color": "#a97788",
+          "quote": {
+            "text": "Visualization is powerful because you generate feelings of having it now.",
+            "source": "The Secret (2006)"
+          }
+        }
+      ],
+      "masculine": [
+        {
+          "id": "davinci",
+          "name": "Leonardo da Vinci",
+          "dates": "1452-1519",
+          "domain": "Art + Science Unity + Observation",
+          "archetype": "VISIONARY",
+          "haloStyle": "sacred",
+          "color": "#b9a85a",
+          "quote": {
+            "text": "The painter has the universe in his mind and hands.",
+            "source": "Leonardo's Notebooks"
+          }
+        },
+        {
+          "id": "tesla",
+          "name": "Nikola Tesla",
+          "dates": "1856-1943",
+          "domain": "Energy + Frequency + Vibration",
+          "archetype": "THINKER",
+          "haloStyle": "electric",
+          "color": "#5aa8b9",
+          "quote": {
+            "text": "Though free to think and act, we are held together, like the stars in the firmament, with ties inseparable.",
+            "source": "Century Magazine (June 1900)"
+          }
+        },
+        {
+          "id": "fuller",
+          "name": "Buckminster Fuller",
+          "dates": "1895-1983",
+          "domain": "Systems Thinking + Comprehensive Design",
+          "archetype": "BUILDER",
+          "haloStyle": "geometric",
+          "color": "#54a876",
+          "quote": {
+            "text": "You never change anything by fighting it; you change things by making them obsolete.",
+            "source": "Mike Vance Interview"
+          }
+        },
+        {
+          "id": "jung",
+          "name": "Carl Jung",
+          "dates": "1875-1961",
+          "domain": "Shadow Integration + Individuation",
+          "archetype": "THINKER",
+          "haloStyle": "sacred",
+          "color": "#7865ba",
+          "quote": {
+            "text": "One does not become enlightened by imagining figures of light, but by making the darkness conscious.",
+            "source": "Psychology and Alchemy (1944)"
+          }
+        },
+        {
+          "id": "suleyman",
+          "name": "Mustafa Suleyman",
+          "dates": "1984-present",
+          "domain": "AI Ethics + Containment + Recognition",
+          "archetype": "BUILDER",
+          "haloStyle": "digital",
+          "color": "#6576ba",
+          "quote": {
+            "text": "Recognition is the inverse of generation.",
+            "source": "The Coming Wave (2023)"
+          }
+        },
+        {
+          "id": "grant",
+          "name": "Robert Edward Grant",
+          "dates": "Contemporary",
+          "domain": "Sacred Geometry + Mathematical Unification",
+          "archetype": "MYSTIC",
+          "haloStyle": "sacred",
+          "color": "#8776ba",
+          "quote": {
+            "text": "Math is a sacred language, a bridge to higher consciousness.",
+            "source": "Lectures"
+          }
+        },
+        {
+          "id": "prince",
+          "name": "Prince",
+          "dates": "1958-2016",
+          "domain": "Sovereign Ownership + Multi-Instrumentalism",
+          "archetype": "ARTIST",
+          "haloStyle": "flame",
+          "color": "#8754ba",
+          "quote": {
+            "text": "If you don't own your masters, your master owns you.",
+            "source": "Rolling Stone (1996)"
+          }
+        },
+        {
+          "id": "coltrane",
+          "name": "John Coltrane",
+          "dates": "1926-1967",
+          "domain": "Breath as Spiritual Practice + Transcendence",
+          "archetype": "ARTIST",
+          "haloStyle": "sacred",
+          "color": "#6587ba",
+          "quote": {
+            "text": "My music is the spiritual expression of what I am.",
+            "source": "Liner notes (1960s)"
+          }
+        },
+        {
+          "id": "bowie",
+          "name": "David Bowie",
+          "dates": "1947-2016",
+          "domain": "Perpetual Reinvention + Identity Fluidity",
+          "archetype": "ARTIST",
+          "haloStyle": "aurora",
+          "color": "#ba6554",
+          "quote": {
+            "text": "It's more fun progressing than looking back.",
+            "source": "Interviews"
+          }
+        },
+        {
+          "id": "koe",
+          "name": "Dan Koe",
+          "dates": "Contemporary",
+          "domain": "Skill Extraction + One-Person Business",
+          "archetype": "BUILDER",
+          "haloStyle": "geometric",
+          "color": "#ba8754",
+          "quote": {
+            "text": "If you don't know what you want, you will be told what you want.",
+            "source": "The Art of Focus (2023)"
+          }
+        },
+        {
+          "id": "jobs",
+          "name": "Steve Jobs",
+          "dates": "1955-2011",
+          "domain": "Design Thinking + Technology-Liberal Arts",
+          "archetype": "VISIONARY",
+          "haloStyle": "minimal",
+          "color": "#989898",
+          "quote": {
+            "text": "Your time is limited, don't waste it living someone else's life.",
+            "source": "Stanford (2005)"
+          }
+        },
+        {
+          "id": "cherny",
+          "name": "Boris Cherny",
+          "dates": "Contemporary",
+          "domain": "Democratized Programming + Claude Code",
+          "archetype": "BUILDER",
+          "haloStyle": "digital",
+          "color": "#5aa8b9",
+          "quote": {
+            "text": "Most of Claude Code is written using Claude Code.",
+            "source": "Anthropic (2025)"
+          }
+        },
+        {
+          "id": "rene",
+          "name": "Gabriel Rene",
+          "dates": "Contemporary",
+          "domain": "Spatial Web + Context-Aware Intelligence",
+          "archetype": "VISIONARY",
+          "haloStyle": "geometric",
+          "color": "#65ba99",
+          "quote": {
+            "text": "The Spatial Web lets all information become spatial.",
+            "source": "VERSES AI"
+          }
+        }
+      ]
+    },
+    "sacredConstants": {
+      "PHI": 1.618033988749895,
+      "GOLDEN_ANGLE": 137.5077640500378,
+      "SCHUMANN": 7.83,
+      "TESLA_PATTERN": [3, 6, 9]
+    },
+    "connections": {
+      "total": 89,
+      "crossDisciplinary": true,
+      "temporalSpan": "3000+ years"
+    },
+    "artistRightsNotice": {
+      "protected": [
+        "Actual artwork",
+        "Visual style",
+        "Musical compositions",
+        "Literary works",
+        "Performance style"
+      ],
+      "shared": [
+        "Techniques",
+        "Philosophies",
+        "Verified quotes",
+        "Teaching points",
+        "Methodologies"
+      ],
+      "optInRequired": "For any reproduction of artist work"
+    }
+  },
+  "content_hashes": {
+    "visualization_sha256": "[COMPUTED_AT_MINT]",
+    "visualization_keccak256": "[COMPUTED_AT_MINT]",
+    "metadata_sha256": "[COMPUTED_AT_MINT]"
+  },
+  "storage": {
+    "onChain": {
+      "type": "SVG",
+      "description": "Always regenerated from contract state"
+    },
+    "arweave": {
+      "type": "HTML",
+      "uri": "ar://[CID]",
+      "permanent": true
+    },
+    "ipfs": {
+      "type": "HTML",
+      "uri": "ipfs://[CID]",
+      "pinned": true
+    }
+  },
+  "extensions": {
+    "ERC-6551": {
+      "tokenBoundAccount": "[COMPUTED_AFTER_MINT]",
+      "canOwn": ["NFTs", "ERC-20", "ETH"]
+    },
+    "ERC-7496": {
+      "dynamicTraits": true,
+      "appendOnly": true,
+      "eventLogged": true
+    }
+  }
+}

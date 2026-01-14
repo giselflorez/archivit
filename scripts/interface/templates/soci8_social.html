@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCI-8 | SOCIAL | ARC-8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #f4f0e6;
+            --bg-secondary: #ebe6da;
+            --bg-card: #faf8f3;
+            --text-primary: #2c2620;
+            --text-secondary: #5a4d3e;
+            --text-muted: #8a7d6d;
+            --accent-gold: #9a7b4f;
+            --border: #d4c9b8;
+            --emboss-light: rgba(255, 255, 255, 0.7);
+            --emboss-shadow: rgba(0, 0, 0, 0.15);
+            --success: #16a34a;
+            --connect: #3b82f6;
+        }
+
+        body {
+            font-family: 'Geist', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(255,252,245,0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(235,230,218,0.4) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 1.5rem 2rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-primary) 100%);
+        }
+
+        .header-label {
+            font-size: 0.55rem;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+            text-shadow: 0 1px 0 var(--emboss-light), 0 -1px 2px var(--emboss-shadow);
+        }
+
+        .header-subtitle {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 0.6rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav a:hover { color: var(--text-primary); background: rgba(154, 123, 79, 0.08); }
+        .nav a.active { color: var(--accent-gold); background: rgba(154, 123, 79, 0.12); font-weight: 500; }
+        .nav-divider { width: 1px; background: var(--border); margin: 0 0.3rem; }
+
+        .main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem; }
+
+        .mode-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .mode-tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-tab:hover { color: var(--text-primary); }
+        .mode-tab.active {
+            color: var(--accent-gold);
+            background: var(--bg-card);
+            border-color: var(--border);
+            border-bottom-color: var(--bg-card);
+            font-weight: 500;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1000px) { .section-grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .card-badge {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            background: rgba(154, 123, 79, 0.1);
+            color: var(--accent-gold);
+        }
+
+        /* Profile Card */
+        .profile-section {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .profile-badge {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: conic-gradient(var(--success) 0% 85%, var(--bg-secondary) 85% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .profile-badge::before {
+            content: '';
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
+
+        .profile-badge-value {
+            position: relative;
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .profile-name {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-handle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+        }
+
+        .profile-stat-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Connection list */
+        .connection-list { list-style: none; }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(212, 201, 184, 0.3);
+        }
+
+        .connection-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .connection-info { flex: 1; }
+
+        .connection-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .connection-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .connection-score {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        /* Resonance */
+        .resonance-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .resonance-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .resonance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--success));
+            border-radius: 3px;
+        }
+
+        .resonance-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            min-width: 100px;
+        }
+
+        .resonance-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* Share card */
+        .share-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .share-item {
+            aspect-ratio: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .share-item:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .share-item-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .share-item-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        .btn-primary {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer a { color: var(--accent-gold); text-decoration: none; }
+
+        /* Coming Soon overlay */
+        .coming-soon {
+            position: relative;
+        }
+
+        .coming-soon::after {
+            content: 'COMING SOON';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            color: var(--accent-gold);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-label">ARC-8</div>
+        <h1>SOCI-8</h1>
+        <p class="header-subtitle">Share Without Surrendering</p>
+    </header>
+
+    <nav class="nav">
+        <a href="/team">Team</a>
+        <div class="nav-divider"></div>
+        <a href="/doc8">DOC-8</a>
+        <a href="/nft8">NFT-8</a>
+        <a href="/cre8">CRE-8</a>
+        <a href="/soci8" class="active">SOCI-8</a>
+        <div class="nav-divider"></div>
+        <a href="/">Archive</a>
+        <a href="/spatial-vision">Spatial</a>
+        <a href="/semantic-network">Network</a>
+    </nav>
+
+    <main class="main">
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-tab="share">Share</button>
+            <button class="mode-tab" data-tab="connect">Connect</button>
+            <button class="mode-tab" data-tab="discover">Discover</button>
+            <button class="mode-tab" data-tab="reputation">Reputation</button>
+        </div>
+
+        <div class="tab-content" id="share-tab">
+            <div class="section-grid">
+                <!-- Profile -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Your Profile</h3>
+                        <span class="card-badge">Sovereign</span>
+                    </div>
+                    <div class="profile-section">
+                        <div class="profile-badge">
+                            <span class="profile-badge-value">85</span>
+                        </div>
+                        <div class="profile-name">Creator Name</div>
+                        <div class="profile-handle">@yourhandle</div>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">47</div>
+                                <div class="profile-stat-label">Shared</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">128</div>
+                                <div class="profile-stat-label">Connections</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">92%</div>
+                                <div class="profile-stat-label">Resonance</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share from CRE-8 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Share Creations</h3>
+                        <span class="card-badge">From CRE-8</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                        Share your CRE-8 outputs with your network. Full attribution and consent preserved.
+                    </p>
+                    <div class="share-grid">
+                        <div class="share-item">
+                            <div class="share-item-icon">Theme</div>
+                            <div class="share-item-label">Theme Pack</div>
+                        </div>
+                        <div class="share-item">
+                            <div class="share-item-icon">Kit</div>
+                            <div class="share-item-label">Press Kit</div>
+                        </div>
+                        <div class="share-item">
+                            <div class="share-item-icon">3D</div>
+                            <div class="share-item-label">GLB Asset</div>
+                        </div>
+                        <div class="share-item">
+                            <div class="share-item-icon">Port</div>
+                            <div class="share-item-label">Portfolio</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resonance Matching -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Taste Resonance</h3>
+                        <span class="card-badge">Matching</span>
+                    </div>
+                    <div class="resonance-item">
+                        <div class="resonance-label">Generative Art</div>
+                        <div class="resonance-bar">
+                            <div class="resonance-fill" style="width: 92%;"></div>
+                        </div>
+                        <div class="resonance-value">92%</div>
+                    </div>
+                    <div class="resonance-item">
+                        <div class="resonance-label">Photography</div>
+                        <div class="resonance-bar">
+                            <div class="resonance-fill" style="width: 78%;"></div>
+                        </div>
+                        <div class="resonance-value">78%</div>
+                    </div>
+                    <div class="resonance-item">
+                        <div class="resonance-label">Music/Audio</div>
+                        <div class="resonance-bar">
+                            <div class="resonance-fill" style="width: 65%;"></div>
+                        </div>
+                        <div class="resonance-value">65%</div>
+                    </div>
+                    <div class="resonance-item">
+                        <div class="resonance-label">3D/Spatial</div>
+                        <div class="resonance-bar">
+                            <div class="resonance-fill" style="width: 54%;"></div>
+                        </div>
+                        <div class="resonance-value">54%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connect Tab -->
+        <div class="tab-content" id="connect-tab" style="display: none;">
+            <div class="section-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Your Connections</h3>
+                    </div>
+                    <ul class="connection-list">
+                        <li class="connection-item">
+                            <div class="connection-avatar">GF</div>
+                            <div class="connection-info">
+                                <div class="connection-name">giselx</div>
+                                <div class="connection-meta">Artist | 968 works</div>
+                            </div>
+                            <span class="connection-score">98%</span>
+                        </li>
+                        <li class="connection-item">
+                            <div class="connection-avatar">PM</div>
+                            <div class="connection-info">
+                                <div class="connection-name">Plutonic Mind</div>
+                                <div class="connection-meta">Musician | 432Hz</div>
+                            </div>
+                            <span class="connection-score">95%</span>
+                        </li>
+                        <li class="connection-item">
+                            <div class="connection-avatar">SC</div>
+                            <div class="connection-info">
+                                <div class="connection-name">SCUUBE</div>
+                                <div class="connection-meta">Developer | Builder</div>
+                            </div>
+                            <span class="connection-score">92%</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card coming-soon">
+                    <div class="card-header">
+                        <h3 class="card-title">Direct Messages</h3>
+                        <span class="card-badge">Sovereign</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                        Connect directly with creators and collectors. No platform intermediary. Your conversations, your control.
+                    </p>
+                </div>
+
+                <div class="card coming-soon">
+                    <div class="card-header">
+                        <h3 class="card-title">Collaboration</h3>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                        Start creative collaborations with aligned creators. Share bubbles, co-create outputs.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discover Tab -->
+        <div class="tab-content" id="discover-tab" style="display: none;">
+            <div class="card coming-soon" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-header">
+                    <h3 class="card-title">Resonance Discovery</h3>
+                    <span class="card-badge">AI-Powered</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Discover creators and collectors who resonate with your taste DNA. No algorithm manipulation - pure aesthetic alignment.
+                </p>
+                <button class="btn btn-primary" style="width: 100%;">Discover Now</button>
+            </div>
+        </div>
+
+        <!-- Reputation Tab -->
+        <div class="tab-content" id="reputation-tab" style="display: none;">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-header">
+                    <h3 class="card-title">Liquid Badge Reputation</h3>
+                    <span class="card-badge">Earned</span>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-badge" style="width: 120px; height: 120px;">
+                        <span class="profile-badge-value" style="font-size: 2rem;">85</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 1rem;">
+                        Your reputation is earned through authentic engagement, not purchased or gamed. The liquid fill represents your verified contributions to the community.
+                    </p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                    <div style="text-align: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 4px;">
+                        <div style="font-size: 1rem; color: var(--accent-gold);">40%</div>
+                        <div style="font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase;">Creation</div>
+                    </div>
+                    <div style="text-align: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 4px;">
+                        <div style="font-size: 1rem; color: var(--accent-gold);">30%</div>
+                        <div style="font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase;">Curation</div>
+                    </div>
+                    <div style="text-align: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 4px;">
+                        <div style="font-size: 1rem; color: var(--accent-gold);">20%</div>
+                        <div style="font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase;">Connection</div>
+                    </div>
+                    <div style="text-align: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 4px;">
+                        <div style="font-size: 1rem; color: var(--accent-gold);">10%</div>
+                        <div style="font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase;">Witness</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        ARC-8 | SOCI-8 Social Mode | <a href="/team">Team</a> | Your Data. Your Future.
+    </footer>
+
+    <script>
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

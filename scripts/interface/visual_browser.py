@@ -445,8 +445,8 @@ def check_site_password():
         return None
 
     # Allow login page, static files, agent init, and test pages
-    allowed_paths = ['/login', '/favicon.ico', '/api/agent/init', '/test', '/doc8', '/doc8/', '/itr8', '/itr8/', '/itr8/stream', '/in-testing', '/in-testing/', '/databank-preview']
-    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing'):
+    allowed_paths = ['/login', '/favicon.ico', '/api/agent/init', '/test', '/doc8', '/doc8/', '/itr8', '/itr8/', '/itr8/stream', '/in-testing', '/in-testing/', '/databank-preview', '/masters-v2', '/masters-spectral', '/confidentiality', '/nft8', '/cre8']
+    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing') or request.path.startswith('/masters') or request.path.startswith('/nft8') or request.path.startswith('/cre8'):
         return None
 
     # Check if authenticated
@@ -519,7 +519,7 @@ embeddings = None
 def check_setup():
     """Redirect to setup if not complete"""
     # Allow setup routes, API routes, settings, static files, and test pages
-    allowed_prefixes = ('/setup', '/static', '/api/', '/settings/', '/test', '/doc8', '/itr8', '/in-testing', '/databank-preview', '/login')
+    allowed_prefixes = ('/setup', '/static', '/api/', '/settings/', '/test', '/doc8', '/itr8', '/in-testing', '/databank-preview', '/login', '/masters', '/confidentiality', '/nft8', '/cre8', '/search', '/document')
     if any(request.path.startswith(p) for p in allowed_prefixes):
         return None
 
@@ -956,7 +956,12 @@ def get_all_documents(limit=50, filter_type=None, sort_by=None):
 
 @app.route('/')
 def index():
-    """Main page"""
+    """Main landing page - light paper theme with WebGL showcases"""
+    return render_template('team_gallery.html')
+
+@app.route('/archive')
+def archive():
+    """Full archive page - dark theme"""
     filter_type = request.args.get('filter', 'all')
     sort_by = request.args.get('sort', 'date_desc')
     documents = get_all_documents(limit=100, filter_type=filter_type, sort_by=sort_by)
@@ -996,10 +1001,8 @@ def archive_views():
     return render_template('visualizer_overview.html')
 
 @app.route('/test')
-@app.route('/team')
-@app.route('/core-team')
-def team_gallery():
-    """Testers & Advisors - Building the Future of Artist Sovereignty"""
+def test_page():
+    """Test/development page"""
     return render_template('team_gallery.html')
 
 @app.route('/setup/accept-terms', methods=['POST'])
@@ -4527,21 +4530,40 @@ def masters_v2():
     return render_template('masters_point_cloud_v2.html')
 
 # ============================================
-# DOC-8 SOURCE PRE-APPROVAL INTERFACE
+# ARC-8 FOUR MODE INTERFACES
 # ============================================
+# The Ark - Four modes: DOC-8, NFT-8, CRE-8, SOCI-8
 
 @app.route('/doc8')
 @app.route('/doc8/')
-def doc8_source_approval():
-    """DOC-8 Source Pre-Approval Interface - Transparent research verification"""
-    return render_template('doc8_source_approval.html')
+def doc8_archivist():
+    """DOC-8 ARCHIVIST - Source Pre-Approval & Knowledge Bank"""
+    return render_template('doc8_archivist.html')
+
+@app.route('/nft8')
+@app.route('/nft8/')
+def nft8_collector():
+    """NFT-8 COLLECTOR - Multi-chain NFT Portfolio & Provenance"""
+    return render_template('nft8_collector.html')
+
+@app.route('/cre8')
+@app.route('/cre8/')
+def cre8_artist():
+    """CRE-8 ARTIST - Creative Generation from Data Bubbles"""
+    return render_template('cre8_artist.html')
+
+@app.route('/soci8')
+@app.route('/soci8/')
+def soci8_social():
+    """SOCI-8 SOCIAL - Community, Sharing & Reputation"""
+    return render_template('soci8_social.html')
 
 @app.route('/itr8')
 @app.route('/itr8/')
 @app.route('/itr8/stream')
 def itr8_thought_stream():
-    """IT-R8 Thought Stream - Spatial idea organization and rating"""
-    return render_template('itr8_thought_stream.html')
+    """IT-R8 Thought Stream - Legacy redirect to CRE-8"""
+    return render_template('cre8_artist.html')
 
 @app.route('/in-testing')
 @app.route('/in-testing/')
@@ -4549,6 +4571,14 @@ def itr8_thought_stream():
 def in_testing_databank():
     """IN-TESTING DATABANK - Preview of interconnected data visualization"""
     return render_template('in_testing_databank.html')
+
+@app.route('/dataland')
+@app.route('/dataland/')
+@app.route('/dataland-preview')
+@app.route('/moonlanguage-4d')
+def dataland_preview():
+    """DATALAND - 4D MOONLANGUAGE Symphony visualization"""
+    return render_template('dataland_expert_preview.html')
 
 @app.route('/api/doc8/research', methods=['POST'])
 def doc8_research():

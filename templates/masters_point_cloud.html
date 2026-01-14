@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NORTHSTAR Masters - 100 Truths Point Cloud</title>
+    <style>
+        :root {
+            --void-black: #050508;
+            --cosmic-dark: #0a0a0f;
+            --electric-cyan: #00f5ff;
+            --electric-magenta: #ff00ff;
+            --electric-gold: #ffaa00;
+            --hildegard-rose: #ff6b9d;
+            --tesla-electric: #00d4ff;
+            --jung-purple: #9b59b6;
+            --fuller-green: #00ff88;
+            --davinci-gold: #d4af37;
+            --coltrane-blue: #4169e1;
+            --bowie-orange: #ff4500;
+            --prince-purple: #8b008b;
+            --moon-silver: #c0c0c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--void-black);
+            color: #faf8f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(5,5,8,0.95) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--electric-cyan), var(--electric-magenta), var(--electric-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--moon-silver);
+            letter-spacing: 0.2em;
+            margin-top: 4px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 200;
+            color: var(--electric-cyan);
+        }
+
+        .stat-label {
+            color: var(--moon-silver);
+            margin-top: 2px;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            width: 380px;
+            max-height: calc(100vh - 140px);
+            background: rgba(10, 10, 15, 0.92);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .info-panel.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .info-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .info-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .info-panel::-webkit-scrollbar-thumb {
+            background: var(--electric-cyan);
+            border-radius: 2px;
+        }
+
+        .master-name {
+            font-size: 1.6rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .master-dates {
+            font-size: 0.75rem;
+            color: var(--moon-silver);
+            letter-spacing: 0.15em;
+            margin-bottom: 16px;
+        }
+
+        .master-domain {
+            font-size: 0.8rem;
+            color: var(--electric-gold);
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--electric-cyan);
+            margin-bottom: 12px;
+            margin-top: 20px;
+        }
+
+        .quote-block {
+            background: rgba(0, 245, 255, 0.05);
+            border-left: 2px solid var(--electric-cyan);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .quote-source {
+            font-size: 0.7rem;
+            color: var(--moon-silver);
+            font-style: normal;
+            margin-top: 8px;
+        }
+
+        .truths-list {
+            list-style: none;
+        }
+
+        .truths-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .truth-number {
+            background: linear-gradient(135deg, var(--electric-cyan), var(--electric-magenta));
+            color: var(--void-black);
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .connections-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .connection-tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connection-tag:hover {
+            background: rgba(0, 245, 255, 0.2);
+            border-color: var(--electric-cyan);
+        }
+
+        /* Legend Panel */
+        .legend-panel {
+            position: fixed;
+            left: 30px;
+            bottom: 30px;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .legend-title {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--moon-silver);
+            margin-bottom: 16px;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .legend-item:hover {
+            opacity: 1;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            color: var(--electric-cyan);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--electric-cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .control-btn.active {
+            background: var(--electric-cyan);
+            color: var(--void-black);
+        }
+
+        /* Top Truths Panel */
+        .top-truths-panel {
+            position: fixed;
+            left: 30px;
+            top: 100px;
+            width: 340px;
+            max-height: 400px;
+            background: rgba(10, 10, 15, 0.92);
+            border: 1px solid rgba(255, 170, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+        }
+
+        .top-truths-panel h3 {
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--electric-gold);
+            margin-bottom: 16px;
+        }
+
+        .top-truth-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 170, 0, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--electric-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .top-truth-item:hover {
+            background: rgba(255, 170, 0, 0.1);
+            transform: translateX(4px);
+        }
+
+        .top-truth-rank {
+            font-size: 1.2rem;
+            font-weight: 200;
+            color: var(--electric-gold);
+            margin-bottom: 6px;
+        }
+
+        .top-truth-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .top-truth-masters {
+            font-size: 0.7rem;
+            color: var(--moon-silver);
+        }
+
+        .top-truth-connections {
+            font-size: 0.65rem;
+            color: var(--electric-cyan);
+            margin-top: 4px;
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--void-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spiral {
+            width: 80px;
+            height: 80px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--electric-cyan);
+            border-right: 2px solid var(--electric-magenta);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            color: var(--moon-silver);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px currentColor; }
+            50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 250px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-name {
+            color: var(--electric-cyan);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .tooltip-domain {
+            font-size: 0.7rem;
+            color: var(--moon-silver);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .top-truths-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+                top: auto;
+                bottom: 80px;
+                max-height: 50vh;
+            }
+
+            .legend-panel {
+                left: 20px;
+                bottom: 80px;
+            }
+
+            .controls {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spiral"></div>
+        <div class="loading-text">INITIALIZING POINT CLOUD</div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <div class="title">NORTHSTAR Masters</div>
+            <div class="subtitle">100 Truths Point Cloud Visualization</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">22</div>
+                <div class="stat-label">Masters</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100</div>
+                <div class="stat-label">Truths</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="connection-count">0</div>
+                <div class="stat-label">Connections</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 10 Truths Panel -->
+    <div class="top-truths-panel" id="top-truths">
+        <h3>Top 10 Most Connected Truths</h3>
+        <div id="top-truths-list"></div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="info-panel">
+        <div class="master-name" id="master-name">Select a Master</div>
+        <div class="master-dates" id="master-dates"></div>
+        <div class="master-domain" id="master-domain"></div>
+
+        <div class="section-title">Signature Quote</div>
+        <div class="quote-block" id="master-quote">
+            <span id="quote-text"></span>
+            <div class="quote-source" id="quote-source"></div>
+        </div>
+
+        <div class="section-title">Core Truths</div>
+        <ul class="truths-list" id="truths-list"></ul>
+
+        <div class="section-title">Connected Masters</div>
+        <div class="connections-list" id="connections-list"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-panel">
+        <div class="legend-title">Energy Types</div>
+        <div class="legend-items">
+            <div class="legend-item" data-filter="feminine">
+                <div class="legend-dot" style="background: var(--hildegard-rose);"></div>
+                <span>Feminine Energy (9)</span>
+            </div>
+            <div class="legend-item" data-filter="masculine">
+                <div class="legend-dot" style="background: var(--electric-cyan);"></div>
+                <span>Masculine Energy (13)</span>
+            </div>
+            <div class="legend-item" data-filter="all">
+                <div class="legend-dot" style="background: linear-gradient(135deg, var(--hildegard-rose), var(--electric-cyan));"></div>
+                <span>Show All</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn active" id="btn-spiral">Spiral</button>
+        <button class="control-btn" id="btn-sphere">Sphere</button>
+        <button class="control-btn" id="btn-network">Network</button>
+        <button class="control-btn" id="btn-auto">Auto-Rotate</button>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-name"></div>
+        <div class="tooltip-domain"></div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // ============================================
+        // MASTER DATA - 22 NORTHSTAR MASTERS
+        // ============================================
+        const MASTERS = [
+            // FEMININE ENERGY (9)
+            {
+                id: 'hildegard',
+                name: 'Hildegard of Bingen',
+                dates: '1098-1179',
+                domain: 'Sacred Geometry + Sound + Divine Revelation',
+                energy: 'feminine',
+                color: 0xff6b9d,
+                quote: {
+                    text: "All living creatures are sparks from the radiation of God's brilliance, and these sparks emerge from God like the rays of the sun.",
+                    source: 'Scivias (1142-1151)'
+                },
+                truths: [
+                    'The soul is symphonic - vibration creates form',
+                    'Nature is the mirror of divine creation',
+                    'Sound carries truth beyond language',
+                    'Greening power (viriditas) animates all life'
+                ],
+                connections: ['tesla', 'jung', 'grant', 'coltrane', 'bjork']
+            },
+            {
+                id: 'gisel',
+                name: 'Gisel Florez',
+                dates: 'Contemporary',
+                domain: 'Photography + Lunar Dance + Data Sovereignty',
+                energy: 'feminine',
+                color: 0xff00ff,
+                quote: {
+                    text: "I fell in love with DATA and I'll never be the same again.",
+                    source: 'Dataland Proposal (2026)'
+                },
+                truths: [
+                    'Data is crystallized human experience',
+                    'Photography captures light as memory',
+                    'Local-first architecture enables sovereignty',
+                    'Creation spirals from power-from-within'
+                ],
+                connections: ['starhawk', 'tesla', 'fuller', 'jobs', 'cherny']
+            },
+            {
+                id: 'rand',
+                name: 'Ayn Rand',
+                dates: '1905-1982',
+                domain: 'Individual Sovereignty + Objectivism',
+                energy: 'feminine',
+                color: 0xffd700,
+                quote: {
+                    text: "Contradictions do not exist. Whenever you think that you are facing a contradiction, check your premises.",
+                    source: 'Atlas Shrugged (1957)'
+                },
+                truths: [
+                    'A is A - the law of identity is fundamental',
+                    'Man is an end in himself, not a means',
+                    'Reason is the only absolute',
+                    'The smallest minority is the individual'
+                ],
+                connections: ['davinci', 'prince', 'jobs', 'koe']
+            },
+            {
+                id: 'starhawk',
+                name: 'Starhawk',
+                dates: '1951-present',
+                domain: 'Decentralized Power + Earth Spirituality',
+                energy: 'feminine',
+                color: 0x00ff88,
+                quote: {
+                    text: "There are two kinds of power. One is power over, which is always destructive, and the other is power from within, which is a transcendent and creative power.",
+                    source: 'The Spiral Dance (1979)'
+                },
+                truths: [
+                    'Power-from-within vs power-over defines all systems',
+                    'The Goddess IS the world, not separate from it',
+                    'Decentralized structures enable authentic power',
+                    'Ritual is technology for consciousness'
+                ],
+                connections: ['gisel', 'fuller', 'jung', 'rene']
+            },
+            {
+                id: 'tori',
+                name: 'Tori Amos',
+                dates: '1963-present',
+                domain: 'Breath as Structure + Emotional Archaeology',
+                energy: 'feminine',
+                color: 0xfa8072,
+                quote: {
+                    text: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.",
+                    source: 'Interviews'
+                },
+                truths: [
+                    'Breath creates the foundation for all rhythm',
+                    'Surrender to the instrument reveals truth',
+                    'Songs appear as light - synesthesia bridges senses',
+                    'Emotional wounds are doorways to healing'
+                ],
+                connections: ['coltrane', 'bjork', 'bowie', 'swan']
+            },
+            {
+                id: 'bjork',
+                name: 'Bjork',
+                dates: '1965-present',
+                domain: 'Nature-Technology Synthesis + Boundary Dissolution',
+                energy: 'feminine',
+                color: 0x00bfff,
+                quote: {
+                    text: "If you can make nature and technology friends, then you can make everyone friends; you can make everyone intact.",
+                    source: 'Interview (2011)'
+                },
+                truths: [
+                    'Nature and technology are the same force',
+                    'Boundaries between disciplines are illusion',
+                    'Creativity thrives in impulsive authenticity',
+                    'Electronic music has soul if you put it there'
+                ],
+                connections: ['hildegard', 'tesla', 'tori', 'bowie', 'fuller']
+            },
+            {
+                id: 'swan',
+                name: 'Teal Swan',
+                dates: '1984-present',
+                domain: 'Shadow Work + Spiritual Integration',
+                energy: 'feminine',
+                color: 0x9370db,
+                quote: {
+                    text: "The people who trigger us to feel negative emotions are messengers. They are messengers for the unhealed parts of our being.",
+                    source: 'Shadows Before Dawn (2015)'
+                },
+                truths: [
+                    'Triggers are messengers from the shadow',
+                    'Integration requires claiming what we reject',
+                    'Worth is not determined by productivity',
+                    'To be seen and loved anyway is miraculous'
+                ],
+                connections: ['jung', 'hicks', 'byrne', 'tori']
+            },
+            {
+                id: 'hicks',
+                name: 'Abraham Hicks',
+                dates: 'Esther Hicks, 1948-present',
+                domain: 'Law of Attraction + Vibrational Alignment',
+                energy: 'feminine',
+                color: 0xffb6c1,
+                quote: {
+                    text: "The reason you want every single thing that you want, is because you think you will feel really good when you get there. But if you don't feel really good on your way to there, you can't get there.",
+                    source: 'Ask and It Is Given (2004)'
+                },
+                truths: [
+                    'The universe responds to vibration, not words',
+                    'You create through the vibration of your being',
+                    'A belief is just a thought you keep thinking',
+                    'Nothing is more important than feeling good'
+                ],
+                connections: ['byrne', 'tesla', 'swan', 'grant']
+            },
+            {
+                id: 'byrne',
+                name: 'Rhonda Byrne',
+                dates: '1951-present',
+                domain: 'Universal Laws + Manifestation',
+                energy: 'feminine',
+                color: 0xffc0cb,
+                quote: {
+                    text: "The reason visualization is so powerful is because as you create pictures in your mind of seeing yourself with what it is you want, you are generating thoughts and feelings of having it now.",
+                    source: 'The Secret (2006)'
+                },
+                truths: [
+                    'Like attracts like - you become what you think',
+                    'Gratitude is the magical tool for creation',
+                    'An affirmative thought is 100x more powerful',
+                    'Visualization with feeling manifests reality'
+                ],
+                connections: ['hicks', 'tesla', 'swan', 'jobs']
+            },
+
+            // MASCULINE ENERGY (13)
+            {
+                id: 'davinci',
+                name: 'Leonardo da Vinci',
+                dates: '1452-1519',
+                domain: 'Art + Science Unity + Observation',
+                energy: 'masculine',
+                color: 0xd4af37,
+                quote: {
+                    text: "The painter has the universe in his mind and hands.",
+                    source: 'Leonardo\'s Notebooks'
+                },
+                truths: [
+                    'Art and science are one unified practice',
+                    'Observation is the foundation of knowledge',
+                    'Simplicity is the ultimate sophistication',
+                    'Experience is the mother of all knowledge'
+                ],
+                connections: ['tesla', 'fuller', 'jobs', 'grant', 'rand']
+            },
+            {
+                id: 'tesla',
+                name: 'Nikola Tesla',
+                dates: '1856-1943',
+                domain: 'Energy + Frequency + Vibration',
+                energy: 'masculine',
+                color: 0x00d4ff,
+                quote: {
+                    text: "If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.",
+                    source: 'Attributed, widely cited'
+                },
+                truths: [
+                    'Energy, frequency, vibration are the universal language',
+                    '3-6-9 patterns underlie cosmic mathematics',
+                    'The brain is a receiver from universal knowledge',
+                    'Solitude is the birthplace of invention'
+                ],
+                connections: ['hildegard', 'grant', 'coltrane', 'fuller', 'davinci', 'bjork', 'gisel']
+            },
+            {
+                id: 'fuller',
+                name: 'Buckminster Fuller',
+                dates: '1895-1983',
+                domain: 'Systems Thinking + Comprehensive Design',
+                energy: 'masculine',
+                color: 0x32cd32,
+                quote: {
+                    text: "You never change things by fighting the existing reality. To change something, build a new model that makes the existing model obsolete.",
+                    source: 'Beyond Civilization (1999)'
+                },
+                truths: [
+                    'Build new models rather than fight old ones',
+                    'We are verbs, not nouns - processes, not things',
+                    'Integrity is the essence of everything successful',
+                    'Pollution is unharvested resources'
+                ],
+                connections: ['starhawk', 'gisel', 'tesla', 'davinci', 'jobs', 'rene', 'bjork']
+            },
+            {
+                id: 'jung',
+                name: 'Carl Jung',
+                dates: '1875-1961',
+                domain: 'Shadow Integration + Individuation',
+                energy: 'masculine',
+                color: 0x9b59b6,
+                quote: {
+                    text: "One does not become enlightened by imagining figures of light, but by making the darkness conscious.",
+                    source: 'Psychology and Alchemy (1944)'
+                },
+                truths: [
+                    'The unconscious directs life until made conscious',
+                    'Shadow integration creates wholeness',
+                    'The mandala represents the Self',
+                    'Synchronicity reveals meaningful connection'
+                ],
+                connections: ['hildegard', 'starhawk', 'swan', 'bowie', 'grant']
+            },
+            {
+                id: 'suleyman',
+                name: 'Mustafa Suleyman',
+                dates: '1984-present',
+                domain: 'AI Ethics + Containment + Recognition',
+                energy: 'masculine',
+                color: 0x4169e1,
+                quote: {
+                    text: "Recognition is the inverse of generation. The same mechanisms that let you recognize also let you generate.",
+                    source: 'The Coming Wave (2023)'
+                },
+                truths: [
+                    'Recognition and generation are inverse operations',
+                    'Containment unites all elements of AI safety',
+                    'AI will change almost every fact about our lives',
+                    'Personality without personhood is the safe path'
+                ],
+                connections: ['cherny', 'rene', 'jobs', 'fuller']
+            },
+            {
+                id: 'grant',
+                name: 'Robert Edward Grant',
+                dates: 'Contemporary',
+                domain: 'Sacred Geometry + Mathematical Unification',
+                energy: 'masculine',
+                color: 0x8b5cf6,
+                quote: {
+                    text: "Math isn't just numbers - it's a sacred language, a bridge to higher consciousness.",
+                    source: 'Interviews and lectures'
+                },
+                truths: [
+                    'Mathematics is the language of Source',
+                    'All disciplines are expressions of one truth',
+                    'We are the universe perceiving itself',
+                    'Beautiful minds are free from fear'
+                ],
+                connections: ['hildegard', 'tesla', 'coltrane', 'jung', 'hicks', 'davinci']
+            },
+            {
+                id: 'prince',
+                name: 'Prince',
+                dates: '1958-2016',
+                domain: 'Sovereign Ownership + Multi-Instrumentalism',
+                energy: 'masculine',
+                color: 0x8b008b,
+                quote: {
+                    text: "If you don't own your masters, your master owns you.",
+                    source: 'Rolling Stone interview (1996)'
+                },
+                truths: [
+                    'Creative ownership is freedom itself',
+                    'Record contracts can be slavery',
+                    'Creating from nothing is heaven',
+                    'A strong spirit transcends rules'
+                ],
+                connections: ['rand', 'jobs', 'bowie', 'coltrane', 'gisel']
+            },
+            {
+                id: 'coltrane',
+                name: 'John Coltrane',
+                dates: '1926-1967',
+                domain: 'Breath as Spiritual Practice + Transcendence',
+                energy: 'masculine',
+                color: 0x4682b4,
+                quote: {
+                    text: "My music is the spiritual expression of what I am - my faith, my knowledge, my being.",
+                    source: 'Liner notes (1960s)'
+                },
+                truths: [
+                    'Music speaks directly to souls',
+                    'God breathes through us so gently we hardly feel it',
+                    'The goal is to live the truly religious life',
+                    'Getting closer to nature is getting closer to truth'
+                ],
+                connections: ['hildegard', 'tesla', 'grant', 'tori', 'prince']
+            },
+            {
+                id: 'bowie',
+                name: 'David Bowie',
+                dates: '1947-2016',
+                domain: 'Perpetual Reinvention + Identity Fluidity',
+                energy: 'masculine',
+                color: 0xff4500,
+                quote: {
+                    text: "I feel confident imposing change on myself. It's a lot more fun progressing than looking back.",
+                    source: 'Interviews'
+                },
+                truths: [
+                    'Reinvention is the essence of creativity',
+                    'There is no journey - we arrive and depart simultaneously',
+                    'Never play to the gallery',
+                    'Mistakes are thriving ground for art'
+                ],
+                connections: ['tori', 'bjork', 'jung', 'prince']
+            },
+            {
+                id: 'koe',
+                name: 'Dan Koe',
+                dates: 'Contemporary',
+                domain: 'Skill Extraction + One-Person Business',
+                energy: 'masculine',
+                color: 0xffa500,
+                quote: {
+                    text: "If you don't know what you want, you will be told what you want, and you will believe it.",
+                    source: 'The Art of Focus (2023)'
+                },
+                truths: [
+                    'Skills extract upward into valuable domains',
+                    'If you don\'t choose struggle, one is assigned',
+                    'Reading without writing stores excess as fat',
+                    'One hour of focused effort changes lives'
+                ],
+                connections: ['rand', 'jobs', 'cherny', 'gisel']
+            },
+            {
+                id: 'jobs',
+                name: 'Steve Jobs',
+                dates: '1955-2011',
+                domain: 'Design Thinking + Technology-Liberal Arts',
+                energy: 'masculine',
+                color: 0xc0c0c0,
+                quote: {
+                    text: "Your time is limited, don't waste it living someone else's life.",
+                    source: 'Stanford Commencement (2005)'
+                },
+                truths: [
+                    'Design is how it works, not just how it looks',
+                    'The dots connect only looking backward',
+                    'Stay hungry, stay foolish',
+                    'Deciding what NOT to do is equally important'
+                ],
+                connections: ['davinci', 'fuller', 'rand', 'prince', 'gisel', 'koe', 'suleyman', 'byrne']
+            },
+            {
+                id: 'cherny',
+                name: 'Boris Cherny',
+                dates: 'Contemporary',
+                domain: 'Democratized Programming + Claude Code',
+                energy: 'masculine',
+                color: 0x00ffff,
+                quote: {
+                    text: "Most of Claude Code is written using Claude Code - about 80 or 90%.",
+                    source: 'Anthropic interviews (2025)'
+                },
+                truths: [
+                    'Give AI a way to verify its work - 2-3x quality',
+                    'Feedback loops are the foundation of AI quality',
+                    'CLAUDE.md accumulates institutional knowledge',
+                    'Dogfooding creates authentic understanding'
+                ],
+                connections: ['gisel', 'suleyman', 'koe', 'jobs']
+            },
+            {
+                id: 'rene',
+                name: 'Gabriel Rene',
+                dates: 'Contemporary',
+                domain: 'Spatial Web + Context-Aware Intelligence',
+                energy: 'masculine',
+                color: 0x7fffd4,
+                quote: {
+                    text: "The Spatial Web lets us use a digitally-mediated universal language in which all information can become spatial.",
+                    source: 'VERSES AI publications'
+                },
+                truths: [
+                    'Context is everything - spatial bakes in meaning',
+                    'The world gets smarter through context awareness',
+                    'Decentralization enables trust and speed',
+                    'Active inference is the operating system of intelligence'
+                ],
+                connections: ['starhawk', 'fuller', 'suleyman', 'gisel']
+            }
+        ];
+
+        // ============================================
+        // 100 TRUTHS - RANKED BY CONNECTIONS
+        // ============================================
+        const TOP_100_TRUTHS = [
+            { rank: 1, text: 'Energy, frequency, and vibration are the universal language', masters: ['tesla', 'hildegard', 'grant', 'coltrane'], connections: 12 },
+            { rank: 2, text: 'Power-from-within creates; power-over destroys', masters: ['starhawk', 'gisel', 'prince', 'fuller'], connections: 11 },
+            { rank: 3, text: 'The unconscious directs life until made conscious', masters: ['jung', 'swan', 'bowie', 'hildegard'], connections: 10 },
+            { rank: 4, text: 'Art and science are one unified practice', masters: ['davinci', 'tesla', 'bjork', 'fuller'], connections: 10 },
+            { rank: 5, text: 'Recognition and generation are inverse operations', masters: ['suleyman', 'cherny', 'davinci', 'gisel'], connections: 9 },
+            { rank: 6, text: 'Build new models rather than fight old ones', masters: ['fuller', 'jobs', 'koe', 'starhawk'], connections: 9 },
+            { rank: 7, text: 'Data is crystallized human experience', masters: ['gisel', 'rene', 'cherny', 'jobs'], connections: 8 },
+            { rank: 8, text: 'Simplicity is the ultimate sophistication', masters: ['davinci', 'jobs', 'fuller', 'rand'], connections: 8 },
+            { rank: 9, text: 'The dots connect only looking backward', masters: ['jobs', 'bowie', 'jung', 'koe'], connections: 8 },
+            { rank: 10, text: 'Solitude is the birthplace of invention', masters: ['tesla', 'davinci', 'rand', 'tori'], connections: 7 },
+            { rank: 11, text: 'Creative ownership IS freedom', masters: ['prince', 'rand', 'gisel', 'jobs'], connections: 7 },
+            { rank: 12, text: 'Nature and technology are the same force', masters: ['bjork', 'tesla', 'fuller', 'rene'], connections: 7 },
+            { rank: 13, text: 'Breath creates the foundation for all rhythm', masters: ['tori', 'coltrane', 'hildegard', 'hicks'], connections: 7 },
+            { rank: 14, text: 'Visualization with feeling manifests reality', masters: ['byrne', 'hicks', 'tesla', 'jung'], connections: 6 },
+            { rank: 15, text: 'Mathematics is the language of Source', masters: ['grant', 'tesla', 'davinci', 'coltrane'], connections: 6 },
+            { rank: 16, text: 'Triggers are messengers from the shadow', masters: ['swan', 'jung', 'tori', 'bowie'], connections: 6 },
+            { rank: 17, text: 'A strong spirit transcends rules', masters: ['prince', 'rand', 'bowie', 'bjork'], connections: 6 },
+            { rank: 18, text: 'The mandala represents wholeness and Self', masters: ['jung', 'hildegard', 'grant', 'fuller'], connections: 6 },
+            { rank: 19, text: 'Design is how it works, not just how it looks', masters: ['jobs', 'fuller', 'davinci', 'gisel'], connections: 6 },
+            { rank: 20, text: 'Skills extract upward into valuable domains', masters: ['koe', 'jobs', 'cherny', 'davinci'], connections: 5 },
+            { rank: 21, text: 'We are the universe perceiving itself', masters: ['grant', 'jung', 'hildegard', 'tesla'], connections: 5 },
+            { rank: 22, text: 'Context is everything - spatial bakes in meaning', masters: ['rene', 'fuller', 'suleyman', 'gisel'], connections: 5 },
+            { rank: 23, text: 'Reinvention is the essence of creativity', masters: ['bowie', 'bjork', 'prince', 'gisel'], connections: 5 },
+            { rank: 24, text: 'A belief is just a thought you keep thinking', masters: ['hicks', 'byrne', 'jung', 'swan'], connections: 5 },
+            { rank: 25, text: 'Music speaks directly to souls', masters: ['coltrane', 'hildegard', 'tori', 'prince'], connections: 5 },
+            { rank: 26, text: 'Local-first architecture enables sovereignty', masters: ['gisel', 'starhawk', 'rene', 'cherny'], connections: 5 },
+            { rank: 27, text: 'Observation is the foundation of knowledge', masters: ['davinci', 'tesla', 'suleyman', 'jobs'], connections: 5 },
+            { rank: 28, text: 'The universe responds to vibration, not words', masters: ['hicks', 'tesla', 'coltrane', 'hildegard'], connections: 5 },
+            { rank: 29, text: 'Integration requires claiming what we reject', masters: ['swan', 'jung', 'starhawk', 'bowie'], connections: 4 },
+            { rank: 30, text: 'Integrity is the essence of everything successful', masters: ['fuller', 'rand', 'prince', 'jobs'], connections: 4 },
+            { rank: 31, text: 'Feedback loops are the foundation of AI quality', masters: ['cherny', 'suleyman', 'fuller', 'koe'], connections: 4 },
+            { rank: 32, text: 'Boundaries between disciplines are illusion', masters: ['bjork', 'davinci', 'fuller', 'grant'], connections: 4 },
+            { rank: 33, text: 'Gratitude is the magical tool for creation', masters: ['byrne', 'hicks', 'grant', 'hildegard'], connections: 4 },
+            { rank: 34, text: 'The goal is to live the truly religious life', masters: ['coltrane', 'hildegard', 'grant', 'jung'], connections: 4 },
+            { rank: 35, text: 'Worth is not determined by productivity', masters: ['swan', 'hicks', 'starhawk', 'byrne'], connections: 4 },
+            { rank: 36, text: 'Decentralization enables trust and speed', masters: ['rene', 'starhawk', 'gisel', 'cherny'], connections: 4 },
+            { rank: 37, text: '3-6-9 patterns underlie cosmic mathematics', masters: ['tesla', 'grant', 'hildegard', 'coltrane'], connections: 4 },
+            { rank: 38, text: 'Stay hungry, stay foolish', masters: ['jobs', 'bowie', 'bjork', 'koe'], connections: 4 },
+            { rank: 39, text: 'Ritual is technology for consciousness', masters: ['starhawk', 'hildegard', 'jung', 'coltrane'], connections: 4 },
+            { rank: 40, text: 'Creating from nothing is heaven', masters: ['prince', 'gisel', 'davinci', 'bjork'], connections: 4 },
+            { rank: 41, text: 'Contradictions do not exist - check premises', masters: ['rand', 'davinci', 'tesla', 'fuller'], connections: 4 },
+            { rank: 42, text: 'Synchronicity reveals meaningful connection', masters: ['jung', 'grant', 'hicks', 'hildegard'], connections: 4 },
+            { rank: 43, text: 'AI will change almost every fact about our lives', masters: ['suleyman', 'cherny', 'rene', 'jobs'], connections: 4 },
+            { rank: 44, text: 'Emotional wounds are doorways to healing', masters: ['tori', 'swan', 'jung', 'hicks'], connections: 4 },
+            { rank: 45, text: 'Songs appear as light - synesthesia bridges senses', masters: ['tori', 'hildegard', 'bjork', 'grant'], connections: 4 },
+            { rank: 46, text: 'The brain is a receiver from universal knowledge', masters: ['tesla', 'hicks', 'grant', 'jung'], connections: 4 },
+            { rank: 47, text: 'Experience is the mother of all knowledge', masters: ['davinci', 'koe', 'cherny', 'jobs'], connections: 3 },
+            { rank: 48, text: 'We are verbs, not nouns - processes, not things', masters: ['fuller', 'bowie', 'bjork', 'starhawk'], connections: 3 },
+            { rank: 49, text: 'Never play to the gallery', masters: ['bowie', 'prince', 'rand', 'bjork'], connections: 3 },
+            { rank: 50, text: 'The Goddess IS the world, not separate from it', masters: ['starhawk', 'hildegard', 'bjork', 'swan'], connections: 3 },
+            { rank: 51, text: 'Deciding what NOT to do is equally important', masters: ['jobs', 'fuller', 'koe', 'rand'], connections: 3 },
+            { rank: 52, text: 'Containment unites all elements of AI safety', masters: ['suleyman', 'fuller', 'rene', 'cherny'], connections: 3 },
+            { rank: 53, text: 'Sound carries truth beyond language', masters: ['hildegard', 'coltrane', 'bjork', 'tori'], connections: 3 },
+            { rank: 54, text: 'The smallest minority is the individual', masters: ['rand', 'prince', 'jobs', 'koe'], connections: 3 },
+            { rank: 55, text: 'Pollution is unharvested resources', masters: ['fuller', 'tesla', 'bjork', 'rene'], connections: 3 },
+            { rank: 56, text: 'To be seen and loved anyway is miraculous', masters: ['swan', 'hicks', 'byrne', 'tori'], connections: 3 },
+            { rank: 57, text: 'One hour of focused effort changes lives', masters: ['koe', 'jobs', 'tesla', 'davinci'], connections: 3 },
+            { rank: 58, text: 'CLAUDE.md accumulates institutional knowledge', masters: ['cherny', 'gisel', 'koe', 'suleyman'], connections: 3 },
+            { rank: 59, text: 'Photography captures light as memory', masters: ['gisel', 'davinci', 'tesla', 'hildegard'], connections: 3 },
+            { rank: 60, text: 'Like attracts like - you become what you think', masters: ['byrne', 'hicks', 'jung', 'rand'], connections: 3 },
+            { rank: 61, text: 'God breathes through us so gently we hardly feel it', masters: ['coltrane', 'hildegard', 'tori', 'hicks'], connections: 3 },
+            { rank: 62, text: 'Mistakes are thriving ground for art', masters: ['bowie', 'bjork', 'cherny', 'jobs'], connections: 3 },
+            { rank: 63, text: 'There is no journey - we arrive and depart simultaneously', masters: ['bowie', 'fuller', 'jung', 'hicks'], connections: 3 },
+            { rank: 64, text: 'An affirmative thought is 100x more powerful', masters: ['byrne', 'hicks', 'tesla', 'grant'], connections: 3 },
+            { rank: 65, text: 'All disciplines are expressions of one truth', masters: ['grant', 'davinci', 'fuller', 'bjork'], connections: 3 },
+            { rank: 66, text: 'Record contracts can be slavery', masters: ['prince', 'gisel', 'rand', 'starhawk'], connections: 3 },
+            { rank: 67, text: 'Active inference is the operating system of intelligence', masters: ['rene', 'suleyman', 'fuller', 'jung'], connections: 3 },
+            { rank: 68, text: 'Getting closer to nature is getting closer to truth', masters: ['coltrane', 'bjork', 'hildegard', 'starhawk'], connections: 3 },
+            { rank: 69, text: 'Reason is the only absolute', masters: ['rand', 'davinci', 'tesla', 'jobs'], connections: 3 },
+            { rank: 70, text: 'Personality without personhood is the safe path', masters: ['suleyman', 'jung', 'cherny', 'bowie'], connections: 3 },
+            { rank: 71, text: 'Greening power (viriditas) animates all life', masters: ['hildegard', 'starhawk', 'bjork', 'fuller'], connections: 3 },
+            { rank: 72, text: 'If you don\'t choose struggle, one is assigned', masters: ['koe', 'rand', 'prince', 'jobs'], connections: 3 },
+            { rank: 73, text: 'Beautiful minds are free from fear', masters: ['grant', 'hicks', 'byrne', 'jung'], connections: 3 },
+            { rank: 74, text: 'Surrender to the instrument reveals truth', masters: ['tori', 'coltrane', 'bjork', 'gisel'], connections: 3 },
+            { rank: 75, text: 'Creativity thrives in impulsive authenticity', masters: ['bjork', 'bowie', 'prince', 'tori'], connections: 3 },
+            { rank: 76, text: 'Electronic music has soul if you put it there', masters: ['bjork', 'tesla', 'gisel', 'cherny'], connections: 2 },
+            { rank: 77, text: 'Dogfooding creates authentic understanding', masters: ['cherny', 'jobs', 'gisel', 'koe'], connections: 2 },
+            { rank: 78, text: 'The world gets smarter through context awareness', masters: ['rene', 'suleyman', 'fuller', 'gisel'], connections: 2 },
+            { rank: 79, text: 'Reading without writing stores excess as fat', masters: ['koe', 'davinci', 'cherny', 'jobs'], connections: 2 },
+            { rank: 80, text: 'The soul is symphonic', masters: ['hildegard', 'coltrane', 'grant', 'tori'], connections: 2 },
+            { rank: 81, text: 'Nature is the mirror of divine creation', masters: ['hildegard', 'davinci', 'bjork', 'starhawk'], connections: 2 },
+            { rank: 82, text: 'Man is an end in himself, not a means', masters: ['rand', 'prince', 'jobs', 'koe'], connections: 2 },
+            { rank: 83, text: 'Nothing is more important than feeling good', masters: ['hicks', 'byrne', 'swan', 'prince'], connections: 2 },
+            { rank: 84, text: 'Shadow integration creates wholeness', masters: ['jung', 'swan', 'bowie', 'tori'], connections: 2 },
+            { rank: 85, text: 'A is A - the law of identity is fundamental', masters: ['rand', 'davinci', 'tesla', 'grant'], connections: 2 },
+            { rank: 86, text: 'You create through the vibration of your being', masters: ['hicks', 'tesla', 'hildegard', 'grant'], connections: 2 },
+            { rank: 87, text: 'Creation spirals from power-from-within', masters: ['starhawk', 'gisel', 'fuller', 'hildegard'], connections: 2 },
+            { rank: 88, text: 'Healing takes courage we all possess', masters: ['tori', 'swan', 'jung', 'hicks'], connections: 2 },
+            { rank: 89, text: 'The present is theirs; the future is mine', masters: ['tesla', 'jobs', 'bowie', 'gisel'], connections: 2 },
+            { rank: 90, text: 'Decentralized structures enable authentic power', masters: ['starhawk', 'rene', 'gisel', 'prince'], connections: 2 },
+            { rank: 91, text: 'Give AI a way to verify its work', masters: ['cherny', 'suleyman', 'fuller', 'jobs'], connections: 2 },
+            { rank: 92, text: 'There is truth inside waiting to be discovered', masters: ['byrne', 'jung', 'swan', 'hildegard'], connections: 2 },
+            { rank: 93, text: 'The coming wave is AI plus synthetic biology', masters: ['suleyman', 'tesla', 'fuller', 'rene'], connections: 2 },
+            { rank: 94, text: 'Jazz is a word they use to sell our music', masters: ['coltrane', 'prince', 'bjork', 'bowie'], connections: 2 },
+            { rank: 95, text: 'Love being personal yet also a scientist', masters: ['bjork', 'davinci', 'tesla', 'gisel'], connections: 2 },
+            { rank: 96, text: 'The meeting of personalities transforms both', masters: ['jung', 'coltrane', 'bowie', 'tori'], connections: 2 },
+            { rank: 97, text: 'Remembering death helps follow your heart', masters: ['jobs', 'jung', 'bowie', 'coltrane'], connections: 2 },
+            { rank: 98, text: 'I want to be a force for real good', masters: ['coltrane', 'starhawk', 'gisel', 'jobs'], connections: 2 },
+            { rank: 99, text: 'I wanted to be more than human', masters: ['bowie', 'tesla', 'grant', 'rand'], connections: 2 },
+            { rank: 100, text: 'Like books and black lives: Albums still matter', masters: ['prince', 'coltrane', 'gisel', 'bjork'], connections: 2 }
+        ];
+
+        // ============================================
+        // THREE.JS SCENE SETUP
+        // ============================================
+        let scene, camera, renderer, controls;
+        let masterNodes = [];
+        let truthNodes = [];
+        let connectionLines = [];
+        let selectedMaster = null;
+        let currentLayout = 'spiral';
+        let autoRotate = true;
+
+        const PHI = 1.618033988749895;
+        const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050508);
+            scene.fog = new THREE.FogExp2(0x050508, 0.008);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 50, 150);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 50;
+            controls.maxDistance = 400;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = 0.5;
+
+            // Create visualization
+            createMasterNodes();
+            createConnections();
+            createAmbientParticles();
+
+            // Events
+            window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('click', onCanvasClick);
+            renderer.domElement.addEventListener('mousemove', onCanvasMouseMove);
+
+            // UI Events
+            setupUIEvents();
+
+            // Populate top truths panel
+            populateTopTruths();
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1500);
+
+            // Update connection count
+            document.getElementById('connection-count').textContent = connectionLines.length;
+
+            // Start animation
+            animate();
+        }
+
+        function createMasterNodes() {
+            MASTERS.forEach((master, index) => {
+                // Calculate position based on layout
+                const position = getSpiralPosition(index, MASTERS.length);
+
+                // Create sphere geometry
+                const geometry = new THREE.SphereGeometry(3, 32, 32);
+
+                // Create glowing material
+                const material = new THREE.MeshBasicMaterial({
+                    color: master.color,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.copy(position);
+                sphere.userData = { type: 'master', data: master, index };
+
+                // Add glow ring
+                const ringGeometry = new THREE.RingGeometry(4, 5, 32);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: master.color,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                sphere.add(ring);
+
+                // Add outer glow
+                const glowGeometry = new THREE.SphereGeometry(4.5, 16, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: master.color,
+                    transparent: true,
+                    opacity: 0.15
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                sphere.add(glow);
+
+                scene.add(sphere);
+                masterNodes.push(sphere);
+            });
+        }
+
+        function createConnections() {
+            // Create connections based on master.connections
+            MASTERS.forEach((master, i) => {
+                master.connections.forEach(connId => {
+                    const connIndex = MASTERS.findIndex(m => m.id === connId);
+                    if (connIndex > i) { // Avoid duplicates
+                        const startPos = masterNodes[i].position;
+                        const endPos = masterNodes[connIndex].position;
+
+                        // Create curved line
+                        const midPoint = new THREE.Vector3()
+                            .addVectors(startPos, endPos)
+                            .multiplyScalar(0.5);
+                        midPoint.y += 10; // Arc upward
+
+                        const curve = new THREE.QuadraticBezierCurve3(startPos, midPoint, endPos);
+                        const points = curve.getPoints(30);
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+                        // Gradient color
+                        const colors = [];
+                        const startColor = new THREE.Color(master.color);
+                        const endColor = new THREE.Color(MASTERS[connIndex].color);
+
+                        for (let j = 0; j <= 30; j++) {
+                            const t = j / 30;
+                            const color = new THREE.Color().lerpColors(startColor, endColor, t);
+                            colors.push(color.r, color.g, color.b);
+                        }
+                        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+                        const material = new THREE.LineBasicMaterial({
+                            vertexColors: true,
+                            transparent: true,
+                            opacity: 0.3
+                        });
+
+                        const line = new THREE.Line(geometry, material);
+                        line.userData = {
+                            from: master.id,
+                            to: connId,
+                            fromIndex: i,
+                            toIndex: connIndex
+                        };
+                        scene.add(line);
+                        connectionLines.push(line);
+                    }
+                });
+            });
+        }
+
+        function createAmbientParticles() {
+            const particleCount = 500;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                // Spherical distribution
+                const radius = 100 + Math.random() * 150;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+
+                // Random subtle colors
+                const color = new THREE.Color().setHSL(Math.random(), 0.5, 0.5);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        function getSpiralPosition(index, total) {
+            const theta = index * GOLDEN_ANGLE * 2;
+            const radius = 5 + Math.sqrt(index) * 12;
+            const y = (index - total / 2) * 3;
+
+            return new THREE.Vector3(
+                radius * Math.cos(theta),
+                y,
+                radius * Math.sin(theta)
+            );
+        }
+
+        function getSpherePosition(index, total) {
+            const phi = Math.acos(1 - 2 * (index + 0.5) / total);
+            const theta = Math.PI * (1 + Math.sqrt(5)) * index;
+            const radius = 60;
+
+            return new THREE.Vector3(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+        }
+
+        function getNetworkPosition(index, total) {
+            // Force-directed style layout (simplified)
+            const master = MASTERS[index];
+            const connectionCount = master.connections.length;
+
+            // Position based on energy type and connections
+            const angle = (master.energy === 'feminine' ? 0 : Math.PI) + (index * 0.3);
+            const radius = 30 + connectionCount * 8;
+            const y = (index % 5 - 2) * 15;
+
+            return new THREE.Vector3(
+                radius * Math.cos(angle),
+                y,
+                radius * Math.sin(angle)
+            );
+        }
+
+        function updateLayout(layout) {
+            currentLayout = layout;
+
+            masterNodes.forEach((node, index) => {
+                let targetPos;
+                switch (layout) {
+                    case 'spiral':
+                        targetPos = getSpiralPosition(index, MASTERS.length);
+                        break;
+                    case 'sphere':
+                        targetPos = getSpherePosition(index, MASTERS.length);
+                        break;
+                    case 'network':
+                        targetPos = getNetworkPosition(index, MASTERS.length);
+                        break;
+                }
+
+                // Animate to new position
+                animatePosition(node, targetPos);
+            });
+
+            // Update connections after delay
+            setTimeout(updateConnectionPositions, 500);
+        }
+
+        function animatePosition(object, target) {
+            const start = object.position.clone();
+            const startTime = Date.now();
+            const duration = 1000;
+
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const eased = easeOutCubic(t);
+
+                object.position.lerpVectors(start, target, eased);
+
+                if (t < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            update();
+        }
+
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        function updateConnectionPositions() {
+            connectionLines.forEach(line => {
+                const fromNode = masterNodes[line.userData.fromIndex];
+                const toNode = masterNodes[line.userData.toIndex];
+
+                const startPos = fromNode.position;
+                const endPos = toNode.position;
+                const midPoint = new THREE.Vector3()
+                    .addVectors(startPos, endPos)
+                    .multiplyScalar(0.5);
+                midPoint.y += 10;
+
+                const curve = new THREE.QuadraticBezierCurve3(startPos, midPoint, endPos);
+                const points = curve.getPoints(30);
+
+                line.geometry.setFromPoints(points);
+                line.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+
+        function onCanvasClick(event) {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(masterNodes);
+
+            if (intersects.length > 0) {
+                const clicked = intersects[0].object;
+                selectMaster(clicked.userData.data);
+                highlightConnections(clicked.userData.data.id);
+            } else {
+                deselectMaster();
+            }
+        }
+
+        function onCanvasMouseMove(event) {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(masterNodes);
+
+            const tooltip = document.getElementById('tooltip');
+
+            if (intersects.length > 0) {
+                const hovered = intersects[0].object;
+                const master = hovered.userData.data;
+
+                tooltip.querySelector('.tooltip-name').textContent = master.name;
+                tooltip.querySelector('.tooltip-domain').textContent = master.domain;
+                tooltip.style.left = (event.clientX + 15) + 'px';
+                tooltip.style.top = (event.clientY + 15) + 'px';
+                tooltip.classList.add('visible');
+
+                document.body.style.cursor = 'pointer';
+            } else {
+                tooltip.classList.remove('visible');
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function selectMaster(master) {
+            selectedMaster = master;
+            const panel = document.getElementById('info-panel');
+
+            document.getElementById('master-name').textContent = master.name;
+            document.getElementById('master-name').style.color = '#' + master.color.toString(16).padStart(6, '0');
+            document.getElementById('master-dates').textContent = master.dates;
+            document.getElementById('master-domain').textContent = master.domain;
+            document.getElementById('quote-text').textContent = '"' + master.quote.text + '"';
+            document.getElementById('quote-source').textContent = '— ' + master.quote.source;
+
+            // Truths
+            const truthsList = document.getElementById('truths-list');
+            truthsList.innerHTML = '';
+            master.truths.forEach((truth, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="truth-number">${i + 1}</span><span>${truth}</span>`;
+                truthsList.appendChild(li);
+            });
+
+            // Connections
+            const connectionsList = document.getElementById('connections-list');
+            connectionsList.innerHTML = '';
+            master.connections.forEach(connId => {
+                const connMaster = MASTERS.find(m => m.id === connId);
+                if (connMaster) {
+                    const tag = document.createElement('span');
+                    tag.className = 'connection-tag';
+                    tag.textContent = connMaster.name.split(' ').pop();
+                    tag.style.borderColor = '#' + connMaster.color.toString(16).padStart(6, '0');
+                    tag.onclick = () => {
+                        selectMaster(connMaster);
+                        highlightConnections(connMaster.id);
+                    };
+                    connectionsList.appendChild(tag);
+                }
+            });
+
+            panel.classList.add('visible');
+        }
+
+        function deselectMaster() {
+            selectedMaster = null;
+            document.getElementById('info-panel').classList.remove('visible');
+
+            // Reset all connection opacities
+            connectionLines.forEach(line => {
+                line.material.opacity = 0.3;
+            });
+
+            // Reset all node opacities
+            masterNodes.forEach(node => {
+                node.material.opacity = 0.9;
+            });
+        }
+
+        function highlightConnections(masterId) {
+            // Dim all connections first
+            connectionLines.forEach(line => {
+                line.material.opacity = 0.1;
+            });
+
+            // Dim all nodes
+            masterNodes.forEach(node => {
+                node.material.opacity = 0.3;
+            });
+
+            // Highlight connected nodes and lines
+            const master = MASTERS.find(m => m.id === masterId);
+            const masterIndex = MASTERS.findIndex(m => m.id === masterId);
+
+            // Highlight self
+            masterNodes[masterIndex].material.opacity = 1;
+
+            master.connections.forEach(connId => {
+                const connIndex = MASTERS.findIndex(m => m.id === connId);
+                masterNodes[connIndex].material.opacity = 0.9;
+            });
+
+            connectionLines.forEach(line => {
+                if (line.userData.from === masterId || line.userData.to === masterId) {
+                    line.material.opacity = 0.8;
+                }
+            });
+        }
+
+        function populateTopTruths() {
+            const container = document.getElementById('top-truths-list');
+            container.innerHTML = '';
+
+            TOP_100_TRUTHS.slice(0, 10).forEach(truth => {
+                const item = document.createElement('div');
+                item.className = 'top-truth-item';
+                item.innerHTML = `
+                    <div class="top-truth-rank">#${truth.rank}</div>
+                    <div class="top-truth-text">${truth.text}</div>
+                    <div class="top-truth-masters">${truth.masters.map(id => {
+                        const m = MASTERS.find(master => master.id === id);
+                        return m ? m.name.split(' ').pop() : id;
+                    }).join(' + ')}</div>
+                    <div class="top-truth-connections">${truth.connections} master connections</div>
+                `;
+
+                item.onclick = () => {
+                    // Highlight all masters connected to this truth
+                    highlightTruthMasters(truth.masters);
+                };
+
+                container.appendChild(item);
+            });
+        }
+
+        function highlightTruthMasters(masterIds) {
+            // Dim all first
+            masterNodes.forEach(node => {
+                node.material.opacity = 0.2;
+            });
+            connectionLines.forEach(line => {
+                line.material.opacity = 0.05;
+            });
+
+            // Highlight truth masters
+            masterIds.forEach(id => {
+                const index = MASTERS.findIndex(m => m.id === id);
+                if (index >= 0) {
+                    masterNodes[index].material.opacity = 1;
+                }
+            });
+
+            // Highlight connections between truth masters
+            connectionLines.forEach(line => {
+                if (masterIds.includes(line.userData.from) && masterIds.includes(line.userData.to)) {
+                    line.material.opacity = 0.9;
+                }
+            });
+        }
+
+        function setupUIEvents() {
+            // Layout buttons
+            document.getElementById('btn-spiral').onclick = () => {
+                setActiveButton('btn-spiral');
+                updateLayout('spiral');
+            };
+            document.getElementById('btn-sphere').onclick = () => {
+                setActiveButton('btn-sphere');
+                updateLayout('sphere');
+            };
+            document.getElementById('btn-network').onclick = () => {
+                setActiveButton('btn-network');
+                updateLayout('network');
+            };
+            document.getElementById('btn-auto').onclick = (e) => {
+                autoRotate = !autoRotate;
+                controls.autoRotate = autoRotate;
+                e.target.classList.toggle('active', autoRotate);
+            };
+
+            // Legend filters
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.onclick = () => {
+                    const filter = item.dataset.filter;
+                    filterByEnergy(filter);
+                };
+            });
+        }
+
+        function setActiveButton(activeId) {
+            ['btn-spiral', 'btn-sphere', 'btn-network'].forEach(id => {
+                document.getElementById(id).classList.toggle('active', id === activeId);
+            });
+        }
+
+        function filterByEnergy(filter) {
+            masterNodes.forEach((node, index) => {
+                const master = MASTERS[index];
+                if (filter === 'all' || master.energy === filter) {
+                    node.visible = true;
+                } else {
+                    node.visible = false;
+                }
+            });
+
+            connectionLines.forEach(line => {
+                const fromMaster = MASTERS.find(m => m.id === line.userData.from);
+                const toMaster = MASTERS.find(m => m.id === line.userData.to);
+
+                if (filter === 'all') {
+                    line.visible = true;
+                } else {
+                    line.visible = fromMaster.energy === filter && toMaster.energy === filter;
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update controls
+            controls.update();
+
+            // Animate node rings
+            masterNodes.forEach((node, i) => {
+                const ring = node.children[0];
+                if (ring) {
+                    ring.rotation.z += 0.01;
+                }
+
+                // Pulse glow
+                const glow = node.children[1];
+                if (glow) {
+                    const scale = 1 + Math.sin(Date.now() * 0.002 + i) * 0.1;
+                    glow.scale.setScalar(scale);
+                }
+            });
+
+            // Pulse connection opacities slightly
+            if (!selectedMaster) {
+                connectionLines.forEach((line, i) => {
+                    const pulse = 0.25 + Math.sin(Date.now() * 0.001 + i * 0.5) * 0.1;
+                    line.material.opacity = pulse;
+                });
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

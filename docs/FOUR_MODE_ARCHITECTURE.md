@@ -7,11 +7,9 @@
 
 ---
 
-## THE ARK
+## ARC-8
 
-**ARC-8** = "The Ark" — Noah's Ark that carries all creative tools to safety.
-
-The umbrella that holds and protects all four modes, preserving sovereign creativity through the flood of extraction platforms.
+**ARC-8** — The umbrella that holds and protects all four modes, preserving sovereign creativity in an era of extraction platforms.
 
 ---
 
@@ -22,7 +20,7 @@ The umbrella that holds and protects all four modes, preserving sovereign creati
 ║                                                                              ║
 ║                                ARC-8                                         ║
 ║                         ═══════════════════                                  ║
-║                            THE ARK                                           ║
+║                        SOVEREIGN PLATFORM                                    ║
 ║                    Digital Sovereignty Platform                              ║
 ║                                                                              ║
 ║              "Your Data. Your Future. Take Control."                         ║
@@ -310,8 +308,8 @@ WHY "-8"?
 8 = Digital byte (8 bits)
 8 = Abundance number
 
-THE ARK:
-ARC-8 = "The Ark" (Noah's Ark) - Umbrella that carries all modes to safety
+ARC-8:
+ARC-8 = Umbrella platform that carries all modes toward sovereignty
 
 THE FOUR MODES:
 ├── DOC-8    (Document + Infinity)   → ARCHIVIST
@@ -321,7 +319,7 @@ THE FOUR MODES:
 └── Future:  [CONCEPT]-8
 
 PRONUNCIATION:
-├── ARC-8    = "Ark-Eight" (The Ark)
+├── ARC-8    = "Arc-Eight"
 ├── DOC-8    = "Dock-Eight" or "Doc-ate"
 ├── NFT-8    = "N-F-T-Eight"
 ├── CRE-8    = "Create-Eight" or "Cre-ate"
@@ -458,7 +456,7 @@ ARC-8 TEACHES (through use):
  I can verify truth myself. I need not trust.
  I can build what I imagine."
 
-THE ARK (ARC-8) CARRIES:
+ARC-8 CARRIES:
 DOC-8  → Know what you have (ARCHIVIST)
 NFT-8  → Verify what you collect (COLLECTOR)
 CRE-8  → Create what you imagine (ARTIST)

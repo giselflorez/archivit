@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATALAND Expert Preview | MOONLANGUAGE 4D</title>
+    <style>
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --border: rgba(255,255,255,0.06);
+            --gold: #d4a574;
+            --emerald: #54a876;
+            --rose: #ba6587;
+            --violet: #7865ba;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--void);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--void) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .logo-label {
+            font-size: 0.55rem;
+            font-weight: 400;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .logo-title {
+            font-size: 1.6rem;
+            font-weight: 200;
+            letter-spacing: 0.15em;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-block {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 200;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        /* Canvas Container */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            background: rgba(14, 14, 24, 0.92);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .panel-title {
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dimension-list {
+            list-style: none;
+        }
+
+        .dimension-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .dimension-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .d1 { background: var(--gold); color: var(--void); }
+        .d2 { background: var(--emerald); color: var(--void); }
+        .d3 { background: var(--rose); color: var(--void); }
+        .d4 { background: var(--violet); color: var(--void); }
+
+        .dimension-content {
+            flex: 1;
+        }
+
+        .dimension-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .dimension-desc {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        /* Right Panel - Data Streams */
+        .stream-panel {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            background: rgba(14, 14, 24, 0.92);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .stream-item {
+            padding: 0.6rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            border-left: 3px solid var(--gold);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stream-item:hover {
+            background: rgba(212, 165, 116, 0.1);
+            transform: translateX(4px);
+        }
+
+        .stream-source {
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+        }
+
+        .stream-count {
+            font-size: 1.2rem;
+            font-weight: 200;
+            margin-bottom: 0.25rem;
+        }
+
+        .stream-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .control-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(14, 14, 24, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(212, 165, 116, 0.1);
+            border-color: var(--gold);
+        }
+
+        .control-btn.active {
+            background: var(--gold);
+            color: var(--void);
+            border-color: var(--gold);
+        }
+
+        /* Mandate Quote */
+        .mandate-panel {
+            position: fixed;
+            bottom: 6rem;
+            left: 2rem;
+            right: 2rem;
+            background: rgba(14, 14, 24, 0.85);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            text-align: center;
+        }
+
+        .mandate-text {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mandate-author {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-top: 0.75rem;
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--void);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spiral {
+            width: 60px;
+            height: 60px;
+            border: 1px solid transparent;
+            border-top: 1px solid var(--gold);
+            border-right: 1px solid var(--rose);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--text-dim);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .info-panel, .stream-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spiral"></div>
+        <div class="loading-text">INITIALIZING 4D EXPERIENCE</div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo-label">Dataland AI Artist Residency</div>
+            <div class="logo-title">MOONLANGUAGE 4D</div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-block">
+                <div class="stat-value">968</div>
+                <div class="stat-label">Moons</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">22</div>
+                <div class="stat-label">Masters</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">4D</div>
+                <div class="stat-label">Dimensions</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">432</div>
+                <div class="stat-label">Hz Tuning</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Left Panel - 4D Architecture -->
+    <div class="info-panel">
+        <div class="panel-title">4-Dimensional Architecture</div>
+        <ul class="dimension-list">
+            <li class="dimension-item">
+                <div class="dimension-icon d1">1</div>
+                <div class="dimension-content">
+                    <div class="dimension-name">TIME (X-axis)</div>
+                    <div class="dimension-desc">Timeline from 1st Moon to 968th Moon. Chronological progression of the collection.</div>
+                </div>
+            </li>
+            <li class="dimension-item">
+                <div class="dimension-icon d2">2</div>
+                <div class="dimension-content">
+                    <div class="dimension-name">SPACE (Y-Z axes)</div>
+                    <div class="dimension-desc">3D visual representation. Navigable spatial environment via WebGL.</div>
+                </div>
+            </li>
+            <li class="dimension-item">
+                <div class="dimension-icon d3">3</div>
+                <div class="dimension-content">
+                    <div class="dimension-name">ACTIVATION (State)</div>
+                    <div class="dimension-desc">Selection triggers reveal mode. Moon "opens" to expose inner content.</div>
+                </div>
+            </li>
+            <li class="dimension-item">
+                <div class="dimension-icon d4">4</div>
+                <div class="dimension-content">
+                    <div class="dimension-name">MESSAGE (Depth)</div>
+                    <div class="dimension-desc">#COSMICDOWNLOAD data. Visual translation encoding the heart of each quote.</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Right Panel - Data Streams -->
+    <div class="stream-panel">
+        <div class="panel-title">Loaded Data Streams</div>
+        <div class="stream-item" style="border-color: var(--gold);">
+            <div class="stream-source">NORTHSTAR</div>
+            <div class="stream-count">22 Masters</div>
+            <div class="stream-label">100 Verified Truths</div>
+        </div>
+        <div class="stream-item" style="border-color: var(--violet);">
+            <div class="stream-source">MOONLANGUAGE</div>
+            <div class="stream-count">968 Moons</div>
+            <div class="stream-label">5 Variants x 2 Chains</div>
+        </div>
+        <div class="stream-item" style="border-color: var(--emerald);">
+            <div class="stream-source">WHATSAPP</div>
+            <div class="stream-count">471 Messages</div>
+            <div class="stream-label">Sept 2025 - Jan 2026</div>
+        </div>
+        <div class="stream-item" style="border-color: var(--rose);">
+            <div class="stream-source">VIDEOS</div>
+            <div class="stream-count">8 Downloaded</div>
+            <div class="stream-label">3.2GB | 4 Transcribed</div>
+        </div>
+        <div class="stream-item" style="border-color: var(--gold);">
+            <div class="stream-source">PLUTONIC MIND</div>
+            <div class="stream-count">432Hz</div>
+            <div class="stream-label">Sonic Alchemy for 968</div>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-controls">
+        <button class="control-btn active" id="btn-galaxy">Galaxy View</button>
+        <button class="control-btn" id="btn-timeline">Timeline</button>
+        <button class="control-btn" id="btn-synth">Synth Module</button>
+        <button class="control-btn" id="btn-auto">Auto-Rotate</button>
+    </div>
+
+    <!-- Mandate -->
+    <div class="mandate-panel">
+        <div class="mandate-text">"I fell in love with DATA and I'll never be the same again."</div>
+        <div class="mandate-author">Gisel Florez, Dataland Proposal 2026</div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // ============================================
+        // PHYSICS CONSTANTS (SACRED)
+        // ============================================
+        const PHI = 1.618033988749895;
+        const GOLDEN_ANGLE = 137.5077640500378 * (Math.PI / 180);
+        const SCHUMANN = 7.83;
+        const TESLA_PATTERN = [3, 6, 9];
+
+        // ============================================
+        // MOONLANGUAGE DATA
+        // ============================================
+        const MOON_COUNT = 968;
+        const MOON_COLORS = [
+            0xd4a574, // Gold
+            0x54a876, // Emerald
+            0xba6587, // Rose
+            0x7865ba, // Violet
+            0xf0ece7  // Pearl
+        ];
+
+        // ============================================
+        // THREE.JS SCENE
+        // ============================================
+        let scene, camera, renderer, controls;
+        let moonParticles;
+        let autoRotate = true;
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030308);
+            scene.fog = new THREE.FogExp2(0x030308, 0.003);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+            camera.position.set(0, 100, 400);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 100;
+            controls.maxDistance = 800;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = 0.3;
+
+            // Create Moons
+            createMoonGalaxy();
+            createAmbientField();
+
+            // Events
+            window.addEventListener('resize', onWindowResize);
+            setupUIEvents();
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 2000);
+
+            // Animate
+            animate();
+        }
+
+        function createMoonGalaxy() {
+            const positions = new Float32Array(MOON_COUNT * 3);
+            const colors = new Float32Array(MOON_COUNT * 3);
+            const sizes = new Float32Array(MOON_COUNT);
+
+            for (let i = 0; i < MOON_COUNT; i++) {
+                // Golden spiral positioning
+                const theta = i * GOLDEN_ANGLE;
+                const radius = 5 + Math.sqrt(i) * 8;
+                const y = (i - MOON_COUNT / 2) * 0.3;
+
+                positions[i * 3] = radius * Math.cos(theta);
+                positions[i * 3 + 1] = y + Math.sin(i * 0.1) * 20;
+                positions[i * 3 + 2] = radius * Math.sin(theta);
+
+                // Color based on variant
+                const colorIndex = i % 5;
+                const color = new THREE.Color(MOON_COLORS[colorIndex]);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+
+                // Size variation based on Tesla pattern
+                const teslaFactor = (i % 3 === 0) ? 1.5 : ((i % 6 === 0) ? 2 : ((i % 9 === 0) ? 2.5 : 1));
+                sizes[i] = 2 + Math.random() * 2 * teslaFactor;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            // Custom shader for glowing moons
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    pixelRatio: { value: renderer.getPixelRatio() }
+                },
+                vertexShader: `
+                    attribute float size;
+                    varying vec3 vColor;
+                    uniform float time;
+                    uniform float pixelRatio;
+
+                    void main() {
+                        vColor = color;
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+                        // Breathing effect based on Schumann resonance
+                        float breath = sin(time * 0.5 + position.x * 0.01) * 0.2 + 1.0;
+
+                        gl_PointSize = size * pixelRatio * (300.0 / -mvPosition.z) * breath;
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+
+                    void main() {
+                        vec2 center = gl_PointCoord - vec2(0.5);
+                        float dist = length(center);
+
+                        // Soft glow
+                        float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                        float glow = exp(-dist * 4.0) * 0.5;
+
+                        gl_FragColor = vec4(vColor, alpha + glow);
+                    }
+                `,
+                transparent: true,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            moonParticles = new THREE.Points(geometry, material);
+            scene.add(moonParticles);
+        }
+
+        function createAmbientField() {
+            const particleCount = 2000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                // Spherical distribution for ambient stars
+                const radius = 300 + Math.random() * 500;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+
+                // Subtle starfield colors
+                const intensity = 0.3 + Math.random() * 0.3;
+                colors[i * 3] = intensity;
+                colors[i * 3 + 1] = intensity;
+                colors[i * 3 + 2] = intensity + Math.random() * 0.2;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 1,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            const stars = new THREE.Points(geometry, material);
+            scene.add(stars);
+        }
+
+        function setupUIEvents() {
+            document.getElementById('btn-galaxy').onclick = (e) => {
+                setActiveButton('btn-galaxy');
+                transitionToGalaxy();
+            };
+
+            document.getElementById('btn-timeline').onclick = (e) => {
+                setActiveButton('btn-timeline');
+                transitionToTimeline();
+            };
+
+            document.getElementById('btn-synth').onclick = (e) => {
+                setActiveButton('btn-synth');
+                // Future: Open synth module overlay
+            };
+
+            document.getElementById('btn-auto').onclick = (e) => {
+                autoRotate = !autoRotate;
+                controls.autoRotate = autoRotate;
+                e.target.classList.toggle('active', autoRotate);
+            };
+        }
+
+        function setActiveButton(activeId) {
+            ['btn-galaxy', 'btn-timeline', 'btn-synth'].forEach(id => {
+                document.getElementById(id).classList.toggle('active', id === activeId);
+            });
+        }
+
+        function transitionToGalaxy() {
+            // Animate camera to galaxy view
+            gsap && gsap.to(camera.position, {
+                x: 0, y: 100, z: 400,
+                duration: 2,
+                ease: "power2.inOut"
+            });
+        }
+
+        function transitionToTimeline() {
+            // Animate camera to timeline view
+            gsap && gsap.to(camera.position, {
+                x: 500, y: 50, z: 0,
+                duration: 2,
+                ease: "power2.inOut"
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update time uniform for breathing effect
+            if (moonParticles) {
+                moonParticles.material.uniforms.time.value = performance.now() * 0.001;
+            }
+
+            // Gentle rotation of the moon galaxy
+            if (moonParticles && !controls.autoRotate) {
+                moonParticles.rotation.y += 0.0005;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

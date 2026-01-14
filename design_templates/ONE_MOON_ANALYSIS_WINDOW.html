@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOONLANGUAGE | Moon Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void-black: #000000;
+            --cosmic-dark: #0a0a0a;
+            --panel-bg: #111111;
+            --border: #222222;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-muted: #555555;
+            --accent-gold: #d4af37;
+            --accent-silver: #c0c0c0;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            background: var(--void-black);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Left Panel - Metadata */
+        .metadata-panel {
+            width: 320px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .panel-header {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metadata-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .metadata-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+        }
+
+        .metadata-label {
+            color: var(--text-secondary);
+        }
+
+        .metadata-value {
+            color: var(--text-primary);
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .metadata-value.empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Center - Moon Viewer */
+        .viewer-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .moon-frame {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1;
+            background: var(--cosmic-dark);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* Asset Layers */
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        .layer-photo {
+            z-index: 1;
+            opacity: 1;
+        }
+
+        .layer-video {
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .layer-ascii {
+            z-index: 3;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--void-black);
+        }
+
+        /* States */
+        .moon-frame:hover .layer-photo {
+            opacity: 0;
+        }
+
+        .moon-frame:hover .layer-video {
+            opacity: 1;
+        }
+
+        .moon-frame.ascii-active .layer-photo,
+        .moon-frame.ascii-active .layer-video {
+            opacity: 0;
+        }
+
+        .moon-frame.ascii-active .layer-ascii {
+            opacity: 1;
+        }
+
+        /* Placeholder when no asset */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .placeholder-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .placeholder-path {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-family: monospace;
+        }
+
+        /* State Indicator */
+        .state-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+
+        .state-indicator.photo { border-color: var(--accent-silver); color: var(--accent-silver); }
+        .state-indicator.video { border-color: var(--accent-gold); color: var(--accent-gold); }
+        .state-indicator.ascii { border-color: #00ff00; color: #00ff00; }
+
+        /* Moon Navigation */
+        .moon-nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .moon-number {
+            font-size: 2rem;
+            font-weight: 200;
+            color: var(--accent-gold);
+        }
+
+        .moon-number span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Right Panel - Asset Status */
+        .assets-panel {
+            width: 280px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .asset-status {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--cosmic-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .asset-name {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .asset-path {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        .asset-state {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .asset-state.loaded { background: rgba(0,255,0,0.2); color: #00ff00; }
+        .asset-state.missing { background: rgba(255,0,0,0.2); color: #ff6666; }
+        .asset-state.pending { background: rgba(255,165,0,0.2); color: #ffaa00; }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--cosmic-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            line-height: 1.6;
+        }
+
+        .instructions h4 {
+            color: var(--accent-gold);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .instructions code {
+            display: block;
+            padding: 0.5rem;
+            background: var(--void-black);
+            margin: 0.5rem 0;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        .key-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .key {
+            padding: 0.2rem 0.5rem;
+            background: var(--void-black);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 0.65rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left Panel: Metadata -->
+    <aside class="metadata-panel">
+        <div class="panel-header">MOONLANGUAGE METADATA</div>
+
+        <!-- Moon Identity -->
+        <div class="metadata-section">
+            <div class="section-title">Moon Identity</div>
+            <div class="metadata-row">
+                <span class="metadata-label">Moon #</span>
+                <span class="metadata-value" id="meta-moon-number">001</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Variant</span>
+                <span class="metadata-value" id="meta-variant">PRIMARY</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Quote</span>
+                <span class="metadata-value" id="meta-quote" class="empty">[encoded in image]</span>
+            </div>
+        </div>
+
+        <!-- Photography EXIF -->
+        <div class="metadata-section">
+            <div class="section-title">Photography</div>
+            <div class="metadata-row">
+                <span class="metadata-label">Camera</span>
+                <span class="metadata-value empty" id="meta-camera">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Lens</span>
+                <span class="metadata-value empty" id="meta-lens">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Aperture</span>
+                <span class="metadata-value empty" id="meta-aperture">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Shutter</span>
+                <span class="metadata-value empty" id="meta-shutter">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">ISO</span>
+                <span class="metadata-value empty" id="meta-iso">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Focal Length</span>
+                <span class="metadata-value empty" id="meta-focal">[from EXIF]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Date Captured</span>
+                <span class="metadata-value empty" id="meta-date">[from EXIF]</span>
+            </div>
+        </div>
+
+        <!-- Blockchain -->
+        <div class="metadata-section">
+            <div class="section-title">On-Chain</div>
+            <div class="metadata-row">
+                <span class="metadata-label">Blockchain</span>
+                <span class="metadata-value empty" id="meta-chain">[not minted]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Contract</span>
+                <span class="metadata-value empty" id="meta-contract">[not minted]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Token ID</span>
+                <span class="metadata-value empty" id="meta-token">[not minted]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">IPFS CID</span>
+                <span class="metadata-value empty" id="meta-ipfs">[not pinned]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Mint Date</span>
+                <span class="metadata-value empty" id="meta-mint-date">[not minted]</span>
+            </div>
+        </div>
+
+        <!-- File Info -->
+        <div class="metadata-section">
+            <div class="section-title">File Info</div>
+            <div class="metadata-row">
+                <span class="metadata-label">Dimensions</span>
+                <span class="metadata-value empty" id="meta-dimensions">[load image]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Format</span>
+                <span class="metadata-value empty" id="meta-format">[load image]</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">File Size</span>
+                <span class="metadata-value empty" id="meta-filesize">[load image]</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Center: Moon Viewer -->
+    <main class="viewer-container">
+        <div class="moon-frame" id="moon-frame">
+            <!-- State Indicator -->
+            <div class="state-indicator photo" id="state-indicator">PHOTO</div>
+
+            <!-- Photo Layer (Default) -->
+            <div class="layer layer-photo" id="layer-photo">
+                <div class="placeholder">
+                    <div class="placeholder-icon">&#x1F311;</div>
+                    <div>Drop photo asset here</div>
+                    <div class="placeholder-path">/assets/moon_XXX/photo.jpg</div>
+                </div>
+            </div>
+
+            <!-- Video Layer (Hover) -->
+            <video class="layer layer-video" id="layer-video" muted loop>
+                <!-- Video source will be set dynamically -->
+            </video>
+
+            <!-- ASCII Layer (Click + Hold) -->
+            <div class="layer layer-ascii" id="layer-ascii">
+                <div class="placeholder">
+                    <div class="placeholder-icon" style="font-family: monospace;">ASCII</div>
+                    <div>Secret layer</div>
+                    <div class="placeholder-path">/assets/moon_XXX/ascii.png</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moon Navigation -->
+        <div class="moon-nav">
+            <button class="nav-btn" id="prev-moon">&larr; PREV</button>
+            <div class="moon-number">
+                <span id="current-moon">001</span>
+                <span> / 968</span>
+            </div>
+            <button class="nav-btn" id="next-moon">NEXT &rarr;</button>
+        </div>
+    </main>
+
+    <!-- Right Panel: Asset Status -->
+    <aside class="assets-panel">
+        <div class="panel-header">ASSET LAYERS</div>
+
+        <div class="asset-status">
+            <div class="asset-name">PHOTO LAYER</div>
+            <div class="asset-path" id="photo-path">/assets/moon_001/photo.jpg</div>
+            <div class="asset-state missing" id="photo-state">NOT LOADED</div>
+        </div>
+
+        <div class="asset-status">
+            <div class="asset-name">VIDEO LAYER</div>
+            <div class="asset-path" id="video-path">/assets/moon_001/video.mp4</div>
+            <div class="asset-state missing" id="video-state">NOT LOADED</div>
+        </div>
+
+        <div class="asset-status">
+            <div class="asset-name">ASCII LAYER</div>
+            <div class="asset-path" id="ascii-path">/assets/moon_001/ascii.png</div>
+            <div class="asset-state missing" id="ascii-state">NOT LOADED</div>
+        </div>
+
+        <!-- Folder Structure -->
+        <div class="instructions">
+            <h4>REQUIRED FOLDER STRUCTURE</h4>
+            <code>/assets/
+  /moon_001/
+    photo.jpg
+    video.mp4
+    ascii.png
+  /moon_002/
+    ...
+  /moon_968/
+    ...</code>
+        </div>
+
+        <!-- Interaction Guide -->
+        <div class="instructions">
+            <h4>INTERACTION STATES</h4>
+            <div class="key-hint">
+                <span class="key">DEFAULT</span>
+                <span>Photo displays</span>
+            </div>
+            <div class="key-hint">
+                <span class="key">HOVER</span>
+                <span>Video plays with audio</span>
+            </div>
+            <div class="key-hint">
+                <span class="key">CLICK+HOLD</span>
+                <span>ASCII reveals (easter egg)</span>
+            </div>
+            <div class="key-hint">
+                <span class="key">RELEASE</span>
+                <span>Returns to normal</span>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        // MOONLANGUAGE Viewer - State Machine
+        // NO HALLUCINATED DATA - Only real assets
+
+        const STATE = {
+            PHOTO: 'PHOTO',
+            VIDEO: 'VIDEO',
+            ASCII: 'ASCII'
+        };
+
+        let currentState = STATE.PHOTO;
+        let currentMoon = 1;
+
+        const moonFrame = document.getElementById('moon-frame');
+        const stateIndicator = document.getElementById('state-indicator');
+        const layerPhoto = document.getElementById('layer-photo');
+        const layerVideo = document.getElementById('layer-video');
+        const layerAscii = document.getElementById('layer-ascii');
+
+        // State transitions
+        function setState(newState) {
+            currentState = newState;
+            stateIndicator.textContent = newState;
+            stateIndicator.className = 'state-indicator ' + newState.toLowerCase();
+        }
+
+        // Hover: Play video with audio
+        moonFrame.addEventListener('mouseenter', () => {
+            if (currentState !== STATE.ASCII) {
+                setState(STATE.VIDEO);
+                layerVideo.muted = false; // Enable audio on hover
+                layerVideo.play().catch(() => {
+                    // Video not loaded yet
+                });
+            }
+        });
+
+        moonFrame.addEventListener('mouseleave', () => {
+            if (currentState !== STATE.ASCII) {
+                setState(STATE.PHOTO);
+                layerVideo.pause();
+                layerVideo.currentTime = 0;
+            }
+        });
+
+        // Video ends: Return to photo
+        layerVideo.addEventListener('ended', () => {
+            if (currentState === STATE.VIDEO) {
+                setState(STATE.PHOTO);
+            }
+        });
+
+        // Click + Hold: ASCII easter egg
+        moonFrame.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            setState(STATE.ASCII);
+            moonFrame.classList.add('ascii-active');
+            layerVideo.pause();
+        });
+
+        moonFrame.addEventListener('mouseup', () => {
+            moonFrame.classList.remove('ascii-active');
+            setState(STATE.PHOTO);
+        });
+
+        moonFrame.addEventListener('mouseleave', () => {
+            moonFrame.classList.remove('ascii-active');
+        });
+
+        // Navigation
+        document.getElementById('prev-moon').addEventListener('click', () => {
+            if (currentMoon > 1) {
+                currentMoon--;
+                loadMoon(currentMoon);
+            }
+        });
+
+        document.getElementById('next-moon').addEventListener('click', () => {
+            if (currentMoon < 968) {
+                currentMoon++;
+                loadMoon(currentMoon);
+            }
+        });
+
+        // Load moon assets
+        function loadMoon(moonNum) {
+            const paddedNum = String(moonNum).padStart(3, '0');
+            document.getElementById('current-moon').textContent = paddedNum;
+            document.getElementById('meta-moon-number').textContent = paddedNum;
+
+            // Update asset paths (actual loading would happen here)
+            const basePath = `/assets/moon_${paddedNum}`;
+            document.getElementById('photo-path').textContent = `${basePath}/photo.jpg`;
+            document.getElementById('video-path').textContent = `${basePath}/video.mp4`;
+            document.getElementById('ascii-path').textContent = `${basePath}/ascii.png`;
+
+            // Reset state
+            setState(STATE.PHOTO);
+            moonFrame.classList.remove('ascii-active');
+        }
+
+        // Load actual assets when provided
+        function loadAssets(moonNum, photoUrl, videoUrl, asciiUrl) {
+            // Photo
+            if (photoUrl) {
+                const img = document.createElement('img');
+                img.src = photoUrl;
+                img.className = 'layer layer-photo';
+                img.onload = () => {
+                    document.getElementById('photo-state').textContent = 'LOADED';
+                    document.getElementById('photo-state').className = 'asset-state loaded';
+                    document.getElementById('meta-dimensions').textContent = `${img.naturalWidth} x ${img.naturalHeight}`;
+                    document.getElementById('meta-dimensions').classList.remove('empty');
+                };
+                layerPhoto.replaceWith(img);
+            }
+
+            // Video
+            if (videoUrl) {
+                layerVideo.src = videoUrl;
+                layerVideo.onloadeddata = () => {
+                    document.getElementById('video-state').textContent = 'LOADED';
+                    document.getElementById('video-state').className = 'asset-state loaded';
+                };
+            }
+
+            // ASCII
+            if (asciiUrl) {
+                const asciiImg = document.createElement('img');
+                asciiImg.src = asciiUrl;
+                asciiImg.className = 'layer layer-ascii';
+                asciiImg.onload = () => {
+                    document.getElementById('ascii-state').textContent = 'LOADED';
+                    document.getElementById('ascii-state').className = 'asset-state loaded';
+                };
+                layerAscii.replaceWith(asciiImg);
+            }
+        }
+
+        // Initialize
+        loadMoon(1);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                document.getElementById('prev-moon').click();
+            } else if (e.key === 'ArrowRight') {
+                document.getElementById('next-moon').click();
+            }
+        });
+    </script>
+
+</body>
+</html>

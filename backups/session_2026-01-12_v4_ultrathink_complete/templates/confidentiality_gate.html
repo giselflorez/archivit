@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confidentiality Agreement | ARCHIV-IT</title>
+    <style>
+        :root {
+            --void: #030308;
+            --panel: #0a0a12;
+            --border: rgba(212, 165, 116, 0.2);
+            --gold: #d4a574;
+            --gold-dim: rgba(212, 165, 116, 0.6);
+            --text: #f0ece7;
+            --text-dim: #8a8680;
+            --danger: #c44;
+            --green: #4ade80;
+            --green-dim: rgba(74, 222, 128, 0.3);
+            --green-glow: rgba(74, 222, 128, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--void);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .gate-container {
+            max-width: 680px;
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        /* Step indicators */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.4s ease;
+        }
+
+        .step-dot.active {
+            background: var(--gold);
+            box-shadow: 0 0 15px var(--gold-dim);
+        }
+
+        .step-dot.completed {
+            background: var(--green);
+            box-shadow: 0 0 15px var(--green-glow);
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gate-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .gate-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.4s ease;
+        }
+
+        .gate-icon.green {
+            border-color: var(--green);
+            box-shadow: 0 0 30px var(--green-glow);
+        }
+
+        .gate-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .gate-subtitle {
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .gate-subtitle.green {
+            color: var(--green);
+        }
+
+        .agreement-content {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+
+        .agreement-content::-webkit-scrollbar { width: 4px; }
+        .agreement-content::-webkit-scrollbar-thumb {
+            background: var(--gold-dim);
+            border-radius: 2px;
+        }
+
+        .agreement-content h3 {
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 16px 0 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .agreement-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .agreement-content p {
+            margin-bottom: 12px;
+        }
+
+        .agreement-content ul {
+            margin: 12px 0 12px 20px;
+        }
+
+        .agreement-content li {
+            margin-bottom: 6px;
+        }
+
+        .agreement-content strong {
+            color: var(--text);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 20px;
+            background: rgba(212, 165, 116, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            background: rgba(212, 165, 116, 0.08);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold);
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .checkbox-label strong {
+            color: var(--gold);
+        }
+
+        .name-input-group {
+            margin-bottom: 24px;
+        }
+
+        .name-input-group label {
+            display: block;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .name-input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .name-input-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.1);
+        }
+
+        .name-input-group input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.1));
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .submit-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .submit-btn.enabled:hover {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.3), rgba(212, 165, 116, 0.2));
+            box-shadow: 0 0 30px rgba(212, 165, 116, 0.2);
+        }
+
+        .submit-btn.green {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(74, 222, 128, 0.1));
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .submit-btn.green.enabled:hover {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.3), rgba(74, 222, 128, 0.2));
+            box-shadow: 0 0 30px var(--green-glow);
+        }
+
+        .legal-note {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .legal-note a {
+            color: var(--gold-dim);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        /* Mode Selection - Screen 2 */
+        .mode-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .mode-option {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .mode-option:hover {
+            border-color: rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.03);
+        }
+
+        .mode-option.selected {
+            border-color: var(--green);
+            background: rgba(74, 222, 128, 0.08);
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.1);
+        }
+
+        /* Animated Radio Button */
+        .radio-container {
+            position: relative;
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .radio-outer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: all 0.4s ease;
+        }
+
+        .mode-option.selected .radio-outer {
+            border-color: var(--green);
+            box-shadow: 0 0 20px var(--green-glow);
+        }
+
+        .radio-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 14px;
+            height: 14px;
+            background: var(--green);
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .mode-option.selected .radio-inner {
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 0 15px var(--green-glow);
+        }
+
+        /* Pulse animation for selected */
+        .radio-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--green);
+            opacity: 0;
+            animation: none;
+        }
+
+        .mode-option.selected .radio-pulse {
+            animation: pulse 2s ease-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .mode-content {
+            flex: 1;
+        }
+
+        .mode-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .mode-title {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 6px;
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .mode-option.selected .mode-title {
+            color: var(--green);
+        }
+
+        .mode-description {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .mode-features {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mode-feature {
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        .mode-option.selected .mode-feature {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--green);
+        }
+
+        .mode-help {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+
+        .mode-help strong {
+            color: var(--green);
+        }
+    </style>
+</head>
+<body>
+    <div class="gate-container">
+        <!-- Step Indicators -->
+        <div class="step-indicator">
+            <div class="step-dot active" id="step1-dot"></div>
+            <div class="step-dot" id="step2-dot"></div>
+        </div>
+
+        <!-- Screen 1: NDA Agreement -->
+        <div class="screen active" id="screen-nda">
+            <div class="gate-header">
+                <div class="gate-icon">🔒</div>
+                <h1 class="gate-title">Confidentiality Agreement</h1>
+                <p class="gate-subtitle">Pre-Release Technology Preview</p>
+            </div>
+
+            <div class="agreement-content">
+                <h3>CONFIDENTIAL TECHNOLOGY PREVIEW</h3>
+                <p>You are about to access proprietary technology, visualizations, and intellectual property developed by <strong>WEB3GISEL / ARCHIV-IT</strong> ("Company"). This material is shared with you solely for evaluation and feedback purposes as part of a limited beta testing program.</p>
+
+                <h3>CONFIDENTIALITY OBLIGATIONS</h3>
+                <p>By proceeding, you agree to the following:</p>
+                <ul>
+                    <li><strong>Non-Disclosure:</strong> You will not disclose, share, publish, or otherwise communicate any aspect of this technology to any third party.</li>
+                    <li><strong>Non-Use:</strong> You will not use any information gained to develop similar or competing products.</li>
+                    <li><strong>Non-Reproduction:</strong> You will not copy, screenshot, record, or reproduce any portion without explicit consent.</li>
+                    <li><strong>No Reverse Engineering:</strong> You will not attempt to reverse engineer or derive source code.</li>
+                </ul>
+
+                <h3>INTELLECTUAL PROPERTY</h3>
+                <p>All materials are exclusive IP of WEB3GISEL / ARCHIV-IT including: 4D Spectral Visualization Technology, NORTHSTAR Masters Framework, Character Archetype Physics Systems, Sacred Halo Rendering Algorithms, and Time Stream Particle Systems. Patent applications may be pending.</p>
+
+                <h3>DURATION & GOVERNING LAW</h3>
+                <p>Obligations remain in effect for <strong>five (5) years</strong>. Trade secrets survive indefinitely. Governed by New York State law.</p>
+            </div>
+
+            <div class="name-input-group">
+                <label for="full-name">Your Full Legal Name</label>
+                <input type="text" id="full-name" placeholder="Enter your full name as acknowledgment" autocomplete="name">
+                <p class="error-msg" id="name-error">Please enter your full name</p>
+            </div>
+
+            <label class="checkbox-group" for="agree-checkbox">
+                <input type="checkbox" id="agree-checkbox">
+                <span class="checkbox-label">
+                    I have read and understood the Confidentiality Agreement. I agree to be bound by its terms and acknowledge this is a <strong>legally binding agreement</strong>.
+                </span>
+            </label>
+
+            <button class="submit-btn" id="nda-submit-btn" onclick="proceedToModeSelection()">
+                Accept & Continue
+            </button>
+
+            <p class="legal-note">
+                A record of your acceptance will be stored. Contact <a href="mailto:legal@archivit.app">legal@archivit.app</a>
+            </p>
+        </div>
+
+        <!-- Screen 2: Mode Selection -->
+        <div class="screen" id="screen-mode">
+            <div class="gate-header">
+                <div class="gate-icon green">⚡</div>
+                <h1 class="gate-title">Choose Your Experience</h1>
+                <p class="gate-subtitle green">Select Interaction Mode</p>
+            </div>
+
+            <div class="mode-help">
+                <strong>How would you like to explore?</strong> This preference affects how data is processed and displayed. You can change this anytime from the settings menu.
+            </div>
+
+            <div class="mode-selection">
+                <div class="mode-option" id="mode-ai" onclick="selectMode('ai')">
+                    <div class="radio-container">
+                        <div class="radio-pulse"></div>
+                        <div class="radio-outer"></div>
+                        <div class="radio-inner"></div>
+                    </div>
+                    <div class="mode-content">
+                        <div class="mode-icon">🤖</div>
+                        <div class="mode-title">AI-Enhanced Mode</div>
+                        <div class="mode-description">
+                            Full AI-powered features enabled. Get intelligent suggestions, pattern recognition, semantic connections, and enhanced discovery through machine learning.
+                        </div>
+                        <div class="mode-features">
+                            <span class="mode-feature">Smart Suggestions</span>
+                            <span class="mode-feature">Pattern Recognition</span>
+                            <span class="mode-feature">Semantic Search</span>
+                            <span class="mode-feature">Auto-Clustering</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode-option" id="mode-anon" onclick="selectMode('anon')">
+                    <div class="radio-container">
+                        <div class="radio-pulse"></div>
+                        <div class="radio-outer"></div>
+                        <div class="radio-inner"></div>
+                    </div>
+                    <div class="mode-content">
+                        <div class="mode-icon">👤</div>
+                        <div class="mode-title">Anonymous Mode</div>
+                        <div class="mode-description">
+                            Privacy-first experience. No AI processing, no data sent to external services. Pure local exploration with manual navigation and discovery.
+                        </div>
+                        <div class="mode-features">
+                            <span class="mode-feature">100% Local</span>
+                            <span class="mode-feature">No Tracking</span>
+                            <span class="mode-feature">Manual Control</span>
+                            <span class="mode-feature">Privacy First</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="submit-btn green" id="mode-submit-btn" onclick="submitAll()">
+                Enter Preview
+            </button>
+
+            <p class="legal-note">
+                Your preference is stored locally and can be changed anytime via the <strong>⚙️ Settings</strong> menu within the visualization.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const checkbox = document.getElementById('agree-checkbox');
+        const nameInput = document.getElementById('full-name');
+        const ndaSubmitBtn = document.getElementById('nda-submit-btn');
+        const modeSubmitBtn = document.getElementById('mode-submit-btn');
+        const nameError = document.getElementById('name-error');
+
+        const screenNda = document.getElementById('screen-nda');
+        const screenMode = document.getElementById('screen-mode');
+        const step1Dot = document.getElementById('step1-dot');
+        const step2Dot = document.getElementById('step2-dot');
+
+        // State
+        let selectedMode = null;
+        let userName = '';
+
+        // Get target page
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = urlParams.get('next') || '/masters-spectral';
+
+        // Validate NDA form
+        function validateNdaForm() {
+            const nameValid = nameInput.value.trim().length >= 3;
+            const agreed = checkbox.checked;
+
+            if (nameValid && agreed) {
+                ndaSubmitBtn.classList.add('enabled');
+            } else {
+                ndaSubmitBtn.classList.remove('enabled');
+            }
+        }
+
+        checkbox.addEventListener('change', validateNdaForm);
+        nameInput.addEventListener('input', () => {
+            nameError.classList.remove('visible');
+            validateNdaForm();
+        });
+
+        // Proceed to mode selection
+        function proceedToModeSelection() {
+            const name = nameInput.value.trim();
+            const agreed = checkbox.checked;
+
+            if (name.length < 3) {
+                nameError.classList.add('visible');
+                nameInput.focus();
+                return;
+            }
+
+            if (!agreed) return;
+
+            userName = name;
+
+            // Record NDA acceptance
+            const acceptance = {
+                name: name,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                targetPage: targetPage
+            };
+
+            localStorage.setItem('nda_accepted', 'true');
+            localStorage.setItem('nda_accepted_name', name);
+            localStorage.setItem('nda_accepted_date', acceptance.timestamp);
+
+            fetch('/api/nda/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(acceptance)
+            }).catch(() => {});
+
+            // Transition to mode selection
+            screenNda.classList.remove('active');
+            screenMode.classList.add('active');
+            step1Dot.classList.remove('active');
+            step1Dot.classList.add('completed');
+            step2Dot.classList.add('active');
+        }
+
+        // Select mode
+        function selectMode(mode) {
+            selectedMode = mode;
+
+            // Update UI
+            document.querySelectorAll('.mode-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById('mode-' + mode).classList.add('selected');
+
+            // Enable submit
+            modeSubmitBtn.classList.add('enabled');
+        }
+
+        // Submit all and enter
+        function submitAll() {
+            if (!selectedMode) return;
+
+            // Store mode preference
+            localStorage.setItem('archivit_mode', selectedMode);
+            localStorage.setItem('archivit_mode_set_by', userName);
+            localStorage.setItem('archivit_mode_set_date', new Date().toISOString());
+
+            // Record mode selection on server
+            fetch('/api/user/mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: userName,
+                    mode: selectedMode,
+                    timestamp: new Date().toISOString()
+                })
+            }).catch(() => {});
+
+            // Redirect with mode parameter
+            const separator = targetPage.includes('?') ? '&' : '?';
+            window.location.href = targetPage + separator + 'mode=' + selectedMode;
+        }
+
+        // Check for existing preferences
+        const existingMode = localStorage.getItem('archivit_mode');
+        if (existingMode) {
+            selectMode(existingMode);
+        }
+    </script>
+</body>
+</html>

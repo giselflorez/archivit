@@ -421,3 +421,38 @@ docs/IT-R8_VISION_NOTES.md
 # END OF TRADE SECRET PROTECTION
 # Last Updated: 2026-01-10
 # ============================================================================
+
+# ============================================================================
+# SECTION 20: MEDIA FILES & SCRAPED CONTENT (Added 2026-01-13)
+# Large media files should not be in git - use IPFS instead
+# ============================================================================
+
+# DataLand proposal media (scraped WhatsApp content)
+dataland_proposal/media/
+dataland_proposal/videos/
+dataland_proposal/audio/
+dataland_proposal/video_frames/
+dataland_proposal/top_10/
+
+# General media file extensions (large binaries)
+*.mp4
+*.mov
+*.mpg
+*.mpeg
+*.avi
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.flac
+
+# NorthStar video downloads (should be on IPFS)
+northstar_knowledge_bank/videos/downloads/
+
+# Static frontend packages
+scripts/interface/static/node_modules/
+scripts/interface/static/package-lock.json
+
+# ============================================================================
+# END OF MEDIA FILES SECTION
+# ============================================================================

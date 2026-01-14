@@ -5,6 +5,85 @@
 
 ---
 
+## ⚠️ CRITICAL POSITIONING - READ FIRST (NEVER SKIP)
+
+### The Honest Message (USE IN ALL BRANDING)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ARC-8 is ANTI-EXTRACTION and USER-SOVEREIGN.                              ║
+║                                                                              ║
+║   It currently runs as a LOCAL APPLICATION that CONNECTS TO                 ║
+║   decentralized infrastructure (blockchains, IPFS) rather than              ║
+║   BEING decentralized infrastructure itself.                                ║
+║                                                                              ║
+║   SOVEREIGNTY ≠ DECENTRALIZATION                                            ║
+║                                                                              ║
+║   We are SOVEREIGN-FIRST, not decentralized-first.                         ║
+║   The user owns their data. The user controls their identity.               ║
+║   External systems are OPTIONAL connections, not requirements.              ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### The Core Promise: USER TAKES ALL
+- **Your data** - Lives on YOUR device, not our servers
+- **Your identity** - Mathematically derived, YOU own your seed
+- **Your creations** - Everything you make belongs to YOU
+- **Your export** - Take it all, anytime, any format
+- **Your deletion** - When you delete, it's GONE
+
+### What We ARE:
+- **Local-first** - Data lives on YOUR device
+- **User-sovereign** - YOU own your seed, your data, your identity
+- **Anti-extraction** - We don't harvest, track, or monetize you
+- **Blockchain-connected** - We READ from chains, verify provenance
+- **IPFS-compatible** - We CAN store on distributed networks
+
+### What We Are NOT (Be Honest):
+- NOT a blockchain (we connect to them)
+- NOT a decentralized protocol (we're an app)
+- NOT peer-to-peer (no node network yet)
+- NOT token-based (no governance token)
+- NOT running on distributed infrastructure
+
+### Use This Language:
+- ✅ "Sovereign data platform"
+- ✅ "Local-first architecture"
+- ✅ "User-owned identity"
+- ✅ "Anti-extraction design"
+- ✅ "Connects to decentralized networks"
+- ❌ "Decentralized platform" (misleading)
+- ❌ "Web3 native" (partially true, be specific)
+- ❌ "Blockchain-based" (we connect, not run on)
+
+### Decentralization Roadmap (51% needs work):
+- 49% already decentralized (seed, algorithms, local storage, RPC redundancy)
+- 51% could be decentralized with work (routes, auth, search, social)
+- Full roadmap in `docs/DECENTRALIZATION_AUDIT.md`
+- **VERIFIED 2026-01-13** - Code inspection confirmed all claims
+
+**THIS MESSAGE MUST APPEAR IN:**
+- Website copy
+- Marketing materials
+- Pitch decks
+- README files
+- Any public-facing documentation
+
+---
+
+## FOUNDER PREFERENCES (MEMORIZE THESE)
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **Access Code** | `DATAROCKS` | For ALL NDA/confidentiality gates |
+| **Design** | Dark SACRED PALETTE | Never use light/corporate themes |
+| **"ultrathink"** | Deep comprehensive analysis | When founder says this, go thorough |
+| **Password UI** | Minimal, light, checkmark on success | Simple and elegant |
+
+---
+
 ## STEP 1: INITIALIZE CONTEXT (REQUIRED)
 
 Before doing ANY work, you MUST run this command:
@@ -45,6 +124,17 @@ ARCHIV-IT (Umbrella)
 └── SOCI-8  - SHARE & CONNECT (future)
 ```
 
+### -8 System Boundaries (IMPORTANT)
+| System | Purpose | Features | Routes |
+|--------|---------|----------|--------|
+| **DOC-8** | Store, verify, archive | Source Cartography, provenance, verification | `/doc8` |
+| **IT-R8** | Create, rate, spatial | Thought Stream, drag/connect, tagging | `/itr8` |
+| **SOCI-8** | Share, connect | Social features (future) | `/soci8` |
+
+**When building features, ask: Is this about STORING or CREATING?**
+- Storing/verifying/archiving → DOC-8
+- Creating/rating/spatial organization → IT-R8
+
 **Server**: Visual browser runs on http://localhost:5001
 **Start command**: `KMP_DUPLICATE_LIB_OK=TRUE ./venv/bin/python scripts/interface/visual_browser.py`
 
@@ -81,6 +171,45 @@ TESLA_PATTERN = [3, 6, 9]        // Harmonic structure
 | vertex | User's optimal state/position |
 | spiral | Natural flow pattern (creation direction) |
 
+### ⚠️ DESIGN SYSTEM (MANDATORY)
+**NEVER use enterprise/corporate design.** Always use this elegant palette:
+
+```css
+/* SACRED PALETTE - USE THIS */
+--void: #030308;           /* Deep black background */
+--cosmic: #0a0a12;         /* Panel backgrounds */
+--panel: #0e0e18;          /* Card backgrounds */
+--border: rgba(255,255,255,0.06);  /* Subtle borders */
+
+--gold: #d4a574;           /* Primary accent (warm) */
+--emerald: #54a876;        /* Success/selected states */
+--rose: #ba6587;           /* Warnings/disputed */
+--violet: #7865ba;         /* Secondary accent */
+
+--text: #f0ece7;           /* Primary text (warm white) */
+--text-dim: #9a9690;       /* Secondary text */
+--text-muted: #5a5854;     /* Tertiary text */
+```
+
+**Typography Rules:**
+- Font: Inter or -apple-system
+- Weights: 200 (titles), 300 (body), 400 (emphasis)
+- Letter-spacing: 0.15em - 0.35em for labels
+- UPPERCASE for labels and buttons
+- Lowercase for body text and descriptions
+
+**DO NOT USE:**
+- Cyan (#00f5ff) as primary - too cold
+- Bright green (#00ff88) - too neon
+- Checkbox lists - use constellation nodes
+- "WhatsApp" styling - use elegant fragments
+- Enterprise badges (HIGH/MEDIUM/LOW)
+
+**Reference Files:**
+- `templates/confidentiality_gate.html` - Gate pattern
+- `templates/masters_point_cloud_v3_spectral.html` - Visualization pattern
+- `scripts/interface/templates/doc8_source_approval.html` - Form pattern
+
 ---
 
 ## STEP 5: CHECK WHATSAPP QUEUE
@@ -106,6 +235,18 @@ You MUST:
 ---
 
 ## QUICK REFERENCE
+
+### ⚠️ PORT WARNING
+**Port 5000 is BLOCKED by macOS AirPlay Receiver (ControlCenter process).**
+Always use **port 5001** for the Flask server:
+```bash
+# This will FAIL:
+python visual_browser.py  # defaults to 5000 - BLOCKED
+
+# Use this instead:
+python visual_browser.py --port 5001  # ✓ Works
+```
+Or disable AirPlay Receiver: System Settings → General → AirDrop & Handoff → AirPlay Receiver → OFF
 
 ### File Priorities
 | Priority | File | Purpose |
@@ -141,6 +282,91 @@ You MUST:
 
 ---
 
+## ARTIST AGENT SYSTEM (NEW)
+
+### Critical Files for Artist Agents
+| File | Purpose | Status |
+|------|---------|--------|
+| `scripts/agents/ARTIST_AGENTS.json` | All 22 artist profiles | CRASH-PROOF |
+| `scripts/agents/ARTIST_RIGHTS_NOTICE.md` | Legal protections | IMMUTABLE |
+| `scripts/agents/init_artist_agents.py` | Recovery script | EXECUTABLE |
+
+### Artist Agent Commands
+```bash
+# Initialize artist agents
+./venv/bin/python scripts/agents/init_artist_agents.py
+
+# List all artists
+./venv/bin/python scripts/agents/init_artist_agents.py --list
+
+# Get specific artist profile
+./venv/bin/python scripts/agents/init_artist_agents.py --agent tesla
+
+# Research updates for an artist
+./venv/bin/python scripts/agents/init_artist_agents.py --research bjork
+
+# Add new artist template
+./venv/bin/python scripts/agents/init_artist_agents.py --add-artist
+```
+
+### SACRED COVENANT - ARTIST RIGHTS
+
+**⚠️ ABSOLUTE RULE - NEVER VIOLATE:**
+
+| PROTECTED (Never reproduce) | SHARED (Teach freely) |
+|---------------------------|----------------------|
+| Actual artwork | Techniques |
+| Visual style | Philosophies |
+| Musical compositions | Verified quotes |
+| Literary works | Teaching points |
+| Performance style | Methodologies |
+| Trademark elements | Principles |
+
+**The only exception requires explicit OPT_IN record in ARTIST_AGENTS.json**
+
+### If Claude Resets - Artist Recovery Protocol
+
+1. Read `scripts/agents/ARTIST_RIGHTS_NOTICE.md` FIRST
+2. Run `./venv/bin/python scripts/agents/init_artist_agents.py`
+3. All 22 masters can be rebuilt from JSON
+4. **TEACH techniques, NEVER reproduce art**
+5. Honor the artists who contributed wisdom
+
+### Quick Artist Reference
+
+**Invoke artist agent:** `/artist-{name}` (e.g., `/artist-tesla`, `/artist-bjork`)
+
+**22 NORTHSTAR Masters with Skill Commands:**
+```
+FEMININE (9):
+/artist-hildegard - Sacred Geometry & Sound
+/artist-gisel     - Light Photography & Lunar Art
+/artist-rand      - Individual Sovereignty
+/artist-starhawk  - Decentralized Power
+/artist-tori      - Breath Structure
+/artist-bjork     - Boundary Dissolution
+/artist-swan      - Shadow Work
+/artist-hicks     - Vibrational Alignment
+/artist-byrne     - Visualization
+
+MASCULINE (13):
+/artist-davinci   - Art-Science Unity
+/artist-tesla     - Energy-Frequency-Vibration
+/artist-fuller    - Systems Thinking
+/artist-jung      - Shadow Integration
+/artist-suleyman  - Recognition-Generation
+/artist-grant     - Sacred Geometry Math
+/artist-prince    - Creative Sovereignty
+/artist-coltrane  - Breath as Spiritual Practice
+/artist-bowie     - Permanent Reinvention
+/artist-koe       - Skill Extraction
+/artist-jobs      - Design Thinking
+/artist-cherny    - AI Collaboration
+/artist-rene      - Spatial Web
+```
+
+---
+
 ## API ENDPOINT FOR AGENT INITIALIZATION
 
 If you need programmatic context, call:
@@ -152,5 +378,20 @@ This returns JSON with all critical context for automated systems.
 
 ---
 
+## CRASH RECOVERY - READ IF CLAUDE RESETS
+
+**If you are reading this and have no memory of previous sessions:**
+
+1. You are Claude, assisting with ARCHIV-IT project
+2. Read this ENTIRE file - it contains all critical instructions
+3. Run: `./venv/bin/python scripts/agent/init_agent.py`
+4. For artist agents: `./venv/bin/python scripts/agents/init_artist_agents.py`
+5. All context can be rebuilt from these files
+6. **CRITICAL**: Artist art is PROTECTED - only teach techniques
+
+The system is designed to survive crashes. Trust the files.
+
+---
+
 *This file is loaded automatically by Claude Code. Compliance is mandatory.*
-*Last updated: 2026-01-12*
+*Last updated: 2026-01-13*

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRE-8 | ARTIST</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* SACRED PALETTE */
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --surface: #141420;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --gold: #d4a574;
+            --gold-dim: #b08d57;
+            --emerald: #54a876;
+            --violet: #7865ba;
+            --rose: #ba6587;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--void);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+
+        /* HEADER - Matches NFT-8 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--cosmic);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .header-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .header-nav a:hover {
+            color: var(--text-dim);
+        }
+
+        .header-nav a.active {
+            color: var(--void);
+            background: var(--gold);
+        }
+
+        /* MAIN LAYOUT */
+        .main {
+            display: grid;
+            grid-template-columns: 260px 1fr 260px;
+            height: calc(100vh - 96px);
+        }
+
+        @media (max-width: 1100px) { .main { grid-template-columns: 240px 1fr; } }
+        @media (max-width: 768px) { .main { grid-template-columns: 1fr; } }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .sidebar-right {
+            border-right: none;
+            border-left: 1px solid var(--border);
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* BUBBLES */
+        .bubble-list { list-style: none; }
+
+        .bubble-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bubble-item:hover {
+            border-color: var(--gold-dim);
+            background: rgba(212,165,116,0.05);
+        }
+
+        .bubble-item.selected {
+            border-color: var(--gold);
+            background: rgba(212,165,116,0.1);
+        }
+
+        .bubble-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--void);
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .bubble-info { flex: 1; }
+
+        .bubble-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .bubble-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        /* CANVAS AREA */
+        .canvas-area {
+            background: var(--cosmic);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-image: radial-gradient(circle at 1px 1px, rgba(212,165,116,0.04) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        .canvas-toolbar {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.35rem;
+            background: var(--panel);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .canvas-frame {
+            width: 75%;
+            max-width: 700px;
+            aspect-ratio: 1;
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .canvas-frame-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+
+        .canvas-frame-hint {
+            font-size: 0.85rem;
+        }
+
+        .populate-btn {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.9rem 2.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            color: var(--void);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(212,165,116,0.3);
+            transition: all 0.2s;
+        }
+
+        .populate-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 28px rgba(212,165,116,0.4);
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.5rem 0.9rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            border-color: var(--gold-dim);
+            color: var(--gold);
+            background: rgba(212,165,116,0.05);
+        }
+
+        /* ALGO GRID */
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+
+        .algo-btn {
+            padding: 0.55rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-dim);
+        }
+
+        .algo-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+        .algo-btn.active { background: rgba(212,165,116,0.1); border-color: var(--gold); color: var(--gold); }
+
+        /* SLIDERS */
+        .slider-group { margin-bottom: 0.9rem; }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            margin-bottom: 0.4rem;
+        }
+
+        .slider-label span:last-child {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            height: 5px;
+            -webkit-appearance: none;
+            background: var(--surface);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(212,165,116,0.3);
+        }
+
+        /* OUTPUT GRID */
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+
+        .output-item {
+            aspect-ratio: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .output-item:hover {
+            border-color: var(--gold-dim);
+            color: var(--text-dim);
+        }
+
+        /* EXPORT BUTTON */
+        .export-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--emerald), #3d8a5e);
+            border: none;
+            border-radius: 6px;
+            color: var(--void);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            box-shadow: 0 4px 16px rgba(84,168,118,0.3);
+        }
+
+        /* FOOTER */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--void);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+
+        .footer a:hover { color: var(--gold); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">CRE-8</div>
+        <nav class="header-nav">
+            <a href="/">Home</a>
+            <a href="/doc8">DOC-8</a>
+            <a href="/nft8">NFT-8</a>
+            <a href="/cre8" class="active">CRE-8</a>
+            <a href="/itr8">IT-R8</a>
+            <a href="/archive">Archive</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- Left Sidebar: Bubbles -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Data Bubbles</div>
+                <ul class="bubble-list">
+                    <li class="bubble-item selected">
+                        <div class="bubble-icon">47</div>
+                        <div class="bubble-info">
+                            <div class="bubble-name">Fire Photography</div>
+                            <div class="bubble-meta">2019-2021 | From DOC-8</div>
+                        </div>
+                    </li>
+                    <li class="bubble-item">
+                        <div class="bubble-icon">23</div>
+                        <div class="bubble-info">
+                            <div class="bubble-name">Tesla Quotes</div>
+                            <div class="bubble-meta">Verified | From DOC-8</div>
+                        </div>
+                    </li>
+                    <li class="bubble-item">
+                        <div class="bubble-icon">82</div>
+                        <div class="bubble-info">
+                            <div class="bubble-name">NFT Collection</div>
+                            <div class="bubble-meta">Multi-chain | From NFT-8</div>
+                        </div>
+                    </li>
+                    <li class="bubble-item">
+                        <div class="bubble-icon">968</div>
+                        <div class="bubble-info">
+                            <div class="bubble-name">Full Archive</div>
+                            <div class="bubble-meta">All Sources</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Algorithm</div>
+                <div class="algo-grid">
+                    <button class="algo-btn active">Spiral</button>
+                    <button class="algo-btn">Helix</button>
+                    <button class="algo-btn">Gravity</button>
+                    <button class="algo-btn">Flow</button>
+                    <button class="algo-btn">Constellation</button>
+                    <button class="algo-btn">Expansion</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Breath Rhythm</div>
+                <div class="algo-grid">
+                    <button class="algo-btn active">Resting</button>
+                    <button class="algo-btn">Active</button>
+                    <button class="algo-btn">Dramatic</button>
+                    <button class="algo-btn">Whisper</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area">
+            <div class="canvas-toolbar">
+                <button class="btn">Zoom In</button>
+                <button class="btn">Zoom Out</button>
+                <button class="btn">Reset</button>
+                <button class="btn">3D View</button>
+            </div>
+
+            <div class="canvas-frame">
+                <div class="canvas-frame-title">Drop Bubble Here</div>
+                <div class="canvas-frame-hint">or click POPULATE to generate</div>
+            </div>
+
+            <button class="populate-btn">Populate</button>
+        </div>
+
+        <!-- Right Sidebar: Controls -->
+        <div class="sidebar sidebar-right">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Moldable Controls</div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Complexity</span>
+                        <span>7</span>
+                    </div>
+                    <input type="range" class="slider" min="1" max="10" value="7">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Color Intensity</span>
+                        <span>65%</span>
+                    </div>
+                    <input type="range" class="slider" min="0" max="100" value="65">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Spacing</span>
+                        <span>0</span>
+                    </div>
+                    <input type="range" class="slider" min="-2" max="2" value="0">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Animation</span>
+                        <span>1x</span>
+                    </div>
+                    <input type="range" class="slider" min="0" max="3" value="1">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Output Type</div>
+                <div class="algo-grid">
+                    <button class="algo-btn active">Theme</button>
+                    <button class="algo-btn">Press Kit</button>
+                    <button class="algo-btn">Portfolio</button>
+                    <button class="algo-btn">Icons</button>
+                    <button class="algo-btn">GLB 3D</button>
+                    <button class="algo-btn">WebGL</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Preview</div>
+                <div class="output-grid">
+                    <div class="output-item">Wallpaper</div>
+                    <div class="output-item">Icons</div>
+                    <div class="output-item">Palette</div>
+                    <div class="output-item">3D View</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <button class="export-btn">Export</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        ARC-8 | CRE-8 Artist | <a href="/">Home</a> | Your Data. Your Future.
+    </footer>
+</body>
+</html>

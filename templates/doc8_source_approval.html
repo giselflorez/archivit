@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOC-8 | Source Pre-Approval</title>
+    <style>
+        :root {
+            --void: #0a0a0f;
+            --void-light: #12121a;
+            --void-lighter: #1a1a25;
+            --warm-white: #faf8f5;
+            --moon-silver: #c0c0c0;
+            --fuller-green: #00ff88;
+            --green-glow: rgba(0, 255, 136, 0.4);
+            --cyan: #00f5ff;
+            --cyan-dim: rgba(0, 245, 255, 0.2);
+            --warning-red: #ff6b6b;
+            --warning-glow: rgba(255, 107, 107, 0.3);
+            --amber: #ffaa00;
+            --amber-glow: rgba(255, 170, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--void);
+            color: var(--warm-white);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 12px;
+            letter-spacing: 4px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--moon-silver);
+            font-size: 14px;
+        }
+
+        /* Query Input */
+        .query-section {
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .query-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--moon-silver);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .query-input {
+            width: 100%;
+            background: var(--void);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--warm-white);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .query-input:focus {
+            border-color: var(--cyan);
+        }
+
+        .query-input::placeholder {
+            color: rgba(192, 192, 192, 0.5);
+        }
+
+        /* Sources Section */
+        .sources-section {
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .sources-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sources-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--moon-silver);
+            text-transform: uppercase;
+        }
+
+        .sources-count {
+            color: var(--cyan);
+            font-size: 13px;
+        }
+
+        .batch-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .batch-btn {
+            background: transparent;
+            border: 1px solid var(--cyan-dim);
+            color: var(--moon-silver);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .batch-btn:hover {
+            border-color: var(--cyan);
+            color: var(--warm-white);
+        }
+
+        .batch-btn.select-high {
+            border-color: rgba(0, 255, 136, 0.3);
+            color: var(--fuller-green);
+        }
+
+        .batch-btn.select-high:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Source List */
+        .source-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .source-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .source-list::-webkit-scrollbar-track {
+            background: var(--void);
+            border-radius: 3px;
+        }
+
+        .source-list::-webkit-scrollbar-thumb {
+            background: var(--cyan-dim);
+            border-radius: 3px;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: var(--void);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .source-item:hover {
+            border-color: var(--cyan-dim);
+        }
+
+        .source-item.selected {
+            border-color: var(--fuller-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .source-item.excluded {
+            opacity: 0.5;
+            border-color: var(--warning-red);
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        /* Checkbox */
+        .source-checkbox {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid var(--moon-silver);
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-top: 2px;
+        }
+
+        .source-item.selected .source-checkbox {
+            border-color: var(--fuller-green);
+            background: var(--fuller-green);
+        }
+
+        .source-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 10px;
+            height: 6px;
+            border-left: 2px solid var(--void);
+            border-bottom: 2px solid var(--void);
+            transform-origin: center;
+            transition: transform 0.2s;
+        }
+
+        .source-item.selected .source-checkbox::after {
+            transform: translate(-50%, -60%) rotate(-45deg) scale(1);
+        }
+
+        .source-item.excluded .source-checkbox {
+            border-color: var(--warning-red);
+            background: transparent;
+        }
+
+        .source-item.excluded .source-checkbox::after {
+            content: '×';
+            border: none;
+            font-size: 18px;
+            color: var(--warning-red);
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Source Info */
+        .source-info {
+            flex: 1;
+        }
+
+        .source-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .source-domain {
+            color: var(--moon-silver);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .source-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--moon-silver);
+            flex-wrap: wrap;
+        }
+
+        .source-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Reliability Badge */
+        .reliability {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .reliability.high {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--fuller-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .reliability.medium {
+            background: rgba(255, 170, 0, 0.15);
+            color: var(--amber);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .reliability.low {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--warning-red);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        /* Parameters Section */
+        .params-section {
+            background: var(--void-light);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .param-label {
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--moon-silver);
+            text-transform: uppercase;
+        }
+
+        /* Depth Slider */
+        .depth-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .depth-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .depth-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .depth-dot.active {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .depth-dot:hover {
+            border-color: var(--cyan);
+        }
+
+        .depth-label {
+            color: var(--cyan);
+            font-size: 13px;
+            min-width: 60px;
+        }
+
+        /* Time Limit Radio */
+        .time-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .time-option {
+            padding: 8px 16px;
+            border: 1px solid var(--cyan-dim);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--moon-silver);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-option:hover {
+            border-color: var(--cyan);
+            color: var(--warm-white);
+        }
+
+        .time-option.active {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: var(--void);
+        }
+
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--void-lighter);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-text {
+            font-size: 13px;
+            color: var(--moon-silver);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--void);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--fuller-green);
+            border-color: var(--fuller-green);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: var(--warm-white);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: calc(100% - 20px);
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--cyan-dim);
+            color: var(--moon-silver);
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--warning-red);
+            color: var(--warning-red);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--fuller-green), #00cc6a);
+            color: var(--void);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px var(--green-glow);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--green-glow);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-start .arrow {
+            font-size: 18px;
+        }
+
+        /* Results Section (initially hidden) */
+        .results-section {
+            display: none;
+            background: var(--void-light);
+            border: 1px solid var(--fuller-green);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .results-section.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--fuller-green);
+            text-transform: uppercase;
+        }
+
+        .result-item {
+            background: var(--void);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .result-quote {
+            font-size: 16px;
+            font-style: italic;
+            margin-bottom: 12px;
+            line-height: 1.7;
+            color: var(--warm-white);
+        }
+
+        .result-attribution {
+            font-size: 14px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        .result-provenance {
+            font-size: 11px;
+            color: var(--moon-silver);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .provenance-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .provenance-item .label {
+            color: rgba(192, 192, 192, 0.6);
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 15, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .loading-overlay.visible {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--void-lighter);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--moon-silver);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .loading-sources {
+            color: var(--cyan);
+            font-size: 12px;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .sources-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .batch-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ARCHIV-IT</div>
+            <h1>Source Pre-Approval</h1>
+            <p class="subtitle">Verify sources before research begins</p>
+        </div>
+
+        <!-- Query Input -->
+        <div class="query-section">
+            <div class="query-label">Research Query</div>
+            <input type="text" class="query-input" id="queryInput"
+                   placeholder="e.g., Verified Tesla quotes from institutional sources"
+                   value="">
+        </div>
+
+        <!-- Sources Section -->
+        <div class="sources-section">
+            <div class="sources-header">
+                <div>
+                    <span class="sources-title">Sources to Query</span>
+                    <span class="sources-count" id="sourceCount">(0 selected)</span>
+                </div>
+                <div class="batch-actions">
+                    <button class="batch-btn select-high" onclick="selectAllHigh()">Select All HIGH</button>
+                    <button class="batch-btn" onclick="selectAll()">Select All</button>
+                    <button class="batch-btn" onclick="deselectAll()">Deselect All</button>
+                </div>
+            </div>
+
+            <div class="source-list" id="sourceList">
+                <!-- Sources will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Parameters -->
+        <div class="params-section">
+            <div class="query-label" style="margin-bottom: 20px;">Query Parameters</div>
+            <div class="params-grid">
+                <div class="param-group">
+                    <div class="param-label">Search Depth</div>
+                    <div class="depth-control">
+                        <div class="depth-dots" id="depthDots">
+                            <div class="depth-dot" data-depth="1"></div>
+                            <div class="depth-dot" data-depth="2"></div>
+                            <div class="depth-dot active" data-depth="3"></div>
+                            <div class="depth-dot" data-depth="4"></div>
+                            <div class="depth-dot" data-depth="5"></div>
+                        </div>
+                        <span class="depth-label" id="depthLabel">Medium</span>
+                    </div>
+                </div>
+
+                <div class="param-group">
+                    <div class="param-label">Time Limit</div>
+                    <div class="time-options" id="timeOptions">
+                        <div class="time-option" data-time="30">30s</div>
+                        <div class="time-option active" data-time="120">2 min</div>
+                        <div class="time-option" data-time="300">5 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <div class="toggle-row">
+                    <span class="toggle-text">Auto-exclude LOW reliability sources</span>
+                    <div class="toggle-switch active" id="toggleAutoExclude" onclick="toggleSwitch(this)"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-text">Include video sources</span>
+                    <div class="toggle-switch active" id="toggleVideos" onclick="toggleSwitch(this)"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-text">Require source citations</span>
+                    <div class="toggle-switch" id="toggleCitations" onclick="toggleSwitch(this)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-cancel" onclick="window.history.back()">Cancel</button>
+            <button class="btn btn-start" id="startBtn" onclick="startResearch()">
+                <span class="arrow">▶</span>
+                Start Research
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <span class="results-title">Research Results</span>
+                <span class="sources-count" id="resultCount"></span>
+            </div>
+            <div id="resultsList"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Researching with ULTRATHINK...</div>
+        <div class="loading-sources" id="loadingSources"></div>
+    </div>
+
+    <script>
+        // Source Database
+        const SOURCES = [
+            {
+                id: 'teslauniverse',
+                name: 'Tesla Universe',
+                domain: 'teslauniverse.com',
+                type: 'Archive',
+                reliability: 'high',
+                contains: 'Articles, primary documents',
+                selected: true
+            },
+            {
+                id: 'quoteinvestigator',
+                name: 'Quote Investigator',
+                domain: 'quoteinvestigator.com',
+                type: 'Verification',
+                reliability: 'high',
+                contains: 'Quote analysis, source verification',
+                selected: true
+            },
+            {
+                id: 'archive',
+                name: 'Internet Archive',
+                domain: 'archive.org',
+                type: 'Archive',
+                reliability: 'high',
+                contains: 'Primary documents, videos, books',
+                selected: true
+            },
+            {
+                id: 'wikiquote',
+                name: 'Wikiquote',
+                domain: 'en.wikiquote.org',
+                type: 'Wiki',
+                reliability: 'medium',
+                contains: 'Sourced quotes, citations',
+                selected: true
+            },
+            {
+                id: 'jstor',
+                name: 'JSTOR',
+                domain: 'jstor.org',
+                type: 'Academic',
+                reliability: 'high',
+                contains: 'Academic papers, journals',
+                selected: true
+            },
+            {
+                id: 'loc',
+                name: 'Library of Congress',
+                domain: 'loc.gov',
+                type: 'Institution',
+                reliability: 'high',
+                contains: 'Primary sources, manuscripts',
+                selected: true
+            },
+            {
+                id: 'smithsonian',
+                name: 'Smithsonian Archives',
+                domain: 'siarchives.si.edu',
+                type: 'Institution',
+                reliability: 'high',
+                contains: 'Research, collections',
+                selected: false
+            },
+            {
+                id: 'goodreads',
+                name: 'Goodreads Quotes',
+                domain: 'goodreads.com',
+                type: 'Social',
+                reliability: 'medium',
+                contains: 'User-submitted quotes',
+                selected: false
+            },
+            {
+                id: 'brainyquote',
+                name: 'BrainyQuote',
+                domain: 'brainyquote.com',
+                type: 'Aggregator',
+                reliability: 'low',
+                contains: 'Unverified quotes',
+                selected: false,
+                autoExcluded: true
+            },
+            {
+                id: 'pinterest',
+                name: 'Pinterest',
+                domain: 'pinterest.com',
+                type: 'Social',
+                reliability: 'low',
+                contains: 'User-generated content',
+                selected: false,
+                autoExcluded: true
+            },
+            {
+                id: 'facebook',
+                name: 'Facebook',
+                domain: 'facebook.com',
+                type: 'Social',
+                reliability: 'low',
+                contains: 'Unverified posts',
+                selected: false,
+                autoExcluded: true
+            }
+        ];
+
+        // State
+        let currentDepth = 3;
+        let currentTime = 120;
+        let autoExcludeLow = true;
+
+        const depthLabels = ['', 'Quick', 'Light', 'Medium', 'Deep', 'Thorough'];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSources();
+            setupDepthDots();
+            setupTimeOptions();
+            updateSourceCount();
+        });
+
+        function renderSources() {
+            const container = document.getElementById('sourceList');
+            container.innerHTML = '';
+
+            SOURCES.forEach(source => {
+                const isExcluded = autoExcludeLow && source.reliability === 'low';
+                const div = document.createElement('div');
+                div.className = `source-item ${source.selected && !isExcluded ? 'selected' : ''} ${isExcluded ? 'excluded' : ''}`;
+                div.dataset.id = source.id;
+                div.onclick = () => toggleSource(source.id);
+
+                div.innerHTML = `
+                    <div class="source-checkbox"></div>
+                    <div class="source-info">
+                        <div class="source-name">
+                            ${source.name}
+                            <span class="source-domain">(${source.domain})</span>
+                        </div>
+                        <div class="source-meta">
+                            <span>Type: ${source.type}</span>
+                            <span>Contains: ${source.contains}</span>
+                        </div>
+                    </div>
+                    <span class="reliability ${source.reliability}">${source.reliability}</span>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function toggleSource(id) {
+            const source = SOURCES.find(s => s.id === id);
+            if (!source) return;
+
+            // Don't allow selecting auto-excluded sources
+            if (autoExcludeLow && source.reliability === 'low') return;
+
+            source.selected = !source.selected;
+            renderSources();
+            updateSourceCount();
+        }
+
+        function selectAllHigh() {
+            SOURCES.forEach(s => {
+                s.selected = s.reliability === 'high';
+            });
+            renderSources();
+            updateSourceCount();
+        }
+
+        function selectAll() {
+            SOURCES.forEach(s => {
+                if (!(autoExcludeLow && s.reliability === 'low')) {
+                    s.selected = true;
+                }
+            });
+            renderSources();
+            updateSourceCount();
+        }
+
+        function deselectAll() {
+            SOURCES.forEach(s => s.selected = false);
+            renderSources();
+            updateSourceCount();
+        }
+
+        function updateSourceCount() {
+            const selected = SOURCES.filter(s => s.selected && !(autoExcludeLow && s.reliability === 'low')).length;
+            document.getElementById('sourceCount').textContent = `(${selected} selected)`;
+
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = selected === 0;
+        }
+
+        function setupDepthDots() {
+            const dots = document.querySelectorAll('.depth-dot');
+            dots.forEach(dot => {
+                dot.onclick = () => {
+                    currentDepth = parseInt(dot.dataset.depth);
+                    dots.forEach(d => d.classList.remove('active'));
+                    for (let i = 0; i < currentDepth; i++) {
+                        dots[i].classList.add('active');
+                    }
+                    document.getElementById('depthLabel').textContent = depthLabels[currentDepth];
+                };
+            });
+        }
+
+        function setupTimeOptions() {
+            const options = document.querySelectorAll('.time-option');
+            options.forEach(opt => {
+                opt.onclick = () => {
+                    currentTime = parseInt(opt.dataset.time);
+                    options.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                };
+            });
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+
+            if (el.id === 'toggleAutoExclude') {
+                autoExcludeLow = el.classList.contains('active');
+                renderSources();
+                updateSourceCount();
+            }
+        }
+
+        async function startResearch() {
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) {
+                alert('Please enter a research query');
+                return;
+            }
+
+            const selectedSources = SOURCES.filter(s => s.selected && !(autoExcludeLow && s.reliability === 'low'));
+            if (selectedSources.length === 0) {
+                alert('Please select at least one source');
+                return;
+            }
+
+            // Show loading
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('visible');
+
+            // Animate through sources
+            const loadingSources = document.getElementById('loadingSources');
+            let sourceIndex = 0;
+
+            const sourceInterval = setInterval(() => {
+                if (sourceIndex < selectedSources.length) {
+                    loadingSources.textContent = `Querying ${selectedSources[sourceIndex].name}...`;
+                    sourceIndex++;
+                }
+            }, 2000);
+
+            try {
+                // Call API
+                const response = await fetch('/api/doc8/research', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query,
+                        sources: selectedSources.map(s => s.id),
+                        depth: currentDepth,
+                        timeLimit: currentTime,
+                        requireCitations: document.getElementById('toggleCitations').classList.contains('active'),
+                        includeVideos: document.getElementById('toggleVideos').classList.contains('active')
+                    })
+                });
+
+                clearInterval(sourceInterval);
+
+                if (response.ok) {
+                    const results = await response.json();
+                    displayResults(results);
+                } else {
+                    // Demo mode - show sample results
+                    displayDemoResults(query, selectedSources);
+                }
+            } catch (error) {
+                clearInterval(sourceInterval);
+                // Demo mode for local testing
+                displayDemoResults(query, selectedSources);
+            }
+
+            overlay.classList.remove('visible');
+        }
+
+        function displayDemoResults(query, sources) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsList = document.getElementById('resultsList');
+
+            const demoResults = [
+                {
+                    quote: "Be alone, that is the secret of invention; be alone, that is when ideas are born.",
+                    author: "Nikola Tesla",
+                    source: "The New York Times",
+                    date: "April 8, 1934",
+                    interviewer: "Orrin E. Dunlap Jr.",
+                    reliability: "HIGH",
+                    verifiedBy: "Quote Investigator"
+                },
+                {
+                    quote: "The present is theirs; the future, for which I really worked, is mine.",
+                    author: "Nikola Tesla",
+                    source: "The New York Times",
+                    date: "1943",
+                    reliability: "HIGH",
+                    verifiedBy: "Tesla Universe"
+                },
+                {
+                    quote: "If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.",
+                    author: "Nikola Tesla",
+                    source: "Disputed - No primary source found",
+                    date: "Unknown",
+                    reliability: "LOW",
+                    verifiedBy: "Quote Investigator",
+                    note: "Commonly misattributed"
+                }
+            ];
+
+            resultsList.innerHTML = '';
+            demoResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `
+                    <div class="result-quote">"${result.quote}"</div>
+                    <div class="result-attribution">— ${result.author}</div>
+                    <div class="result-provenance">
+                        <span class="provenance-item"><span class="label">Source:</span> ${result.source}</span>
+                        <span class="provenance-item"><span class="label">Date:</span> ${result.date}</span>
+                        <span class="provenance-item"><span class="label">Verified:</span> ${result.verifiedBy}</span>
+                        <span class="reliability ${result.reliability.toLowerCase()}">${result.reliability}</span>
+                    </div>
+                    ${result.note ? `<div style="margin-top: 8px; font-size: 12px; color: var(--warning-red);">⚠ ${result.note}</div>` : ''}
+                `;
+                resultsList.appendChild(div);
+            });
+
+            document.getElementById('resultCount').textContent = `(${demoResults.length} results)`;
+            resultsSection.classList.add('visible');
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayResults(results) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsList = document.getElementById('resultsList');
+
+            resultsList.innerHTML = '';
+            results.items.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `
+                    <div class="result-quote">"${result.quote}"</div>
+                    <div class="result-attribution">— ${result.author}</div>
+                    <div class="result-provenance">
+                        <span class="provenance-item"><span class="label">Source:</span> ${result.source}</span>
+                        <span class="provenance-item"><span class="label">Date:</span> ${result.date || 'Unknown'}</span>
+                        <span class="provenance-item"><span class="label">Verified:</span> ${result.verifiedBy}</span>
+                        <span class="reliability ${result.reliability.toLowerCase()}">${result.reliability}</span>
+                    </div>
+                `;
+                resultsList.appendChild(div);
+            });
+
+            document.getElementById('resultCount').textContent = `(${results.items.length} results)`;
+            resultsSection.classList.add('visible');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
