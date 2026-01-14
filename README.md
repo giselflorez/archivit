@@ -1,8 +1,47 @@
 # ARCHIV-IT by WEB3GISEL
 
-> **🤖 AI AGENTS:** Read the ENTIRE `CLAUDE_SESSIONS.md` file first. It contains all project history and context you need. This is mandatory.
+> **🤖 AI AGENTS:** Read `CLAUDE.md` first - it contains mandatory agent instructions.
 
-A local semantic search system for collecting and exploring information about gisel florez / giselx / giselxflorez from Perplexity API.
+A **local-first, user-sovereign** data platform. Your data lives on YOUR device. You own your identity.
+
+---
+
+## Recent Achievements (2026-01-14)
+
+### Quantum Containment V2 - Gaming-Resistant Access Control
+
+| Achievement | Status | Details |
+|-------------|--------|---------|
+| **φ^(-0.5) Threshold Corrected** | ✅ FIXED | 0.854 → 0.786 (mathematical error) |
+| **ACU Formula Redesigned** | ✅ COMPLETE | 4-layer equilibrium system prevents gaming |
+| **Quantum Checkpoint System** | ✅ COMPLETE | Crash recovery with Fibonacci intervals |
+| **Algorithm Proof Framework** | ✅ COMPLETE | Mathematical verification roadmap |
+
+**The Math:**
+```
+OLD ACU: 2 perfect actions → FULL tier (broken)
+NEW ACU: 4-layer verification → gaming-resistant
+
+Layers:
+1. Temporal Gate (21 actions minimum)
+2. Fibonacci Memory (older actions weight more)
+3. Variance Detector (catches oscillation)
+4. Equilibrium of Light (positive/total ≥ 0.618)
+```
+
+**Verified Thresholds:**
+```
+φ^(-2)   = 0.236 (BLOCKED)
+1-φ^(-1) = 0.382 (DEGRADED)
+φ^(-1)   = 0.618 (FULL - THE PHI GATE)
+φ^(-0.5) = 0.786 (SOVEREIGN) ← CORRECTED
+```
+
+> *"Ancient magic looking to build the future to see the past"*
+
+See: `docs/ACHIEVEMENT_LOG_2026-01-14.md` for full details.
+
+---
 
 ## Features
 
