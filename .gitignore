@@ -456,3 +456,6 @@ scripts/interface/static/package-lock.json
 # ============================================================================
 # END OF MEDIA FILES SECTION
 # ============================================================================
+
+# Quantum checkpoint state (session-only)
+.quantum_state/

@@ -7,13 +7,29 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "dependencies": {
     "@noble/post-quantum": "^0.2.1"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "vite": "^5.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "moduleFileExtensions": [
+      "js",
+      "mjs"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.js",
+      "**/__tests__/**/*.test.mjs"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"
