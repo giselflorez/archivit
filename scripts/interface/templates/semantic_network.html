@@ -1662,6 +1662,136 @@
     .petri-dish.forming .chain-label {
         color: rgba(255, 255, 255, 0.6);
     }
+
+    /* ═══════════════════════════════════════════════════════════
+       DATA METER - Asset Type Distribution Gauge
+       Vertical meter showing AUD, VID, IMG, WEB, TXT, NFT ratios
+    ═══════════════════════════════════════════════════════════ */
+    .data-meter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem 0.25rem;
+        min-width: 50px;
+    }
+
+    .meter-title {
+        font-size: 6px;
+        font-weight: 600;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+    }
+
+    .meter-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .meter-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .meter-label {
+        font-size: 6px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        width: 22px;
+        text-align: right;
+        letter-spacing: 0.05em;
+    }
+
+    .meter-track {
+        flex: 1;
+        height: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .meter-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+
+    .meter-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+        border-radius: 2px 2px 0 0;
+    }
+
+    .meter-fill.aud { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+    .meter-fill.vid { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+    .meter-fill.img { background: linear-gradient(90deg, #f39c12, #d68910); }
+    .meter-fill.web { background: linear-gradient(90deg, #3498db, #2980b9); }
+    .meter-fill.txt { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+    .meter-fill.nft { background: linear-gradient(90deg, var(--accent-gold), #b08d57); }
+
+    .meter-value {
+        font-size: 5px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        width: 18px;
+        text-align: left;
+    }
+
+    .meter-total {
+        margin-top: 0.35rem;
+        text-align: center;
+    }
+
+    .meter-total-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent-gold);
+        line-height: 1;
+    }
+
+    .meter-total-label {
+        font-size: 5px;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Sidebar petri section layout - flex for side-by-side */
+    .sidebar-petri-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0.25rem 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--border-color);
+        background: rgba(0, 0, 0, 0.15);
+        min-height: 130px;
+        overflow: visible;
+        position: relative;
+    }
+
+    /* Meter hover effects */
+    .meter-row:hover .meter-fill {
+        filter: brightness(1.3);
+        box-shadow: 0 0 8px currentColor;
+    }
+
+    .meter-row:hover .meter-label,
+    .meter-row:hover .meter-value {
+        color: var(--text-primary);
+    }
 </style>
 {% endblock %}
 
@@ -1841,6 +1971,58 @@
                     <!-- Memecoins will be injected here by JS -->
                 </div>
                 <div class="petri-dish-label">fungibles</div>
+            </div>
+            <!-- Data Meter - Asset Type Distribution -->
+            <div class="data-meter" id="dataMeter">
+                <div class="meter-title">Assets</div>
+                <div class="meter-bar-container">
+                    <div class="meter-row" title="Audio files">
+                        <span class="meter-label">AUD</span>
+                        <div class="meter-track">
+                            <div class="meter-fill aud" id="meterAud" style="width: 15%"></div>
+                        </div>
+                        <span class="meter-value" id="meterAudVal">3</span>
+                    </div>
+                    <div class="meter-row" title="Video files">
+                        <span class="meter-label">VID</span>
+                        <div class="meter-track">
+                            <div class="meter-fill vid" id="meterVid" style="width: 25%"></div>
+                        </div>
+                        <span class="meter-value" id="meterVidVal">5</span>
+                    </div>
+                    <div class="meter-row" title="Image files">
+                        <span class="meter-label">IMG</span>
+                        <div class="meter-track">
+                            <div class="meter-fill img" id="meterImg" style="width: 60%"></div>
+                        </div>
+                        <span class="meter-value" id="meterImgVal">12</span>
+                    </div>
+                    <div class="meter-row" title="Web articles">
+                        <span class="meter-label">WEB</span>
+                        <div class="meter-track">
+                            <div class="meter-fill web" id="meterWeb" style="width: 40%"></div>
+                        </div>
+                        <span class="meter-value" id="meterWebVal">8</span>
+                    </div>
+                    <div class="meter-row" title="Text documents">
+                        <span class="meter-label">TXT</span>
+                        <div class="meter-track">
+                            <div class="meter-fill txt" id="meterTxt" style="width: 35%"></div>
+                        </div>
+                        <span class="meter-value" id="meterTxtVal">7</span>
+                    </div>
+                    <div class="meter-row" title="NFT assets">
+                        <span class="meter-label">NFT</span>
+                        <div class="meter-track">
+                            <div class="meter-fill nft" id="meterNft" style="width: 85%"></div>
+                        </div>
+                        <span class="meter-value" id="meterNftVal">17</span>
+                    </div>
+                </div>
+                <div class="meter-total">
+                    <div class="meter-total-value" id="meterTotalVal">52</div>
+                    <div class="meter-total-label">Total</div>
+                </div>
             </div>
         </div>
         <!-- Selection Tank -->
@@ -2280,6 +2462,64 @@ function hideConnectionPopup() {
     }, 100);
 }
 
+// Update data meter based on network nodes
+function updateDataMeter(nodes) {
+    // Count assets by type
+    const counts = {
+        aud: 0, vid: 0, img: 0, web: 0, txt: 0, nft: 0
+    };
+
+    nodes.forEach(node => {
+        const type = node.cognitive_type || '';
+        const hasBlockchain = node.blockchain_network || node.blockchain;
+
+        // Categorize by type
+        if (type === 'media') {
+            // Check if it's audio, video, or image based on metadata
+            const mime = node.mime_type || '';
+            if (mime.includes('audio') || node.title?.match(/\.(mp3|wav|ogg|flac)$/i)) {
+                counts.aud++;
+            } else if (mime.includes('video') || node.title?.match(/\.(mp4|mov|avi|webm)$/i)) {
+                counts.vid++;
+            } else {
+                counts.img++;
+            }
+        } else if (type === 'web_article' || type === 'article') {
+            counts.web++;
+        } else if (type === 'research' || type === 'conversation' || type === 'document') {
+            counts.txt++;
+        } else if (type === 'blockchain' || hasBlockchain) {
+            counts.nft++;
+        } else if (node.title?.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+            counts.img++;
+        } else {
+            // Default to txt for unknown types
+            counts.txt++;
+        }
+    });
+
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const maxCount = Math.max(...Object.values(counts), 1);
+
+    // Update meter bars
+    Object.keys(counts).forEach(type => {
+        const fill = document.getElementById(`meter${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const val = document.getElementById(`meter${type.charAt(0).toUpperCase() + type.slice(1)}Val`);
+
+        if (fill && val) {
+            const percentage = (counts[type] / maxCount) * 100;
+            fill.style.width = `${percentage}%`;
+            val.textContent = counts[type];
+        }
+    });
+
+    // Update total
+    const totalEl = document.getElementById('meterTotalVal');
+    if (totalEl) {
+        totalEl.textContent = total;
+    }
+}
+
 // Load network data
 async function loadNetworkData() {
     try {
@@ -2298,6 +2538,9 @@ async function loadNetworkData() {
         // Update stats
         document.getElementById('totalNodes').textContent = networkData.nodes.length;
         document.getElementById('totalEdges').textContent = networkData.edges.length;
+
+        // Update data meter with asset type distribution
+        updateDataMeter(networkData.nodes);
 
         // Initialize visualization
         initializeVisualization();
