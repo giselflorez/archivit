@@ -276,6 +276,10 @@ def check_rate_limit():
     if request.path == '/favicon.ico':
         return None
 
+    # Exempt local AI and moonstone (local-first, no external API)
+    if request.path.startswith('/moonstone') or request.path.startswith('/api/ai/'):
+        return None
+
     client_ip = request.remote_addr
 
     if not global_rate_limiter.is_allowed(client_ip):
@@ -459,8 +463,8 @@ def check_site_password():
         return None
 
     # Allow login page, static files, agent init, API routes, and test pages
-    allowed_paths = ['/login', '/favicon.ico', '/api/agent/init', '/test', '/doc8', '/doc8/', '/itr8', '/itr8/', '/itr8/stream', '/in-testing', '/in-testing/', '/databank-preview', '/masters-v2', '/masters-spectral', '/confidentiality', '/nft8', '/cre8']
-    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/api/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing') or request.path.startswith('/masters') or request.path.startswith('/nft8') or request.path.startswith('/cre8'):
+    allowed_paths = ['/login', '/favicon.ico', '/api/agent/init', '/test', '/doc8', '/doc8/', '/itr8', '/itr8/', '/itr8/stream', '/in-testing', '/in-testing/', '/databank-preview', '/masters-v2', '/masters-spectral', '/confidentiality', '/nft8', '/cre8', '/moonstone']
+    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/api/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing') or request.path.startswith('/masters') or request.path.startswith('/nft8') or request.path.startswith('/cre8') or request.path.startswith('/moonstone'):
         return None
 
     # Check if authenticated
@@ -533,7 +537,7 @@ embeddings = None
 def check_setup():
     """Redirect to setup if not complete"""
     # Allow setup routes, API routes, settings, static files, and test pages
-    allowed_prefixes = ('/setup', '/static', '/api/', '/settings/', '/test', '/doc8', '/itr8', '/in-testing', '/databank-preview', '/login', '/masters', '/confidentiality', '/nft8', '/cre8', '/search', '/document')
+    allowed_prefixes = ('/setup', '/static', '/api/', '/settings/', '/test', '/doc8', '/itr8', '/in-testing', '/databank-preview', '/login', '/masters', '/confidentiality', '/nft8', '/cre8', '/search', '/document', '/moonstone')
     if any(request.path.startswith(p) for p in allowed_prefixes):
         return None
 

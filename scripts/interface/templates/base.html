@@ -63,6 +63,37 @@
             --font-display: 'Crimson Pro', serif;
         }
 
+        /* Main Header Navigation - Consistent across all pages */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .header-nav a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .header-nav a:hover {
+            color: var(--text-secondary);
+        }
+
+        .header-nav a.active {
+            color: var(--bg-primary);
+            background: var(--accent-gold);
+        }
+
         /* ARCHIV-IT Proprietary Icon System - Icon Only, Text on Hover */
         .nav-icon-link {
             position: relative;
@@ -669,10 +700,16 @@
 </head>
 <body>
     <header class="header">
-        <div class="container">
-            <h1><strong>ARCHIV-IT</strong> <span style="font-size: 0.5em; font-weight: 300; color: var(--text-tertiary); letter-spacing: 0.1em;">by WEB3GISEL</span></h1>
-            <p>Your Data. Your Output. Take Control.</p>
-            <p class="header-description">Navigate your body of work. Watch collector relationships unfold over time. Your blockchain art, indexed across chains. Runs locally, data stays yours.</p>
+        <div class="container header-main">
+            <h1><strong>ARCHIV-IT</strong></h1>
+            <nav class="header-nav">
+                <a href="/">Home</a>
+                <a href="/doc8">DOC-8</a>
+                <a href="/nft8">NFT-8</a>
+                <a href="/cre8">CRE-8</a>
+                <a href="/soci8">SOCI-8</a>
+                <a href="/archive" class="active">Archive</a>
+            </nav>
         </div>
     </header>
 
