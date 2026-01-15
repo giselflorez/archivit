@@ -687,40 +687,98 @@
         }
 
         function playSequence() {
-            if (isPlaying) return;
-            isPlaying = true;
-            currentBubbleIndex = 0;
-
-            // Hide all tiles
-            tiles.forEach(t => {
-                t.element.style.opacity = '0.2';
-                t.element.style.transform = 'scale(0.9)';
-            });
-
-            // Reveal one by one with breath timing
-            function revealNext() {
-                if (currentBubbleIndex >= tiles.length) {
-                    isPlaying = false;
-                    tiles.forEach(t => {
-                        t.element.style.opacity = '1';
-                        t.element.style.transform = '';
-                    });
-                    return;
-                }
-
-                const tile = tiles[currentBubbleIndex];
-                tile.element.style.opacity = '1';
-                tile.element.style.transform = 'scale(1)';
-                tile.element.style.transition = 'all 0.5s ease-out';
-
-                // Breath timing determines pause
-                const breathPause = tile.data.breathTiming * 200;
-
-                currentBubbleIndex++;
-                setTimeout(revealNext, breathPause);
+            // Toggle play/stop
+            if (isPlaying) {
+                isPlaying = false;
+                document.getElementById('playBtn').textContent = 'Play Sequence';
+                // Show all tiles when stopping
+                tiles.forEach(t => {
+                    t.element.style.transition = 'all 0.5s ease-out';
+                    t.element.style.opacity = '1';
+                    t.element.style.transform = '';
+                });
+                return;
             }
 
-            revealNext();
+            if (tiles.length === 0) {
+                createMagneticTiles();
+            }
+
+            isPlaying = true;
+            document.getElementById('playBtn').textContent = 'Stop';
+
+            // PHI-based timing
+            const BASE_TIMING = 618; // Golden milliseconds
+
+            // PHASE 1: Ensure all tiles visible at start
+            tiles.forEach(t => {
+                t.element.style.transition = 'none';
+                t.element.style.opacity = '1';
+                t.element.style.transform = '';
+            });
+
+            // Breathing cycle function
+            function breathCycle() {
+                if (!isPlaying) return;
+
+                let index = tiles.length - 1;
+
+                // PHASE 2: CONTRACT - Fade backwards (last to first)
+                function fadeBackward() {
+                    if (!isPlaying) return;
+
+                    if (index <= 0) {
+                        // Only first tile remains - pause at contraction
+                        setTimeout(expandForward, BASE_TIMING * PHI);
+                        return;
+                    }
+
+                    const tile = tiles[index];
+                    tile.element.style.transition = 'all 0.6s ease-in';
+                    tile.element.style.opacity = '0.1';
+                    tile.element.style.transform = 'scale(0.85)';
+
+                    index--;
+                    // Timing based on depth (deeper = slower fade)
+                    const fadeTime = BASE_TIMING + (tile.data.depth * 100);
+                    setTimeout(fadeBackward, fadeTime);
+                }
+
+                // PHASE 3: EXPAND - Reveal forward (first to last)
+                let revealIndex = 1;
+                function expandForward() {
+                    if (!isPlaying) return;
+
+                    if (revealIndex >= tiles.length) {
+                        // All revealed - pause at expansion, then restart cycle
+                        setTimeout(breathCycle, BASE_TIMING * PHI * 2);
+                        return;
+                    }
+
+                    const tile = tiles[revealIndex];
+                    tile.element.style.transition = 'all 0.8s ease-out';
+                    tile.element.style.opacity = '1';
+                    tile.element.style.transform = 'scale(1.05)';
+
+                    // Settle back
+                    setTimeout(() => {
+                        if (isPlaying) {
+                            tile.element.style.transform = '';
+                        }
+                    }, 400);
+
+                    revealIndex++;
+                    // Timing based on breath timing from data
+                    const revealTime = Math.max(BASE_TIMING, tile.data.breathTiming * 150);
+                    setTimeout(expandForward, revealTime);
+                }
+
+                // Start contraction phase
+                fadeBackward();
+            }
+
+            // Begin the breathing cycle after showing all
+            setTimeout(breathCycle, BASE_TIMING * 2);
         }
 
         function resetPositions() {
