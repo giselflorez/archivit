@@ -621,6 +621,7 @@
 
         /* Token Selector */
         .token-box {
+            position: relative;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -658,12 +659,19 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.15s;
-            min-width: 120px;
+            min-width: 130px;
+            user-select: none;
         }
 
         .token-select:hover {
-            border-color: var(--gold-dim);
+            border-color: var(--gold);
             background: var(--cosmic);
+            transform: translateY(-1px);
+        }
+
+        .token-select:active {
+            transform: translateY(0);
+            background: rgba(212,165,116,0.15);
         }
 
         .token-icon {
@@ -681,8 +689,10 @@
         .token-icon.btc { background: linear-gradient(135deg, #f7931a, #e8830c); }
         .token-icon.eth { background: linear-gradient(135deg, #627eea, #4a5dc8); }
         .token-icon.usdt { background: linear-gradient(135deg, #26a17b, #1d8b6a); }
+        .token-icon.usdc { background: linear-gradient(135deg, #2775ca, #1d5fa8); }
         .token-icon.xtz { background: linear-gradient(135deg, #2c7df7, #1a5ac7); }
         .token-icon.matic { background: linear-gradient(135deg, #8247e5, #6a35c7); }
+        .token-icon.sol { background: linear-gradient(135deg, #9945ff, #14f195); }
 
         .token-name {
             font-size: 0.9rem;
@@ -698,6 +708,13 @@
         .token-dropdown-arrow {
             margin-left: auto;
             color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .token-dropdown.show ~ .token-row .token-dropdown-arrow,
+        .token-box:has(.token-dropdown.show) .token-dropdown-arrow {
+            transform: rotate(180deg);
+            color: var(--gold);
         }
 
         .token-input {
@@ -935,37 +952,55 @@
         /* Token Dropdown */
         .token-dropdown {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 4px);
             left: 0;
             right: 0;
             background: var(--panel);
-            border: 1px solid var(--border);
+            border: 1px solid var(--gold-dim);
             border-radius: 10px;
             padding: 0.5rem;
-            margin-top: 0.5rem;
-            z-index: 100;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            z-index: 1000;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
             display: none;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .token-dropdown.show { display: block; }
+        .token-dropdown.show {
+            display: block;
+            animation: dropdownFade 0.15s ease-out;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .token-option {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 0.75rem;
+            padding: 0.75rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.15s;
+            border: 1px solid transparent;
         }
 
-        .token-option:hover { background: var(--surface); }
+        .token-option:hover {
+            background: var(--surface);
+            border-color: var(--gold-dim);
+            transform: translateX(4px);
+        }
+
+        .token-option:active {
+            background: rgba(212,165,116,0.2);
+        }
 
         .token-option-info { flex: 1; }
-        .token-option-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-        .token-option-chain { font-size: 0.7rem; color: var(--text-muted); }
-        .token-option-balance { font-size: 0.85rem; color: var(--text-dim); text-align: right; }
+        .token-option-name { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+        .token-option-chain { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        .token-option-balance { font-size: 0.85rem; color: var(--text-dim); text-align: right; font-weight: 500; }
 
         /* Transaction Status */
         .tx-status {
@@ -1536,7 +1571,7 @@
                     <div class="token-box" id="fromToken">
                         <div class="token-box-label">From</div>
                         <div class="token-row">
-                            <div class="token-select" onclick="toggleTokenDropdown('from')">
+                            <div class="token-select" onclick="toggleTokenDropdown('from', event)">
                                 <div class="token-icon btc">₿</div>
                                 <div>
                                     <div class="token-name">BTC</div>
@@ -1550,35 +1585,40 @@
                             <span>Balance: <span id="fromBalance">0.00</span></span>
                             <span class="max-btn" onclick="setMax('from')">MAX</span>
                         </div>
-                        <div class="token-dropdown" id="fromDropdown">
-                            <div class="token-option" onclick="selectToken('from', 'btc', 'BTC', 'Bitcoin')">
+                        <div class="token-dropdown" id="fromDropdown" onclick="event.stopPropagation()">
+                            <div class="token-option" onclick="selectToken('from', 'btc', 'BTC', 'Bitcoin', event)">
                                 <div class="token-icon btc">₿</div>
                                 <div class="token-option-info"><div class="token-option-name">BTC</div><div class="token-option-chain">Bitcoin</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
-                            <div class="token-option" onclick="selectToken('from', 'eth', 'ETH', 'Ethereum')">
+                            <div class="token-option" onclick="selectToken('from', 'eth', 'ETH', 'Ethereum', event)">
                                 <div class="token-icon eth">Ξ</div>
                                 <div class="token-option-info"><div class="token-option-name">ETH</div><div class="token-option-chain">Ethereum</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
-                            <div class="token-option" onclick="selectToken('from', 'usdt', 'USDT', 'ERC-20')">
+                            <div class="token-option" onclick="selectToken('from', 'usdt', 'USDT', 'ERC-20', event)">
                                 <div class="token-icon usdt">₮</div>
                                 <div class="token-option-info"><div class="token-option-name">USDT</div><div class="token-option-chain">ERC-20</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
-                            <div class="token-option" onclick="selectToken('from', 'usdt', 'USDT', 'TRC-20')">
+                            <div class="token-option" onclick="selectToken('from', 'usdt_trc', 'USDT', 'TRC-20', event)">
                                 <div class="token-icon usdt">₮</div>
                                 <div class="token-option-info"><div class="token-option-name">USDT</div><div class="token-option-chain">TRC-20 (Tron)</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
-                            <div class="token-option" onclick="selectToken('from', 'xtz', 'XTZ', 'Tezos')">
+                            <div class="token-option" onclick="selectToken('from', 'xtz', 'XTZ', 'Tezos', event)">
                                 <div class="token-icon xtz">ꜩ</div>
                                 <div class="token-option-info"><div class="token-option-name">XTZ</div><div class="token-option-chain">Tezos</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
-                            <div class="token-option" onclick="selectToken('from', 'matic', 'MATIC', 'Polygon')">
+                            <div class="token-option" onclick="selectToken('from', 'matic', 'MATIC', 'Polygon', event)">
                                 <div class="token-icon matic">M</div>
                                 <div class="token-option-info"><div class="token-option-name">MATIC</div><div class="token-option-chain">Polygon</div></div>
+                                <div class="token-option-balance">0.00</div>
+                            </div>
+                            <div class="token-option" onclick="selectToken('from', 'sol', 'SOL', 'Solana', event)">
+                                <div class="token-icon sol">◎</div>
+                                <div class="token-option-info"><div class="token-option-name">SOL</div><div class="token-option-chain">Solana</div></div>
                                 <div class="token-option-balance">0.00</div>
                             </div>
                         </div>
@@ -1595,7 +1635,7 @@
                     <div class="token-box" id="toToken">
                         <div class="token-box-label">To</div>
                         <div class="token-row">
-                            <div class="token-select" onclick="toggleTokenDropdown('to')">
+                            <div class="token-select" onclick="toggleTokenDropdown('to', event)">
                                 <div class="token-icon usdt">₮</div>
                                 <div>
                                     <div class="token-name">USDT</div>
@@ -1608,30 +1648,34 @@
                         <div class="token-balance">
                             <span>You receive (estimated)</span>
                         </div>
-                        <div class="token-dropdown" id="toDropdown">
-                            <div class="token-option" onclick="selectToken('to', 'btc', 'BTC', 'Bitcoin')">
+                        <div class="token-dropdown" id="toDropdown" onclick="event.stopPropagation()">
+                            <div class="token-option" onclick="selectToken('to', 'btc', 'BTC', 'Bitcoin', event)">
                                 <div class="token-icon btc">₿</div>
                                 <div class="token-option-info"><div class="token-option-name">BTC</div><div class="token-option-chain">Bitcoin</div></div>
                             </div>
-                            <div class="token-option" onclick="selectToken('to', 'eth', 'ETH', 'Ethereum')">
+                            <div class="token-option" onclick="selectToken('to', 'eth', 'ETH', 'Ethereum', event)">
                                 <div class="token-icon eth">Ξ</div>
                                 <div class="token-option-info"><div class="token-option-name">ETH</div><div class="token-option-chain">Ethereum</div></div>
                             </div>
-                            <div class="token-option" onclick="selectToken('to', 'usdt', 'USDT', 'ERC-20')">
+                            <div class="token-option" onclick="selectToken('to', 'usdt', 'USDT', 'ERC-20', event)">
                                 <div class="token-icon usdt">₮</div>
                                 <div class="token-option-info"><div class="token-option-name">USDT</div><div class="token-option-chain">ERC-20</div></div>
                             </div>
-                            <div class="token-option" onclick="selectToken('to', 'usdt', 'USDT', 'TRC-20')">
+                            <div class="token-option" onclick="selectToken('to', 'usdt_trc', 'USDT', 'TRC-20', event)">
                                 <div class="token-icon usdt">₮</div>
                                 <div class="token-option-info"><div class="token-option-name">USDT</div><div class="token-option-chain">TRC-20 (Tron)</div></div>
                             </div>
-                            <div class="token-option" onclick="selectToken('to', 'xtz', 'XTZ', 'Tezos')">
+                            <div class="token-option" onclick="selectToken('to', 'xtz', 'XTZ', 'Tezos', event)">
                                 <div class="token-icon xtz">ꜩ</div>
                                 <div class="token-option-info"><div class="token-option-name">XTZ</div><div class="token-option-chain">Tezos</div></div>
                             </div>
-                            <div class="token-option" onclick="selectToken('to', 'matic', 'MATIC', 'Polygon')">
+                            <div class="token-option" onclick="selectToken('to', 'matic', 'MATIC', 'Polygon', event)">
                                 <div class="token-icon matic">M</div>
                                 <div class="token-option-info"><div class="token-option-name">MATIC</div><div class="token-option-chain">Polygon</div></div>
+                            </div>
+                            <div class="token-option" onclick="selectToken('to', 'sol', 'SOL', 'Solana', event)">
+                                <div class="token-icon sol">◎</div>
+                                <div class="token-option-info"><div class="token-option-name">SOL</div><div class="token-option-chain">Solana</div></div>
                             </div>
                         </div>
                     </div>
@@ -1881,14 +1925,14 @@
         // ═══════════════════════════════════════════════════════════════
 
         const swapState = {
-            from: { token: 'btc', symbol: 'BTC', chain: 'Bitcoin', balance: 0, thorId: 'BTC.BTC' },
-            to: { token: 'eth', symbol: 'ETH', chain: 'Ethereum', balance: 0, thorId: 'ETH.ETH' },
+            from: { token: 'btc', symbol: 'BTC', chain: 'Bitcoin', balance: 0, thorId: 'BTC.BTC', decimals: 8 },
+            to: { token: 'usdt', symbol: 'USDT', chain: 'ERC-20', balance: 0, thorId: 'ETH.USDT-0XDAC17F958D2EE523A2206206994597C13D831EC7', decimals: 6 },
             sendToken: 'eth',
             walletConnected: false,
             walletAddress: null,
             quote: null,
-            prices: { btc: 94500, eth: 3200, usdt: 1, xtz: 1.2, matic: 0.85 },
-            balances: { btc: 0, eth: 0, usdt: 0, xtz: 0, matic: 0 }
+            prices: { btc: 94500, eth: 3200, usdt: 1, usdc: 1, xtz: 1.2, matic: 0.85, sol: 180 },
+            balances: { btc: 0, eth: 0, usdt: 0, usdc: 0, xtz: 0, matic: 0, sol: 0 }
         };
 
         // ═══════════════════════════════════════════════════════════════
@@ -1902,23 +1946,63 @@
             usdt_trc: { symbol: 'USDT', chain: 'TRC-20', thorId: null, decimals: 6, note: 'Use Tron wallet' },
             usdc: { symbol: 'USDC', chain: 'ERC-20', thorId: 'ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48', decimals: 6 },
             matic: { symbol: 'MATIC', chain: 'Polygon', thorId: 'ETH.MATIC-0X7D1AFA7B718FB893DB30A3ABC0CFC608AACFEBB0', decimals: 18 },
-            xtz: { symbol: 'XTZ', chain: 'Tezos', thorId: null, decimals: 6, note: 'THORChain does not support Tezos' }
+            xtz: { symbol: 'XTZ', chain: 'Tezos', thorId: null, decimals: 6, note: 'THORChain does not support Tezos - use Changelly' },
+            sol: { symbol: 'SOL', chain: 'Solana', thorId: null, decimals: 9, note: 'THORChain does not support Solana - use Changelly' }
         };
 
-        function toggleTokenDropdown(type) {
+        function toggleTokenDropdown(type, event) {
+            // Prevent event from bubbling to document click handler
+            if (event) {
+                event.stopPropagation();
+            }
+
             const dropdown = document.getElementById(`${type}Dropdown`);
+
+            // Close other dropdowns first
             document.querySelectorAll('.token-dropdown').forEach(d => {
                 if (d !== dropdown) d.classList.remove('show');
             });
+
+            // Toggle this dropdown
             dropdown.classList.toggle('show');
+
+            // Update dropdown balances when opening
+            if (dropdown.classList.contains('show')) {
+                updateDropdownBalances(type);
+            }
+
+            console.log(`Dropdown ${type} toggled:`, dropdown.classList.contains('show') ? 'OPEN' : 'CLOSED');
         }
 
-        function selectToken(type, tokenId, symbol, chain) {
+        function updateDropdownBalances(type) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const options = dropdown.querySelectorAll('.token-option');
+
+            options.forEach(option => {
+                const tokenName = option.querySelector('.token-option-name')?.textContent?.toLowerCase();
+                if (tokenName && swapState.balances[tokenName] !== undefined) {
+                    const balanceEl = option.querySelector('.token-option-balance');
+                    if (balanceEl) {
+                        const bal = swapState.balances[tokenName];
+                        balanceEl.textContent = bal > 0 ? bal.toFixed(bal > 100 ? 2 : 6) : '0.00';
+                    }
+                }
+            });
+        }
+
+        function selectToken(type, tokenId, symbol, chain, event) {
+            // Prevent event from bubbling
+            if (event) {
+                event.stopPropagation();
+            }
+
+            console.log(`Selecting ${type} token:`, tokenId, symbol, chain);
+
             const config = TOKEN_CONFIG[tokenId] || { symbol, chain, thorId: null, decimals: 18 };
             swapState[type] = {
                 token: tokenId,
                 symbol: config.symbol,
-                chain: config.chain,
+                chain: chain || config.chain,
                 balance: swapState.balances[tokenId] || 0,
                 thorId: config.thorId,
                 decimals: config.decimals
@@ -1929,22 +2013,48 @@
             const nameEl = box.querySelector('.token-name');
             const chainEl = box.querySelector('.token-chain');
 
-            icon.className = `token-icon ${tokenId.split('_')[0]}`;
+            // Update icon class and symbol
+            const baseToken = tokenId.split('_')[0];
+            icon.className = `token-icon ${baseToken}`;
             icon.textContent = getTokenSymbol(tokenId);
             nameEl.textContent = config.symbol;
-            chainEl.textContent = config.chain;
+            chainEl.textContent = chain || config.chain;
 
-            // Show warning if not supported by THORChain
-            if (!config.thorId) {
-                console.warn(`${symbol} on ${chain} not supported by THORChain`);
+            // Update balance display
+            if (type === 'from') {
+                const balance = swapState.balances[tokenId] || 0;
+                document.getElementById('fromBalance').textContent = balance.toFixed(balance > 100 ? 2 : 6);
             }
 
+            // Close dropdown
             document.getElementById(`${type}Dropdown`).classList.remove('show');
-            fetchThorchainQuote();
+
+            // Check provider support for this pair
+            if (typeof checkPairSupport === 'function') {
+                checkPairSupport();
+            }
+
+            // Fetch new quote with current provider
+            if (typeof fetchQuoteForProvider === 'function') {
+                fetchQuoteForProvider();
+            } else {
+                fetchThorchainQuote();
+            }
+
+            console.log(`Token selected - From: ${swapState.from.symbol}, To: ${swapState.to.symbol}`);
         }
 
         function getTokenSymbol(token) {
-            const symbols = { btc: '₿', eth: 'Ξ', usdt: '₮', usdc: '$', xtz: 'ꜩ', matic: 'M' };
+            const symbols = {
+                btc: '₿',
+                eth: 'Ξ',
+                usdt: '₮',
+                usdc: '$',
+                xtz: 'ꜩ',
+                matic: 'M',
+                sol: '◎',
+                dot: '●'
+            };
             return symbols[token.split('_')[0]] || token.charAt(0).toUpperCase();
         }
 
@@ -2645,7 +2755,18 @@ For BTC swaps, you'll need a Bitcoin address to receive funds.`;
         // ═══════════════════════════════════════════════════════════════
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.token-box')) {
+            // Don't close if clicking on dropdown or token-select
+            const isDropdown = e.target.closest('.token-dropdown');
+            const isTokenSelect = e.target.closest('.token-select');
+
+            if (!isDropdown && !isTokenSelect) {
+                document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        // Close dropdowns on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
                 document.querySelectorAll('.token-dropdown').forEach(d => d.classList.remove('show'));
             }
         });
