@@ -4624,6 +4624,12 @@ def dataland_preview():
     """DATALAND - 4D MOONLANGUAGE Symphony visualization"""
     return render_template('dataland_expert_preview.html')
 
+@app.route('/dataland/magnetic-poetry')
+@app.route('/magnetic-poetry')
+def dataland_magnetic_poetry():
+    """DATALAND Magnetic Poetry - Interactive journey archive"""
+    return render_template('dataland_magnetic_poetry.html')
+
 @app.route('/api/doc8/research', methods=['POST'])
 def doc8_research():
     """Execute research with pre-approved sources"""

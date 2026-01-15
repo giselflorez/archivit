@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATALAND | Magnetic Poetry Experience</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #030308;
+            color: #f0ece7;
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: auto;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            color: #d4a574;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #5a5854;
+            margin-top: 4px;
+            letter-spacing: 0.1em;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            pointer-events: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            color: #d4a574;
+            padding: 8px 16px;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: #d4a574;
+        }
+
+        .control-btn.active {
+            background: #d4a574;
+            color: #030308;
+        }
+
+        .depth-indicator {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .depth-level {
+            width: 40px;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .depth-level::after {
+            content: attr(data-label);
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+            color: #5a5854;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .depth-level:hover::after { opacity: 1; }
+
+        .depth-level[data-depth="1"] { background: rgba(212, 165, 116, 0.3); }
+        .depth-level[data-depth="2"] { background: rgba(186, 101, 135, 0.3); }
+        .depth-level[data-depth="3"] { background: rgba(120, 101, 186, 0.3); }
+        .depth-level[data-depth="4"] { background: rgba(84, 168, 118, 0.5); }
+
+        .breath-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .breath-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(212, 165, 116, 0.3);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+        }
+
+        .context-note {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 280px;
+            padding: 15px;
+            background: rgba(14, 14, 24, 0.9);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            font-size: 9px;
+            line-height: 1.6;
+            color: #9a9690;
+            pointer-events: auto;
+        }
+
+        .context-note h3 {
+            font-size: 10px;
+            color: #d4a574;
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Magnetic tile styles for DOM overlay */
+        .magnetic-tile {
+            position: absolute;
+            padding: 8px 12px;
+            background: rgba(14, 14, 24, 0.95);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            color: #f0ece7;
+            font-size: 11px;
+            line-height: 1.4;
+            max-width: 200px;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.1s, box-shadow 0.3s;
+            pointer-events: auto;
+        }
+
+        .magnetic-tile:hover {
+            border-color: #d4a574;
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+        }
+
+        .magnetic-tile.dragging {
+            cursor: grabbing;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .magnetic-tile.anchor {
+            border-color: #54a876;
+            background: rgba(84, 168, 118, 0.1);
+        }
+
+        .tile-timestamp {
+            font-size: 8px;
+            color: #5a5854;
+            margin-bottom: 4px;
+        }
+
+        .tile-depth {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d4a574;
+            color: #030308;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="ui-overlay">
+        <div class="header">
+            <h1>Dataland</h1>
+            <p>Magnetic Poetry Archive | The Journey</p>
+        </div>
+
+        <div class="context-note">
+            <h3>Context Note</h3>
+            <p>There is context that was prior to this message. Many supporting files will be loaded into a CRE-8 space - a click-and-drag magnet board like poetry on a refrigerator.</p>
+            <p style="margin-top: 8px; color: #d4a574;">Drag tiles to rearrange. Older sinks, newer floats.</p>
+        </div>
+
+        <div class="depth-indicator">
+            <div class="depth-level" data-depth="1" data-label="SURFACE"></div>
+            <div class="depth-level" data-depth="2" data-label="INSIGHT"></div>
+            <div class="depth-level" data-depth="3" data-label="CORE"></div>
+            <div class="depth-level" data-depth="4" data-label="ANCHOR"></div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" id="playBtn">Play Sequence</button>
+            <button class="control-btn" id="resetBtn">Reset Positions</button>
+            <button class="control-btn" id="exportBtn">Export PDF</button>
+        </div>
+
+        <div class="breath-indicator">
+            <div class="breath-circle"></div>
+        </div>
+    </div>
+
+    <div id="tiles-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ============================================================
+        // DATALAND MAGNETIC POETRY - WebGL Physics Experience
+        // ============================================================
+
+        const PHI = 1.618033988749895;
+        const GOLDEN_ANGLE = 137.5077640500378 * (Math.PI / 180);
+
+        // Bubble data - parsed from conversation
+        const BUBBLES = [
+            {
+                id: 'DLND-001',
+                timestamp: '11:47 AM',
+                text: 'Lets invent the new environment to protect the legacy of art in all its forms past present and future',
+                depth: 1,
+                magneticWeight: 0.2,
+                breathTiming: 4.2,
+                tags: ['vision', 'art-legacy']
+            },
+            {
+                id: 'DLND-002',
+                timestamp: '11:49 AM',
+                text: 'Just got it, just started, i just have to try to see how we got here',
+                depth: 1,
+                magneticWeight: 0.25,
+                breathTiming: 2.8,
+                tags: ['beginning', 'journey']
+            },
+            {
+                id: 'DLND-003',
+                timestamp: '12:06 PM',
+                text: 'What I have learned from the past jumps in my own timeline is- they make sure we are always scared of the NEW so we dont learn the ins & outs quicker than them.',
+                depth: 2,
+                magneticWeight: 0.5,
+                breathTiming: 6.5,
+                tags: ['timeline', 'fear', 'learning']
+            },
+            {
+                id: 'DLND-004',
+                timestamp: '12:06 PM',
+                text: 'I believe it will only get harder to build from this moment on, claude code is a crazy oracle to have inspired me to take over this space',
+                depth: 3,
+                magneticWeight: 0.7,
+                breathTiming: 5.2,
+                tags: ['claude-code', 'oracle', 'building']
+            },
+            {
+                id: 'DLND-005',
+                timestamp: '12:09 PM',
+                text: 'But yes they will try to inject whatever they can at it because it will let us build around their well guarded protocols',
+                depth: 3,
+                magneticWeight: 0.6,
+                breathTiming: 4.8,
+                tags: ['resistance', 'protocols']
+            },
+            {
+                id: 'DLND-006',
+                timestamp: '12:10 PM',
+                text: 'Air gap your wallet?! What about Air gap your future?!',
+                depth: 2,
+                magneticWeight: 0.4,
+                breathTiming: 2.5,
+                tags: ['security', 'future']
+            },
+            {
+                id: 'DLND-007',
+                timestamp: '12:12 PM',
+                text: 'Thank you for getting this far, a really really big THANKYOU to all of you for even just being present for all the artists in this space',
+                depth: 1,
+                magneticWeight: 0.3,
+                breathTiming: 4.0,
+                tags: ['gratitude', 'artists']
+            },
+            {
+                id: 'DLND-008',
+                timestamp: '12:13 PM',
+                text: 'ARCHIV-IT towards a nonprofit decentralized effort for the future of the digital medium. If this can get a decent start - Ill formally present to RISD & BROWN to devise a new rule to allow the 4D archiving. If it means free art tools for everyone that needs them - That is my kind of life win.',
+                depth: 4,
+                magneticWeight: 1.0,
+                anchor: true,
+                breathTiming: 12.0,
+                tags: ['ARCHIV-IT', 'nonprofit', 'RISD', 'BROWN', '4D-archiving']
+            }
+        ];
+
+        // ============================================================
+        // THREE.JS SCENE SETUP
+        // ============================================================
+
+        let scene, camera, renderer;
+        let particles = [];
+        let starGeometry;
+        let breathPhase = 0;
+        let isPlaying = false;
+        let currentBubbleIndex = 0;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030308);
+
+            // Camera looking down from above
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 150, 0);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Create equilateral star at center
+            createCentralStar();
+
+            // Create particle field
+            createParticleField();
+
+            // Create depth rings
+            createDepthRings();
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xd4a574, 1, 200);
+            pointLight.position.set(0, 50, 0);
+            scene.add(pointLight);
+        }
+
+        function createCentralStar() {
+            // 6-pointed equilateral star (two triangles)
+            const starShape = new THREE.Shape();
+            const points = 6;
+            const outerRadius = 15;
+            const innerRadius = 7;
+
+            for (let i = 0; i < points * 2; i++) {
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                const angle = (i * Math.PI) / points - Math.PI / 2;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+
+                if (i === 0) {
+                    starShape.moveTo(x, y);
+                } else {
+                    starShape.lineTo(x, y);
+                }
+            }
+            starShape.closePath();
+
+            const geometry = new THREE.ShapeGeometry(starShape);
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x54a876,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const star = new THREE.Mesh(geometry, material);
+            star.rotation.x = -Math.PI / 2;
+            star.position.y = 0.1;
+            scene.add(star);
+
+            // Star outline
+            const outlinePoints = [];
+            for (let i = 0; i <= points * 2; i++) {
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                const angle = (i * Math.PI) / points - Math.PI / 2;
+                outlinePoints.push(new THREE.Vector3(
+                    Math.cos(angle) * radius,
+                    0.2,
+                    Math.sin(angle) * radius
+                ));
+            }
+
+            const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
+            const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x54a876, opacity: 0.8, transparent: true });
+            const outline = new THREE.Line(outlineGeometry, outlineMaterial);
+            scene.add(outline);
+        }
+
+        function createDepthRings() {
+            const depths = [
+                { radius: 30, color: 0xd4a574, label: 'SURFACE' },
+                { radius: 50, color: 0xba6587, label: 'INSIGHT' },
+                { radius: 70, color: 0x7865ba, label: 'CORE' },
+                { radius: 90, color: 0x54a876, label: 'ANCHOR' }
+            ];
+
+            depths.forEach((d, i) => {
+                const points = [];
+                for (let j = 0; j <= 64; j++) {
+                    const angle = (j / 64) * Math.PI * 2;
+                    points.push(new THREE.Vector3(
+                        Math.cos(angle) * d.radius,
+                        -i * 5, // Depth layers go down
+                        Math.sin(angle) * d.radius
+                    ));
+                }
+
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: d.color,
+                    transparent: true,
+                    opacity: 0.2
+                });
+
+                const ring = new THREE.Line(geometry, material);
+                scene.add(ring);
+            });
+        }
+
+        function createParticleField() {
+            const particleCount = 500;
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                const radius = 20 + Math.random() * 100;
+                const angle = Math.random() * Math.PI * 2;
+                const depth = Math.random() * 30 - 15;
+
+                positions[i * 3] = Math.cos(angle) * radius;
+                positions[i * 3 + 1] = depth;
+                positions[i * 3 + 2] = Math.sin(angle) * radius;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                color: 0xd4a574,
+                size: 0.5,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            const points = new THREE.Points(geometry, material);
+            scene.add(points);
+            particles.push(points);
+        }
+
+        // ============================================================
+        // DOM-BASED MAGNETIC TILES
+        // ============================================================
+
+        let tiles = [];
+        let draggedTile = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        function createMagneticTiles() {
+            const container = document.getElementById('tiles-container');
+            container.innerHTML = '';
+            tiles = [];
+
+            BUBBLES.forEach((bubble, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'magnetic-tile' + (bubble.anchor ? ' anchor' : '');
+                tile.dataset.id = bubble.id;
+                tile.dataset.depth = bubble.depth;
+                tile.dataset.weight = bubble.magneticWeight;
+
+                // Position in circular layout around center
+                const angle = (index / BUBBLES.length) * Math.PI * 2 + GOLDEN_ANGLE * index;
+                const radius = 150 + (4 - bubble.depth) * 80; // Deeper = closer to center
+
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+
+                tile.style.left = (centerX + Math.cos(angle) * radius - 100) + 'px';
+                tile.style.top = (centerY + Math.sin(angle) * radius - 40) + 'px';
+
+                // Rotate to face center
+                const rotationAngle = (angle * 180 / Math.PI) + 90;
+                tile.style.transform = `rotate(${rotationAngle}deg)`;
+
+                tile.innerHTML = `
+                    <div class="tile-timestamp">${bubble.timestamp}</div>
+                    <div class="tile-text">${bubble.text.substring(0, 120)}${bubble.text.length > 120 ? '...' : ''}</div>
+                    <div class="tile-depth">${bubble.depth}</div>
+                `;
+
+                // Drag events
+                tile.addEventListener('mousedown', startDrag);
+                tile.addEventListener('touchstart', startDrag);
+
+                container.appendChild(tile);
+                tiles.push({
+                    element: tile,
+                    data: bubble,
+                    velocity: { x: 0, y: 0 },
+                    position: {
+                        x: parseFloat(tile.style.left),
+                        y: parseFloat(tile.style.top)
+                    }
+                });
+            });
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function startDrag(e) {
+            const tile = e.target.closest('.magnetic-tile');
+            if (!tile) return;
+
+            draggedTile = tile;
+            tile.classList.add('dragging');
+
+            const rect = tile.getBoundingClientRect();
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+
+            tile.style.transform = 'scale(1.05)';
+        }
+
+        function drag(e) {
+            if (!draggedTile) return;
+
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            if (clientX === undefined) return;
+
+            draggedTile.style.left = (clientX - dragOffset.x) + 'px';
+            draggedTile.style.top = (clientY - dragOffset.y) + 'px';
+        }
+
+        function endDrag() {
+            if (!draggedTile) return;
+
+            draggedTile.classList.remove('dragging');
+
+            // Apply magnetic physics
+            const tileData = tiles.find(t => t.element === draggedTile);
+            if (tileData) {
+                applyMagneticForce(tileData);
+            }
+
+            draggedTile.style.transform = '';
+            draggedTile = null;
+        }
+
+        function applyMagneticForce(tileData) {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const tileX = parseFloat(tileData.element.style.left) + 100;
+            const tileY = parseFloat(tileData.element.style.top) + 40;
+
+            const dx = centerX - tileX;
+            const dy = centerY - tileY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Magnetic attraction based on weight and depth
+            const force = tileData.data.magneticWeight * 0.1;
+            const targetRadius = 150 + (4 - tileData.data.depth) * 80;
+
+            // Animate towards ideal position
+            const angle = Math.atan2(dy, dx);
+            const targetX = centerX + Math.cos(angle + Math.PI) * targetRadius - 100;
+            const targetY = centerY + Math.sin(angle + Math.PI) * targetRadius - 40;
+
+            // Smooth animation
+            tileData.element.style.transition = 'left 0.5s ease-out, top 0.5s ease-out';
+
+            if (distance < 100 && !tileData.data.anchor) {
+                // Repel from center unless anchor
+                tileData.element.style.left = targetX + 'px';
+                tileData.element.style.top = targetY + 'px';
+            }
+
+            setTimeout(() => {
+                tileData.element.style.transition = '';
+            }, 500);
+        }
+
+        // ============================================================
+        // ANIMATION & BREATH TIMING
+        // ============================================================
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            breathPhase += 0.01;
+
+            // Rotate particles slowly
+            particles.forEach(p => {
+                p.rotation.y += 0.0005;
+            });
+
+            // Pulse central star with breath
+            const breathScale = 1 + Math.sin(breathPhase) * 0.1;
+            scene.children.forEach(child => {
+                if (child.geometry && child.geometry.type === 'ShapeGeometry') {
+                    child.scale.set(breathScale, breathScale, 1);
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        function playSequence() {
+            if (isPlaying) return;
+            isPlaying = true;
+            currentBubbleIndex = 0;
+
+            // Hide all tiles
+            tiles.forEach(t => {
+                t.element.style.opacity = '0.2';
+                t.element.style.transform = 'scale(0.9)';
+            });
+
+            // Reveal one by one with breath timing
+            function revealNext() {
+                if (currentBubbleIndex >= tiles.length) {
+                    isPlaying = false;
+                    tiles.forEach(t => {
+                        t.element.style.opacity = '1';
+                        t.element.style.transform = '';
+                    });
+                    return;
+                }
+
+                const tile = tiles[currentBubbleIndex];
+                tile.element.style.opacity = '1';
+                tile.element.style.transform = 'scale(1)';
+                tile.element.style.transition = 'all 0.5s ease-out';
+
+                // Breath timing determines pause
+                const breathPause = tile.data.breathTiming * 200;
+
+                currentBubbleIndex++;
+                setTimeout(revealNext, breathPause);
+            }
+
+            revealNext();
+        }
+
+        function resetPositions() {
+            tiles.forEach((tile, index) => {
+                const angle = (index / BUBBLES.length) * Math.PI * 2 + GOLDEN_ANGLE * index;
+                const radius = 150 + (4 - tile.data.depth) * 80;
+
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+
+                tile.element.style.transition = 'all 0.8s ease-out';
+                tile.element.style.left = (centerX + Math.cos(angle) * radius - 100) + 'px';
+                tile.element.style.top = (centerY + Math.sin(angle) * radius - 40) + 'px';
+
+                setTimeout(() => {
+                    tile.element.style.transition = '';
+                }, 800);
+            });
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+
+        function init() {
+            initThreeJS();
+            createMagneticTiles();
+            animate();
+
+            // Control buttons
+            document.getElementById('playBtn').addEventListener('click', playSequence);
+            document.getElementById('resetBtn').addEventListener('click', resetPositions);
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                window.location.href = '/api/dataland/export-pdf';
+            });
+
+            // Window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
