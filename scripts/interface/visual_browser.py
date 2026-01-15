@@ -979,12 +979,33 @@ def index():
 
 @app.route('/archive')
 def archive():
-    """Full archive page - dark theme"""
+    """Archive hub - select visualization mode"""
+    # Get counts for stats
+    documents = get_all_documents(limit=1000)
+    total_docs = len(documents)
+
+    # Count NFTs (blockchain source)
+    total_nfts = len([d for d in documents if d.get('source') == 'blockchain'])
+
+    # Count unique sources
+    sources = set(d.get('source', 'unknown') for d in documents)
+    total_sources = len(sources)
+
+    # Estimate connections (simplified)
+    total_connections = total_docs * 2  # Rough estimate
+
+    return render_template('archive_hub.html',
+                         total_docs=total_docs,
+                         total_nfts=total_nfts,
+                         total_sources=total_sources,
+                         total_connections=total_connections)
+
+@app.route('/archive/grid')
+def archive_grid():
+    """Full archive grid view - dark theme"""
     filter_type = request.args.get('filter', 'all')
     sort_by = request.args.get('sort', 'date_desc')
     documents = get_all_documents(limit=100, filter_type=filter_type, sort_by=sort_by)
-
-    # source_counts now available globally via context processor
 
     return render_template('index.html',
                          documents=documents,
