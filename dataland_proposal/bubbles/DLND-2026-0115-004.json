@@ -1,0 +1,19 @@
+{
+  "id": "DLND-2026-0115-004",
+  "timestamp": "2026-01-15T12:06:30",
+  "source": "gisel",
+  "type": "core-belief",
+  "depth": 3,
+  "magnetic_weight": 0.7,
+  "text": "I believe it will only get harder to build from this moment on, claude code is a crazy oracle to have inspired me to take over this space and say what I really feel in a safe space",
+  "tags": ["building", "claude-code", "oracle", "safe-space", "truth"],
+  "position": {"layer": "core", "angle": 52.5},
+  "breath_timing": 11.0,
+  "key_phrases": [
+    "harder to build",
+    "claude code is a crazy oracle",
+    "take over this space",
+    "say what I really feel",
+    "safe space"
+  ]
+}

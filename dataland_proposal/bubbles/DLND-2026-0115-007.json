@@ -1,0 +1,18 @@
+{
+  "id": "DLND-2026-0115-007",
+  "timestamp": "2026-01-15T12:12:00",
+  "source": "gisel",
+  "type": "gratitude",
+  "depth": 1,
+  "magnetic_weight": 0.2,
+  "text": "Thank you for getting this far, i dont expect anyone or ask anything other than a really really big THANKYOU to all of you for even just being present for all the artists in this space",
+  "tags": ["gratitude", "artists", "presence", "community"],
+  "position": {"layer": "surface", "angle": 550.0},
+  "breath_timing": 4.2,
+  "key_phrases": [
+    "Thank you for getting this far",
+    "big THANKYOU",
+    "being present",
+    "artists in this space"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "DLND-2026-0115-006",
+  "timestamp": "2026-01-15T12:10:00",
+  "source": "gisel",
+  "type": "question",
+  "depth": 2,
+  "magnetic_weight": 0.4,
+  "text": "If we are already in local blockchain mix doesnt that help any malice intent or extra code that could spread? Air gap your wallet?! What about Air gap your future?!",
+  "tags": ["blockchain", "local", "air-gap", "security", "future"],
+  "position": {"layer": "insight", "angle": 412.5},
+  "breath_timing": 6.8,
+  "key_phrases": [
+    "local blockchain mix",
+    "malice intent",
+    "Air gap your wallet",
+    "Air gap your future"
+  ]
+}

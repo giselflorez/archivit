@@ -1,0 +1,17 @@
+{
+  "id": "DLND-2026-0115-005",
+  "timestamp": "2026-01-15T12:09:00",
+  "source": "gisel",
+  "type": "warning",
+  "depth": 3,
+  "magnetic_weight": 0.7,
+  "text": "But yes they will try to inject whatever they can at it becuse it will let us build around thier well guarded protocols",
+  "tags": ["injection", "protocols", "building", "resistance"],
+  "position": {"layer": "core", "angle": 190.0},
+  "breath_timing": 11.0,
+  "key_phrases": [
+    "inject whatever they can",
+    "build around",
+    "well guarded protocols"
+  ]
+}
