@@ -378,6 +378,52 @@ This returns JSON with all critical context for automated systems.
 
 ---
 
+## QUOTE VERIFICATION AGENT PROTOCOL
+
+### Purpose
+Enable institutional-grade quote research with NO HALLUCINATIONS. Every quote must be traceable to primary source.
+
+### On Startup (When Researching Quotes)
+1. Read `docs/QUOTE_VERIFICATION_PROTOCOL.md` - Full methodology
+2. Read `docs/AGENT_ERROR_LOG.md` - Learn from past mistakes
+3. Check `verified_quotes_db/` - Existing verified quotes
+4. **NEVER repeat a documented error**
+
+### Key Files
+| File | Purpose |
+|------|---------|
+| `docs/QUOTE_VERIFICATION_PROTOCOL.md` | Full verification methodology |
+| `docs/AGENT_ERROR_LOG.md` | Documented errors to avoid |
+| `verified_quotes_db/INDEX.md` | Database of verified quotes |
+| `verified_quotes_db/moon/MOON_WISDOM_FRAMEWORK.md` | Moon quote research framework |
+
+### Source Hierarchy (Trust Levels)
+| Tier | Source Type | Trust |
+|------|-------------|-------|
+| 1 | Original manuscript/recording | 1.0 |
+| 2 | Scholarly edition with page numbers | 0.95 |
+| 3 | Institutional archive | 0.90 |
+| 4 | Peer-reviewed academic | 0.85 |
+| 5 | Verified journalism (NYT, BBC) | 0.75 |
+| 6 | Quote Investigator | 0.70 |
+| 7 | Wikipedia/blogs | 0.30 |
+| 8 | Social media | 0.05 |
+
+### Most Misquoted Figures (HIGH ALERT)
+- **Tesla** (~90% fake) - Mysticism fabrications
+- **Einstein** (~80% fake) - Credibility borrowing
+- **Buddha** (~85% fake) - New Age appropriation
+- **Jung** - Always require CW paragraph reference
+
+### Anti-Hallucination Rules
+1. **Never fabricate sources** - "Source not found" is acceptable
+2. **Never commit to quantity before research** - Verify first, count second
+3. **Always note uncertainty** - Use "ATTRIBUTED" status
+4. **Log all errors** - Update AGENT_ERROR_LOG.md
+5. **Prefer absence over invention** - Empty is better than fake
+
+---
+
 ## CRASH RECOVERY - READ IF CLAUDE RESETS
 
 **If you are reading this and have no memory of previous sessions:**
