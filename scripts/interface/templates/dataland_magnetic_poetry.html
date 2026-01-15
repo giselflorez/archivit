@@ -34,6 +34,20 @@
             z-index: 10;
         }
 
+        #tiles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #tiles-container .magnetic-tile {
+            pointer-events: auto;
+        }
+
         .header {
             position: absolute;
             top: 20px;
