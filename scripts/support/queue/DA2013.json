@@ -1,0 +1,14 @@
+{
+  "ticket_id": "DA2013",
+  "sender_email": "artist@example.com",
+  "subject": "Help with IPFS upload",
+  "body": "How do I upload my artwork to IPFS using Pinata?",
+  "timestamp": "2026-01-14T21:43:25.076672",
+  "caution_level": "safe",
+  "flags": [
+    "OK: No security concerns detected"
+  ],
+  "local_response": "**IPFS Upload**\n\nIPFS uploads use Pinata. Ensure PINATA_API_KEY is set in .env. Endpoint: POST /api/mint/upload-metadata",
+  "human_approved": false,
+  "processed": false
+}

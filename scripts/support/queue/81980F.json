@@ -1,0 +1,15 @@
+{
+  "ticket_id": "81980F",
+  "sender_email": "user@test.com",
+  "subject": "Feature request",
+  "body": "Can you implement a new export feature for the database?",
+  "timestamp": "2026-01-14T21:43:32.904706",
+  "caution_level": "review",
+  "flags": [
+    "REVIEW: Implementation request detected - (?i)(implement|deploy|execute|...",
+    "REVIEW: Implementation request detected - (?i)(database|server|productio..."
+  ],
+  "local_response": null,
+  "human_approved": false,
+  "processed": false
+}

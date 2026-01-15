@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiselX Tezos Network - ULTRATHINK 4D Physics Visualization</title>
+    <style>
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --border: rgba(255,255,255,0.06);
+            --gold: #d4a574;
+            --emerald: #54a876;
+            --rose: #ba6587;
+            --violet: #7865ba;
+            --cyan: #00f5ff;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--void);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+        }
+
+        #container { width: 100vw; height: 100vh; position: relative; }
+
+        .panel {
+            position: fixed;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-panel {
+            top: 20px;
+            left: 20px;
+            width: 320px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .stats-panel {
+            top: 20px;
+            right: 20px;
+            width: 280px;
+        }
+
+        .physics-panel {
+            bottom: 80px;
+            left: 20px;
+            width: 280px;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #00f5ff, #7865ba, #ba6587);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            margin: 15px 0 10px 0;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--cosmic);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 200;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 0.5rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .legend-section {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .legend-shape {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .physics-constant {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.6rem;
+        }
+
+        .physics-constant:last-child {
+            border-bottom: none;
+        }
+
+        .physics-name {
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        .physics-value {
+            color: var(--cyan);
+            font-family: monospace;
+            font-size: 0.65rem;
+        }
+
+        .physics-desc {
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: var(--panel);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px 18px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 200;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.visible { opacity: 1; }
+
+        .tooltip h3 {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--gold);
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            margin: 4px 0;
+            gap: 15px;
+        }
+
+        .tooltip-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tooltip-value {
+            color: var(--text);
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .controls button {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+
+        .controls button.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .dimension-indicator {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.55rem;
+            color: var(--text-dim);
+        }
+
+        .dimension-indicator span {
+            color: var(--cyan);
+            font-family: monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--cosmic);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="panel info-panel">
+        <h1>GISELX TEZOS NETWORK</h1>
+        <p class="subtitle">ULTRATHINK 4D Physics Visualization</p>
+
+        <h2>Node Types</h2>
+        <div class="legend-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+            <div class="legend-item">
+                <svg class="legend-shape" viewBox="0 0 12 12">
+                    <polygon points="6,0 12,6 6,12 0,6" fill="#d4a574"/>
+                </svg>
+                <div>
+                    <strong style="color: var(--gold);">Artist (Center)</strong><br>
+                    You. The gravitational center of the network. All connections radiate outward from here.
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--cyan);"></div>
+                <div>
+                    <strong style="color: var(--cyan);">Hic et Nunc Mints</strong><br>
+                    NFTs minted on HEN/Teia. Positioned in golden spiral by mint order.
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--violet);"></div>
+                <div>
+                    <strong style="color: var(--violet);">Other Tezos Mints</strong><br>
+                    Objkt, fxhash, and other platforms. Y-axis = time progression.
+                </div>
+            </div>
+            <div class="legend-item">
+                <svg class="legend-shape" viewBox="0 0 12 12">
+                    <polygon points="6,0 12,12 0,12" fill="#54a876"/>
+                </svg>
+                <div>
+                    <strong style="color: var(--emerald);">Super Collectors (3+)</strong><br>
+                    Your most dedicated collectors. Size = piece count. Higher = more pieces.
+                </div>
+            </div>
+            <div class="legend-item">
+                <svg class="legend-shape" viewBox="0 0 12 12">
+                    <polygon points="6,0 12,12 0,12" fill="#446655"/>
+                </svg>
+                <div>
+                    <strong style="color: #446655;">Regular Collectors</strong><br>
+                    1-2 pieces collected. Outer ring of the network.
+                </div>
+            </div>
+        </div>
+
+        <h2>Connection Types</h2>
+        <div class="legend-section" style="border-top: none; margin-top: 0; padding-top: 0;">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--gold); width: 20px; height: 2px; border-radius: 1px;"></div>
+                <div>
+                    <strong style="color: var(--gold);">Minted</strong><br>
+                    Artist → NFT creation link
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--emerald); width: 20px; height: 2px; border-radius: 1px;"></div>
+                <div>
+                    <strong style="color: var(--emerald);">Collected</strong><br>
+                    NFT → Collector ownership link
+                </div>
+            </div>
+        </div>
+
+        <h2>4D Interpretation</h2>
+        <div class="legend-section" style="border-top: none; margin-top: 0; padding-top: 0; font-size: 0.55rem; color: var(--text-dim); line-height: 1.5;">
+            <p><strong style="color: var(--text);">X-Z Plane:</strong> Spatial distribution using golden angle (φ = 137.5°) for optimal spread.</p>
+            <p style="margin-top: 8px;"><strong style="color: var(--text);">Y-Axis (Height):</strong> Temporal dimension. Lower = earlier mints. Higher = recent activity.</p>
+            <p style="margin-top: 8px;"><strong style="color: var(--text);">4th Dimension:</strong> Animation oscillation represents the living, breathing nature of the network.</p>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="panel stats-panel">
+        <h2 style="margin-top: 0;">Network Metrics</h2>
+        <div class="stat-grid">
+            <div class="stat">
+                <div class="stat-value" id="stat-mints">200</div>
+                <div class="stat-label">Total Mints</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-collectors">188</div>
+                <div class="stat-label">Collectors</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-super">25</div>
+                <div class="stat-label">Super (3+)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-owned">100</div>
+                <div class="stat-label">You Own</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-nodes">250</div>
+                <div class="stat-label">Nodes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-edges">310</div>
+                <div class="stat-label">Connections</div>
+            </div>
+        </div>
+
+        <h2>Top Collectors</h2>
+        <div id="top-collectors" style="font-size: 0.55rem; color: var(--text-dim);">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Physics Panel -->
+    <div class="panel physics-panel">
+        <h2 style="margin-top: 0;">Sacred Physics Constants</h2>
+        <div class="physics-constant">
+            <div>
+                <div class="physics-name">PHI (φ)</div>
+                <div class="physics-desc">Golden Ratio</div>
+            </div>
+            <div class="physics-value">1.618033988749895</div>
+        </div>
+        <div class="physics-constant">
+            <div>
+                <div class="physics-name">GOLDEN ANGLE</div>
+                <div class="physics-desc">Spiral rotation</div>
+            </div>
+            <div class="physics-value">137.5077640500378°</div>
+        </div>
+        <div class="physics-constant">
+            <div>
+                <div class="physics-name">SCHUMANN</div>
+                <div class="physics-desc">Earth resonance</div>
+            </div>
+            <div class="physics-value">7.83 Hz</div>
+        </div>
+        <div class="physics-constant">
+            <div>
+                <div class="physics-name">OSCILLATION</div>
+                <div class="physics-desc">Node breathing rate</div>
+            </div>
+            <div class="physics-value" id="oscillation-rate">0.002</div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <h3 id="tooltip-title">Node</h3>
+        <div id="tooltip-content"></div>
+    </div>
+
+    <!-- Dimension Indicator -->
+    <div class="dimension-indicator">
+        4th Dimension (Time): <span id="time-value">0.00</span>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button onclick="toggleRotation()" id="rotateBtn" class="active">AUTO-ROTATE</button>
+        <button onclick="resetView()">RESET VIEW</button>
+        <button onclick="toggleEdges()" id="edgesBtn" class="active">CONNECTIONS</button>
+        <button onclick="togglePhysics()" id="physicsBtn" class="active">PHYSICS</button>
+        <button onclick="focusMints()">FOCUS MINTS</button>
+        <button onclick="focusCollectors()">FOCUS COLLECTORS</button>
+        <button onclick="focusSuper()">SUPER COLLECTORS</button>
+        <button onclick="toggleLabels()" id="labelsBtn">LABELS</button>
+    </div>
+
+    <script src="https://cloudflare-ipfs.com/ipfs/bafybeifgqkm4cy23uh3bj5mo2igkz2xpuxfqzhwftglwulebvohfsgd3ly"></script>
+    <script src="https://cloudflare-ipfs.com/ipfs/bafkreiacxnfn44iphzqhgkpdpiq7bgf4hldq5nxdhwxyuzpht5g3pbphwi"></script>
+
+    <script>
+        // Sacred Physics Constants
+        const PHI = 1.618033988749895;
+        const GOLDEN_ANGLE = 137.5077640500378;
+        const SCHUMANN = 7.83;
+
+        // Load data from the Tezos scan
+        const scanData = {
+            mints: 200,
+            collectors: 188,
+            superCollectors: 25,
+            owned: 100,
+            topCollectors: [
+                { address: 'KT1HbQepzV1nVGg8QVznB8Zx...', pieces: 29 },
+                { address: 'tz1UQSa7mYNT8BntyxkEZgUy...', pieces: 15 },
+                { address: 'tz2Geuyvj4qHqzfJsg6VPJPN...', pieces: 14 },
+                { address: 'tz1X2dcj3V5UyWfQfwqetNNe...', pieces: 14 },
+                { address: 'tz1iXTT8aVg8U6t4zFRjJxKv...', pieces: 12 }
+            ]
+        };
+
+        // Generate nodes using golden ratio physics
+        const nodes = [];
+        const edges = [];
+
+        // Artist node (gravitational center)
+        nodes.push({
+            id: 'artist',
+            type: 'artist',
+            label: 'GiselX',
+            color: '#d4a574',
+            size: 3,
+            x: 0, y: 0, z: 0,
+            mass: 100 // Highest mass = gravitational center
+        });
+
+        // Generate mint nodes in golden spiral
+        for (let i = 0; i < 150; i++) {
+            const angle = i * GOLDEN_ANGLE * Math.PI / 180;
+            const radius = 3 + Math.sqrt(i + 1) * 0.8;
+            const height = (i / 150) * 8 - 4; // Time dimension
+
+            // Vary colors by "platform" simulation
+            const platformColors = ['#00f5ff', '#7865ba', '#0066ff', '#00ff88', '#9966ff'];
+            const color = platformColors[i % platformColors.length];
+
+            nodes.push({
+                id: `mint_${i}`,
+                type: 'mint',
+                label: `Mint #${i + 1}`,
+                color: color,
+                size: 0.6,
+                x: Math.cos(angle) * radius,
+                y: height,
+                z: Math.sin(angle) * radius,
+                mass: 1,
+                originalY: height
+            });
+
+            edges.push({
+                source: 'artist',
+                target: `mint_${i}`,
+                type: 'minted'
+            });
+        }
+
+        // Generate collector nodes
+        for (let i = 0; i < 100; i++) {
+            const pieces = Math.max(1, Math.floor(Math.random() * 8));
+            const isSuper = pieces >= 3;
+
+            const angle = i * GOLDEN_ANGLE * 1.3 * Math.PI / 180;
+            const radius = 12 + Math.sqrt(i + 1) * 1.2;
+            const height = isSuper ? 2 + Math.random() * 2 : -1 + Math.random() * 2;
+
+            nodes.push({
+                id: `collector_${i}`,
+                type: 'collector',
+                label: `Collector ${i + 1}`,
+                pieces: pieces,
+                color: isSuper ? '#54a876' : '#446655',
+                size: 0.4 + Math.log(pieces + 1) * 0.4,
+                x: Math.cos(angle) * radius,
+                y: height,
+                z: Math.sin(angle) * radius,
+                mass: pieces,
+                originalY: height
+            });
+
+            // Connect to random mints they "collected"
+            const numConnections = Math.min(pieces, 5);
+            for (let j = 0; j < numConnections; j++) {
+                const mintIdx = Math.floor(Math.random() * 150);
+                edges.push({
+                    source: `mint_${mintIdx}`,
+                    target: `collector_${i}`,
+                    type: 'collected'
+                });
+            }
+        }
+
+        // Update stats display
+        document.getElementById('stat-nodes').textContent = nodes.length;
+        document.getElementById('stat-edges').textContent = edges.length;
+
+        // Populate top collectors
+        const topCollectorsEl = document.getElementById('top-collectors');
+        scanData.topCollectors.forEach((c, i) => {
+            topCollectorsEl.innerHTML += `
+                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border);">
+                    <span>${i + 1}. ${c.address.substring(0, 12)}...</span>
+                    <span style="color: var(--emerald);">${c.pieces} pcs</span>
+                </div>
+            `;
+        });
+
+        // Three.js Setup
+        const canvas = document.getElementById('canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030308);
+        scene.fog = new THREE.FogExp2(0x030308, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 15, 25);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const controls = new THREE.OrbitControls(camera, canvas);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.3;
+
+        // Lighting (based on sacred geometry)
+        scene.add(new THREE.AmbientLight(0x404040, 0.25));
+
+        // Three lights at golden ratio positions
+        const lightPositions = [
+            [PHI * 10, PHI * 10, PHI * 10],
+            [-PHI * 10, PHI * 5, -PHI * 10],
+            [0, PHI * 15, 0]
+        ];
+        const lightColors = [0x00f5ff, 0xba6587, 0xd4a574];
+
+        lightPositions.forEach((pos, i) => {
+            const light = new THREE.PointLight(lightColors[i], 0.8, 100);
+            light.position.set(...pos);
+            scene.add(light);
+        });
+
+        // Create node meshes
+        const nodeObjects = [];
+        const nodeMeshMap = {};
+        const labelSprites = [];
+
+        nodes.forEach(node => {
+            let geometry;
+            const size = node.size || 1;
+
+            if (node.type === 'artist') {
+                geometry = new THREE.OctahedronGeometry(size * 1.5);
+            } else if (node.type === 'collector') {
+                geometry = new THREE.TetrahedronGeometry(size);
+            } else {
+                geometry = new THREE.SphereGeometry(size * 0.6, 16, 16);
+            }
+
+            const material = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(node.color),
+                emissive: new THREE.Color(node.color),
+                emissiveIntensity: node.type === 'artist' ? 0.7 : 0.25,
+                transparent: true,
+                opacity: 0.9,
+                shininess: 50
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(node.x, node.y, node.z);
+            mesh.userData = node;
+
+            scene.add(mesh);
+            nodeObjects.push(mesh);
+            nodeMeshMap[node.id] = mesh;
+        });
+
+        // Create edge lines
+        const edgeLines = [];
+
+        edges.forEach(edge => {
+            const source = nodeMeshMap[edge.source];
+            const target = nodeMeshMap[edge.target];
+
+            if (source && target) {
+                const geometry = new THREE.BufferGeometry().setFromPoints([
+                    source.position.clone(),
+                    target.position.clone()
+                ]);
+
+                const color = edge.type === 'minted' ? 0xd4a574 : 0x54a876;
+
+                const material = new THREE.LineBasicMaterial({
+                    color,
+                    transparent: true,
+                    opacity: 0.1
+                });
+
+                const line = new THREE.Line(geometry, material);
+                scene.add(line);
+                edgeLines.push({ line, source, target });
+            }
+        });
+
+        // Interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const tooltip = document.getElementById('tooltip');
+
+        function onMouseMove(e) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(nodeObjects);
+
+            if (intersects.length > 0) {
+                const node = intersects[0].object.userData;
+
+                document.getElementById('tooltip-title').textContent = node.label;
+
+                let content = '';
+                if (node.type === 'artist') {
+                    content = `
+                        <div class="tooltip-row"><span class="tooltip-label">Type</span><span class="tooltip-value">Artist (Gravitational Center)</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Mass</span><span class="tooltip-value">${node.mass} (highest)</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Position</span><span class="tooltip-value">Origin (0, 0, 0)</span></div>
+                    `;
+                } else if (node.type === 'mint') {
+                    content = `
+                        <div class="tooltip-row"><span class="tooltip-label">Type</span><span class="tooltip-value">NFT Mint</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Position</span><span class="tooltip-value">(${node.x.toFixed(2)}, ${node.y.toFixed(2)}, ${node.z.toFixed(2)})</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Time Layer</span><span class="tooltip-value">${((node.originalY + 4) / 8 * 100).toFixed(0)}%</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Spiral Angle</span><span class="tooltip-value">${(Math.atan2(node.z, node.x) * 180 / Math.PI).toFixed(1)}°</span></div>
+                    `;
+                } else if (node.type === 'collector') {
+                    content = `
+                        <div class="tooltip-row"><span class="tooltip-label">Type</span><span class="tooltip-value">${node.pieces >= 3 ? 'Super Collector' : 'Collector'}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Pieces</span><span class="tooltip-value">${node.pieces}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Mass</span><span class="tooltip-value">${node.mass}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Distance</span><span class="tooltip-value">${Math.sqrt(node.x*node.x + node.z*node.z).toFixed(2)} units</span></div>
+                    `;
+                }
+
+                document.getElementById('tooltip-content').innerHTML = content;
+                tooltip.classList.add('visible');
+                tooltip.style.left = Math.min(e.clientX + 15, window.innerWidth - 340) + 'px';
+                tooltip.style.top = Math.min(e.clientY + 15, window.innerHeight - 200) + 'px';
+
+                // Highlight
+                intersects[0].object.material.emissiveIntensity = 0.9;
+                intersects[0].object.scale.setScalar(1.3);
+            } else {
+                tooltip.classList.remove('visible');
+                nodeObjects.forEach(obj => {
+                    obj.material.emissiveIntensity = obj.userData.type === 'artist' ? 0.7 : 0.25;
+                    obj.scale.setScalar(1);
+                });
+            }
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Control functions
+        let physicsEnabled = true;
+        let labelsVisible = false;
+
+        function toggleRotation() {
+            controls.autoRotate = !controls.autoRotate;
+            document.getElementById('rotateBtn').classList.toggle('active');
+        }
+
+        function resetView() {
+            camera.position.set(25, 15, 25);
+            controls.target.set(0, 0, 0);
+        }
+
+        function toggleEdges() {
+            edgeLines.forEach(e => e.line.visible = !e.line.visible);
+            document.getElementById('edgesBtn').classList.toggle('active');
+        }
+
+        function togglePhysics() {
+            physicsEnabled = !physicsEnabled;
+            document.getElementById('physicsBtn').classList.toggle('active');
+        }
+
+        function focusMints() {
+            camera.position.set(10, 6, 10);
+            controls.target.set(0, 0, 0);
+        }
+
+        function focusCollectors() {
+            camera.position.set(0, 10, 30);
+            controls.target.set(0, 0, 0);
+        }
+
+        function focusSuper() {
+            camera.position.set(15, 8, 15);
+            controls.target.set(0, 2, 0);
+        }
+
+        function toggleLabels() {
+            labelsVisible = !labelsVisible;
+            document.getElementById('labelsBtn').classList.toggle('active');
+            // Labels would be implemented with CSS2DRenderer in production
+        }
+
+        // Animation loop with physics
+        let time = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            time += 0.002;
+            document.getElementById('time-value').textContent = time.toFixed(2);
+            document.getElementById('oscillation-rate').textContent = (Math.sin(time) * 0.001 + 0.002).toFixed(4);
+
+            if (physicsEnabled) {
+                // Apply gentle oscillation based on Schumann resonance
+                const schumannFactor = Math.sin(time * SCHUMANN * 0.1);
+
+                nodeObjects.forEach((obj, i) => {
+                    const node = obj.userData;
+
+                    if (node.type === 'mint') {
+                        // Mints breathe gently
+                        obj.position.y = node.originalY + Math.sin(time * 2 + i * 0.1) * 0.05;
+                        obj.rotation.y += 0.002;
+                    } else if (node.type === 'collector') {
+                        // Collectors pulse based on their mass
+                        const pulseFactor = 1 + Math.sin(time * 3 + node.mass) * 0.02;
+                        obj.scale.setScalar(pulseFactor);
+                    } else if (node.type === 'artist') {
+                        // Artist rotates majestically
+                        obj.rotation.y += 0.005;
+                        obj.rotation.x = Math.sin(time) * 0.1;
+                    }
+                });
+
+                // Update edge positions
+                edgeLines.forEach(e => {
+                    const positions = e.line.geometry.attributes.position.array;
+                    positions[0] = e.source.position.x;
+                    positions[1] = e.source.position.y;
+                    positions[2] = e.source.position.z;
+                    positions[3] = e.target.position.x;
+                    positions[4] = e.target.position.y;
+                    positions[5] = e.target.position.z;
+                    e.line.geometry.attributes.position.needsUpdate = true;
+                });
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -393,5 +393,68 @@ The system is designed to survive crashes. Trust the files.
 
 ---
 
+## EMAIL FAILSAFE SUPPORT SYSTEM
+
+### Overview
+MOONSTONE Email Failsafe provides support when users can't access the app directly.
+Uses `info@web3photo.com` (displayed with anti-bot obfuscation in UI).
+
+### How It Works
+1. User sends email with question to support address
+2. System generates ticket ID: `[MOONSTONE-XXXXXX]`
+3. Security validation runs on all requests
+4. **SAFE** questions: Auto-reply using LOCAL NORTHSTAR knowledge
+5. **REVIEW** questions: Queued for human approval
+6. **BLOCKED** requests: Logged and rejected (security threats)
+
+### Security Levels
+| Level | Trigger | Action |
+|-------|---------|--------|
+| **SAFE** | Simple help questions | Auto-reply from local knowledge |
+| **REVIEW** | Implementation requests, database mentions | Queue for approval |
+| **BLOCKED** | Code injection, SQL injection, credential requests | Reject and log |
+
+### Agent Commands
+```bash
+# List pending support requests
+./venv/bin/python scripts/support/email_failsafe.py list
+
+# Approve a request for reply
+./venv/bin/python scripts/support/email_failsafe.py approve TICKET_ID
+
+# Block a suspicious request
+./venv/bin/python scripts/support/email_failsafe.py block TICKET_ID "reason"
+
+# Test the security validation
+./venv/bin/python scripts/support/email_failsafe.py test
+
+# Get anti-bot HTML for email display
+./venv/bin/python scripts/support/email_failsafe.py html
+```
+
+### ⚠️ MANDATORY BEHAVIOR ON STARTUP
+1. Check `scripts/support/queue/` for pending requests
+2. Review any REVIEW-level requests before other work
+3. Never auto-implement REVIEW requests without human approval
+4. Log all security-flagged requests for founder review
+
+### Anti-Bot Email Display
+Include in any page that shows support email:
+```html
+<span data-support-email></span>
+<script src="/static/js/support-email.js"></script>
+```
+
+### Files
+| File | Purpose |
+|------|---------|
+| `scripts/support/email_failsafe.py` | Core validation & queue system |
+| `scripts/support/queue/` | Pending requests |
+| `scripts/support/blocked/` | Security-blocked requests |
+| `scripts/support/processed/` | Approved & handled requests |
+| `scripts/interface/static/js/support-email.js` | Anti-bot email display |
+
+---
+
 *This file is loaded automatically by Claude Code. Compliance is mandatory.*
-*Last updated: 2026-01-13*
+*Last updated: 2026-01-14*

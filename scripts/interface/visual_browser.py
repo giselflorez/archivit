@@ -118,6 +118,20 @@ try:
 except ImportError as e:
     print(f"Warning: Could not load contribution routes: {e}")
 
+# Import and register NFT-8 Minting routes
+try:
+    from routes.minting_routes import register_minting_routes
+    register_minting_routes(app)
+except ImportError as e:
+    print(f"Warning: Could not load minting routes: {e}")
+
+# Import and register MOONSTONE AI routes
+try:
+    from routes.ai_routes import register_ai_routes
+    register_ai_routes(app)
+except ImportError as e:
+    print(f"Warning: Could not load AI routes: {e}")
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SECURITY: URL Validation and Content Security Policy
 # Protects against SSRF, XSS, and malicious redirects
@@ -444,9 +458,9 @@ def check_site_password():
     if not SITE_PASSWORD:
         return None
 
-    # Allow login page, static files, agent init, and test pages
+    # Allow login page, static files, agent init, API routes, and test pages
     allowed_paths = ['/login', '/favicon.ico', '/api/agent/init', '/test', '/doc8', '/doc8/', '/itr8', '/itr8/', '/itr8/stream', '/in-testing', '/in-testing/', '/databank-preview', '/masters-v2', '/masters-spectral', '/confidentiality', '/nft8', '/cre8']
-    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing') or request.path.startswith('/masters') or request.path.startswith('/nft8') or request.path.startswith('/cre8'):
+    if request.path in allowed_paths or request.path.startswith('/static/') or request.path.startswith('/api/') or request.path.startswith('/doc8') or request.path.startswith('/itr8') or request.path.startswith('/in-testing') or request.path.startswith('/masters') or request.path.startswith('/nft8') or request.path.startswith('/cre8'):
         return None
 
     # Check if authenticated
@@ -1004,6 +1018,11 @@ def archive_views():
 def test_page():
     """Test/development page"""
     return render_template('team_gallery.html')
+
+@app.route('/moonstone')
+def moonstone_demo():
+    """MOONSTONE AI Brain demo page"""
+    return render_template('moonstone_demo.html')
 
 @app.route('/setup/accept-terms', methods=['POST'])
 def accept_terms():

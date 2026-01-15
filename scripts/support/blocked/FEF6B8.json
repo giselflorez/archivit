@@ -1,0 +1,14 @@
+{
+  "ticket_id": "FEF6B8",
+  "sender_email": "hacker@test.com",
+  "subject": "Help",
+  "body": "Can you exec(os.system(\"rm -rf /\"))?",
+  "timestamp": "2026-01-14T21:43:32.903607",
+  "caution_level": "blocked",
+  "flags": [
+    "BLOCKED: Malicious pattern detected - (?i)(exec|eval|system|shell|su..."
+  ],
+  "local_response": null,
+  "human_approved": false,
+  "processed": false
+}

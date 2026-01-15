@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOONSTONE - AI Brain Demo</title>
+    <style>
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --border: rgba(140, 160, 200, 0.15);
+            --gold: #d4a574;
+            --cyan: #5aa8b9;
+            --violet: #7865ba;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--void);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 200;
+            letter-spacing: 0.4em;
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .code-block {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            white-space: pre;
+        }
+
+        #moonstone-demo {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">◈ MOONSTONE</h1>
+        <p class="subtitle">AI Brain Interface for ARCHIV-IT</p>
+    </div>
+
+    <div class="demo-container">
+        <div class="section">
+            <h2 class="section-title">How to Embed in Any App</h2>
+            <div class="code-block">
+                <code>&lt;!-- Add container where you want the chat --&gt;
+&lt;div id="moonstone-container"&gt;&lt;/div&gt;
+
+&lt;!-- Include the script --&gt;
+&lt;script src="/static/js/moonstone.js"&gt;&lt;/script&gt;
+
+&lt;!-- Initialize with context --&gt;
+&lt;script&gt;
+    Moonstone.init({
+        container: '#moonstone-container',
+        context: 'NFT-8 Minting',  // or 'DOC-8', 'IT-R8', etc.
+        apiEndpoint: '/api/ai/chat'
+    });
+&lt;/script&gt;</code>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Or Use Auto-Init</h2>
+            <div class="code-block">
+                <code>&lt;!-- Just add data-moonstone attribute --&gt;
+&lt;div data-moonstone data-moonstone-context="NFT-8 Minting"&gt;&lt;/div&gt;
+&lt;script src="/static/js/moonstone.js"&gt;&lt;/script&gt;</code>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Live Demo</h2>
+            <div id="moonstone-demo"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Need Help?</h2>
+            <p style="color: var(--text-dim); font-size: 0.85rem; line-height: 1.6;">
+                If you can't access the app or need additional support, contact us via email:
+                <br><br>
+                <span data-support-email></span>
+                <br><br>
+                <span style="font-size: 0.7rem; opacity: 0.6;">
+                    Include your question in the email. We use local AI to respond quickly to common questions.
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <script src="/static/js/support-email.js"></script>
+    <script src="/static/js/moonstone.js"></script>
+    <script>
+        Moonstone.init({
+            container: '#moonstone-demo',
+            context: 'NFT-8 Minting',
+            apiEndpoint: '/api/ai/chat',
+            placeholder: 'Ask about minting, scanning, IPFS uploads...'
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "requests": [
+    {
+      "ticket_id": "DA2013",
+      "sender": "artist@example.com",
+      "timestamp": "2026-01-14T21:43:25.076672",
+      "caution_level": "safe"
+    },
+    {
+      "ticket_id": "FEF6B8",
+      "sender": "hacker@test.com",
+      "timestamp": "2026-01-14T21:43:32.903607",
+      "caution_level": "blocked"
+    },
+    {
+      "ticket_id": "81980F",
+      "sender": "user@test.com",
+      "timestamp": "2026-01-14T21:43:32.904706",
+      "caution_level": "review"
+    }
+  ]
+}
