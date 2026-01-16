@@ -1,0 +1,9 @@
+# ARC-8 PWA - robots.txt
+User-agent: *
+Allow: /
+
+# Disallow internal API routes from indexing
+Disallow: /api/
+
+# Sitemap (if deployed)
+# Sitemap: https://archivit.app/sitemap.xml

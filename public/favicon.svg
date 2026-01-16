@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574"/>
+      <stop offset="100%" style="stop-color:#ba6587"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#030308"/>
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#goldGradient)" stroke-width="8" opacity="0.6"/>
+  <!-- Inner spiral (golden ratio) -->
+  <path d="M256 56
+           A200 200 0 0 1 456 256
+           A123.6 123.6 0 0 1 332.4 379.6
+           A76.4 76.4 0 0 1 256 303.2
+           A47.2 47.2 0 0 1 303.2 256
+           A29.2 29.2 0 0 1 274 285.2
+           A18 18 0 0 1 256 267.2"
+        fill="none"
+        stroke="url(#goldGradient)"
+        stroke-width="6"
+        stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="12" fill="#d4a574"/>
+  <!-- "8" symbol stylized -->
+  <text x="256" y="276"
+        font-family="Inter, -apple-system, sans-serif"
+        font-size="80"
+        font-weight="200"
+        fill="#f0ece7"
+        text-anchor="middle"
+        opacity="0.9">8</text>
+</svg>
