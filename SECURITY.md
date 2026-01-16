@@ -2,48 +2,30 @@
 
 ## Overview
 
-ARCHIV-IT is a proprietary local-first personal archive system developed by WEB3GISEL. This document outlines security policies and prohibited uses.
+ARCHIV-IT (ARC-8) is an open-source local-first archive platform licensed under AGPL-3.0.
 
-## Intellectual Property Notice
+## Supported Versions
 
-This software is protected intellectual property. All rights reserved.
+| Version | Supported |
+|---------|-----------|
+| main branch | Yes |
+| Tagged releases | Yes |
 
-**Copyright (c) 2026 WEB3GISEL**
+## Cryptography
 
-## AI Training Prohibition
+| Component | Algorithm | Standard |
+|-----------|-----------|----------|
+| Key encapsulation | ML-KEM-768 (Kyber) | NIST FIPS 203 |
+| Digital signatures | ML-DSA-65 (Dilithium) | NIST FIPS 204 |
+| Hashing | SHA-384 | NIST approved |
+| Symmetric encryption | AES-256-GCM | NIST approved |
 
-**IMPORTANT: AI/ML Training is Strictly Prohibited**
+## Access Control
 
-Content in this repository, including but not limited to:
-- Source code
-- Algorithms and data structures
-- UI/UX designs and templates
-- Documentation
-- Configuration patterns
-- Smart contracts
-
-**MAY NOT** be used for:
-- Training artificial intelligence models
-- Training machine learning systems
-- Fine-tuning language models
-- Building derivative AI/ML systems
-- Any form of automated learning or pattern extraction
-
-This prohibition applies to all AI systems including but not limited to:
-- Large Language Models (LLMs)
-- Image generation models
-- Code generation models
-- Embedding systems
-- Any neural network-based system
-
-## Authorized Use
-
-This software is licensed for:
-- Personal archive management
-- Beta testing (with valid license)
-- Evaluation purposes
-
-All other uses require explicit written permission from WEB3GISEL.
+- Quantum Equilibrium V2: Gaming-resistant scoring
+- Minimum 21 actions before tier calculation
+- Fibonacci-weighted behavioral analysis
+- Variance detection for oscillation attacks
 
 ## Reporting Security Issues
 
@@ -63,37 +45,36 @@ If you discover a security vulnerability, please report it responsibly:
 
 ## Security Measures
 
-This project implements multiple layers of protection:
+1. **Post-Quantum Cryptography**
+   - NIST-standardized algorithms (FIPS 203, 204)
+   - Quantum-resistant key exchange and signatures
 
-1. **Access Control**
-   - Hardware-bound licensing
-   - Runtime encryption
-   - Code obfuscation
+2. **Access Control**
+   - Blockchain-verified authenticity scoring
+   - Gaming-resistant tier system
+   - Exponential cooldown for violations
 
-2. **Crawler Protection**
-   - Comprehensive robots.txt blocking 131+ AI crawlers
-   - X-Robots-Tag HTTP headers
-   - Meta tag directives
+3. **Data Protection**
+   - Local-first storage (user device)
+   - No server-side user data
+   - User controls deletion
 
-3. **Repository Protection**
-   - Sensitive files excluded via .gitignore
-   - Code visibility reduced via .gitattributes
-   - Credential files never committed
-
-4. **XSS/Injection Prevention**
+4. **Input Validation**
    - Content Security Policy headers
    - Input sanitization
    - DOM-safe rendering
 
+## Known Limitations
+
+1. Browser crypto relies on Web Crypto API
+2. PQC uses @noble/post-quantum (audited, newer library)
+3. Local storage subject to browser limits
+
 ## License
 
-See [LICENSE](LICENSE) file for full terms.
+AGPL-3.0 - See [LICENSE](LICENSE)
 
 ## Version
 
-Security Policy Version: 1.0
-Last Updated: 2026-01-08
-
----
-
-**WEB3GISEL - Protecting Creative Sovereignty**
+Security Policy Version: 2.0
+Last Updated: 2026-01-16
