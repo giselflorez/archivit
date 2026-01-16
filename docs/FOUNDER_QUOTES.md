@@ -6,6 +6,35 @@
 
 ---
 
+## THE DEFINING PHRASE (2026-01-15)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║        "Ancient magic of the past, establishing new keys to the future."    ║
+║                                                                              ║
+║                              — The Founder                                   ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║   This phrase captures the entire vision:                                   ║
+║                                                                              ║
+║   ANCIENT MAGIC    →  Golden ratio (φ), Fibonacci, mathematical constants  ║
+║   OF THE PAST      →  Known since Euclid (300 BCE), documented in nature   ║
+║   ESTABLISHING     →  Building systems, creating infrastructure            ║
+║   NEW KEYS         →  Cryptographic keys, access tiers, identity seeds     ║
+║   TO THE FUTURE    →  Quantum-proof, generational, 50+ years               ║
+║                                                                              ║
+║   Use this phrase for:                                                      ║
+║   • All branding and marketing                                              ║
+║   • Documentation headers                                                   ║
+║   • The philosophical foundation                                            ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## CORE PHILOSOPHY
 
 ### On Digital Sovereignty
@@ -110,29 +139,30 @@
 
 ---
 
-## THE NINE NORTH STAR PRINCIPLES
+## THE ELEVEN NON-NEGOTIABLES
 
-1. **SOVEREIGNTY** - Your data, your rules, your future
-2. **CREATION** - Every interaction spirals toward making
-3. **BALANCE** - Male and female energies in harmony
-4. **RESONANCE** - Align with natural frequencies (PHI)
-5. **FLUIDITY** - Patterns flow like water
-6. **CONSENT** - Observation collapses possibility (user chooses)
-7. **PRESERVATION** - What matters persists
-8. **EXPANSION** - Growth without extraction
-9. **WHOLENESS** - True understanding requires both expressions
+1. **User owns their seed** - Mathematical identity, local, sovereign
+2. **No tracking without explicit consent** - Privacy by default
+3. **All data transformations are reversible** - No destructive operations
+4. **Local-first, cloud-optional** - Data stays on user's device
+5. **Algorithms serve users, not platforms** - No extraction
+6. **Privacy is default, sharing is intentional** - Opt-in only
+7. **Creation direction is +1** - Growth, not extraction
+8. **Mathematical verification over trust** - Cryptographic proof
+9. **True deletion capability** - When you delete, it's gone
+10. **Standard export formats** - No vendor lock-in
+11. **Quantum-safe by design** - NIST FIPS 203/204 compliant
 
 ---
 
-## PHYSICS CONSTANTS IN ARCHITECTURE
+## MATHEMATICAL CONSTANTS IN ARCHITECTURE
 
-| Constant | Value | Application |
-|----------|-------|-------------|
-| PHI (Golden Ratio) | 1.618033988749895 | Balance threshold, resonance frequency |
-| Golden Angle | 137.5077640500378° | Spiral rotation, compression |
-| Schumann Resonance | 7.83 Hz | Earth frequency reference |
-| Tesla Pattern | 3-6-9 | Harmonic structure |
-| Water Content | 70% | Human electromagnetic nature |
+| Constant | Value | Application | Source |
+|----------|-------|-------------|--------|
+| PHI (Golden Ratio) | 1.618033988749895 | Access tier thresholds | Euclid, Elements VI |
+| Golden Angle | 137.5077640500378° | Data positioning in visualizations | Douady & Couder (1992) |
+| Schumann Resonance | 7.83 Hz | Animation timing reference | Measured constant |
+| Fibonacci Sequence | 1,1,2,3,5,8... | History weighting in ACU | Liber Abaci (1202) |
 
 ---
 
@@ -150,36 +180,32 @@
 
 ---
 
-## QUOTES FOR REFLECTION
+## QUOTES (VERIFICATION STATUS)
 
-**Tesla:**
+**Tesla (UNVERIFIED - Internet origin, no primary source found):**
 > "If you want to find the secrets of the universe, think in terms of energy, frequency and vibration."
+> — *First appears online ~2010. Not found in Tesla's writings or documented interviews.*
 
-> "If you only knew the magnificence of 3, 6 and 9, then you would have the key to the universe."
+> "If you only knew the magnificence of 3, 6 and 9..."
+> — *Internet fabrication. No archival source exists.*
 
-**Einstein:**
-> E = mc² - Energy and matter are the same thing at different frequencies
-
-**The Architecture:**
-> "The golden ratio is not decorative - it's the resonant frequency. The spiral is not aesthetic - it's how energy naturally flows. The consent gateway is not bureaucracy - it's the observation that collapses quantum possibility."
+**What IS verified about Tesla:** He had documented numerical habits around the number 3, and his AC motor work involved rotating fields. Source: Tesla Museum archives, contemporary accounts.
 
 ---
 
 ## FOUNDER'S INTENT SUMMARY
 
-ARCHIVIT exists to:
-1. **Reveal** - Help users see who they truly are
-2. **Empower** - Enable creation from their own power
-3. **Protect** - Preserve patterns with sovereignty
-4. **Connect** - Link to the spatial web future
-5. **Balance** - Honor both polarities in all values
-6. **Resonate** - Align with natural frequencies
-7. **Flow** - Let patterns be fluid like water
-8. **Expand** - Grow through creation, not extraction
+ARCHIV-IT exists to:
+1. **Store** - Preserve digital assets with cryptographic proof
+2. **Verify** - Mathematical authenticity, not trust-based
+3. **Protect** - Quantum-safe encryption (NIST FIPS 203/204)
+4. **Distribute** - Optional redundancy via IPFS
+5. **Control** - User owns keys, data never leaves without consent
+6. **Delete** - True deletion capability (legal compliance)
+7. **Export** - Standard formats, no vendor lock-in
+8. **Persist** - 50+ year cryptographic validity
 
 ---
 
-*"The architecture speaks the language of energy, frequency, and vibration."*
-
-**Last Updated:** January 14, 2026
-**Session:** Quantum Containment V2 + Algorithm Proofs
+**Last Updated:** January 15, 2026
+**Session:** Institutional Documentation Update

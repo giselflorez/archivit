@@ -194,22 +194,31 @@
         /* Magnetic tile styles for DOM overlay */
         .magnetic-tile {
             position: absolute;
-            padding: 8px 12px;
-            background: rgba(14, 14, 24, 0.95);
-            border: 1px solid rgba(212, 165, 116, 0.3);
+            padding: 12px 16px;
+            background: rgba(20, 20, 35, 0.98);
+            border: 1px solid rgba(212, 165, 116, 0.5);
+            border-radius: 8px;
             color: #f0ece7;
-            font-size: 11px;
-            line-height: 1.4;
-            max-width: 200px;
+            font-size: 12px;
+            line-height: 1.5;
+            max-width: 240px;
             cursor: grab;
             user-select: none;
-            transition: transform 0.1s, box-shadow 0.3s;
+            transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
             pointer-events: auto;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                0 0 1px rgba(212, 165, 116, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .magnetic-tile:hover {
             border-color: #d4a574;
-            box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(212, 165, 116, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
 
         .magnetic-tile.dragging {
@@ -224,24 +233,73 @@
         }
 
         .tile-timestamp {
-            font-size: 8px;
-            color: #5a5854;
-            margin-bottom: 4px;
+            font-size: 9px;
+            color: #9a9690;
+            margin-bottom: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .tile-text {
+            color: #f0ece7;
+            font-weight: 300;
         }
 
         .tile-depth {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 16px;
-            height: 16px;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            font-size: 8px;
+            font-size: 10px;
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #d4a574;
+            background: linear-gradient(135deg, #d4a574, #ba9565);
             color: #030308;
+            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+        }
+
+        /* Depth-based tile coloring */
+        .magnetic-tile[data-depth="1"] {
+            border-left: 3px solid #d4a574;
+        }
+        .magnetic-tile[data-depth="2"] {
+            border-left: 3px solid #ba6587;
+        }
+        .magnetic-tile[data-depth="3"] {
+            border-left: 3px solid #7865ba;
+        }
+        .magnetic-tile[data-depth="4"] {
+            border-left: 3px solid #54a876;
+        }
+
+        /* Loading state */
+        .loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #d4a574;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            z-index: 100;
+        }
+
+        /* Error state */
+        .error-message {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(186, 101, 135, 0.2);
+            border: 1px solid #ba6587;
+            color: #f0ece7;
+            padding: 10px 20px;
+            font-size: 11px;
+            border-radius: 4px;
+            z-index: 100;
         }
     </style>
 </head>
@@ -803,10 +861,35 @@
         // INITIALIZATION
         // ============================================================
 
+        let threeJSAvailable = false;
+
         function init() {
-            initThreeJS();
-            createMagneticTiles();
-            animate();
+            console.log('DATALAND Magnetic Poetry initializing...');
+
+            // Check if Three.js loaded
+            if (typeof THREE !== 'undefined') {
+                console.log('Three.js loaded successfully');
+                threeJSAvailable = true;
+                try {
+                    initThreeJS();
+                    animate();
+                } catch (e) {
+                    console.error('Three.js initialization failed:', e);
+                    showError('3D background failed to load. Tiles still work!');
+                }
+            } else {
+                console.warn('Three.js not available - showing tiles only');
+                showError('3D background unavailable. Tiles still work!');
+            }
+
+            // Always create tiles - this is the core feature
+            try {
+                createMagneticTiles();
+                console.log(`Created ${tiles.length} magnetic tiles`);
+            } catch (e) {
+                console.error('Tile creation failed:', e);
+                showError('Failed to create tiles: ' + e.message);
+            }
 
             // Control buttons
             document.getElementById('playBtn').addEventListener('click', playSequence);
@@ -817,13 +900,35 @@
 
             // Window resize
             window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                if (threeJSAvailable && camera && renderer) {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }
+                // Re-center tiles on resize
+                resetPositions();
             });
         }
 
-        init();
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.opacity = '0';
+                setTimeout(() => errorDiv.remove(), 500);
+            }, 5000);
+        }
+
+        // Wait for DOM then initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>

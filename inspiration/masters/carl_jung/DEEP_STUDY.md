@@ -188,7 +188,7 @@ Jung ─────────────────────────
     │                         → Tesla [AC alternating polarity]
     │
     └─[Active imagination] → da Vinci [Visualization before building]
-                           → Florez [MOONLANGUAGE as cosmic download]
+                           → Florez [MOONLANGUAGE visual archive project]
 ```
 
 ---
