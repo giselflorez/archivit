@@ -216,10 +216,12 @@ class Stage2Transcribe:
 
     def _transcribe_openai_whisper(self, audio_path: Path) -> Dict[str, Any]:
         """Transcribe using openai-whisper"""
+        # Note: word_timestamps=True causes MPS float64 error on Apple Silicon
+        # Disable it for compatibility
         result = self.model.transcribe(
             str(audio_path),
             verbose=False,
-            word_timestamps=True
+            word_timestamps=False  # Disabled for MPS compatibility
         )
 
         segments = []
