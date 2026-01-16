@@ -5,10 +5,17 @@
  * Fixes ACU V1 vulnerability: V1 allowed tier manipulation in 2-3 actions
  * V2 requires sustained behavior over 21+ actions
  *
- * Three-layer protection (variance check REMOVED - penalized creativity):
+ * Four-layer protection:
  * 1. History gate: Minimum 21 actions
  * 2. Fibonacci-weighted ACU: Older actions weight MORE
- * 3. Light equilibrium: Positive ratio ≥ 0.618 for advanced tiers
+ * 3. Shannon entropy: REWARDS unpredictability (creative), catches patterns (gaming)
+ * 4. Light equilibrium: Positive ratio ≥ 0.618 for advanced tiers
+ *
+ * Key insight: Variance check was REPLACED with entropy check.
+ * - Variance penalized bold thinking (BAD for creativity)
+ * - Entropy rewards unpredictability (GOOD for creativity)
+ * - Gaming creates predictable patterns (low entropy = caught)
+ * - Creativity is naturally unpredictable (high entropy = rewarded)
  */
 
 export class QuantumEquilibriumEngine {
@@ -29,10 +36,12 @@ export class QuantumEquilibriumEngine {
         // Anti-gaming parameters
         this.MIN_HISTORY = 21;           // Fibonacci F(8) - minimum actions before tier calculation
         this.LIGHT_RATIO_MIN = 0.618;    // Min positive/total ratio for advanced tiers
+        this.MIN_ENTROPY = 1.5;          // Minimum Shannon entropy (bits) - catches patterned gaming
 
-        // NOTE: Variance check REMOVED - penalizes creative experimentation
-        // Creativity requires bold, varied thinking - not consistency
-        // Gaming protection via: history gate + Fibonacci weighting + light ratio
+        // ENTROPY CHECK replaces variance check
+        // High entropy = unpredictable = natural creativity = GOOD
+        // Low entropy = predictable patterns = gaming attempt = SUSPICIOUS
+        // Shannon entropy (1948) - same math used in cryptography
 
         // Pre-compute Fibonacci weights (up to 55 actions)
         this.fibWeights = this._generateFibonacci(55);
@@ -68,11 +77,22 @@ export class QuantumEquilibriumEngine {
         result.acu = fibACU;
         result.diagnostics.fibonacciACU = fibACU;
 
-        // Layer 3: REMOVED - Variance check penalized creative experimentation
-        // Creativity = bold, varied thinking. Not punished here.
-        let effectiveACU = fibACU;
+        // Layer 3: Entropy check (replaces variance - REWARDS unpredictability)
+        const recentActions = actionHistory.slice(-21); // Last 21 (Fibonacci)
+        const entropy = this._calculateShannonEntropy(recentActions);
+        result.diagnostics.entropy = entropy;
 
-        // Layer 3 (was 4): Light equilibrium
+        let effectiveACU = fibACU;
+        if (entropy < this.MIN_ENTROPY && actionHistory.length >= 21) {
+            // Low entropy = predictable patterns = possible gaming
+            // Reduce effective ACU proportionally
+            const entropyPenalty = (this.MIN_ENTROPY - entropy) / this.MIN_ENTROPY;
+            effectiveACU = fibACU * (1 - entropyPenalty * 0.3); // Max 30% reduction
+            result.diagnostics.entropyPenalty = true;
+            result.diagnostics.penaltyAmount = entropyPenalty;
+        }
+
+        // Layer 4: Light equilibrium
         const lightRatio = this._calculateLightRatio(actionHistory);
         result.diagnostics.lightRatio = lightRatio;
 
@@ -123,17 +143,38 @@ export class QuantumEquilibriumEngine {
     }
 
     /**
-     * Calculate variance of action scores
-     * High variance indicates oscillating good/bad pattern (gaming)
+     * Calculate Shannon entropy of action scores
+     * High entropy = unpredictable = natural creativity = GOOD
+     * Low entropy = predictable patterns = gaming = SUSPICIOUS
+     *
+     * H = -Σ p(x) * log2(p(x))
+     *
+     * Shannon, C. "A Mathematical Theory of Communication" (1948)
      */
-    _calculateVariance(actions) {
-        if (actions.length < 2) return 0;
+    _calculateShannonEntropy(actions) {
+        if (actions.length < 2) return 3.0; // Assume high entropy for small samples
 
         const scores = actions.map(a => typeof a === 'object' ? a.score : a);
-        const mean = scores.reduce((sum, s) => sum + s, 0) / scores.length;
-        const squaredDiffs = scores.map(s => Math.pow(s - mean, 2));
 
-        return squaredDiffs.reduce((sum, d) => sum + d, 0) / scores.length;
+        // Bin scores into 10 buckets (0-0.1, 0.1-0.2, ..., 0.9-1.0)
+        const bins = new Array(10).fill(0);
+        for (const score of scores) {
+            const binIndex = Math.min(9, Math.floor(score * 10));
+            bins[binIndex]++;
+        }
+
+        // Calculate probability distribution
+        const total = scores.length;
+        let entropy = 0;
+
+        for (const count of bins) {
+            if (count > 0) {
+                const p = count / total;
+                entropy -= p * Math.log2(p);
+            }
+        }
+
+        return entropy; // Max ~3.32 bits for uniform distribution over 10 bins
     }
 
     /**
@@ -273,17 +314,29 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
     console.log(`  Tier: ${goodResult.tierName}`);
     console.log(`  Result: ${goodResult.tier >= 3 ? 'PASS' : 'FAIL'}\n`);
 
-    // Test 4: Creative experimentation (varied scores OK)
-    console.log('Test 4: Creative experimentation (varied scores)');
-    const variedHistory = [];
+    // Test 4: Shannon entropy - catches patterned gaming
+    console.log('Test 4: Patterned gaming attempt (repeating 0.9, 0.9, 0.1)');
+    const patternedHistory = [];
     for (let i = 0; i < 30; i++) {
-        variedHistory.push({ score: Math.random() * 0.5 + 0.5 }); // 0.5-1.0 range
+        patternedHistory.push({ score: i % 3 === 2 ? 0.1 : 0.9 }); // Pattern: 0.9, 0.9, 0.1
     }
-    const variedResult = engine.calculateEquilibriumACU(variedHistory);
-    console.log(`  Pattern: Random 0.5-1.0 scores`);
-    console.log(`  ACU: ${variedResult.acu.toFixed(4)}`);
-    console.log(`  Tier: ${variedResult.tierName}`);
-    console.log(`  Result: Variance NOT penalized (creativity allowed)\n`);
+    const patternedResult = engine.calculateEquilibriumACU(patternedHistory);
+    console.log(`  Entropy: ${patternedResult.diagnostics.entropy.toFixed(4)} bits`);
+    console.log(`  Penalty applied: ${patternedResult.diagnostics.entropyPenalty || false}`);
+    console.log(`  Tier: ${patternedResult.tierName}`);
+    console.log(`  Result: ${patternedResult.diagnostics.entropyPenalty ? 'CAUGHT' : 'PASS'}\n`);
+
+    // Test 5: Creative experimentation (high entropy = rewarded)
+    console.log('Test 5: Creative experimentation (random = high entropy)');
+    const creativeHistory = [];
+    for (let i = 0; i < 30; i++) {
+        creativeHistory.push({ score: Math.random() * 0.5 + 0.5 }); // Random 0.5-1.0
+    }
+    const creativeResult = engine.calculateEquilibriumACU(creativeHistory);
+    console.log(`  Entropy: ${creativeResult.diagnostics.entropy.toFixed(4)} bits`);
+    console.log(`  Penalty applied: ${creativeResult.diagnostics.entropyPenalty || false}`);
+    console.log(`  Tier: ${creativeResult.tierName}`);
+    console.log(`  Result: High entropy = creativity rewarded\n`);
 
     console.log('=== Self-Test Complete ===');
 }
