@@ -278,7 +278,7 @@ mkdir -p /Users/onthego/+NEWPROJ/logs
 
 ### Option C: Launch Agent (macOS)
 
-Create: `~/Library/LaunchAgents/com.giselx.drive.automation.plist`
+Create: `~/Library/LaunchAgents/com.founder.drive.automation.plist`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -286,7 +286,7 @@ Create: `~/Library/LaunchAgents/com.giselx.drive.automation.plist`
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.giselx.drive.automation</string>
+    <string>com.founder.drive.automation</string>
     <key>ProgramArguments</key>
     <array>
         <string>/Users/onthego/+NEWPROJ/venv/bin/python</string>
@@ -316,7 +316,7 @@ Create: `~/Library/LaunchAgents/com.giselx.drive.automation.plist`
 
 Load it:
 ```bash
-launchctl load ~/Library/LaunchAgents/com.giselx.drive.automation.plist
+launchctl load ~/Library/LaunchAgents/com.founder.drive.automation.plist
 ```
 
 ---

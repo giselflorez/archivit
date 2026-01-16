@@ -35,7 +35,7 @@ If Claude has reset, follow these steps:
 - Era: 1098-1179
 - Key technique: Viriditas (greening power) - channeling life force into creation
 
-**/artist-gisel** - The Founder
+**/artist-founder** - The Founder
 - Domain: Light Photography & Lunar Art
 - Era: Contemporary
 - Key technique: In-camera light painting - creating without post-processing

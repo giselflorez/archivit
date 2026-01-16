@@ -73,7 +73,7 @@
         "opt_in_status": "none"
       },
       {
-        "id": "gisel",
+        "id": "founder",
         "name": "The Founder",
         "polarity": "feminine",
         "era": "Contemporary",
@@ -104,12 +104,12 @@
           "Integrating analog and digital processes"
         ],
         "research_urls": [
-          "https://superrare.com/giselx",
-          "https://giselflorez.com",
-          "https://twitter.com/GiselFlorez"
+          "https://superrare.com/founder",
+          "https://founder.com",
+          "https://twitter.com/founder"
         ],
         "cross_references": ["da Vinci", "Prince", "Bjork"],
-        "skill_command": "/artist-gisel",
+        "skill_command": "/artist-founder",
         "opt_in_status": "none"
       },
       {
@@ -264,7 +264,7 @@
           "https://bjork.com/",
           "https://www.allmusic.com/artist/bjrk-mn0000939635"
         ],
-        "cross_references": ["Bowie", "Prince", "Gisel"],
+        "cross_references": ["Bowie", "Prince", "Founder"],
         "skill_command": "/artist-bjork",
         "opt_in_status": "none"
       },
@@ -656,7 +656,7 @@
           "https://prince.com/",
           "https://www.britannica.com/biography/Prince-American-singer-and-songwriter"
         ],
-        "cross_references": ["Rand", "Bowie", "Gisel"],
+        "cross_references": ["Rand", "Bowie", "Founder"],
         "skill_command": "/artist-prince",
         "opt_in_status": "none"
       },

@@ -154,7 +154,7 @@ def extract_contract_and_token_from_url(url: str) -> Optional[tuple]:
 
     Examples:
     - foundation.app/collections/glitter-of-hard-knocks
-    - foundation.app/@giselflorez/~/123
+    - foundation.app/@founder/~/123
     """
     # For now, return Foundation V2 contract as default
     # In production, would parse URL or query Foundation API

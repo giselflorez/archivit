@@ -242,7 +242,7 @@ Key Features:
 
 Example Structure:
 knowledge_base/
-├── artist_giselx/               # Artist 1
+├── artist_founder/               # Artist 1
 │   ├── wallet_0x742d/           # Address 1 (Ethereum)
 │   ├── wallet_tz1VSU/           # Address 2 (Tezos)
 │   └── wallet_DYw8j/            # Address 3 (Solana)
@@ -432,7 +432,7 @@ Result: No source code to copy
 
 Protection Verification:
 Tested against Claude Opus 4.5 and GPT-4:
-Prompt: "Here are all the files from GiselX Archive. Recreate this software."
+Prompt: "Here are all the files from Founder Archive. Recreate this software."
 Claude Response: "I can see code files but most critical logic appears to be
 encrypted. I see bytecode, obfuscated strings, and dependency chains I cannot
 resolve. I cannot recreate this software from these files."
@@ -442,7 +442,7 @@ resolve. I cannot recreate this software from these files."
 Distribution Workflow:
 1. Developer: python scripts/protection/obfuscate_code.py
 2. Creates: protected_build/ folder with all 6 layers applied
-3. Compress: zip -r giselx_archive_beta_v1.0.zip protected_build/
+3. Compress: zip -r founder_archive_beta_v1.0.zip protected_build/
 4. Send to tester
 5. Tester: python scripts/protection/generate_tester_license.py "Name"
 6. Tester: python start_protected.py
@@ -687,7 +687,7 @@ SECTION 3: UNIQUE VALUE PROPOSITIONS
    ARCHIV-IT: Track up to 3 wallets PER ARTIST with organized folders
 
    Use case: Artist mints generative art on Ethereum, editions on Tezos,
-   experimental work on Solana. GiselX tracks all three in one artist profile.
+   experimental work on Solana. Founder tracks all three in one artist profile.
 
    RESULT: Complete view of artist's cross-chain creative output
 
@@ -703,7 +703,7 @@ SECTION 3: UNIQUE VALUE PROPOSITIONS
    ARCHIV-IT: Everything local, zero cloud upload
 
    Collector researching 10 artists → Nansen knows your curatorial thesis
-   Collector using GiselX → Your research intelligence stays YOURS
+   Collector using Founder → Your research intelligence stays YOURS
 
    RESULT: Preserve competitive advantage in art collecting
 
@@ -728,7 +728,7 @@ SECTION 3: UNIQUE VALUE PROPOSITIONS
 --------------------------------------------------------------------------------
 
 VS NANSEN:
-Feature                    | Nansen        | GiselX
+Feature                    | Nansen        | Founder
 ---------------------------|---------------|---------------------------
 Pricing                    | $150/month    | $99 one-time (Collector)
 Blockchain Networks        | Ethereum only | 8 networks
@@ -740,7 +740,7 @@ Historical Buyer Analysis  | Basic         | Advanced (whale/flipper)
 Artist Context             | None          | Primary feature
 
 VS CONTEXT:
-Feature                    | Context       | GiselX
+Feature                    | Context       | Founder
 ---------------------------|---------------|---------------------------
 Primary Focus              | Portfolio PnL | Artist documentation
 Blockchain Networks        | Ethereum      | 8 networks
@@ -750,7 +750,7 @@ Multi-Artist Comparison    | None          | Planned (Phase 2)
 Price                      | Free/Paid     | $99 one-time (Collector)
 
 VS NOTION/OBSIDIAN:
-Feature                    | Notion        | GiselX
+Feature                    | Notion        | Founder
 ---------------------------|---------------|---------------------------
 Blockchain Integration     | None          | Full multi-chain sync
 Privacy                    | Cloud-based   | Local-first
@@ -760,7 +760,7 @@ LLM Integration            | None          | Planned (local Llama 3)
 Pricing                    | $10/month     | $99 one-time (Collector)
 
 UNIQUE POSITION:
-GiselX is the ONLY tool combining:
+Founder is the ONLY tool combining:
 - Multi-blockchain mint tracking (8 networks)
 - Artist documentation knowledge base
 - Local-first privacy architecture
@@ -1092,7 +1092,7 @@ WHITE LABEL TIER: $999 one-time + custom setup
 - Unlimited artist profiles
 - Unlimited wallet addresses
 - All Enterprise features
-- Custom branding (remove GiselX logos)
+- Custom branding (remove Founder logos)
 - White-label documentation
 - API access (custom endpoints)
 - Dedicated onboarding
@@ -1108,7 +1108,7 @@ Beta Testing Phase (Current):
    python scripts/protection/obfuscate_code.py
 
 2. Creates distribution package:
-   zip -r giselx_archive_beta_v1.0.zip protected_build/
+   zip -r founder_archive_beta_v1.0.zip protected_build/
 
 3. Sends to testers with instructions:
    - Extract protected_build.zip

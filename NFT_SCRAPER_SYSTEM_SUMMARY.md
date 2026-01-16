@@ -121,7 +121,7 @@ Result: Best scoring scrape (even if not perfect)
 
 **Example Fallback:**
 ```
-URL: http://superrare.com/giselx
+URL: http://superrare.com/founder
 
 Attempt 1: SuperRare Specialized
 → Score: 0.92, Valid: ✓
@@ -174,9 +174,9 @@ source venv/bin/activate
 python scripts/collectors/scraper_orchestrator.py <url>
 
 # Examples
-python scripts/collectors/scraper_orchestrator.py http://superrare.com/giselx
-python scripts/collectors/scraper_orchestrator.py https://foundation.app/@giselx
-python scripts/collectors/scraper_orchestrator.py https://opensea.io/giselx
+python scripts/collectors/scraper_orchestrator.py http://superrare.com/founder
+python scripts/collectors/scraper_orchestrator.py https://foundation.app/@founder
+python scripts/collectors/scraper_orchestrator.py https://opensea.io/founder
 python scripts/collectors/scraper_orchestrator.py https://objkt.com/profile/tz1abc
 ```
 
@@ -227,7 +227,7 @@ Validation: 0.92/1.00
 nft_count: 10  (missing 14 NFTs!)
 images:
   - "danseungvault" profile picture ❌
-  - "giselxvault" profile picture ❌
+  - "foundervault" profile picture ❌
   - NFT artwork 1 ✓
   - UI badge ❌
   - NFT artwork 2 ✓
@@ -251,7 +251,7 @@ images:
   - ZERO UI elements ✓
 titles: ["Luminous Portrait #5", "Ethereal Dreams", ...]  (real titles)
 artwork_urls: ["http://superrare.com/artwork/...", ...]  (links to each NFT)
-artist: "giselx"  (correct attribution)
+artist: "founder"  (correct attribution)
 scraper_used: "superrare_specialized"
 validation_score: 0.92
 validation: PASSED ✓
@@ -267,10 +267,10 @@ id: a1b2c3d4e5f6
 source: web_import
 type: superrare_collection  # platform_collection
 platform: superrare
-url: http://superrare.com/giselx
+url: http://superrare.com/founder
 domain: superrare.com
-title: giselx | SuperRare Collection
-artist: giselx
+title: founder | SuperRare Collection
+artist: founder
 created_at: 2026-01-04T20:00:00
 scraped_date: 2026-01-04
 has_images: true
@@ -278,10 +278,10 @@ image_count: 24
 nft_count: 24
 scraper_used: superrare_specialized
 validation_score: 0.92
-tags: [web_import, superrare, nft, blockchain, giselx]
+tags: [web_import, superrare, nft, blockchain, founder]
 ---
 
-# giselx | SuperRare NFT Collection
+# founder | SuperRare NFT Collection
 
 **Platform:** SuperRare
 **NFT Artworks:** 24
@@ -294,7 +294,7 @@ tags: [web_import, superrare, nft, blockchain, giselx]
 
 ![Luminous Portrait #5](../../knowledge_base/media/web_imports/a1b2c3/nft_1.jpg)
 
-**Artist:** giselx
+**Artist:** founder
 **View on SuperRare:** [Luminous Portrait #5](http://superrare.com/artwork/...)
 
 **Metadata:**
@@ -435,7 +435,7 @@ The unified JSON format is perfect for AI workflows:
 {
   "id": "a1b2c3d4e5f6",
   "platform": "superrare",
-  "artist": "giselx",
+  "artist": "founder",
   "nft_count": 24,
   "validation_score": 0.92,
   "nfts": [
@@ -464,7 +464,7 @@ Use cases:
 
 1. **Rescrape SuperRare** with the new system:
    ```bash
-   python scripts/collectors/scraper_orchestrator.py http://superrare.com/giselx
+   python scripts/collectors/scraper_orchestrator.py http://superrare.com/founder
    ```
 
 2. **Verify in Visual Translator**: http://localhost:5001/visual-translator
@@ -475,8 +475,8 @@ Use cases:
 
 3. **Scrape Other Platforms**:
    ```bash
-   python scripts/collectors/scraper_orchestrator.py https://foundation.app/@giselx
-   python scripts/collectors/scraper_orchestrator.py https://opensea.io/giselx
+   python scripts/collectors/scraper_orchestrator.py https://foundation.app/@founder
+   python scripts/collectors/scraper_orchestrator.py https://opensea.io/founder
    ```
 
 ### Future Enhancements

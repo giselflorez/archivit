@@ -22,7 +22,7 @@ Alternative Marks: ARCHIV-IT (without E, used in some early documentation)
 
 Brand Identifier: WEB3GISEL
 Business Name: WEB3GISEL
-Creator Identity: GISELX (also: Gisel Florez, Gisel X Florez, GiselXFlorez)
+Creator Identity: GISELX (also: The Founder, The Founder, founder)
 
 Taglines (claimed):
 - "Your Data. Your Future. Take Control."
@@ -31,11 +31,11 @@ Taglines (claimed):
 - "Explore Your Legacy"
 
 Domain Assets:
-- giselx.art (redirects to web3photo.com)
+- founder.art (redirects to web3photo.com)
 - web3photo.com
-- giselx.eth (Ethereum Name Service)
+- founder.eth (Ethereum Name Service)
 
-Contact Email: info@giselx.art, info@web3photo.com
+Contact Email: info@founder.art, info@web3photo.com
 
 
 1.2 PRODUCT DESCRIPTION
@@ -580,15 +580,15 @@ SECTION 10: CONTACTS AND AUTHORIZATION
 
 Intellectual Property Owner:
 GISELX / WEB3GISEL
-Gisel Florez
+The Founder
 New York, NY, USA
 
 Contact:
-info@giselx.art
+info@founder.art
 info@web3photo.com
 
 Blockchain Identity:
-giselx.eth (Ethereum Name Service)
+founder.eth (Ethereum Name Service)
 
 Authorization:
 This document prepared by creator/owner. All intellectual property described

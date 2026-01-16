@@ -66,7 +66,7 @@ scrape_history:
     source: file_upload
     scraped_at: 2026-01-04T09:15:00  ← Third scrape
 
-tags: [web_import, superrare, nft, blockchain, portfolio, giselx]  ← All tags combined
+tags: [web_import, superrare, nft, blockchain, portfolio, founder]  ← All tags combined
 urls: [http://superrare.com/..., https://artist-website.com/...]  ← All URLs
 images: [...12 images from all sources...]  ← All images linked
 ---

@@ -125,14 +125,14 @@
 │   ┌──────────┼──────────┬──────────┬──────────┬──────────┐                 │
 │   │          │          │          │          │          │                 │
 │   │  Member  │  Member  │  Member  │  Member  │  Member  │                 │
-│   │  (Gisel) │  (Beta1) │  (Beta2) │  (Beta3) │  (Adv.)  │                 │
+│   │  (Founder) │  (Beta1) │  (Beta2) │  (Beta3) │  (Adv.)  │                 │
 │   │          │          │          │          │          │                 │
 │   │  Artist  │  Tech    │  Archive │  Legal   │  Library │                 │
 │   │  Rep     │  Lead    │  Expert  │  Counsel │  Partner │                 │
 │   │          │          │          │          │          │                 │
 │   └──────────┴──────────┴──────────┴──────────┴──────────┘                 │
 │                                                                              │
-│   Gisel becomes ONE voice among equals, not the singular face.              │
+│   The Founder becomes ONE voice among equals, not the singular face.              │
 │   Mission-driven governance, not personality-driven.                         │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -142,7 +142,7 @@
 
 | Seat | Role | Why This Matters |
 |------|------|------------------|
-| **Artist Representative** | Gisel (you) | Keeps creative vision intact |
+| **Artist Representative** | The Founder (you) | Keeps creative vision intact |
 | **Technical Lead** | From beta testers | Credibility with institutions |
 | **Archive/Museum Expert** | Recruit externally | Speaks the language of target partners |
 | **Legal Counsel** | Pro bono or advisor | Nonprofit compliance, IP protection |

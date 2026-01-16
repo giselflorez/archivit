@@ -1,8 +1,8 @@
-Test Document for GiselX Knowledge Base
+Test Document for Founder Knowledge Base
 
 This is a test file to demonstrate the file processing capabilities.
 
-Content about GiselX and blockchain art:
+Content about Founder and blockchain art:
 - Digital identity in Web3
 - NFT collections on Foundation and SuperRare
 - Artist in Light philosophy

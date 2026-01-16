@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perplexity Collector - Search Perplexity API for information about gisel/giselx/giselxflorez
+Perplexity Collector - Search Perplexity API for information about gisel/founder/founder
 """
 import os
 import json
@@ -28,12 +28,12 @@ def generate_id(query):
 def determine_subject(query):
     """Determine the subject based on the query"""
     query_lower = query.lower()
-    if "giselxflorez" in query_lower:
-        return "giselxflorez"
-    elif "giselx" in query_lower:
-        return "giselx"
-    elif "gisel" in query_lower:
-        return "gisel_florez"
+    if "founder" in query_lower:
+        return "founder"
+    elif "founder" in query_lower:
+        return "founder"
+    elif "founder" in query_lower:
+        return "founder"
     else:
         return "general"
 

@@ -69,9 +69,9 @@ ARTIST_STYLES = {
             'highlight': (156, 136, 189),    # Lavender plasma
         }
     },
-    'gisel': {
+    'founder': {
         # Source: MOONLANGUAGE WebGL viewer, video transcriptions
-        'name': 'Gisel X Florez',
+        'name': 'The Founder',
         'years': '1980-present',
         'dedication': 'For Gisel, who dances with the moon and captures cosmic transmissions.',
         'philosophy': 'I Fell in Love with DATA and I Will Never Be the Same',
@@ -118,7 +118,7 @@ ARTIST_STYLES = {
 
 
 class SacredPDF(FPDF):
-    def __init__(self, style_key='gisel'):
+    def __init__(self, style_key='founder'):
         super().__init__()
         self.style = ARTIST_STYLES[style_key]
         self.set_auto_page_break(auto=True, margin=20)
@@ -183,7 +183,7 @@ class SacredPDF(FPDF):
 
         self.set_font('Helvetica', 'I', 10)
         self.set_text_color(*self._c('secondary'))
-        self.cell(0, 6, '968 Cosmic Transmissions by Gisel X Florez', align='C')
+        self.cell(0, 6, '968 Cosmic Transmissions by The Founder', align='C')
         self.ln(20)
 
         # Accent line
@@ -336,7 +336,7 @@ class SacredPDF(FPDF):
         self.ln(4)
         self.set_font('Helvetica', '', 9)
         self.set_text_color(*self._c('secondary'))
-        self.cell(0, 5, '- Gisel X Florez', align='C')
+        self.cell(0, 5, '- The Founder', align='C')
 
         self.ln(15)
         self.set_font('Helvetica', 'B', 10)

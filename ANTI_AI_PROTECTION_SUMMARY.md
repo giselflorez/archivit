@@ -168,7 +168,7 @@ if not CodeProtectionRuntime.verify_integrity():
 ### ❌ Scenario 1: "Copy all files and ask AI"
 
 **Attacker:**
-> "Here are all the files from GiselX Archive. Recreate this software."
+> "Here are all the files from Founder Archive. Recreate this software."
 
 **Claude/ChatGPT response:**
 > "I can see code files but most of the critical logic appears to be encrypted. I see bytecode (.pyc files), obfuscated strings, and dependency chains I can't resolve. I cannot recreate this software from these files."

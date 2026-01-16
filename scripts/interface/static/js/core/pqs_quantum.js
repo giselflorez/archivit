@@ -37,6 +37,7 @@
 import { ARC8PQC, ARC8Kyber, ARC8Dilithium } from './pqc/index.js';
 import { UnifiedSeedEngine } from './seed_pqs_integration.js';
 import { PHI, GOLDEN_ANGLE } from './pi_quadratic_seed.js';
+import { nistBeacon } from './nist_beacon.js';
 
 /**
  * Quantum-Enhanced Unified Seed Engine
@@ -496,10 +497,13 @@ class QuantumSeedEngine extends UnifiedSeedEngine {
      * Create provenance record for content
      * @param {Object} content - Content metadata
      * @param {Uint8Array} contentHash - Hash of actual content
-     * @returns {Object}
+     * @returns {Promise<Object>}
      */
-    createProvenanceRecord(content, contentHash) {
+    async createProvenanceRecord(content, contentHash) {
         this._checkQuantumInitialized();
+
+        // Get NIST beacon anchor for institutional-grade timestamp
+        const beaconAnchor = await nistBeacon.createTimestampAnchor(contentHash);
 
         const record = {
             contentHash: Array.from(contentHash),
@@ -510,29 +514,42 @@ class QuantumSeedEngine extends UnifiedSeedEngine {
                 dilithiumPublicKey: Array.from(this.pqc.dilithiumKeys.publicKey)
             },
             timestamp: Date.now(),
-            version: 'ARC8-PROVENANCE-v1'
+            // NIST Quantum Random Beacon anchor for unforgeable timestamps
+            nistBeacon: beaconAnchor.anchored ? {
+                pulseIndex: beaconAnchor.anchor.beaconPulse.pulseIndex,
+                outputValue: beaconAnchor.anchor.beaconPulse.outputValue,
+                beaconTimestamp: beaconAnchor.anchor.beaconPulse.timeStamp,
+                anchorHash: beaconAnchor.anchor.anchorHash,
+                verificationUrl: beaconAnchor.verificationUrl
+            } : null,
+            beaconAnchored: beaconAnchor.anchored,
+            version: 'ARC8-PROVENANCE-v2'
         };
 
         // Sign the record
         const recordBytes = new TextEncoder().encode(JSON.stringify(record));
         const signature = this.quantumSign(recordBytes, {
             purpose: 'content-provenance',
-            contentType: content.type
+            contentType: content.type,
+            beaconAnchored: beaconAnchor.anchored
         });
 
         return {
             record,
             signature,
-            quantumSafe: true
+            quantumSafe: true,
+            beaconAnchored: beaconAnchor.anchored,
+            institutionallyVerifiable: beaconAnchor.anchored
         };
     }
 
     /**
      * Verify content provenance record
      * @param {Object} provenance
-     * @returns {Object}
+     * @param {boolean} verifyBeacon - Also verify NIST beacon (requires network)
+     * @returns {Promise<Object>}
      */
-    verifyProvenanceRecord(provenance) {
+    async verifyProvenanceRecord(provenance, verifyBeacon = false) {
         const record = provenance.record;
         const signature = provenance.signature;
 
@@ -544,12 +561,28 @@ class QuantumSeedEngine extends UnifiedSeedEngine {
             record.creator.dilithiumPublicKey
         );
 
+        // Verify NIST beacon if requested and available
+        let beaconVerification = null;
+        if (verifyBeacon && record.nistBeacon) {
+            beaconVerification = await nistBeacon.verifyPulse({
+                pulseIndex: record.nistBeacon.pulseIndex,
+                outputValue: record.nistBeacon.outputValue,
+                timeStamp: record.nistBeacon.beaconTimestamp
+            });
+        }
+
         return {
             valid: verification.valid,
             creator: record.creator.seedFingerprint,
             createdAt: record.timestamp,
             quantumSafe: provenance.quantumSafe,
-            algorithm: signature.algorithm
+            algorithm: signature.algorithm,
+            // NIST beacon verification
+            beaconAnchored: record.beaconAnchored || false,
+            beaconVerified: beaconVerification?.valid || null,
+            beaconTimestamp: record.nistBeacon?.beaconTimestamp || null,
+            institutionallyVerifiable: record.beaconAnchored,
+            verificationUrl: record.nistBeacon?.verificationUrl || null
         };
     }
 

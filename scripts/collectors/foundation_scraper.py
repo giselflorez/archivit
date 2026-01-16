@@ -191,7 +191,7 @@ def main():
         url = sys.argv[1]
     else:
         # Default: your Foundation profile
-        url = "https://foundation.app/@giselflorez"
+        url = "https://foundation.app/@founder"
 
     result = scrape_foundation_profile(url)
 

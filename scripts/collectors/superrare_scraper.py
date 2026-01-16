@@ -271,7 +271,7 @@ def scrape_superrare_profile(url, artist_name=None):
     Scrape a SuperRare artist profile page
 
     Args:
-        url: SuperRare profile URL (e.g., http://superrare.com/giselx)
+        url: SuperRare profile URL (e.g., http://superrare.com/founder)
         artist_name: Optional artist name to filter (extracted from URL if not provided)
 
     Returns:
@@ -282,7 +282,7 @@ def scrape_superrare_profile(url, artist_name=None):
 
     # Extract artist name from URL if not provided
     if not artist_name:
-        # URL format: http://superrare.com/giselx or http://superrare.com/@giselx
+        # URL format: http://superrare.com/founder or http://superrare.com/@founder
         path = urlparse(url).path
         artist_name = path.strip('/').replace('@', '')
 
@@ -581,7 +581,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python superrare_scraper.py <superrare_profile_url>")
         print("\nExample:")
-        print("  python scripts/collectors/superrare_scraper.py http://superrare.com/giselx")
+        print("  python scripts/collectors/superrare_scraper.py http://superrare.com/founder")
         return
 
     url = sys.argv[1]
@@ -589,7 +589,7 @@ def main():
     # Validate URL
     if 'superrare.com' not in url.lower():
         print("ERROR: URL must be a SuperRare profile page")
-        print("Example: http://superrare.com/giselx")
+        print("Example: http://superrare.com/founder")
         return
 
     try:

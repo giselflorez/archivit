@@ -73,7 +73,7 @@ curl http://localhost:5001/api/blockchain/network/bitcoin
   "mints": [
     {
       "id": "doc_id_456",
-      "title": "GiselFlorez NFT Collection",
+      "title": "founder NFT Collection",
       "url": "https://www.1stdibs.com/nft/profile/GISELXFLOREZ/",
       "blockchain_network": "ethereum",
       "platforms": ["1stDibs NFT"],
@@ -192,7 +192,7 @@ Blockchain relationships are weighted by connection strength:
 
 ### Find All NFTs from a Creator's Wallet
 ```bash
-# Get all NFTs from GiselFlorez's Ethereum wallet
+# Get all NFTs from founder's Ethereum wallet
 curl http://localhost:5001/api/blockchain/address/0x...
 ```
 

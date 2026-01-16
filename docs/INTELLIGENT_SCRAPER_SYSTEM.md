@@ -134,10 +134,10 @@ id: a1b2c3d4e5f6
 source: web_import
 type: superrare_collection  # or foundation_collection, opensea_collection, etc.
 platform: superrare
-url: http://superrare.com/giselx
+url: http://superrare.com/founder
 domain: superrare.com
-title: giselx | SuperRare Collection
-artist: giselx
+title: founder | SuperRare Collection
+artist: founder
 created_at: 2026-01-04T20:00:00
 scraped_date: 2026-01-04
 has_images: true
@@ -150,7 +150,7 @@ tags:
 - superrare
 - nft
 - blockchain
-- giselx
+- founder
 ---
 ```
 
@@ -167,17 +167,17 @@ python scripts/collectors/scraper_orchestrator.py <url>
 
 **SuperRare:**
 ```bash
-python scripts/collectors/scraper_orchestrator.py http://superrare.com/giselx
+python scripts/collectors/scraper_orchestrator.py http://superrare.com/founder
 ```
 
 **Foundation:**
 ```bash
-python scripts/collectors/scraper_orchestrator.py https://foundation.app/@giselx
+python scripts/collectors/scraper_orchestrator.py https://foundation.app/@founder
 ```
 
 **OpenSea:**
 ```bash
-python scripts/collectors/scraper_orchestrator.py https://opensea.io/giselx
+python scripts/collectors/scraper_orchestrator.py https://opensea.io/founder
 ```
 
 **Objkt (Tezos):**
@@ -196,7 +196,7 @@ python scripts/collectors/scraper_orchestrator.py https://some-artist-portfolio.
 
 1. **Platform Detection**
    ```
-   URL: http://superrare.com/giselx
+   URL: http://superrare.com/founder
    → Detected: SuperRare (specialized scraper available)
    ```
 
@@ -293,7 +293,7 @@ def import_url():
 
 ### SuperRare
 - **Lazy Loading**: Requires 15-20 scrolls to load all NFTs
-- **Profile Pictures**: Common issue - "danseungvault", "giselxvault" usernames in alt text
+- **Profile Pictures**: Common issue - "danseungvault", "foundervault" usernames in alt text
 - **Image CDN**: `storage.googleapis.com/sr_prod_artworks_bucket` or IPFS
 - **Typical Collection Size**: 20-50 NFTs
 
@@ -484,7 +484,7 @@ pip install --upgrade selenium webdriver-manager
 python scripts/collectors/scraper_orchestrator.py <url>
 
 # Examples
-python scripts/collectors/scraper_orchestrator.py http://superrare.com/giselx
+python scripts/collectors/scraper_orchestrator.py http://superrare.com/founder
 python scripts/collectors/scraper_orchestrator.py https://foundation.app/@artist
 python scripts/collectors/scraper_orchestrator.py https://opensea.io/artist
 python scripts/collectors/scraper_orchestrator.py https://objkt.com/profile/tz1abc

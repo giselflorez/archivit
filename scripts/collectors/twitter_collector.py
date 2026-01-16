@@ -290,12 +290,12 @@ def determine_subject(tweet_text):
     """Determine subject category from tweet content"""
     tweet_lower = tweet_text.lower()
 
-    if "giselxflorez" in tweet_lower or "giselxtez" in tweet_lower:
-        return "giselxflorez"
-    elif "giselx" in tweet_lower:
-        return "giselx"
-    elif "gisel florez" in tweet_lower or "giselflorez" in tweet_lower:
-        return "gisel_florez"
+    if "founder" in tweet_lower or "foundertez" in tweet_lower:
+        return "founder"
+    elif "founder" in tweet_lower:
+        return "founder"
+    elif "the founder" in tweet_lower or "founder" in tweet_lower:
+        return "founder"
     else:
         return "twitter_general"
 
@@ -617,7 +617,7 @@ def save_twitter_content(markdown_content, raw_data, subject_category, doc_id, m
 
     return str(md_filepath)
 
-def process_twitter_archive(archive_path, username="giselflorez"):
+def process_twitter_archive(archive_path, username="founder"):
     """Main processing function"""
     print(f"\n{'='*60}")
     print(f"Processing Twitter Archive: @{username}")
@@ -685,8 +685,8 @@ def main():
     )
     parser.add_argument(
         '--username',
-        default='giselflorez',
-        help='Twitter username (default: giselflorez)'
+        default='founder',
+        help='Twitter username (default: founder)'
     )
 
     args = parser.parse_args()

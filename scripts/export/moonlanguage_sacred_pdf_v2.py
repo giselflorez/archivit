@@ -67,8 +67,8 @@ ARTIST_STYLES = {
             'bg': (255, 255, 255)
         }
     },
-    'gisel': {
-        'name': 'Gisel X Florez',
+    'founder': {
+        'name': 'The Founder',
         'years': '1980-present',
         'dedication': 'For Gisel, who dances with the moon and captures cosmic transmissions.',
         'philosophy': 'Light Photography & Lunar Dance',
@@ -115,7 +115,7 @@ ARTIST_STYLES = {
 class SacredPDF(FPDF):
     """PDF with smart pagination and artist styling"""
 
-    def __init__(self, style_key='gisel'):
+    def __init__(self, style_key='founder'):
         super().__init__()
         self.style = ARTIST_STYLES[style_key]
         self.style_key = style_key
@@ -185,7 +185,7 @@ class SacredPDF(FPDF):
 
         self.set_font('Helvetica', 'I', 11)
         self.set_text_color(*self._rgb('secondary'))
-        self.cell(0, 6, '968 Cosmic Transmissions by Gisel X Florez', align='C')
+        self.cell(0, 6, '968 Cosmic Transmissions by The Founder', align='C')
         self.ln(25)
 
         # Decorative line
@@ -367,7 +367,7 @@ class SacredPDF(FPDF):
         self.ln(5)
         self.set_font('Helvetica', '', 10)
         self.set_text_color(*self._rgb('secondary'))
-        self.cell(0, 6, '- Gisel X Florez', align='C')
+        self.cell(0, 6, '- The Founder', align='C')
 
         self.ln(20)
         self.set_font('Helvetica', 'B', 11)

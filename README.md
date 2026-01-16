@@ -74,7 +74,7 @@ python scripts/orchestration/collect_all.py --initial
 ```
 
 This will:
-1. Query Perplexity for: "gisel florez", "giselx", "giselxflorez", etc.
+1. Query Perplexity for: "the founder", "founder", "founder", etc.
 2. Save raw responses and clean markdown files
 3. Build semantic search index
 4. Commit to git
@@ -88,8 +88,8 @@ python scripts/search/interactive_search.py
 
 Then type queries like:
 ```
-> what is giselx's work about?
-> tell me about giselx art philosophy
+> what is founder's work about?
+> tell me about founder art philosophy
 > :view 1    # View full details of result #1
 > :quit      # Exit
 ```
@@ -105,7 +105,7 @@ Export search results as context for Claude conversations:
 
 ```bash
 python scripts/search/export_context.py \
-  --query "summarize giselx's creative philosophy" \
+  --query "summarize founder's creative philosophy" \
   --output context.md \
   --with-prompt
 ```
@@ -301,7 +301,7 @@ Visit http://localhost:5000/search and try:
 
 ```bash
 python scripts/collectors/perplexity_collector.py \
-  --query "giselx blockchain art 2026"
+  --query "founder blockchain art 2026"
 ```
 
 ### Update Index with New Content
@@ -315,16 +315,16 @@ python scripts/processors/embeddings_generator.py --update
 ```bash
 # Add new queries and update index
 python scripts/orchestration/collect_all.py --queries \
-  "giselx new work" \
-  "giselxflorez recent projects"
+  "founder new work" \
+  "founder recent projects"
 ```
 
 ### Search with Filters
 
 ```bash
-# Search only within giselx subject
+# Search only within founder subject
 python scripts/search/semantic_search.py \
-  --subject giselx \
+  --subject founder \
   --limit 5 \
   "digital identity"
 ```
@@ -356,9 +356,9 @@ python scripts/processors/embeddings_generator.py --stats
 ├── knowledge_base/
 │   ├── raw/                   # Raw API responses (JSON)
 │   └── processed/             # Clean markdown files
-│       ├── about_gisel/
-│       ├── about_giselx/
-│       └── about_giselxflorez/
+│       ├── about_founder/
+│       ├── about_founder/
+│       └── about_founder/
 └── db/
     └── txtai_index/           # Semantic search index
 ```
@@ -378,9 +378,9 @@ Edit `config/settings.json` to customize:
   },
   "perplexity": {
     "default_queries": [
-      "gisel florez",
-      "giselx",
-      "giselxflorez"
+      "the founder",
+      "founder",
+      "founder"
     ]
   },
   "export": {
@@ -434,7 +434,7 @@ source: perplexity
 type: query_result
 created_at: 2026-01-01T12:00:00Z
 query: "original search query"
-subject: giselx
+subject: founder
 tags: [art, digital_identity, philosophy]
 urls: [source_url_1, source_url_2]
 ---
@@ -469,20 +469,20 @@ python scripts/processors/embeddings_generator.py --rebuild
 
 ```bash
 python scripts/search/export_context.py \
-  --query "everything about giselx" \
+  --query "everything about founder" \
   --limit 50 \
   --max-tokens 100000 \
-  --output all_giselx_knowledge.md
+  --output all_founder_knowledge.md
 ```
 
 ### Batch Collection
 
 ```bash
 python scripts/orchestration/collect_all.py --queries \
-  "giselx art philosophy" \
-  "giselxflorez digital identity" \
-  "gisel florez blockchain" \
-  "giselx creative process"
+  "founder art philosophy" \
+  "founder digital identity" \
+  "founder blockchain" \
+  "founder creative process"
 ```
 
 ## Troubleshooting

@@ -107,7 +107,7 @@ lsof -ti:5001 | xargs kill -9
 Install from: https://www.python.org/downloads/
 
 ### Still stuck?
-Contact Gisel directly.
+Contact The Founder.
 
 ---
 

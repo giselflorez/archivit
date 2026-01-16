@@ -106,7 +106,7 @@ Interactive Search Commands:
   :quit or :exit   - Exit
 
 Examples:
-  what is giselx's art about?
+  what is founder's art about?
   :view 3
   :limit 20
 """)

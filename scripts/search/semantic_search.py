@@ -33,7 +33,7 @@ def search(query, embeddings, config, limit=None, filters=None):
         embeddings: txtai Embeddings instance
         config: Configuration dict
         limit: Maximum number of results
-        filters: Optional filters dict (e.g., {'subject': 'giselx'})
+        filters: Optional filters dict (e.g., {'subject': 'founder'})
 
     Returns:
         list: Search results

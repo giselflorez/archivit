@@ -93,7 +93,7 @@ IMPORTANT:
 - DO NOT attempt to copy code
 - DO NOT feed to AI tools
 
-Questions? Email: info@giselx.art
+Questions? Email: info@founder.art
 ```
 
 ---

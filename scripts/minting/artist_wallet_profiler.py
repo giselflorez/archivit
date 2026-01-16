@@ -53,7 +53,7 @@ class SocialProfile:
 @dataclass
 class DomainRecord:
     """Blockchain domain record"""
-    domain: str  # vitalik.eth, giselx.tez
+    domain: str  # vitalik.eth, founder.tez
     domain_type: str  # ens, tezos_domains
     resolved_address: str
     network: str

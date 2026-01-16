@@ -251,7 +251,7 @@ def convert_markdown_to_pdf(input_path: str, output_path: str = None):
     pdf.title_page(
         "MOONLANGUAGE",
         "Verse of a Visual Universe",
-        "968 Cosmic Transmissions by Gisel X Florez"
+        "968 Cosmic Transmissions by The Founder"
     )
 
     # Parse and render content

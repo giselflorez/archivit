@@ -98,12 +98,12 @@ def determine_subject(caption):
     """Determine subject category from caption content"""
     caption_lower = caption.lower()
 
-    if "giselxflorez" in caption_lower or "giselxtez" in caption_lower:
-        return "giselxflorez"
-    elif "giselx" in caption_lower:
-        return "giselx"
-    elif "gisel florez" in caption_lower or "giselflorez" in caption_lower:
-        return "gisel_florez"
+    if "founder" in caption_lower or "foundertez" in caption_lower:
+        return "founder"
+    elif "founder" in caption_lower:
+        return "founder"
+    elif "the founder" in caption_lower or "founder" in caption_lower:
+        return "founder"
     else:
         return "instagram_general"
 
@@ -266,7 +266,7 @@ def save_instagram_content(markdown_content, raw_data, subject_category, doc_id)
 
     return str(md_filepath)
 
-def process_instagram_archive(archive_dir, username="giselxflorez", limit=None):
+def process_instagram_archive(archive_dir, username="founder", limit=None):
     """Main processing function"""
     print(f"\n{'='*60}")
     print(f"Processing Instagram Archive: @{username}")
@@ -340,8 +340,8 @@ def main():
     )
     parser.add_argument(
         '--username',
-        default='giselxflorez',
-        help='Instagram username (default: giselxflorez)'
+        default='founder',
+        help='Instagram username (default: founder)'
     )
     parser.add_argument(
         '--limit',

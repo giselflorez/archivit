@@ -15,12 +15,12 @@
   "perplexity": {
     "api_url": "https://api.perplexity.ai",
     "default_queries": [
-      "gisel florez",
-      "giselx",
-      "giselxflorez",
-      "giselx art",
-      "giselxflorez digital art",
-      "gisel florez blockchain art"
+      "the founder",
+      "founder",
+      "founder",
+      "founder art",
+      "founder digital art",
+      "founder blockchain art"
     ]
   },
   "export": {

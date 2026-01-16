@@ -212,12 +212,12 @@ def determine_subject(content, filename):
     """Determine subject category from content"""
     combined_text = f"{filename} {content}".lower()
 
-    if "giselxflorez" in combined_text:
-        return "giselxflorez"
-    elif "giselx" in combined_text:
-        return "giselx"
-    elif "gisel" in combined_text:
-        return "gisel_florez"
+    if "founder" in combined_text:
+        return "founder"
+    elif "founder" in combined_text:
+        return "founder"
+    elif "founder" in combined_text:
+        return "founder"
     else:
         return "file_general"
 

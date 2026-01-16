@@ -560,7 +560,7 @@ if __name__ == "__main__":
     # Process command
     process_parser = subparsers.add_parser('process', help='Process Twitter archive')
     process_parser.add_argument('archive_path', help='Path to tweets.js')
-    process_parser.add_argument('--username', default='giselflorez', help='Twitter username')
+    process_parser.add_argument('--username', default='founder', help='Twitter username')
 
     # Resume command
     resume_parser = subparsers.add_parser('resume', help='Resume paused job')

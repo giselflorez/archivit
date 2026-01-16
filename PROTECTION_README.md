@@ -226,7 +226,7 @@ Welcome to the ARCHIV-IT beta program!
 - Works only on your current machine
 
 **Support:**
-- Email: info@giselx.art
+- Email: info@founder.art
 - Report bugs via [your preferred channel]
 
 By using this software, you agree to the terms in LICENSE file.

@@ -34,7 +34,7 @@ The specialized SuperRare scraper (`superrare_scraper.py`) fixes these issues:
 
 ```bash
 source venv/bin/activate
-python scripts/collectors/superrare_scraper.py http://superrare.com/giselx
+python scripts/collectors/superrare_scraper.py http://superrare.com/founder
 ```
 
 ### What It Does
@@ -89,10 +89,10 @@ Images are excluded if they match these patterns:
 id: e0be96e0652f
 source: web_import
 type: superrare_collection
-url: http://superrare.com/giselx
+url: http://superrare.com/founder
 domain: superrare.com
-title: 'giselx | SuperRare NFT Collection'
-artist: giselx
+title: 'founder | SuperRare NFT Collection'
+artist: founder
 created_at: '2026-01-04T20:00:00.000000'
 scraped_date: '2026-01-04'
 has_images: true
@@ -103,22 +103,22 @@ tags:
 - superrare
 - nft
 - blockchain
-- giselx
+- founder
 ---
 ```
 
 ### Markdown Content
 
 ```markdown
-# giselx | SuperRare NFT Collection
+# founder | SuperRare NFT Collection
 
-**Source:** [superrare.com](http://superrare.com/giselx)
+**Source:** [superrare.com](http://superrare.com/founder)
 **Imported:** January 04, 2026
 **NFT Artworks:** 24
 
 ## Collection
 
-This collection contains 24 NFT artworks by giselx from their SuperRare profile.
+This collection contains 24 NFT artworks by founder from their SuperRare profile.
 
 ---
 
@@ -128,7 +128,7 @@ This collection contains 24 NFT artworks by giselx from their SuperRare profile.
 
 ![Artwork Title](../../knowledge_base/media/web_imports/e0be96e0652f/nft_1.jpg)
 
-**Artist:** giselx
+**Artist:** founder
 **View on SuperRare:** [Artwork Title](http://superrare.com/artwork/...)
 
 **Metadata:**

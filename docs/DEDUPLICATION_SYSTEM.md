@@ -303,7 +303,7 @@ tags:  # Union of all tags
   - nft
   - blockchain
   - portfolio
-  - giselx
+  - founder
 scrape_history:
   - doc_id: abc123
     source: web_import

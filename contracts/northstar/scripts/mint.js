@@ -106,7 +106,7 @@ async function main() {
 ═══════════════════════════════════════════════════════════════
 
 22 Masters encoded forever:
-  Feminine (9): Hildegard, Gisel, Rand, Starhawk, Tori,
+  Feminine (9): Hildegard, Founder, Rand, Starhawk, Tori,
                 Bjork, Swan, Hicks, Byrne
   Masculine (13): da Vinci, Tesla, Fuller, Jung, Suleyman,
                   Grant, Prince, Coltrane, Bowie, Koe,

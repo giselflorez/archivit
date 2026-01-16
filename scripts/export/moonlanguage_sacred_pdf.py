@@ -73,8 +73,8 @@ ARTIST_STYLES = {
         },
         'pattern': 'wave'  # 3-6-9 wave patterns
     },
-    'gisel': {
-        'name': 'Gisel X Florez',
+    'founder': {
+        'name': 'The Founder',
         'years': '1980-present',
         'dedication': 'For Gisel, who dances with the moon and captures cosmic transmissions.',
         'philosophy': 'Light Photography & Lunar Dance',
@@ -121,7 +121,7 @@ ARTIST_STYLES = {
 class SacredPDF(FPDF):
     """PDF generator using golden ratio mathematics and artist dedications"""
 
-    def __init__(self, style_key='gisel'):
+    def __init__(self, style_key='founder'):
         super().__init__()
         self.style = ARTIST_STYLES[style_key]
         self.style_key = style_key
@@ -271,7 +271,7 @@ class SacredPDF(FPDF):
         self.set_x(10)
         self.set_font('Helvetica', 'I', 12)
         self.set_text_color(*self._rgb('secondary'))
-        self.cell(PAGE_WIDTH - 20, 8, '968 Cosmic Transmissions by Gisel X Florez', align='C')
+        self.cell(PAGE_WIDTH - 20, 8, '968 Cosmic Transmissions by The Founder', align='C')
         self.ln(20)
 
         # Draw decorative pattern
@@ -468,7 +468,7 @@ class SacredPDF(FPDF):
         self.set_x(20)
         self.set_font('Helvetica', '', 11)
         self.set_text_color(*self._rgb('secondary'))
-        self.cell(PAGE_WIDTH - 40, 8, '- Gisel X Florez', align='C')
+        self.cell(PAGE_WIDTH - 40, 8, '- The Founder', align='C')
 
         self.ln(20)
         self.set_x(20)

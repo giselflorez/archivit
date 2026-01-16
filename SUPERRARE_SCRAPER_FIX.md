@@ -83,7 +83,7 @@ Saves in the same structure as web imports:
 
 ```bash
 source venv/bin/activate
-python scripts/collectors/superrare_scraper.py http://superrare.com/giselx
+python scripts/collectors/superrare_scraper.py http://superrare.com/founder
 ```
 
 ### What You'll Get
@@ -91,7 +91,7 @@ python scripts/collectors/superrare_scraper.py http://superrare.com/giselx
 **Before (old scraper):**
 - ~10 images (incomplete)
 - Mixed with profile pictures
-- Alt text: "danseungvault", "giselxvault", etc.
+- Alt text: "danseungvault", "foundervault", etc.
 - No titles or artwork URLs
 
 **After (new scraper):**
@@ -124,7 +124,7 @@ After scraping, view at: **http://localhost:5001/visual-translator**
 Each NFT will show:
 - **Source Type Badge**: 🌐 Website Scrape (blue dashed border)
 - **Title**: Actual NFT artwork title
-- **Artist**: giselx (not random usernames)
+- **Artist**: founder (not random usernames)
 - **Metadata**: Artwork URL, IPFS link, file size
 
 ## Cleaning Up Old Incorrect Imports
@@ -193,7 +193,7 @@ The old scraper grabbed images from ALL of these sections without discrimination
    ```python
    nft_data = {
        'title': 'Actual Artwork Title',
-       'artist': 'giselx',  # Not "danseungvault"
+       'artist': 'founder',  # Not "danseungvault"
        'artwork_url': 'http://superrare.com/artwork/...'
    }
    ```
@@ -219,7 +219,7 @@ The old scraper grabbed images from ALL of these sections without discrimination
 
 ![Luminous Portrait #5](../../knowledge_base/media/web_imports/a1b2c3d4e5f6/nft_1.jpg)
 
-**Artist:** giselx  ← ✅ Correct attribution
+**Artist:** founder  ← ✅ Correct attribution
 **View on SuperRare:** [Luminous Portrait #5](http://superrare.com/artwork/luminous-portrait-5)
 
 **Metadata:**
@@ -249,7 +249,7 @@ Perfect for:
 
 1. **Rescrape SuperRare** with the new scraper:
    ```bash
-   python scripts/collectors/superrare_scraper.py http://superrare.com/giselx
+   python scripts/collectors/superrare_scraper.py http://superrare.com/founder
    ```
 
 2. **Verify in Visual Translator**: http://localhost:5001/visual-translator

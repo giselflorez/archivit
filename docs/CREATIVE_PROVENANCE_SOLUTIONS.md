@@ -71,7 +71,7 @@ Collector DNA = {
     aesthetic_vector: [0.8, 0.2, 0.5, ...],   // From image embeddings
     price_range: (0.1 ETH, 2.5 ETH),          // Typical purchase range
     hold_duration_avg: 847 days,               // Long-term holder
-    artists_collected: ["giselx", "xcopy", ...],
+    artists_collected: ["founder", "xcopy", ...],
     co-collectors: ["0xabc...", "0xdef..."],   // Others who collect same artists
     acquisition_style: "early_supporter",       // vs "established_buyer"
 }
@@ -300,7 +300,7 @@ The point cloud becomes a LIVING representation of the art ecosystem, not just a
 
 Imagine clicking on an NFT node and seeing:
 
-> **"Blue Horizon #7" by giselx**
+> **"Blue Horizon #7" by founder**
 >
 > **Provenance Score: 94/100 ✅ VERIFIED**
 > - Minted from registered address ✓

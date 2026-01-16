@@ -785,7 +785,7 @@ if __name__ == '__main__':
     test_docs = [
         {
             'id': 'test1',
-            'title': 'GiselFlorez NFT Collection',
+            'title': 'founder NFT Collection',
             'body': 'IPFS hash: Qm1234... Token ID: 123',
             'url': 'https://www.1stdibs.com/nft/profile/GISELXFLOREZ/',
             'source': 'web_import'

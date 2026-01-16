@@ -54,7 +54,7 @@
 
 ## Section 2: Use Case Analysis
 
-### Persona 1: NFT Artist (Gisel X Florez - Primary User)
+### Persona 1: NFT Artist (The Founder - Primary User)
 
 **A. Core Use Cases**
 

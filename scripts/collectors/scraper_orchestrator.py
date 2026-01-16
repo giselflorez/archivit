@@ -923,7 +923,7 @@ def main():
         print("  - Manifold (manifold.xyz)")
         print("  - Generic web pages (fallback)")
         print("\nExample:")
-        print("  python scripts/collectors/scraper_orchestrator.py http://superrare.com/giselx")
+        print("  python scripts/collectors/scraper_orchestrator.py http://superrare.com/founder")
         return
 
     url = sys.argv[1]

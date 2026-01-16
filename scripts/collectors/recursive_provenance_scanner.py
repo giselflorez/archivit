@@ -1190,7 +1190,7 @@ Usage:
 
 Examples:
   # Verify an artist
-  python recursive_provenance_scanner.py verify giselx 0x1234... 0x5678...
+  python recursive_provenance_scanner.py verify founder 0x1234... 0x5678...
 
   # Run full scan (requires tweets to be loaded)
   python recursive_provenance_scanner.py scan 1

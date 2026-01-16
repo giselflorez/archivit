@@ -257,7 +257,7 @@ Or disable AirPlay Receiver: System Settings → General → AirDrop & Handoff �
 | 4 | docs/ULTRATHINK_SYNTHESIS.md | 22 Masters framework |
 
 ### 22 NORTHSTAR Masters
-**Feminine (9)**: Hildegard, Gisel, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
+**Feminine (9)**: Hildegard, Founder, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
 **Masculine (13)**: da Vinci, Tesla, Fuller, Jung, Suleyman, Grant, Prince, Coltrane, Bowie, Koe, Jobs, Cherny, Rene
 
 ### Common Tasks
@@ -340,7 +340,7 @@ Or disable AirPlay Receiver: System Settings → General → AirDrop & Handoff �
 ```
 FEMININE (9):
 /artist-hildegard - Sacred Geometry & Sound
-/artist-gisel     - Light Photography & Lunar Art
+/artist-founder     - Light Photography & Lunar Art
 /artist-rand      - Individual Sovereignty
 /artist-starhawk  - Decentralized Power
 /artist-tori      - Breath Structure

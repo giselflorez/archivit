@@ -802,13 +802,13 @@ def categorize_document(frontmatter, body, source, doc_type):
     title = frontmatter.get('title', '').lower()
     body_lower = body.lower()
 
-    # MY WORK: Original creations by Gisel
-    my_work_keywords = ['giselx', 'gisel florez', 'my work', 'my art', 'my nft']
+    # MY WORK: Original creations by The Founder
+    my_work_keywords = ['founder', 'founder', 'my work', 'my art', 'my nft']
     if any(keyword in tags_lower for keyword in my_work_keywords):
         return 'my_work'
     if any(keyword in title for keyword in my_work_keywords):
         return 'my_work'
-    if 'creator' in frontmatter and 'gisel' in frontmatter.get('creator', '').lower():
+    if 'creator' in frontmatter and 'founder' in frontmatter.get('creator', '').lower():
         return 'my_work'
 
     # IDENTITY: Professional materials (CV, bio, artist statement)
@@ -1597,7 +1597,7 @@ def api_agent_init():
                 'SOCI-8': 'SHARE & CONNECT (future)'
             },
             'northstar_masters': {
-                'feminine': ['Hildegard', 'Gisel', 'Rand', 'Starhawk', 'Tori', 'Bjork', 'Swan', 'Hicks', 'Byrne'],
+                'feminine': ['Hildegard', 'Founder', 'Rand', 'Starhawk', 'Tori', 'Bjork', 'Swan', 'Hicks', 'Byrne'],
                 'masculine': ['da Vinci', 'Tesla', 'Fuller', 'Jung', 'Suleyman', 'Grant', 'Prince', 'Coltrane', 'Bowie', 'Koe', 'Jobs', 'Cherny', 'Rene']
             },
             'physics_constants': {

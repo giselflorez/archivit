@@ -45,8 +45,8 @@ ARTIST_STYLES = {
             'accent': (240, 200, 50), 'highlight': (156, 136, 189),
         }
     },
-    'gisel': {
-        'name': 'Gisel X Florez', 'years': '1980-present',
+    'founder': {
+        'name': 'The Founder', 'years': '1980-present',
         'dedication': 'For Gisel, who dances with the moon.',
         'philosophy': 'I Fell in Love with DATA',
         'colors': {
@@ -79,7 +79,7 @@ ARTIST_STYLES = {
 
 
 class CompactPDF(FPDF):
-    def __init__(self, style_key='gisel'):
+    def __init__(self, style_key='founder'):
         super().__init__()
         self.style = ARTIST_STYLES[style_key]
         self.set_auto_page_break(auto=True, margin=12)
@@ -127,7 +127,7 @@ class CompactPDF(FPDF):
         self.ln(7)
         self.set_font('Helvetica', 'I', 9)
         self.set_text_color(*self._c('secondary'))
-        self.cell(0, 5, '968 Cosmic Transmissions by Gisel X Florez', align='C')
+        self.cell(0, 5, '968 Cosmic Transmissions by The Founder', align='C')
         self.ln(15)
         self.set_draw_color(*self._c('accent'))
         self.line(PAGE_W/2-30, self.get_y(), PAGE_W/2+30, self.get_y())
@@ -259,7 +259,7 @@ class CompactPDF(FPDF):
         self.ln(3)
         self.set_font('Helvetica', '', 8)
         self.set_text_color(*self._c('secondary'))
-        self.cell(0, 4, '- Gisel X Florez', align='C')
+        self.cell(0, 4, '- The Founder', align='C')
         self.ln(10)
         self.set_font('Helvetica', 'B', 9)
         self.set_text_color(*self._c('highlight'))

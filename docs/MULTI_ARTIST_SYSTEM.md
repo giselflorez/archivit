@@ -37,7 +37,7 @@ When you add wallet addresses:
 
 **First Wallet Address:**
 You provide:
-- **Artist Name:** Display name (e.g., "GiselX", "My Art Project")
+- **Artist Name:** Display name (e.g., "Founder", "My Art Project")
 - **Wallet Address:** Ethereum minting address (0x...)
 - **Wallet Label:** Optional label (e.g., "Primary Wallet")
 
@@ -49,19 +49,19 @@ You provide:
 
 **What Happens:**
 1. System creates artist profile with sanitized folder name (first address only)
-   - "GiselX" → `artist_giselx`
+   - "Founder" → `artist_founder`
    - "My Art Project" → `artist_my_art_project`
 
 2. Creates wallet subfolder structure:
    ```
    knowledge_base/
    ├── processed/
-   │   └── artist_giselx/
+   │   └── artist_founder/
    │       ├── wallet_0xabc123.../     # First wallet's markdown files
    │       ├── wallet_0xdef456.../     # Second wallet's markdown files
    │       └── wallet_0x789abc.../     # Third wallet's markdown files
    └── media/
-       └── artist_giselx/
+       └── artist_founder/
            ├── wallet_0xabc123.../     # First wallet's images/videos
            ├── wallet_0xdef456.../     # Second wallet's images/videos
            └── wallet_0x789abc.../     # Third wallet's images/videos
@@ -77,7 +77,7 @@ You provide:
 ```
 knowledge_base/
 ├── processed/
-│   └── artist_giselx/
+│   └── artist_founder/
 │       ├── wallet_0xabc123.../
 │       │   ├── nft_token_1234.md
 │       │   ├── nft_token_5678.md
@@ -88,7 +88,7 @@ knowledge_base/
 │       └── wallet_0x789abc.../
 │           └── nft_token_7777.md
 └── media/
-    └── artist_giselx/
+    └── artist_founder/
         ├── wallet_0xabc123.../
         │   ├── image_1234.jpg
         │   └── image_5678.png
@@ -139,8 +139,8 @@ from scripts.interface.user_config_db import UserConfigDB
 user_db = UserConfigDB()
 artist_id = user_db.create_artist_profile(
     user_id=1,
-    artist_name="GiselX",
-    folder_name="giselx",  # Optional, auto-generated if not provided
+    artist_name="Founder",
+    folder_name="founder",  # Optional, auto-generated if not provided
     bio="Digital artist exploring Web3"
 )
 ```
@@ -148,7 +148,7 @@ artist_id = user_db.create_artist_profile(
 ### Get Current Artist
 ```python
 artist = user_db.get_current_artist()
-# Returns: {'id': 1, 'artist_name': 'GiselX', 'folder_name': 'giselx', ...}
+# Returns: {'id': 1, 'artist_name': 'Founder', 'folder_name': 'founder', ...}
 ```
 
 ### Get All Artists
@@ -166,7 +166,7 @@ user_db.switch_artist(artist_id=2)
 ### Get Artist Folder Path
 ```python
 folder = user_db.get_artist_folder_path(artist_id=1)
-# Returns: "artist_giselx"
+# Returns: "artist_founder"
 ```
 
 ## Adding More Wallets Later
@@ -213,13 +213,13 @@ python scripts/collectors/ethereum_tracker.py \
   --address 0xYourAddress \
   --network ethereum \
   --sync-type full \
-  --artist-folder artist_giselx/wallet_0xYourAddress
+  --artist-folder artist_founder/wallet_0xYourAddress
 ```
 
 **What it does:**
 - Scrapes NFTs minted by `0xYourAddress`
-- Saves markdown files to `knowledge_base/processed/artist_giselx/wallet_0xYourAddress/`
-- Downloads images to `knowledge_base/media/artist_giselx/wallet_0xYourAddress/`
+- Saves markdown files to `knowledge_base/processed/artist_founder/wallet_0xYourAddress/`
+- Downloads images to `knowledge_base/media/artist_founder/wallet_0xYourAddress/`
 - Links NFTs to artist profile and specific wallet address in database
 
 ## Collection Detection
@@ -280,22 +280,22 @@ The system supports three licensing tiers:
 1. Enter email → Confirm email
 
 2. Add first wallet (creates artist profile):
-   - Artist Name: "GiselX"
+   - Artist Name: "Founder"
    - Address: 0xABC...
    - Label: "Primary Wallet"
-   → Creates artist_giselx/wallet_0xABC... folder
+   → Creates artist_founder/wallet_0xABC... folder
    → Scrapes blockchain for 0xABC...
 
 3. Add second wallet (to same artist):
    - Address: 0xDEF...
    - Label: "Foundation Wallet"
-   → Creates artist_giselx/wallet_0xDEF... folder
+   → Creates artist_founder/wallet_0xDEF... folder
    → Scrapes blockchain for 0xDEF...
 
 4. Add third wallet (to same artist):
    - Address: 0x123...
    - Label: "OpenSea Wallet"
-   → Creates artist_giselx/wallet_0x123... folder
+   → Creates artist_founder/wallet_0x123... folder
    → Scrapes blockchain for 0x123...
 ```
 
@@ -317,17 +317,17 @@ for addr in addresses:
 # Scrape for first wallet
 python scripts/collectors/ethereum_tracker.py \
   --address 0xABC... \
-  --artist-folder artist_giselx/wallet_0xABC...
+  --artist-folder artist_founder/wallet_0xABC...
 
 # Scrape for second wallet
 python scripts/collectors/ethereum_tracker.py \
   --address 0xDEF... \
-  --artist-folder artist_giselx/wallet_0xDEF...
+  --artist-folder artist_founder/wallet_0xDEF...
 
 # Scrape for third wallet
 python scripts/collectors/ethereum_tracker.py \
   --address 0x123... \
-  --artist-folder artist_giselx/wallet_0x123...
+  --artist-folder artist_founder/wallet_0x123...
 ```
 
 ## Benefits

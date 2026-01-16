@@ -382,7 +382,7 @@ DIMENSIONAL SPACE
 Clicking on a work shows:
 
 ```
-"Temporal Garden #7" by giselx
+"Temporal Garden #7" by founder
 
 CONCEPTUAL LINEAGE
 ├── Ancestors: Generative landscape tradition,

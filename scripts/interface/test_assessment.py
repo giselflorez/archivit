@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List
 
 
-def generate_test_assessment(twitter_handle: str = "@giselx.art",
+def generate_test_assessment(twitter_handle: str = "@founder.art",
                               wallet: str = "0x7B...") -> Dict:
     """
     Generate a test assessment for UI development.
@@ -246,7 +246,7 @@ def generate_mock_imported_data() -> List[Dict]:
             'tags': random.sample(['digital', 'abstract', 'generative', 'animation', '1/1', 'edition'], k=random.randint(2, 4)),
             'description': f'A unique digital artwork exploring themes of {random.choice(["identity", "technology", "nature", "consciousness"])}.',
             'engagement': random.randint(50, 500) if source == 'twitter_scan' else None,
-            'tweet_url': f'https://twitter.com/giselx/status/{random.randint(10**18, 10**19)}' if source == 'twitter_scan' else None
+            'tweet_url': f'https://twitter.com/founder/status/{random.randint(10**18, 10**19)}' if source == 'twitter_scan' else None
         })
 
     # Add some sales
@@ -287,7 +287,7 @@ def generate_mock_imported_data() -> List[Dict]:
     return data
 
 
-def get_assessment_template_data(twitter_handle: str = "@giselx.art") -> Dict:
+def get_assessment_template_data(twitter_handle: str = "@founder.art") -> Dict:
     """
     Get all data needed to render the assessment report template.
 

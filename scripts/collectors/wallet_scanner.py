@@ -1030,10 +1030,10 @@ class WalletScanner:
 
     def resolve_tezos_domain(self, domain: str) -> Optional[str]:
         """
-        Resolve a Tezos domain (like giselx.tez) to an address using TzKT API
+        Resolve a Tezos domain (like founder.tez) to an address using TzKT API
 
         Args:
-            domain: Tezos domain (e.g., "giselx.tez")
+            domain: Tezos domain (e.g., "founder.tez")
 
         Returns:
             Resolved Tezos address or None

@@ -4,7 +4,7 @@
 # Usage: ./scrape-nft <url>
 #
 # Examples:
-#   ./scrape-nft http://superrare.com/giselx
+#   ./scrape-nft http://superrare.com/founder
 #   ./scrape-nft https://foundation.app/@artist
 #   ./scrape-nft https://opensea.io/collection/name
 

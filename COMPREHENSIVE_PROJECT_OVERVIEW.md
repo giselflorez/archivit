@@ -17,7 +17,7 @@
 > "Your Data. Your Future. Take Control."
 
 ### The Founder
-**The Founder** (GiselX, GISELXFLOREZ) - NYC-based visual artist with 20+ years in photographic arts, RISD BFA 2003, co-founder of WOCA (Women of Crypto Art) and NEW YORK ICE CREAM GALLERY, prominent figure in the crypto art movement since November 2019. Creator of MOONLANGUAGE (968 iterations of lunar expressions).
+**The Founder** (Founder, GISELXFLOREZ) - NYC-based visual artist with 20+ years in photographic arts, RISD BFA 2003, co-founder of WOCA (Women of Crypto Art) and NEW YORK ICE CREAM GALLERY, prominent figure in the crypto art movement since November 2019. Creator of MOONLANGUAGE (968 iterations of lunar expressions).
 
 ---
 
@@ -150,7 +150,7 @@ The system includes 22 master artists/thinkers whose techniques and philosophies
 | ID | Name | Era | Domain | Key Contribution |
 |----|------|-----|--------|------------------|
 | hildegard | Hildegard of Bingen | 1098-1179 | Sacred Geometry & Sound | Viriditas, visionary composition |
-| gisel | The Founder | Contemporary | Light Photography & Lunar Art | In-camera light painting, sovereignty |
+| founder | The Founder | Contemporary | Light Photography & Lunar Art | In-camera light painting, sovereignty |
 | rand | Ayn Rand | 1905-1982 | Individual Sovereignty | Objectivism, rational self-interest |
 | starhawk | Starhawk | 1951-Present | Decentralized Power | Power-from-within, spiral dance |
 | tori | Tori Amos | 1963-Present | Breath Structure | Breath as structural element |
@@ -714,7 +714,7 @@ ARCHIVIT_01/
 │       └── content_authenticator.py
 │
 ├── knowledge_base/
-│   └── training_data.json        # Verified Gisel data
+│   └── training_data.json        # Verified Founder data
 │
 ├── northstar_knowledge_bank/
 │   ├── VIDEO_GEMS_TO_TRANSCRIBE.md

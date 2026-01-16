@@ -463,3 +463,36 @@ scripts/interface/static/package-lock.json
 # Founder personal profile data (privacy)
 knowledge_base/processed/about_gisel*/
 knowledge_base/raw/gisel*.json
+
+# ============================================================================
+# SECTION 21: FOUNDER PRIVACY PROTECTION (Added 2026-01-15)
+# Personal data that should never be in public repository
+# ============================================================================
+
+# Founder profile and personal scans
+inspiration/masters/gisel_florez/
+scans/founder_superscan/
+
+# Personal documents with founder name
+**/Gisel*Florez*.pdf
+**/gisel*florez*.pdf
+
+# WhatsApp chat logs (contain personal conversations)
+dataland_proposal/_chat.txt
+
+# Backup directories (development artifacts)
+backups/
+
+# Personal CV and resume files
+**/*CV*.pdf
+**/*Resume*.pdf
+**/*resume*.pdf
+
+# Knowledge base personal data (contains PII from imports)
+knowledge_base/raw/
+knowledge_base/processed/
+knowledge_base/attachments/
+
+# ============================================================================
+# END OF FOUNDER PRIVACY PROTECTION
+# ============================================================================

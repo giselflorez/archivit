@@ -288,9 +288,9 @@ curl -X POST http://localhost:5001/api/export/press-kit \
     ],
     "artist_bio": "Award-winning digital artist...",
     "contact_info": {
-      "email": "gisel@example.com",
-      "website": "https://giselx.com",
-      "instagram": "@giselxflorez"
+      "email": "founder@example.com",
+      "website": "https://founder.com",
+      "instagram": "@founder"
     }
   }' \
   --output press-kit.pdf

@@ -14,7 +14,7 @@ Alchemy provides free Ethereum blockchain access (300M compute units/month - ple
 2. **Sign up** (free account)
 3. **Create an app:**
    - Click "Create App"
-   - Name: "GiselX NFT Query"
+   - Name: "Founder NFT Query"
    - Network: **Ethereum Mainnet**
    - Free tier is perfect!
 
@@ -110,7 +110,7 @@ By querying the smart contract directly:
 Foundation NFT page URLs contain the token ID:
 
 ```
-https://foundation.app/@giselflorez/~/5
+https://foundation.app/@founder/~/5
                                     ↑
                                  token ID
 ```
@@ -167,7 +167,7 @@ Via web interface:
 ```
 http://localhost:5000
 → + Import
-→ URL: https://foundation.app/@giselflorez
+→ URL: https://foundation.app/@founder
 → ✓ Extract Images
 → Import
 ```

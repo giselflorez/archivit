@@ -19,7 +19,7 @@ payload = {
     "messages": [
         {
             "role": "user",
-            "content": "What is giselx?"
+            "content": "What is founder?"
         }
     ]
 }

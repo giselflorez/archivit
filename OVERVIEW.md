@@ -1,4 +1,4 @@
-# GiselX / The Founder - Complete Overview
+# Founder / The Founder - Complete Overview
 
 *A comprehensive summary of your digital presence, artistic practice, and career*
 
@@ -6,7 +6,7 @@
 
 ## 👤 Who You Are
 
-**The Founder** (also known as **GiselX**, **GiselXFlorez**, **GISELXTEZ**) is a New York City-based multimedia artist who describes herself as an **"Artist in Light."**
+**The Founder** (also known as **Founder**, **founder**, **GISELXTEZ**) is a New York City-based multimedia artist who describes herself as an **"Artist in Light."**
 
 **Location:** Brooklyn, NY
 **Education:** RISD alumna ('03)
@@ -72,12 +72,12 @@ Before transitioning fully into fine art and crypto art, you built extensive com
 ### NFT Platforms & Collections
 
 **Primary Marketplaces:**
-- **Foundation.app** (@giselflorez) - Photographic and cinematic digital expressions
-- **SuperRare** (@giselx, @giselxvault) - Active since November 2019, 170+ creations, 47 owned pieces
+- **Foundation.app** (@founder) - Photographic and cinematic digital expressions
+- **SuperRare** (@founder, @foundervault) - Active since November 2019, 170+ creations, 47 owned pieces
 - **Rarible** - 420 Special Edition (6 portions for 420fund.eth)
 - **Deca.art** (GISELXTEZ) - Digital art collection
-- **Raster.art** (@giselxflorez) - Featured works
-- **Saatchi Art** (giselflorezstudio) - 24 artworks available
+- **Raster.art** (@founder) - Featured works
+- **Saatchi Art** (founderstudio) - 24 artworks available
 
 **Notable Works:**
 - *GISELXLIGHTSLURRY*
@@ -124,17 +124,17 @@ You co-founded this collective supporting women artists in the crypto space, dem
 ## 🌍 Online Presence
 
 ### Professional Websites
-- **giselflorez.com** - Main portfolio site
-- **giselx.art** - Art-focused site
+- **founder.com** - Main portfolio site
+- **founder.art** - Art-focused site
 - **web3photo.com** - Photography, video, consulting, and Web3 services
 
 ### Social Media & Platforms
-- **X/Twitter:** @GiselFlorez
-- **Farcaster:** @giselx
-- **Cent:** @GiselX
-- **Warpcast:** giselx
+- **X/Twitter:** @founder
+- **Farcaster:** @founder
+- **Cent:** @Founder
+- **Warpcast:** founder
 - **Behance:** 369Studios / stilllifeb0ee
-- **Linktree:** linktr.ee/giselx
+- **Linktree:** linktr.ee/founder
 
 ---
 
@@ -193,27 +193,19 @@ Creating **conceptual works** that explore **human perception** and our **interc
 
 ## 🔗 Quick Reference Links
 
-### Art & Portfolio
-- Spalter Digital: https://spalterdigital.com/artists/gisel-florez/
-- Foundation: https://foundation.app/giselflorez
-- SuperRare: https://superrare.com/giselx/activity
-- Saatchi Art: https://www.saatchiart.com/giselflorezstudio
-- The Verse Verse: https://theverseverse.com/artist/gisel-florez
+*Founder profile links available upon request - contact via official channels.*
 
 ### NFT Platforms
-- Rarible Special Edition: https://rarible.com/giselx-special-edition
-- Deca.art: https://deca.art/GISELXTEZ
-- Raster.art: https://www.raster.art/artist/giselxflorez
-
-### Features & Press
-- RISD Alumni: https://alumni.risd.edu/news-events/florez-gisel-nft
-- ArtRights Interview: https://www.artrights.me/en/gisel-florez-the-nft-artist-of-light/
-- Vespertine NYC Feature: https://vespertinenyc.com/blogs/news/gisel-florez
-- Icons of Crypto Art: https://iconsofcryptoart.com/gisel-florez
+The Founder maintains active presence across 10+ NFT platforms including:
+- Foundation
+- SuperRare
+- Rarible
+- Deca.art
+- Raster.art
+- Saatchi Art
 
 ### Community
 - Museum of Crypto Art: https://museumofcryptoart.com/and-the-room-goes-to/
-- CryptoArtNet Profile: https://www.cryptoartnet.com/cryptoartists/nft-art/gisel-x-florez/
 
 ---
 

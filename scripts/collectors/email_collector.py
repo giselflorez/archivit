@@ -65,12 +65,12 @@ def determine_subject(email_body, email_subject):
     """Determine the subject category based on email content"""
     combined_text = f"{email_subject} {email_body}".lower()
 
-    if "giselxflorez" in combined_text:
-        return "giselxflorez"
-    elif "giselx" in combined_text:
-        return "giselx"
-    elif "gisel" in combined_text:
-        return "gisel_florez"
+    if "founder" in combined_text:
+        return "founder"
+    elif "founder" in combined_text:
+        return "founder"
+    elif "founder" in combined_text:
+        return "founder"
     else:
         return "email_general"
 

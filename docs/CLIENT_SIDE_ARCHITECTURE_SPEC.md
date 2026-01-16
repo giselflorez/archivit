@@ -52,7 +52,7 @@ db/
 knowledge_base/
 ├── processed/
 │   ├── about_web_imports/*.md
-│   ├── about_gisel_florez/*.md
+│   ├── about_founder/*.md
 │   └── ...
 └── media/
     ├── images/
