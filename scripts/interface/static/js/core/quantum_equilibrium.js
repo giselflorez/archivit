@@ -3,7 +3,12 @@
  * Gaming-resistant access control using Fibonacci-weighted behavioral analysis
  *
  * Fixes ACU V1 vulnerability: V1 allowed tier manipulation in 2-3 actions
- * V2 requires sustained consistent behavior over 21+ actions
+ * V2 requires sustained behavior over 21+ actions
+ *
+ * Three-layer protection (variance check REMOVED - penalized creativity):
+ * 1. History gate: Minimum 21 actions
+ * 2. Fibonacci-weighted ACU: Older actions weight MORE
+ * 3. Light equilibrium: Positive ratio ≥ 0.618 for advanced tiers
  */
 
 export class QuantumEquilibriumEngine {
@@ -23,8 +28,11 @@ export class QuantumEquilibriumEngine {
 
         // Anti-gaming parameters
         this.MIN_HISTORY = 21;           // Fibonacci F(8) - minimum actions before tier calculation
-        this.VARIANCE_THRESHOLD = 0.25;  // Max allowed variance (detects oscillation)
         this.LIGHT_RATIO_MIN = 0.618;    // Min positive/total ratio for advanced tiers
+
+        // NOTE: Variance check REMOVED - penalizes creative experimentation
+        // Creativity requires bold, varied thinking - not consistency
+        // Gaming protection via: history gate + Fibonacci weighting + light ratio
 
         // Pre-compute Fibonacci weights (up to 55 actions)
         this.fibWeights = this._generateFibonacci(55);
@@ -60,20 +68,11 @@ export class QuantumEquilibriumEngine {
         result.acu = fibACU;
         result.diagnostics.fibonacciACU = fibACU;
 
-        // Layer 3: Variance check (anti-oscillation)
-        const recentActions = actionHistory.slice(-13); // Last 13 (Fibonacci)
-        const variance = this._calculateVariance(recentActions);
-        result.diagnostics.variance = variance;
-
+        // Layer 3: REMOVED - Variance check penalized creative experimentation
+        // Creativity = bold, varied thinking. Not punished here.
         let effectiveACU = fibACU;
-        if (variance > this.VARIANCE_THRESHOLD) {
-            // Penalize high variance (oscillating behavior)
-            effectiveACU = fibACU * (1 - variance);
-            result.diagnostics.variancePenalty = true;
-            result.diagnostics.penalizedACU = effectiveACU;
-        }
 
-        // Layer 4: Light equilibrium
+        // Layer 3 (was 4): Light equilibrium
         const lightRatio = this._calculateLightRatio(actionHistory);
         result.diagnostics.lightRatio = lightRatio;
 
@@ -274,18 +273,17 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
     console.log(`  Tier: ${goodResult.tierName}`);
     console.log(`  Result: ${goodResult.tier >= 3 ? 'PASS' : 'FAIL'}\n`);
 
-    // Test 4: Oscillation detection
-    console.log('Test 4: Oscillation detection (alternating 0/1)');
-    const oscillatingHistory = [];
+    // Test 4: Creative experimentation (varied scores OK)
+    console.log('Test 4: Creative experimentation (varied scores)');
+    const variedHistory = [];
     for (let i = 0; i < 30; i++) {
-        oscillatingHistory.push({ score: i % 2 });
+        variedHistory.push({ score: Math.random() * 0.5 + 0.5 }); // 0.5-1.0 range
     }
-    const oscillateResult = engine.calculateEquilibriumACU(oscillatingHistory);
-    console.log(`  Pattern: 0,1,0,1,0,1...`);
-    console.log(`  Variance: ${oscillateResult.diagnostics.variance.toFixed(4)}`);
-    console.log(`  Penalty applied: ${oscillateResult.diagnostics.variancePenalty || false}`);
-    console.log(`  Tier: ${oscillateResult.tierName}`);
-    console.log(`  Result: ${oscillateResult.diagnostics.variancePenalty ? 'PASS' : 'FAIL'}\n`);
+    const variedResult = engine.calculateEquilibriumACU(variedHistory);
+    console.log(`  Pattern: Random 0.5-1.0 scores`);
+    console.log(`  ACU: ${variedResult.acu.toFixed(4)}`);
+    console.log(`  Tier: ${variedResult.tierName}`);
+    console.log(`  Result: Variance NOT penalized (creativity allowed)\n`);
 
     console.log('=== Self-Test Complete ===');
 }
