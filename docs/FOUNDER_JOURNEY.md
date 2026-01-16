@@ -10,7 +10,7 @@
 
 **Start Date:** January 1, 2026
 **Project:** ARCHIVIT_01 - Digital Sovereignty Platform
-**Founder:** Gisel Florez
+**Founder:** The Founder
 
 **Ecosystem Structure:**
 ```

@@ -70,7 +70,7 @@
 
 **Organizations:**
 - **WOCA** (Women of Crypto Art) - Co-founded, Arcana Tarot project restored
-- **Gisel Florez Studio Inc.** - Primary studio entity
+- **The Founder Studio Inc.** - Primary studio entity
 
 ---
 

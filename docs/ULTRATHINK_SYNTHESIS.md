@@ -186,7 +186,7 @@ The project identifies 22 visionary masters loaded with EQUAL WEIGHT, representi
 | Master | Domain | Verifiable Contribution |
 |--------|--------|------------------------|
 | **Hildegard of Bingen** | Sacred geometry, sound | First known composer whose music survives (1098-1179) |
-| **Gisel Florez** | Photography, lunar dance | 968 MOONLANGUAGE iterations, 20+ year practice |
+| **The Founder** | Photography, lunar dance | 968 MOONLANGUAGE iterations, 20+ year practice |
 | **Ayn Rand** | Individual sovereignty | "Atlas Shrugged" (1957) - individual rights philosophy |
 | **Starhawk** | Decentralized power | "The Spiral Dance" (1979) - power-from-within concept |
 | **Tori Amos** | Breath as structure | Grammy-nominated, documented breathing techniques |
@@ -226,7 +226,7 @@ When all 22 perspectives blend, they create "the complete brain for solving huma
 **TRUTH:** Local-first, open architecture proves technology can serve individual sovereignty without extraction.
 
 ### MISCONCEPTION 3: "Artists cannot build their own tools"
-**TRUTH:** This entire 13,000+ line codebase was built through AI collaboration by an artist (Gisel Florez), proving non-coders can program.
+**TRUTH:** This entire 13,000+ line codebase was built through AI collaboration by an artist (The Founder), proving non-coders can program.
 
 ### MISCONCEPTION 4: "Blockchain is only about speculation"
 **TRUTH:** Blockchain's core innovation is trustless verification—proving provenance, authenticity, and ownership without intermediaries.

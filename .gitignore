@@ -459,3 +459,7 @@ scripts/interface/static/package-lock.json
 
 # Quantum checkpoint state (session-only)
 .quantum_state/
+
+# Founder personal profile data (privacy)
+knowledge_base/processed/about_gisel*/
+knowledge_base/raw/gisel*.json

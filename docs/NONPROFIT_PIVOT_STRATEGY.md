@@ -106,7 +106,7 @@
 │   CURRENT:                                                                   │
 │   ════════                                                                   │
 │                                                                              │
-│   Gisel Florez ─── Founder/Creator                                          │
+│   The Founder ─── Founder/Creator                                          │
 │        │                                                                     │
 │        └── Beta Testers (supporting role)                                   │
 │                                                                              │

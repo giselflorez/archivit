@@ -406,4 +406,4 @@ Cost: ~$250-350 per class per mark
 
 **Document Date:** January 10, 2026
 **Prepared by:** AI Research Assistant
-**For:** Gisel Florez / Gisel Florez Studio Inc.
+**For:** The Founder / The Founder Studio Inc.

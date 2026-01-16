@@ -4735,7 +4735,7 @@ def export_itr8():
             'source': 'ARCHIV-IT',
             'bubbles': bubbles,
             'metadata': {
-                'artist': 'Gisel Florez',
+                'artist': 'The Founder',
                 'total_bubbles': len(bubbles),
                 'total_images': total_images,
                 'exported_from': 'http://localhost:5001'
@@ -5462,7 +5462,7 @@ def verified_social_ui():
     # Team data - pulled from team gallery for prototype
     artists = [
         {
-            'name': 'Gisel Florez',
+            'name': 'The Founder',
             'avatar': 'https://unavatar.io/twitter/web3gisel',
             'role': 'Creator · ARCHIV-IT Founder',
             'trust_score': 94
@@ -5514,7 +5514,7 @@ def verified_social_ui():
     # Sample posts with provenance chains
     posts = [
         {
-            'name': 'Gisel Florez',
+            'name': 'The Founder',
             'avatar': 'https://unavatar.io/twitter/web3gisel',
             'timestamp': '2h ago',
             'trust_score': 94,

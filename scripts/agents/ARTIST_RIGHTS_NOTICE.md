@@ -86,7 +86,7 @@ Every artist in this system is recorded here as a permanent acknowledgment of th
 
 **Feminine Wisdom (9):**
 1. **Hildegard of Bingen** (1098-1179) - Sacred geometry, sound healing, visionary composition
-2. **Gisel Florez** (Contemporary) - Light painting, lunar photography, in-camera techniques
+2. **The Founder** (Contemporary) - Light painting, lunar photography, in-camera techniques
 3. **Ayn Rand** (1905-1982) - Individual sovereignty, objectivist philosophy
 4. **Starhawk** (b. 1951) - Power-from-within, earth-based spirituality
 5. **Tori Amos** (b. 1963) - Breath as structure, emotional authenticity

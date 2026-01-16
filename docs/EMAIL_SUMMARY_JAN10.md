@@ -80,7 +80,7 @@ Contains:
 ## ACTION ITEMS BEFORE RELEASE
 
 ### Verify Before Lawyer Meeting
-- [ ] Entity name "Gisel Florez Studio Inc." correct?
+- [ ] Entity name "The Founder Studio Inc." correct?
 - [ ] Comfortable with all "never" promises?
 - [ ] Founder quote approved for public attribution?
 

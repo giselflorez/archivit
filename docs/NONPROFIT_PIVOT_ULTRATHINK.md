@@ -384,7 +384,7 @@
 │                                                                              │
 │   SEAT 1: Artist/Creator Representative                                     │
 │   ────────────────────────────────────                                      │
-│   Person: You (Gisel)                                                       │
+│   Person: You (The Founder)                                                       │
 │   Role: Ensures creative community voice                                    │
 │   Title: Board Director (not "Founder" - by design)                        │
 │                                                                              │

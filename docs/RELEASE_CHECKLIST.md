@@ -22,7 +22,7 @@
 
 | Item | Issue | Action Required |
 |------|-------|-----------------|
-| **Entity Name** | Document states "Gisel Florez Studio Inc." | ⚠️ VERIFY: Is this the correct legal entity name? Is it incorporated? |
+| **Entity Name** | Document states "The Founder Studio Inc." | ⚠️ VERIFY: Is this the correct legal entity name? Is it incorporated? |
 | **Trademark "NorthStar"** | Common term, may face challenges | ⚠️ VERIFY: Consider trademark search before claiming |
 | **Open Source Licenses** | Claimed "all permissive (MIT, Apache 2.0)" | ⚠️ VERIFY: Run full license audit (see below) |
 

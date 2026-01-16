@@ -6,7 +6,7 @@
 
 ## GLOBAL UNDERSTANDING
 
-**Name:** Gisel Florez
+**Name:** The Founder
 **Handle:** @WEB3GISEL
 **Location:** Hudson Valley, New York / Toronto
 **Profession:** Photographer, visual artist, creative technologist, founder

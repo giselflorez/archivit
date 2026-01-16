@@ -247,4 +247,4 @@ That's ARCHIV-IT.
 
 *"I don't want the human population dependent on my software, but I do want it to be a fair and free portal breaking bit by bit into an independent sovereignty of everyone's digital identities and data constructs."*
 
-— Gisel Florez, Founder
+— The Founder, Founder

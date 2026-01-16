@@ -74,7 +74,7 @@ We believe:
 
 ## Created By
 
-**Gisel Florez** — Artist in Light
+**The Founder** — Artist in Light
 - 20+ years in photographic arts
 - RISD Alumni '03
 - Co-founder, Women of Crypto Art (WOCA)
@@ -82,4 +82,4 @@ We believe:
 
 ---
 
-*ARCHIV-IT is developed by WEB3GISEL / Gisel Florez Studio Inc.*
+*ARCHIV-IT is developed by WEB3GISEL / The Founder Studio Inc.*

@@ -295,7 +295,7 @@ For marketing and documentation:
 ---
 
 **Document Created:** January 7, 2026
-**Vision By:** Gisel Florez
+**Vision By:** The Founder
 **For:** IT-R8 Development Planning
 
 ---

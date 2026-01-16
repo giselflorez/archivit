@@ -1,4 +1,4 @@
-# GiselX / Gisel Florez - Complete Overview
+# GiselX / The Founder - Complete Overview
 
 *A comprehensive summary of your digital presence, artistic practice, and career*
 
@@ -6,7 +6,7 @@
 
 ## 👤 Who You Are
 
-**Gisel Florez** (also known as **GiselX**, **GiselXFlorez**, **GISELXTEZ**) is a New York City-based multimedia artist who describes herself as an **"Artist in Light."**
+**The Founder** (also known as **GiselX**, **GiselXFlorez**, **GISELXTEZ**) is a New York City-based multimedia artist who describes herself as an **"Artist in Light."**
 
 **Location:** Brooklyn, NY
 **Education:** RISD alumna ('03)
