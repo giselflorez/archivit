@@ -35,6 +35,16 @@ from .stage6_crossref import Stage6CrossRef, CrossRefError
 from .stage7_index import Stage7Index, IndexError
 from .stage8_present import Stage8Present, PresentError
 from .orchestrator import PipelineOrchestrator
+from .spiral_compression import (
+    SpiralCompressor,
+    SpiralArchiveManager,
+    ScalingConfig,
+    PHI, PHI_INV, GOLDEN_ANGLE, SCHUMANN, TESLA_PATTERN,
+    tesla_digital_root,
+    schumann_weight,
+    calculate_spiral_position,
+    log_phi
+)
 
 __all__ = [
     # Models
@@ -69,6 +79,19 @@ __all__ = [
     'CrossRefError',
     'IndexError',
     'PresentError',
+    # Spiral Compression
+    'SpiralCompressor',
+    'SpiralArchiveManager',
+    'ScalingConfig',
+    'PHI',
+    'PHI_INV',
+    'GOLDEN_ANGLE',
+    'SCHUMANN',
+    'TESLA_PATTERN',
+    'tesla_digital_root',
+    'schumann_weight',
+    'calculate_spiral_position',
+    'log_phi',
 ]
 
 __version__ = '2.0.0'
