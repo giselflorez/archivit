@@ -12,13 +12,27 @@ from typing import Optional, List, Callable
 from .models import Source, SourceType, ProcessingStatus
 from .stage1_ingest import Stage1Ingest, IngestError
 from .stage2_transcribe import Stage2Transcribe, TranscribeError
+from .stage3_diarize import Stage3Diarize, DiarizeError
+from .stage4_segment import Stage4Segment, SegmentError
+from .stage5_extract import Stage5Extract, ExtractError
+from .stage6_crossref import Stage6CrossRef, CrossRefError
+from .stage7_index import Stage7Index, IndexError
+from .stage8_present import Stage8Present
 
 
 class PipelineOrchestrator:
     """
     Orchestrates the DOC-8 Agent Analysis Pipeline.
 
-    Manages the flow of sources through all processing stages.
+    Manages the flow of sources through all processing stages:
+    1. INGEST - Accept file/URL, validate, create source record
+    2. TRANSCRIBE - Whisper ASR for audio/video
+    3. DIARIZE - Speaker identification
+    4. SEGMENT - Topic-based segmentation
+    5. EXTRACT - NER, claims, sentiment
+    6. CROSS-REFERENCE - Match to existing knowledge
+    7. INDEX - Embeddings, search index
+    8. PRESENT - Display in UI
     """
 
     def __init__(self, storage_dir: str = None, whisper_model: str = "base"):
@@ -32,9 +46,15 @@ class PipelineOrchestrator:
         self.storage_dir = Path(storage_dir or '~/.arc8/pipeline').expanduser()
         self.storage_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize stages
+        # Initialize all stages
         self.stage1 = Stage1Ingest(storage_dir=str(self.storage_dir / 'sources'))
         self.stage2 = Stage2Transcribe(model_size=whisper_model)
+        self.stage3 = Stage3Diarize()
+        self.stage4 = Stage4Segment()
+        self.stage5 = Stage5Extract()
+        self.stage6 = Stage6CrossRef(knowledge_base_path=str(self.storage_dir / 'knowledge_base'))
+        self.stage7 = Stage7Index(index_path=str(self.storage_dir / 'search_index'))
+        self.stage8 = Stage8Present(storage_dir=str(self.storage_dir))
 
         # Progress callback
         self._progress_callback: Optional[Callable] = None
@@ -82,16 +102,69 @@ class PipelineOrchestrator:
                 self._report_progress("TRANSCRIBE", 1.0, f"Failed: {e}")
                 raise
 
-        # Future stages would go here:
-        # Stage 3: Diarize
+        # Stage 3: Diarize (if audio/video)
+        if source.source_type in (SourceType.VIDEO, SourceType.AUDIO):
+            self._report_progress("DIARIZE", 0.0, "Starting speaker diarization...")
+            try:
+                source = self.stage3.diarize(source)
+                self._report_progress("DIARIZE", 1.0,
+                    f"Diarized: {source.speaker_count} speakers detected")
+            except DiarizeError as e:
+                self._report_progress("DIARIZE", 1.0, f"Warning: {e}")
+                # Continue processing even if diarization fails
+
         # Stage 4: Segment
+        if source.segments:
+            self._report_progress("SEGMENT", 0.0, "Segmenting content...")
+            try:
+                source = self.stage4.segment(source)
+                self._report_progress("SEGMENT", 1.0,
+                    f"Segmented: {len(source.segments)} topic segments")
+            except SegmentError as e:
+                self._report_progress("SEGMENT", 1.0, f"Warning: {e}")
+
         # Stage 5: Extract
+        if source.segments:
+            self._report_progress("EXTRACT", 0.0, "Extracting entities and claims...")
+            try:
+                source = self.stage5.extract(source)
+                entity_count = sum(len(s.entities) for s in source.segments)
+                self._report_progress("EXTRACT", 1.0,
+                    f"Extracted: {entity_count} entities")
+            except ExtractError as e:
+                self._report_progress("EXTRACT", 1.0, f"Warning: {e}")
+
         # Stage 6: Cross-reference
+        if source.segments:
+            self._report_progress("CROSSREF", 0.0, "Cross-referencing with knowledge base...")
+            try:
+                source = self.stage6.crossref(source)
+                conn_count = source.metadata.get('connection_count', 0)
+                self._report_progress("CROSSREF", 1.0,
+                    f"Cross-referenced: {conn_count} connections found")
+            except CrossRefError as e:
+                self._report_progress("CROSSREF", 1.0, f"Warning: {e}")
+
         # Stage 7: Index
-        # Stage 8: Present
+        if source.segments:
+            self._report_progress("INDEX", 0.0, "Building search index...")
+            try:
+                source = self.stage7.index(source)
+                indexed = source.metadata.get('indexed_segments', 0)
+                self._report_progress("INDEX", 1.0,
+                    f"Indexed: {indexed} segments")
+            except IndexError as e:
+                self._report_progress("INDEX", 1.0, f"Warning: {e}")
+
+        # Mark as complete
+        source.status = ProcessingStatus.COMPLETE
 
         # Save final result
         self._save_result(source)
+
+        # Stage 8: Present is available via API
+        self._report_progress("COMPLETE", 1.0,
+            f"Pipeline complete: {len(source.segments)} segments processed")
 
         return source
 
