@@ -336,7 +336,7 @@ class Stage4Segment:
             scores.append((score, segment))
 
         # Mark top 20% as key passages
-        scores.sort(reverse=True)
+        scores.sort(key=lambda x: x[0], reverse=True)
         top_count = max(1, len(scores) // 5)
 
         for score, segment in scores[:top_count]:

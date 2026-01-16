@@ -18,6 +18,7 @@ from .models import (
     Source, Segment, Entity, Claim, Sentiment,
     SegmentType, ProcessingStatus
 )
+# Note: SegmentType is used for Claim type classification
 
 
 class ExtractError(Exception):
@@ -141,7 +142,7 @@ class Stage5Extract:
                 claims = self._extract_claims(segment)
                 # Store claims in segment metadata
                 if claims:
-                    segment.topics.extend([c.claim_type for c in claims])
+                    segment.topics.extend([c.type.value for c in claims])
 
                 # Analyze sentiment
                 segment.sentiment = self._analyze_sentiment(segment.content_raw)
@@ -172,7 +173,8 @@ class Stage5Extract:
                     type=ent.label_.lower(),
                     value=ent.text,
                     confidence=0.85,  # spaCy doesn't provide confidence
-                    context=text[max(0, ent.start_char-30):min(len(text), ent.end_char+30)]
+                    start_char=ent.start_char,
+                    end_char=ent.end_char
                 )
                 entities.append(entity)
         else:
@@ -191,16 +193,12 @@ class Stage5Extract:
                 for match in re.finditer(pattern, text, re.IGNORECASE):
                     value = match.group(0).strip()
                     if value and value not in seen and len(value) > 1:
-                        # Calculate context
-                        start = max(0, match.start() - 30)
-                        end = min(len(text), match.end() + 30)
-                        context = text[start:end]
-
                         entity = Entity(
                             type=entity_type,
                             value=value,
                             confidence=0.6,  # Lower confidence for regex
-                            context=context
+                            start_char=match.start(),
+                            end_char=match.end()
                         )
                         entities.append(entity)
                         seen.add(value)
@@ -215,10 +213,10 @@ class Stage5Extract:
         for pattern, claim_type in self.claim_patterns:
             if re.search(pattern, text, re.IGNORECASE):
                 claim = Claim(
-                    claim_text=text[:200],  # Truncate for storage
-                    claim_type=claim_type,
-                    confidence=0.7,
-                    source_segment_id=segment.segment_id
+                    statement=text[:200],  # Truncate for storage
+                    type=SegmentType.ASSERTION if claim_type == 'factual' else SegmentType.OPINION,
+                    verifiable=(claim_type == 'factual'),
+                    confidence=0.7
                 )
                 claims.append(claim)
 
@@ -255,10 +253,9 @@ class Stage5Extract:
                 subjectivity += 0.2
 
         return Sentiment(
-            polarity=polarity,
-            subjectivity=min(subjectivity, 1.0),
-            label=label,
-            confidence=0.7
+            overall=label,
+            valence=polarity,
+            arousal=min(subjectivity, 1.0)
         )
 
     def _extract_keywords(self, text: str) -> List[str]:

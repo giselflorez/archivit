@@ -211,18 +211,18 @@ class Stage6CrossRef:
 
     def _create_connection(self, segment: Segment, related_id: str, connection_type: str):
         """Create a connection between segments"""
-        connection = Connection(
-            source_segment_id=segment.segment_id,
-            target_segment_id=related_id,
-            connection_type=connection_type,
-            strength=0.5  # Base strength
-        )
-
-        # Adjust strength based on type
+        # Calculate confidence based on connection type
+        confidence = 0.5  # Base confidence
         if connection_type == 'same_speaker':
-            connection.strength = 0.7
+            confidence = 0.7
         elif connection_type == 'shared_entity':
-            connection.strength = 0.6
+            confidence = 0.6
+
+        connection = Connection(
+            type=connection_type,
+            target_segment_id=related_id,
+            confidence=confidence
+        )
 
         segment.connections.append(connection)
 
@@ -273,7 +273,7 @@ class Stage6CrossRef:
         for segment in source.segments:
             total_connections += len(segment.connections)
             for conn in segment.connections:
-                connection_types[conn.connection_type] += 1
+                connection_types[conn.type] += 1
 
         # Store in source metadata
         source.metadata['connection_count'] = total_connections

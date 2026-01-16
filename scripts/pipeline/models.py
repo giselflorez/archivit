@@ -37,6 +37,7 @@ class VerificationStatus(Enum):
     PRE_AI_VERIFIED = "pre_ai_verified"
     USER_VERIFIED = "user_verified"
     DISPUTED = "disputed"
+    NEEDS_REVIEW = "needs_review"
 
 
 class ProcessingStatus(Enum):
@@ -47,6 +48,7 @@ class ProcessingStatus(Enum):
     DIARIZING = "diarizing"
     SEGMENTING = "segmenting"
     EXTRACTING = "extracting"
+    CROSSREFERENCING = "crossreferencing"
     INDEXING = "indexing"
     COMPLETE = "complete"
     FAILED = "failed"
@@ -264,6 +266,9 @@ class Source:
     # Quality metrics
     transcription_confidence: float = 0.0
     extraction_confidence: float = 0.0
+
+    # Flexible metadata storage
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     # Error handling
     error_message: Optional[str] = None
