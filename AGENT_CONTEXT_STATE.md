@@ -2,8 +2,9 @@
 ## Auto-Recovery Memory for Claude Sessions
 
 **AUTO-READ ON STARTUP**: Claude MUST read this file at the start of every session
-**Last Updated:** 2026-01-16 (auto-update with each significant action)
-**Session ID:** 2026-01-16-quantum-discoveries-ultrathink
+**Last Updated:** 2026-01-16 (continued session - Shannon Entropy)
+**Session ID:** 2026-01-16-quantum-equilibrium-v2
+**Git Commit:** ff3567e - Quantum Equilibrium V2: Shannon Entropy protection
 
 ---
 
@@ -490,10 +491,13 @@ VERIFIED REPLACEMENTS FOUND:
 ## TODO QUEUE (From WhatsApp + Session)
 
 ### CRITICAL PRIORITY (Algorithm Proofs)
-- [ ] **FIX ACU FORMULA** - Current formula does NOT prevent gaming (2-3 actions to FULL tier)
-  - Option A: Higher history weight (0.95 × previous + 0.05 × current)
-  - Option B: Minimum history length (require 20+ actions before tier calc)
-  - Option C: Sliding window EMA (window=50 actions)
+- [x] **FIX ACU FORMULA** - COMPLETED (Quantum Equilibrium V2)
+  - Implemented: 4-layer gaming resistance
+  - Layer 1: History gate (21 actions minimum - Fibonacci F8)
+  - Layer 2: Fibonacci-weighted ACU (older actions weight MORE)
+  - Layer 3: Shannon Entropy check (rewards creativity, catches patterns)
+  - Layer 4: Light equilibrium (φ^(-1) ratio for advanced tiers)
+  - Commit: ff3567e (2026-01-16)
 - [ ] **BUILD SPIRAL COMPRESSION BENCHMARK** - Compare vs gzip, lz4, zstd
   - Test lossless reconstruction (must be bit-exact)
   - Test PSNR at various compression ratios
@@ -507,7 +511,7 @@ VERIFIED REPLACEMENTS FOUND:
   - [x] docs/POST_QUANTUM_CRYPTOGRAPHY_SPEC.md (full spec)
   - [x] scripts/interface/static/js/core/pqc/ (kyber.js, dilithium.js, index.js)
   - [x] scripts/interface/static/js/core/pqs_quantum.js (seed integration)
-  - [ ] npm install @noble/post-quantum (required for PQC to work)
+  - [x] npm install @noble/post-quantum - INSTALLED (v0.5.4)
   - [ ] Add tests for PQC operations
 - [ ] Implement ARC-8 PWA (See docs/STATIC_ASSETS_PWA_SPEC.md + docs/CLIENT_SIDE_ARCHITECTURE_SPEC.md)
   - [ ] Phase 1: Vite setup + Workbox service worker + manifest.json (Week 1)
@@ -637,4 +641,24 @@ git add -A && git commit -m "Session backup: [description]"
 
 *This file is the single source of truth for session continuity. Update it frequently.*
 
-**NEXT ACTION:** Install @noble/post-quantum npm package to enable PQC, then implement ARC-8 PWA Phase 1 (See docs/POST_QUANTUM_CRYPTOGRAPHY_SPEC.md + docs/STATIC_ASSETS_PWA_SPEC.md)
+**NEXT ACTION:** Implement ARC-8 PWA Phase 1 (See docs/STATIC_ASSETS_PWA_SPEC.md + docs/CLIENT_SIDE_ARCHITECTURE_SPEC.md)
+
+## SESSION COMPLETED (2026-01-16 continued)
+
+```
+QUANTUM EQUILIBRIUM V2 + SHANNON ENTROPY - COMPLETE
+
+Commits pushed to giselflorez/archivit:
+- ff3567e: Quantum Equilibrium V2: Shannon Entropy protection
+
+Key implementation:
+- Shannon Entropy H = -Σ p(x) * log2(p(x))
+- High entropy = unpredictable = creative = REWARDED
+- Low entropy = predictable patterns = gaming = CAUGHT
+- Minimum 1.5 bits required for advanced tiers
+
+Test results verify protection:
+- Gaming attack (50 bad + 21 perfect): BLOCKED (protected)
+- Patterned gaming (0.9, 0.9, 0.1): Entropy penalty applied
+- Creative experimentation (random): High entropy = no penalty
+```
