@@ -496,7 +496,7 @@ MOONLANGUAGE MINT ARCHITECTURE
 - Visibility tied to verification weight
 
 ### On Human-AI Collaboration
-> "I like the collaboration - I believe that is what this whole project is about, the freedom AI has allowed to syphon the data that is relevant to build the solutions to the problems people are facing every day. Each individual perspective of user that works with this software building their own local intelligence scraped as well as possible from consumer and post modern pressures of datamosh that makes this software imperative as open to all & each piece of software, or website built or mixed file dataset -understood- each of these people will be a very important piece to take a look at the whole puzzle that is life and how we can focus it better for all."
+> "I like the collaboration - I believe that is what this whole project is about, building the software for Moonlanguage I realized the boundaries present on the internet as well as the freedom AI can now allow us to syphon the data that is relevant for us locally to build the solutions to the problems people are facing every day. Each individual perspective of user that works with this software building their own local intelligence scraped as well as possible from consumer and post modern pressures of datamosh that makes this software imperative as open to all & each piece of software, or website built or mixed file dataset -understood- each of these people will be a very important piece to take a look at the whole puzzle that is life and how we can focus it better for all."
 
 ### Context
 - Responding to Brian Roemmele's masterclass on AI training at OpenAI/Anthropic
