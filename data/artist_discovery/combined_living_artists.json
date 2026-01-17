@@ -1,0 +1,801 @@
+{
+  "date": "2026-01-16",
+  "chains": [
+    "tezos",
+    "ethereum"
+  ],
+  "total_artists": 130,
+  "polarity": {
+    "feminine": [
+      {
+        "name": "Woman",
+        "twitter": "WomanNFT",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Michelle Thompson",
+        "twitter": "mich_tom",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Empress Trash",
+        "twitter": "Empresstrash",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "OONA",
+        "twitter": "madebyoona",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "INA VARE",
+        "twitter": "ina_vare",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "Angie Taylor",
+        "twitter": "theangietaylor",
+        "chain": "both",
+        "pieces": 3
+      },
+      {
+        "name": "albertine",
+        "twitter": "albertinmeunier",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Diana Smykova",
+        "twitter": "diana_smykova",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Sasha Stiles",
+        "twitter": "",
+        "chain": "both",
+        "pieces": 3
+      },
+      {
+        "name": "joanna",
+        "twitter": "sereneObscurity",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Tori",
+        "twitter": "ToriiaFil",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Eleni Tomadaki",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Amber Vittoria",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Deborah Kass",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "MISS AL SIMPSON",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Bea",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Chabeli Farro",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 3
+      },
+      {
+        "name": "Wanda Oliver",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      }
+    ],
+    "masculine": [
+      {
+        "name": "James Bloom",
+        "twitter": "crashblossom1",
+        "chain": "tezos",
+        "pieces": 4
+      },
+      {
+        "name": "FelixFelixFelix",
+        "twitter": "I____felix____I",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Ernesto Asch",
+        "twitter": "ernestoasch",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Nikas Geisleris",
+        "twitter": "NikasGeisleris",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "SeanRoberts",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "hal09999",
+        "twitter": "HAL09999",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "Richard Nadler",
+        "twitter": "RichardNadler1",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "rutger van der tas",
+        "twitter": "rutgervandertas",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "clintfulkerson",
+        "twitter": "clintfulkerson",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "Kunsthalle Z\u00fcrich",
+        "twitter": "DYOR_CryptoArt",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Jesse Draxler",
+        "twitter": "jessedraxler",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "nathanielstern",
+        "twitter": "nathanielstern",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Luca Dini",
+        "twitter": "dini1789",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "Paolo Curtoni",
+        "twitter": "Paolo_Curtoni",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Mattia Cuttini",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Collin",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "Van Arman",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "travisleroy",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "Misha Milovanovich",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "B\u00e5rd Ionson",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 3
+      },
+      {
+        "name": "KEVIN ABOSCH",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Shepard Fairey",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      }
+    ],
+    "unknown": [
+      {
+        "name": "Gottfried J\u00e4ger",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "vespertino",
+        "twitter": "vespertinovsp",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Women's Museum",
+        "twitter": "WomenMuseumArt",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Aempatia",
+        "twitter": "Empatia17",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Gogolitus\u26a1",
+        "twitter": "gogolitus",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "MatNova",
+        "twitter": "mat__nova",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Justa Ratio",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "MEK.txt",
+        "twitter": "michaelmicasso",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "dcn7rlz",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "Tamas Antal",
+        "twitter": "tamasantalart",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "A. L. Crego",
+        "twitter": "ALCrego_",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "dreams of sound",
+        "twitter": "dreams_of_sound",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "Brookhawk (COLD WALLET)",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "TRUTHFULNESS aka LASSINGER",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Asa",
+        "twitter": "asanology",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Shilly Preston",
+        "twitter": "shillypreston",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Rondellhund",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "KUMALEON",
+        "twitter": "kumaleon_",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Proof of X",
+        "twitter": "proofofx_",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "theVERSEverse",
+        "twitter": "theVERSEverse",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "M\u00e9tamorphoses",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Beti Oph\u00e9lie",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Poetry+AI=Art",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "iragreenberg",
+        "twitter": "iragreenberg",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Popeye",
+        "twitter": "popeyepuzzle",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "playrecordmint",
+        "twitter": "playrecordmint",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "tiegenhof",
+        "twitter": "tiegenhof_",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "HELL BOY",
+        "twitter": "HELLBOY_7676",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "p.i.x.e.l.l.a.r.e.\u2122",
+        "twitter": "_pixellare",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "byViki",
+        "twitter": "byviki00",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Lammetje",
+        "twitter": "lammetje_nl",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "TacyTurn",
+        "twitter": "tacyturnh",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "FLUOR",
+        "twitter": "fluor_99",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "shortcut",
+        "twitter": "unityofmulti",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "NYICECREAMGALLERY",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "tocame",
+        "twitter": "tocame_munich",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "The Tickle",
+        "twitter": "InWarhol",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "agoston nagy",
+        "twitter": "_stc",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "GeminiRising",
+        "twitter": "GeminiRising13",
+        "chain": "tezos",
+        "pieces": 2
+      },
+      {
+        "name": "SPAMART PARTY [ARCHIVED]",
+        "twitter": "",
+        "chain": "tezos",
+        "pieces": 3
+      },
+      {
+        "name": "aitso",
+        "twitter": "aitsolabs",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "ekeko",
+        "twitter": "ekeko_mtdc",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "Hevey",
+        "twitter": "HeveyArt",
+        "chain": "tezos",
+        "pieces": 1
+      },
+      {
+        "name": "The Banksters (By Brandon Walsh)",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Aleksandra Jovani\u0107",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Omid G E'dlu AKA omg_visuals",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "Isa Kost + oculardelusion",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "ArtePro",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "C.",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Yalo",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "mlibty",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "Alexis Andr\u00e9",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Jason Ting x Matt Bilfield",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "luxpris",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Async Art",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "plutonic mind",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "WizardX",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 6
+      },
+      {
+        "name": "Mr Richi",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "defiantsquid",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "hairofmedusa",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 3
+      },
+      {
+        "name": "fabiano speziari",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Hidden Forces",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Async",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "sgt_slaughtermelon",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "MIRO MAKART",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "WGMeets",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Michael Hughes and Azerty Betamax",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Turbo",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "PROOF OF STORY",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "BLACK7EVEN",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "XCOPY",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Alotta Money",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "NeonGlitch86 & EclecticMethod",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Cosmos Astro Art",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "MXJXN",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 2
+      },
+      {
+        "name": "Strawberry Sith",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Godwits",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Tonya Zimmerman",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Arthr",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Matt Kane",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Sunrise Art Club",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 3
+      },
+      {
+        "name": "ZafGod, Azara(LHrisav)",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Dank Kane",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "mohini",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Hans Heiner Buhr ",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "ejthek",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Calvyn Justus",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "foodmasku",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "VVD",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      },
+      {
+        "name": "Museum of Crypto Art (M\u25cbC\u25b3)",
+        "twitter": "",
+        "chain": "ethereum",
+        "pieces": 1
+      }
+    ]
+  },
+  "summary": {
+    "feminine": 18,
+    "masculine": 22,
+    "unknown": 90
+  }
+}

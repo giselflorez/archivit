@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NORTHSTAR Masters - Adaptive Rendering</title>
+    <style>
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --border: rgba(255,255,255,0.06);
+            --gold: #d4a574;
+            --emerald: #54a876;
+            --rose: #ba6587;
+            --violet: #7865ba;
+            --cyan: #5aa8b9;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--void);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 20px 30px;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(3,3,8,0.95) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title {
+            font-size: 1.8rem;
+            font-weight: 200;
+            letter-spacing: 0.4em;
+            background: linear-gradient(90deg, var(--cyan), var(--violet), var(--rose));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .capability-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 16px;
+        }
+        .capability-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .capability-dot.full { background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+        .capability-dot.medium { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .capability-dot.lite { background: var(--rose); box-shadow: 0 0 10px var(--rose); }
+        .capability-dot.minimal { background: var(--text-muted); }
+        .capability-text {
+            font-size: 1rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .loading {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--void);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.8s;
+        }
+        .loading.hidden { opacity: 0; pointer-events: none; }
+        .loading-text {
+            font-size: 1rem;
+            letter-spacing: 0.4em;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--border);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* LITE MODE - SVG Static */
+        .lite-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 80px 20px 20px;
+            overflow: auto;
+        }
+        .lite-container.active { display: block; }
+        .lite-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .lite-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .lite-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+        .lite-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 200;
+        }
+        .lite-name {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+        .lite-domain {
+            font-size: 16px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        .lite-dates {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* MINIMAL MODE - Text Only */
+        .minimal-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 100px 40px 40px;
+            overflow: auto;
+        }
+        .minimal-container.active { display: block; }
+        .minimal-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .minimal-section h2 {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--gold);
+            letter-spacing: 0.2em;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .minimal-list {
+            list-style: none;
+        }
+        .minimal-list li {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .minimal-list li:last-child { border-bottom: none; }
+        .minimal-master-name {
+            font-weight: 400;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+        .minimal-master-info {
+            font-size: 16px;
+            color: var(--text-dim);
+        }
+
+        /* Focus Panel */
+        .focus-panel {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            width: 350px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            z-index: 100;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        .focus-panel.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .focus-type {
+            font-size: 0.85rem;
+            letter-spacing: 0.4em;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .focus-title {
+            font-size: 1.8rem;
+            font-weight: 200;
+            margin-bottom: 15px;
+        }
+        .focus-quote {
+            font-style: italic;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+            padding: 20px;
+            background: rgba(90,168,185,0.05);
+            border-left: 3px solid var(--violet);
+            border-radius: 0 6px 6px 0;
+            margin-top: 18px;
+        }
+        .focus-source {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* Nav hint */
+        .nav-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            padding: 14px 28px;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            z-index: 100;
+            border: 1px solid var(--border);
+        }
+        .nav-hint span { color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">DETECTING DEVICE CAPABILITY...</div>
+    </div>
+
+    <div id="canvas-container"></div>
+    <div class="lite-container" id="lite-container"></div>
+    <div class="minimal-container" id="minimal-container"></div>
+
+    <div class="header">
+        <div>
+            <div class="title">NORTHSTAR ADAPTIVE</div>
+            <div class="subtitle">22 Masters / Progressive Enhancement</div>
+        </div>
+        <div class="capability-badge" id="capability-badge">
+            <div class="capability-dot" id="capability-dot"></div>
+            <div class="capability-text" id="capability-text">Detecting...</div>
+        </div>
+    </div>
+
+    <div class="focus-panel" id="focus-panel">
+        <div class="focus-type" id="focus-type">MASTER</div>
+        <div class="focus-title" id="focus-title">Select a node</div>
+        <div class="focus-quote" id="focus-quote"></div>
+        <div class="focus-source" id="focus-source"></div>
+    </div>
+
+    <div class="nav-hint" id="nav-hint">
+        <span>Loading...</span>
+    </div>
+
+    <script>
+    // ============================================
+    // ARC-8 DEVICE DETECTION (EMBEDDED)
+    // ============================================
+    const ARC8_DEVICE_DETECTION = (function() {
+        const THRESHOLDS = { FULL: 0.618, MEDIUM: 0.382, LITE: 0.236, MINIMAL: 0 };
+        const WEIGHTS = { gpu: 21, memory: 13, cores: 8, connection: 5, screen: 3, battery: 2, touch: 1 };
+        const TOTAL_WEIGHT = 53;
+
+        function detectGPU() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (!gl) return { score: 0.3, tier: 'none' };
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                let renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
+                let score = 0.5;
+                if (/nvidia|radeon|rtx|gtx/i.test(renderer)) score = 1.0;
+                else if (/m[123]|apple/i.test(renderer)) score = 0.9;
+                else if (/intel/i.test(renderer)) score = 0.5;
+                if (canvas.getContext('webgl2')) score += 0.1;
+                return { score: Math.min(1, score), tier: score > 0.7 ? 'high' : 'medium' };
+            } catch (e) { return { score: 0.3, tier: 'low' }; }
+        }
+
+        function detectMemory() {
+            const gb = navigator.deviceMemory || 4;
+            if (gb >= 8) return { score: 1.0, gb };
+            if (gb >= 4) return { score: 0.7, gb };
+            return { score: 0.4, gb };
+        }
+
+        function detectCores() {
+            const cores = navigator.hardwareConcurrency || 4;
+            if (cores >= 8) return { score: 1.0, cores };
+            if (cores >= 4) return { score: 0.6, cores };
+            return { score: 0.4, cores };
+        }
+
+        function detectScreen() {
+            const pixels = window.screen.width * window.screen.height * (window.devicePixelRatio || 1);
+            if (pixels >= 8294400) return { score: 1.0 };
+            if (pixels >= 2073600) return { score: 0.7 };
+            return { score: 0.5 };
+        }
+
+        async function detect(options = {}) {
+            const gpu = detectGPU();
+            const memory = detectMemory();
+            const cores = detectCores();
+            const screen = detectScreen();
+            const weightedSum = gpu.score * 21 + memory.score * 13 + cores.score * 8 + 0.7 * 5 + screen.score * 3 + 0.8 * 2 + 1.0 * 1;
+            const score = weightedSum / TOTAL_WEIGHT;
+            let level = score >= 0.618 ? 'FULL' : score >= 0.382 ? 'MEDIUM' : score >= 0.236 ? 'LITE' : 'MINIMAL';
+            console.log('[ARC-8] Device:', level, Math.round(score * 100) + '%');
+            return { score, level, details: { gpu, memory, cores, screen } };
+        }
+
+        function getRenderConfig(cap) {
+            const configs = {
+                FULL: { antialiasing: true, particles: { spectral: 2500 }, masters: { sphereSegments: 48, haloRings: 5 }, effects: { fog: true }, pixelRatio: Math.min(window.devicePixelRatio, 2) },
+                MEDIUM: { antialiasing: true, particles: { spectral: 800 }, masters: { sphereSegments: 24, haloRings: 2 }, effects: { fog: true }, pixelRatio: 1 },
+                LITE: { antialiasing: false, particles: { spectral: 100 }, masters: { sphereSegments: 16, haloRings: 1 }, effects: { fog: false }, pixelRatio: 1 },
+                MINIMAL: { antialiasing: false, particles: { spectral: 0 }, masters: { sphereSegments: 8, haloRings: 0 }, effects: { fog: false }, pixelRatio: 1 }
+            };
+            return configs[cap.level] || configs.LITE;
+        }
+
+        return { detect, getRenderConfig, THRESHOLDS };
+    })();
+    </script>
+    <script>
+        // 22 NORTHSTAR Masters Data
+        const MASTERS = [
+            { id: 'hildegard', name: 'Hildegard of Bingen', dates: '1098-1179', domain: 'Sacred Geometry + Sound', energy: 'feminine', color: '#ba6587', quote: { text: "All living creatures are sparks from the radiation of God's brilliance.", source: 'Scivias (1142-1151)' }},
+            { id: 'founder', name: 'The Founder', dates: 'Contemporary', domain: 'Light Photography + Data Sovereignty', energy: 'feminine', color: '#aa5498', quote: { text: "I fell in love with DATA and I'll never be the same again.", source: 'Dataland Proposal (2026)' }},
+            { id: 'rand', name: 'Ayn Rand', dates: '1905-1982', domain: 'Individual Sovereignty', energy: 'feminine', color: '#b9a85a', quote: { text: "Contradictions do not exist. Check your premises.", source: 'Atlas Shrugged (1957)' }},
+            { id: 'starhawk', name: 'Starhawk', dates: '1951-present', domain: 'Decentralized Power', energy: 'feminine', color: '#54a876', quote: { text: "Power-from-within is transcendent and creative power.", source: 'The Spiral Dance (1979)' }},
+            { id: 'tori', name: 'Tori Amos', dates: '1963-present', domain: 'Breath as Structure', energy: 'feminine', color: '#ba6587', quote: { text: "Healing takes courage, and we all have courage.", source: 'Interviews' }},
+            { id: 'bjork', name: 'Bjork', dates: '1965-present', domain: 'Nature-Technology Synthesis', energy: 'feminine', color: '#6598cb', quote: { text: "If you can make nature and technology friends, you can make everyone friends.", source: 'Interview (2011)' }},
+            { id: 'swan', name: 'Teal Swan', dates: '1984-present', domain: 'Shadow Work', energy: 'feminine', color: '#7865ba', quote: { text: "Triggers are messengers for the unhealed parts of our being.", source: 'Shadows Before Dawn (2015)' }},
+            { id: 'hicks', name: 'Abraham Hicks', dates: '1948-present', domain: 'Vibrational Alignment', energy: 'feminine', color: '#ba7799', quote: { text: "The universe responds to vibration, not words.", source: 'Ask and It Is Given (2004)' }},
+            { id: 'byrne', name: 'Rhonda Byrne', dates: '1951-present', domain: 'Manifestation', energy: 'feminine', color: '#a97788', quote: { text: "Visualization is powerful because you generate feelings of having it now.", source: 'The Secret (2006)' }},
+            { id: 'davinci', name: 'Leonardo da Vinci', dates: '1452-1519', domain: 'Art + Science Unity', energy: 'masculine', color: '#b9a85a', quote: { text: "The painter has the universe in his mind and hands.", source: "Leonardo's Notebooks" }},
+            { id: 'tesla', name: 'Nikola Tesla', dates: '1856-1943', domain: 'Energy + Frequency + Vibration', energy: 'masculine', color: '#5aa8b9', quote: { text: "Though free to think and act, we are held together, like the stars in the firmament, with ties inseparable.", source: 'Century Magazine (1900)' }},
+            { id: 'fuller', name: 'Buckminster Fuller', dates: '1895-1983', domain: 'Systems Thinking', energy: 'masculine', color: '#54a876', quote: { text: "You never change anything by fighting it; you change things by making them obsolete.", source: 'Interview' }},
+            { id: 'jung', name: 'Carl Jung', dates: '1875-1961', domain: 'Shadow Integration', energy: 'masculine', color: '#7865ba', quote: { text: "One does not become enlightened by imagining figures of light, but by making the darkness conscious.", source: 'Psychology and Alchemy (1944)' }},
+            { id: 'suleyman', name: 'Mustafa Suleyman', dates: '1984-present', domain: 'AI Ethics + Containment', energy: 'masculine', color: '#6576ba', quote: { text: "Recognition is the inverse of generation.", source: 'The Coming Wave (2023)' }},
+            { id: 'grant', name: 'Robert Edward Grant', dates: 'Contemporary', domain: 'Sacred Geometry Math', energy: 'masculine', color: '#8776ba', quote: { text: "Math is a sacred language, a bridge to higher consciousness.", source: 'Lectures' }},
+            { id: 'prince', name: 'Prince', dates: '1958-2016', domain: 'Sovereign Ownership', energy: 'masculine', color: '#8754ba', quote: { text: "If you don't own your masters, your master owns you.", source: 'Rolling Stone (1996)' }},
+            { id: 'coltrane', name: 'John Coltrane', dates: '1926-1967', domain: 'Breath as Spiritual Practice', energy: 'masculine', color: '#6587ba', quote: { text: "My music is the spiritual expression of what I am.", source: 'Liner notes (1960s)' }},
+            { id: 'bowie', name: 'David Bowie', dates: '1947-2016', domain: 'Perpetual Reinvention', energy: 'masculine', color: '#ba6554', quote: { text: "It's more fun progressing than looking back.", source: 'Interviews' }},
+            { id: 'koe', name: 'Dan Koe', dates: 'Contemporary', domain: 'Skill Extraction', energy: 'masculine', color: '#ba8754', quote: { text: "If you don't know what you want, you will be told what you want.", source: 'The Art of Focus (2023)' }},
+            { id: 'jobs', name: 'Steve Jobs', dates: '1955-2011', domain: 'Design Thinking', energy: 'masculine', color: '#989898', quote: { text: "Your time is limited, don't waste it living someone else's life.", source: 'Stanford (2005)' }},
+            { id: 'cherny', name: 'Boris Cherny', dates: 'Contemporary', domain: 'Democratized Programming', energy: 'masculine', color: '#5aa8b9', quote: { text: "Most of Claude Code is written using Claude Code.", source: 'Anthropic (2025)' }},
+            { id: 'rene', name: 'Gabriel Rene', dates: 'Contemporary', domain: 'Spatial Web', energy: 'masculine', color: '#65ba99', quote: { text: "The Spatial Web lets all information become spatial.", source: 'VERSES AI' }}
+        ];
+
+        let capability = null;
+        let selectedMaster = null;
+
+        // Initialize
+        async function init() {
+            // Detect device capability
+            capability = await ARC8_DEVICE_DETECTION.detect({ useCache: true });
+
+            // Update UI
+            updateCapabilityBadge(capability);
+
+            // Initialize appropriate renderer
+            switch (capability.level) {
+                case 'FULL':
+                case 'MEDIUM':
+                    initWebGLRenderer(capability);
+                    break;
+                case 'LITE':
+                    initLiteRenderer();
+                    break;
+                case 'MINIMAL':
+                    initMinimalRenderer();
+                    break;
+            }
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 500);
+        }
+
+        function updateCapabilityBadge(cap) {
+            const dot = document.getElementById('capability-dot');
+            const text = document.getElementById('capability-text');
+
+            dot.className = 'capability-dot ' + cap.level.toLowerCase();
+            text.textContent = `${cap.level} (${Math.round(cap.score * 100)}%)`;
+        }
+
+        // FULL/MEDIUM: WebGL 3D Renderer
+        function initWebGLRenderer(cap) {
+            const config = ARC8_DEVICE_DETECTION.getRenderConfig(cap);
+
+            // Load Three.js dynamically
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+            script.onload = () => {
+                const script2 = document.createElement('script');
+                script2.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
+                script2.onload = () => initThreeScene(config);
+                document.head.appendChild(script2);
+            };
+            document.head.appendChild(script);
+
+            document.getElementById('nav-hint').innerHTML = '<span>Scroll</span> zoom | <span>Drag</span> rotate | <span>Click</span> select';
+        }
+
+        function initThreeScene(config) {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030308);
+
+            if (config.effects.fog) {
+                scene.fog = new THREE.FogExp2(0x030308, 0.005);
+            }
+
+            const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 50, 150);
+
+            const renderer = new THREE.WebGLRenderer({
+                antialias: config.antialiasing,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(config.pixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.3;
+
+            // Create master nodes
+            const nodes = [];
+            const PHI = 1.618033988749895;
+            const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+            MASTERS.forEach((master, i) => {
+                const theta = i * GOLDEN_ANGLE * 2.5;
+                const radius = 40 + (i / MASTERS.length) * 30;
+                const y = (master.energy === 'feminine' ? 15 : -15) + (Math.random() - 0.5) * 20;
+
+                // Sphere
+                const geo = new THREE.SphereGeometry(4, config.masters.sphereSegments, config.masters.sphereSegments);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: parseInt(master.color.replace('#', ''), 16),
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const sphere = new THREE.Mesh(geo, mat);
+                sphere.position.set(
+                    radius * Math.cos(theta),
+                    y,
+                    radius * Math.sin(theta)
+                );
+                sphere.userData = { master, index: i };
+
+                // Glow
+                const glowGeo = new THREE.SphereGeometry(6, 16, 16);
+                const glowMat = new THREE.MeshBasicMaterial({
+                    color: parseInt(master.color.replace('#', ''), 16),
+                    transparent: true,
+                    opacity: 0.15
+                });
+                sphere.add(new THREE.Mesh(glowGeo, glowMat));
+
+                // Halo rings (if config allows)
+                for (let r = 0; r < config.masters.haloRings; r++) {
+                    const haloRadius = 8 + r * 3;
+                    const haloGeo = new THREE.RingGeometry(haloRadius - 0.2, haloRadius, 32);
+                    const haloMat = new THREE.MeshBasicMaterial({
+                        color: parseInt(master.color.replace('#', ''), 16),
+                        transparent: true,
+                        opacity: 0.1 - r * 0.02,
+                        side: THREE.DoubleSide
+                    });
+                    const halo = new THREE.Mesh(haloGeo, haloMat);
+                    halo.rotation.x = Math.PI / 2;
+                    sphere.add(halo);
+                }
+
+                scene.add(sphere);
+                nodes.push(sphere);
+            });
+
+            // Background particles
+            if (config.particles.spectral > 0) {
+                const pCount = config.particles.spectral;
+                const positions = new Float32Array(pCount * 3);
+                const colors = new Float32Array(pCount * 3);
+
+                for (let i = 0; i < pCount; i++) {
+                    const r = 50 + Math.random() * 200;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    positions[i*3] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i*3+2] = r * Math.cos(phi);
+
+                    const hue = 0.5 + Math.random() * 0.2;
+                    const c = new THREE.Color().setHSL(hue, 0.4, 0.5);
+                    colors[i*3] = c.r;
+                    colors[i*3+1] = c.g;
+                    colors[i*3+2] = c.b;
+                }
+
+                const pGeo = new THREE.BufferGeometry();
+                pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                const pMat = new THREE.PointsMaterial({
+                    size: 0.8,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                scene.add(new THREE.Points(pGeo, pMat));
+            }
+
+            // Raycaster for interaction
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('click', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(nodes);
+                if (intersects.length > 0) {
+                    selectMaster(intersects[0].object.userData.master);
+                }
+            });
+
+            // Resize handler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+
+                // Animate nodes
+                const time = Date.now() * 0.001;
+                nodes.forEach((node, i) => {
+                    node.rotation.y += 0.002;
+                    if (node.children[0]) {
+                        node.children[0].scale.setScalar(1 + Math.sin(time + i) * 0.1);
+                    }
+                });
+
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // LITE: CSS Grid with Cards
+        function initLiteRenderer() {
+            const container = document.getElementById('lite-container');
+            container.classList.add('active');
+
+            const grid = document.createElement('div');
+            grid.className = 'lite-grid';
+
+            MASTERS.forEach(master => {
+                const card = document.createElement('div');
+                card.className = 'lite-card';
+                card.innerHTML = `
+                    <div class="lite-avatar" style="background: ${master.color}20; border: 2px solid ${master.color};">
+                        ${master.name.charAt(0)}
+                    </div>
+                    <div class="lite-name">${master.name}</div>
+                    <div class="lite-domain">${master.domain}</div>
+                    <div class="lite-dates">${master.dates}</div>
+                `;
+                card.onclick = () => selectMaster(master);
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+            document.getElementById('nav-hint').innerHTML = '<span>Click</span> card to see details';
+        }
+
+        // MINIMAL: Text List
+        function initMinimalRenderer() {
+            const container = document.getElementById('minimal-container');
+            container.classList.add('active');
+
+            const section = document.createElement('div');
+            section.className = 'minimal-section';
+            section.innerHTML = `
+                <h2>22 NORTHSTAR MASTERS</h2>
+                <ul class="minimal-list">
+                    ${MASTERS.map(m => `
+                        <li onclick="selectMaster(MASTERS.find(x => x.id === '${m.id}'))">
+                            <div class="minimal-master-name" style="color: ${m.color}">${m.name}</div>
+                            <div class="minimal-master-info">${m.domain} | ${m.dates}</div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            container.appendChild(section);
+            document.getElementById('nav-hint').innerHTML = '<span>Tap</span> name to see quote';
+        }
+
+        // Select master - show focus panel
+        function selectMaster(master) {
+            if (!master) return;
+            selectedMaster = master;
+
+            document.getElementById('focus-type').textContent = `${master.energy.toUpperCase()} MASTER`;
+            document.getElementById('focus-title').textContent = master.name;
+            document.getElementById('focus-title').style.color = master.color;
+            document.getElementById('focus-quote').textContent = `"${master.quote.text}"`;
+            document.getElementById('focus-source').textContent = `— ${master.quote.source}`;
+
+            document.getElementById('focus-panel').classList.add('visible');
+        }
+
+        // Close focus panel on click outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.focus-panel') &&
+                !e.target.closest('.lite-card') &&
+                !e.target.closest('.minimal-list li') &&
+                !e.target.closest('canvas')) {
+                document.getElementById('focus-panel').classList.remove('visible');
+            }
+        });
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

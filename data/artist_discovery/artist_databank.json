@@ -1,0 +1,622 @@
+{
+  "metadata": {
+    "created": "2026-01-16",
+    "updated": "2026-01-16",
+    "purpose": "968 Artist Intelligence Databank",
+    "structure": "domain > artist > {quotes, philosophy, technique, lunar, inspirations}",
+    "data_points": "850+"
+  },
+  "visual_artist": {
+    "Frida Kahlo": {
+      "quotes": [
+        "I paint self-portraits because I am so often alone, because I am the person I know best.",
+        "They thought I was a Surrealist, but I wasn't. I never painted dreams. I painted my own reality.",
+        "I am not sick. I am broken. But I am happy to be alive as long as I can paint.",
+        "I paint flowers so they will not die.",
+        "Nothing is worth more than laughter. It is strength to laugh and to abandon oneself, to be light."
+      ],
+      "philosophy": "Painted personal reality, not dreams. Art as survival and self-expression through pain.",
+      "technique": "Self-portraits with symbolic elements. Influenced by Mexican folk art and ex-voto tradition.",
+      "lunar": {
+        "quote": "You deserve a love that makes you feel safe, able to get the moon when it walks by your side.",
+        "symbolism": "Moon represents womanhood and strength. In 'Tree of Hope' the moon side shows healing vs sun's sacrifice."
+      }
+    },
+    "Georgia O'Keeffe": {
+      "quotes": [
+        "I found I could say things with color and shapes that I couldn't say any other way - things I had no words for.",
+        "When you take a flower in your hand and really look at it, it's your world for the moment.",
+        "I decided that if I could paint that flower in a huge scale, you could not ignore its beauty.",
+        "To me they are strangely more living than the animals walking around.",
+        "To create one's world in any of the arts takes courage."
+      ],
+      "philosophy": "Making the small seem large and the large small. Stripping to essential geometry.",
+      "technique": "Compressed, concise, reductive style. Color as primary expression of inner life."
+    },
+    "Jean-Michel Basquiat": {
+      "quotes": [
+        "I don't think about art when I'm working. I try to think about life.",
+        "I want to make paintings that look as if they were made by a child.",
+        "I am not a black artist, I am an artist.",
+        "I don't listen to what art critics say. I don't know anybody who needs a critic to find out what art is."
+      ],
+      "philosophy": "Art as life distillation. Themes: race, class, power, identity, mortality.",
+      "technique": "Neo-Expressionist. Raw brushwork, symbols, text fragments. Influenced by jazz, African art, anatomy, comics."
+    },
+    "Vasily Kandinsky": {
+      "quotes": [
+        "Color is the keyboard, the eyes are the hammers, the soul is the piano with many strings.",
+        "The more abstract is form, the more clear and direct its appeal.",
+        "The artist must train not only his eye but also his soul.",
+        "All methods are sacred if they are internally necessary."
+      ],
+      "philosophy": "Art as spiritual practice. Inner necessity drives creation. Synesthesia between color and music.",
+      "technique": "Abstract expressionism. Color as direct soul communication.",
+      "lunar": {
+        "quote": "The deeper the blue becomes, the more strongly it calls man towards the infinite.",
+        "symbolism": "Blue associated with night, infinite, supernatural calling."
+      }
+    },
+    "William Blake": {
+      "quotes": [
+        "The Moon, like a flower in Heaven's high bower, with silent delight, sits and smiles on the night.",
+        "To see a World in a Grain of Sand, And a Heaven in a Wild Flower.",
+        "No bird soars too high if he soars with his own wings."
+      ],
+      "philosophy": "Visionary artist-poet. Imagination as divine sight.",
+      "technique": "Illuminated printing. Poetry integrated with visual art.",
+      "lunar": {
+        "quote": "The Moon, like a flower in Heaven's high bower, with silent delight, sits and smiles on the night.",
+        "symbolism": "Moon as celestial flower, silent witness to night."
+      }
+    },
+    "Agnes Martin": {
+      "quotes": [
+        "The value of art is in the observer.",
+        "I paint with my back to the world.",
+        "The freer the soul, the more abstract painting becomes."
+      ],
+      "philosophy": "Minimalist transcendence. Art as meditation. Zen-influenced approach to painting.",
+      "technique": "Grid-based compositions. Subtle color fields. Hand-drawn lines for human imperfection."
+    },
+    "Barbara Kruger": {
+      "quotes": [
+        "Seeing is no longer believing. The very notion of truth has been put into crisis.",
+        "Making art is about objectifying your experience of the world, transforming the flow of moments into something visual.",
+        "I think pictures and words have the power to make us rich or poor.",
+        "I really resist categories - that naming is a closing down of meaning.",
+        "I think that art is still a site for resistance."
+      ],
+      "philosophy": "Art as commentary. Using advertising language to critique consumer culture and power structures.",
+      "technique": "Futura Bold typeface over red backgrounds. Found images with confrontational text overlays.",
+      "inspirations": "Learned craft as magazine designer at Conde Nast. Studied under Diane Arbus at Parsons."
+    },
+    "Shepard Fairey": {
+      "quotes": [
+        "People are told 'This is the right way to do it, these are expectations, these are the rules'. But when 'Obey' confronts you it makes people question.",
+        "I've never really considered myself just a street artist. I consider myself a populist.",
+        "Skateboarding itself requires creative adaptation to the streets and obstacles.",
+        "Being complicit because it's the home team is nationalism, not patriotism."
+      ],
+      "philosophy": "Phenomenology through street art. Reawakening wonder about one's environment. Questioning obedience and authority.",
+      "technique": "Stencil art, stylized iconic imagery. Influenced by Russian Constructivism and propaganda art.",
+      "inspirations": "Barbara Kruger's style, John Carpenter's 'They Live', Dead Kennedys, George Orwell."
+    },
+    "Marc Chagall": {
+      "quotes": [
+        "In our life there is a single color, as on an artist's palette, which provides the meaning of life and art. It is the color of love.",
+        "Color is all. When color is right, form is right. Color is vibration like music.",
+        "If I create from the heart, nearly everything works; if from the head, almost nothing.",
+        "Art seems to me to be a state of soul more than anything else.",
+        "All our interior world is reality, and that, perhaps, more so than our apparent world.",
+        "The dignity of the artist lies in keeping awake the sense of wonder in the world."
+      ],
+      "philosophy": "Art as love expression. Interior world as true reality. Maintaining wonder.",
+      "technique": "Dreamlike symbolism. Color as vibration. Fusion of personal mythology with folk traditions."
+    },
+    "Paul Klee": {
+      "quotes": [
+        "Art does not reproduce the visible but makes it visible.",
+        "Color possesses me. I don't have to pursue it. It will possess me always.",
+        "Color is the place where our brain and the universe meet.",
+        "Drawing is the art of taking a line for a walk.",
+        "One eye sees, the other feels.",
+        "There is no substitute for intuition."
+      ],
+      "philosophy": "All the things an artist must be: poet, explorer of nature, philosopher. Making invisible visible.",
+      "technique": "Bauhaus master. Color theory based on Goethe's wheel transformed to sphere. Teaching foundations before color.",
+      "inspirations": "Trip to Tunisia 1914 sparked breakthrough. Known as 'the magician' at Bauhaus."
+    },
+    "Leonardo da Vinci": {
+      "quotes": [
+        "Study the science of art. Study the art of science. Develop your senses - especially learn how to see.",
+        "Realize that everything connects to everything else.",
+        "Painting is poetry that is seen rather than felt, and poetry is painting that is felt rather than seen.",
+        "Where the spirit does not work with the hand, there is no art.",
+        "Knowing is not enough; we must apply. Being willing is not enough; we must do.",
+        "Nature is the source of all true knowledge."
+      ],
+      "philosophy": "Art-science unity. Complete mind development. Everything is interconnected.",
+      "technique": "Sfumato, anatomical precision, scientific observation integrated with artistic expression."
+    },
+    "Man Ray": {
+      "quotes": [
+        "I paint what cannot be photographed, that which comes from the imagination or from dreams.",
+        "I photograph the things that I do not wish to paint, the things which already have an existence.",
+        "It has never been my object to record my dreams, just the determination to realise them.",
+        "Personally, I have always preferred inspiration to information.",
+        "I do not photograph nature. I photograph my visions."
+      ],
+      "philosophy": "Paint dreams, photograph reality. Deliberate rule-breaking. Pure Dadaism through accident.",
+      "technique": "Invented rayographs (cameraless photography). Reinvented solarization with Lee Miller."
+    },
+    "Anish Kapoor": {
+      "quotes": [
+        "Void is really a state within. I find myself coming back to narrative without storytelling.",
+        "I am interested in making objects that slow time down, that make you sit still and think.",
+        "I wish to make sculpture about belief, about passion, about experience: that is outside of material concerns.",
+        "There's the pigment language, the void language, the mirror language, the wax language.",
+        "I don't want to do what I did before, I want to do what I just don't know how to do."
+      ],
+      "philosophy": "Void as pregnant emptiness, generative potential. Approaching psychology, fear, death, love directly.",
+      "technique": "Multiple artistic languages: pigment, void, mirror, wax. Scale as sculptural tool.",
+      "inspirations": "Hindu cosmology concepts of shunya (emptiness) and ananta (infinity). Ritual objects in India."
+    },
+    "Dan Flavin": {
+      "quotes": [
+        "I like art as thought better than art as work. Art is thought.",
+        "One might not think of light as a matter of fact, but I do. And it is, as plain and open and direct an art as you will ever find.",
+        "The fewer parts the better, because with fewer parts you can more surely grasp the whole.",
+        "I try never to acknowledge 'isms' on art because of their usual unanimous inaccuracy."
+      ],
+      "philosophy": "Art as thought, not work. Vehemently 'Maximalist' while classified as Minimalist.",
+      "technique": "Commercial fluorescent tubes. Light 'propositions' not sculptures. Space redefinition.",
+      "inspirations": "Marcel Duchamp's readymades. Seminary education influenced spiritual dimension of light work."
+    },
+    "Richard Misrach": {
+      "quotes": [
+        "My career has been about navigating these two extremes - the political and the aesthetic.",
+        "You look at landscape, but it's not really landscape, it's a symbol for our country, it's a metaphor.",
+        "The desert epitomizes the extremes of the human condition.",
+        "I've come to believe that beauty can be a very powerful conveyor of difficult ideas.",
+        "Whatever else a photograph may be about, it is always about time."
+      ],
+      "philosophy": "Landscape as metaphor for human condition. Beauty as tool for difficult truths. Bearing witness.",
+      "technique": "Large format color photography. Pioneer of fine art color work. Desert Cantos as magnum opus."
+    },
+    "William Eggleston": {
+      "quotes": [
+        "The world is in color. And there's nothing we can do about that.",
+        "I have this discipline of treating everything equally - I used to say 'democratically'.",
+        "I am at war with the obvious.",
+        "I only ever take one picture of one thing. Literally. Never two.",
+        "I think I could really photograph blind if I had to."
+      ],
+      "philosophy": "Democratic approach - all subjects equal. War with the obvious. Intuitive over calculated.",
+      "technique": "Pioneered dye-transfer printing in fine art. Shot without viewfinder. One shot discipline.",
+      "inspirations": "Influenced Coen brothers, Sofia Coppola, David Lynch. First solo color show at MoMA 1976."
+    },
+    "XCOPY": {
+      "quotes": [
+        "I like contrasting everyday problems with death; it takes away their power for a moment.",
+        "Dystopia creeps in further every day, it's hard not to talk about it."
+      ],
+      "philosophy": "Death, dystopia, and apathy through distorted visual loops. CC0 licensing as artistic gesture.",
+      "technique": "Animated GIFs, complex layering, glitch effects. Bright colors with dark themes.",
+      "inspirations": "Counter-culture: punk, anarchism, horror. Pioneer in NFT/crypto art space since 2018."
+    },
+    "Matt Kane": {
+      "quotes": [
+        "You're not really bidding on what you're seeing - you're bidding on future experiences.",
+        "My artistic philosophy is that these works of art are going to be reinterpreted in the future like pieces of music.",
+        "Art is best when it encompasses the totality of an artist's life, experiences, and abilities.",
+        "The roadmap of the living artist is the living artist.",
+        "NFTs are a technology that solves lots of problems that have existed in the established art world."
+      ],
+      "philosophy": "Art as database for future reinterpretation. 15,000+ hours of custom coding. Work ethic from traditional painting applied to digital.",
+      "technique": "Hand-coded generative software. Combines tireless traditional attitude with generative capabilities of code.",
+      "inspirations": "Advocated for artist royalty standards in NFT space. First $100K+ NFT artwork on Async Art."
+    },
+    "Jesse Draxler": {
+      "quotes": [
+        "When I began working exclusively in greyscale is when everything seemed to start to make sense.",
+        "I love working with found imagery because it's preloaded. I want to do as little as possible while making it as much mine as possible.",
+        "My practice has always been a reflection of myself, my internal cosmology.",
+        "It is universal because we're all going through this - we all break ourselves down and build ourselves up from the rubble.",
+        "I'm someone who takes in information from the world and regurgitates it in order to create this dark, void mirror of it."
+      ],
+      "philosophy": "Art as self-reflection and internal cosmology. Transformation through identity. Dark mirror of the world.",
+      "technique": "Greyscale collage. Subversion of found imagery. Trial and error process.",
+      "inspirations": "Formative years filled with tragedy shaped his dark aesthetic. Philosophy, fiction, and graphic novels."
+    },
+    "Amber Vittoria": {
+      "quotes": [
+        "My work is rooted in femininity and the female form.",
+        "I've always gravitated towards making really colorful artwork.",
+        "Color holds so much meaning, which is why I love using different color combinations.",
+        "My proudest moment is the day I decided to quit my full-time job and work fully for myself.",
+        "My aim with colour is to leverage it to tell a specific story or evoke a particular emotion."
+      ],
+      "philosophy": "Breaking societal expectations on women through color. Femininity and the female form.",
+      "technique": "Aqueous rainbow gradients. Ink and acrylic with graphite line drawings.",
+      "inspirations": "Color inspiration from nature - national parks, sunsets, flowers. Mother and grandmother."
+    },
+    "Kevin Abosch": {
+      "quotes": [
+        "In my practice as an artist, I challenge conventional notions of value and identity.",
+        "From the moment we're born, society tries to ascribe value to us.",
+        "This seems to me the purest form of art - it's the idea, without the baggage of a vessel.",
+        "I use proxies as emotional distillates."
+      ],
+      "philosophy": "Challenging conventional notions of value and identity. Commodification of self. Art without physical form.",
+      "technique": "Cryptography, blockchain, deep-learning as artistic methods. Proxies and tokens as art.",
+      "inspirations": "Using blockchain since 2012. Forever Rose sold for $1M. Collaborated with Ai Weiwei."
+    },
+    "Deborah Kass": {
+      "quotes": [
+        "I replace Andy's male homosexual desire with my own specificity - Jew love, female voice, and blatant lesbian diva worship.",
+        "First I learned their language, and then I dismantled it.",
+        "I didn't ask for membership, I demanded it.",
+        "A woman has no place in the art world unless she proves over and over again that she won't be eliminated."
+      ],
+      "philosophy": "Feminist reappropriation of male art canon. Creating alternate canon celebrating female achievement.",
+      "technique": "Appropriation of Warhol's silkscreen style with feminist and Jewish identity.",
+      "inspirations": "Decade of Warhol series. Jewish Jackie series with Barbra Streisand."
+    },
+    "Pindar Van Arman": {
+      "quotes": [
+        "It's not us versus the machines, rather, it's us with the machines.",
+        "My machines have grown beyond being simple assistants and are now effectively augmenting my own creativity.",
+        "Attempting to teach my machines how to paint has forced me to reverse engineer my own creative process.",
+        "Art uses a lot of creativity, but art is one person communicating with another person.",
+        "100% of them are my art, even though the machine made every aesthetic decision and brushstroke."
+      ],
+      "philosophy": "Human-machine collaboration. Self-discovery through teaching robots. Creativity can be coded.",
+      "technique": "Deep learning neural networks, feedback loops, robotic painting arms.",
+      "inspirations": "20+ years in AI art. Cloud Painter robot. Background in DARPA robotics."
+    },
+    "Sasha Stiles": {
+      "quotes": [
+        "I find it surreal and exhilarating to be a poet who writes not just poems, but poets.",
+        "I like to think that the AI-powered muse will help us compose poems we can't yet write.",
+        "Repetition is really characterizing poetic language - it's about patterns and recursion.",
+        "The thing I think is so interesting is that we're constantly asking how AI replicates creativity. But why would we expect it to replicate anything?"
+      ],
+      "philosophy": "What does it mean to be human in a more-than-human age? Poetry as technology. AI as creative collaborator.",
+      "technique": "Technelegy - AI-powered text generators fine-tuned on her own writing. Poetry mentor to android BINA48.",
+      "inspirations": "Harvard and Oxford graduate. Co-founder of theVERSEverse. Prix Ars Electronica honored."
+    },
+    "Bård Ionson": {
+      "quotes": [
+        "My best work is made when I am playing with it.",
+        "The power of using a blockchain was unbelievable to me until I tried it.",
+        "I have found some very surprising visualizations in using randomness as it is a central construct in machine learning and artificial intelligence.",
+        "Build on what you know already and be willing to experiment with something new."
+      ],
+      "philosophy": "Technology is changing the human mind in ways we don't understand. Exploring hyperreality - how technology transforms perception of the real. Art should be fun.",
+      "technique": "Scanography, oscilloscopes, broken technology, AI, glitch techniques. Randomness as central construct.",
+      "inspirations": "Nam June Paik, Jean Baudrillard, Georgia O'Keeffe, John Cage, Robbie Barrat. Works in Centre Pompidou and Oxford Bodleian."
+    },
+    "Emily Xie": {
+      "quotes": [
+        "When you're using code to mimic something that's deeply material and deeply textural, I think that's pretty fascinating.",
+        "I really hope that generative art will land in a place one day where it's taught in the art history books.",
+        "Let your imagination run free - whether you find in these pieces dragons, ocean waves, birds, or flames."
+      ],
+      "philosophy": "Interplay between organic and systematic. Balance of chance vs control, abstract vs representational. Code as digital loom.",
+      "technique": "Javascript and p5.js. Rapid prototyping in Photoshop/Procreate before coding. Generative algorithms creating new materiality.",
+      "inspirations": "Traditional East Asian art. Memories of Qilin references mythological shape-shifting beast. Mother helped name the project."
+    },
+    "Sarah Zucker": {
+      "quotes": [
+        "We are the Ancients of a Future civilization.",
+        "I'm a sculptor with light on videotape.",
+        "I want to create multi-fractal parallel dimensions.",
+        "I feel as a Millennial that I'm part of this generational cohort having had an analog childhood and now living a digital future."
+      ],
+      "philosophy": "Digital-analog hybrid. Work is about time more than anything. Through play with obsolete tools, speak to eternal human themes.",
+      "technique": "VideoPainting technique. Analog feedback, VHS manipulation, video synthesis. GIFs viewed 6 billion+ times on Giphy.",
+      "inspirations": "Crypto art pioneer since 2019. Featured in Sotheby's Natively Digital, Buffalo AKG Museum, Taschen's On NFTs."
+    }
+  },
+  "musician": {
+    "John Coltrane": {
+      "quotes": [
+        "My music is the spiritual expression of what I am - my faith, my knowledge, my being.",
+        "I want to speak to their souls.",
+        "All a musician can do is to get closer to the sources of nature.",
+        "I'd like to be a saint."
+      ],
+      "philosophy": "Music as spiritual practice. Force for good against suffering.",
+      "technique": "10-12 hours daily practice. Tone inseparable from message.",
+      "lunar": {
+        "note": "A Love Supreme recorded with spiritual awakening themes of transcendence."
+      }
+    },
+    "Lauryn Hill": {
+      "quotes": [
+        "Truth will never start out popular in a world more concerned with marketability than righteousness.",
+        "We can't plan life. All we can do is be available for it.",
+        "Reality is easy. It's deception that's the hard work.",
+        "Every time I got hurt, every time I was disappointed, every time I learned, I just wrote a song."
+      ],
+      "philosophy": "Music as truth-telling. Poet, philosopher, voice for change.",
+      "technique": "Pioneer of fusing rap and singing. Live instrumentation over beats."
+    },
+    "Erykah Badu": {
+      "quotes": [
+        "Being honest is my job. That's what music is for me.",
+        "The music business is motivated by money. Music is motivated by energy and feelings.",
+        "I was born to make mistakes, not to fake perfection.",
+        "I'm an artist, and I'm sensitive about my shit.",
+        "Hopefully my music is medicine, some type of antidote.",
+        "I consider my musical ability to be a gift from the Creator.",
+        "Following your heart also means eliminating the things that no longer evolve you.",
+        "Peace and Blessings manifest with every lesson learned."
+      ],
+      "philosophy": "Music as medicine. Higher self connection. Vibrational awareness.",
+      "technique": "Neo-soul pioneer. Eclectic musical influences. Soulful introspection.",
+      "inspirations": "Queen of Neo-Soul. Explores love, identity, spirituality, social consciousness."
+    },
+    "Bob Marley": {
+      "quotes": [
+        "One good thing about music, when it hits you, you feel no pain.",
+        "One love, one heart, let's get together and feel alright.",
+        "Emancipate yourself from mental slavery, none but ourselves can free our mind.",
+        "Don't gain the world and lose your soul; wisdom is better than silver or gold.",
+        "People want to listen to a message, word from Jah. I am not a leader. Messenger."
+      ],
+      "philosophy": "Universal love transcending borders. Music as prayer. Mental emancipation.",
+      "technique": "Reggae as spiritual vehicle. Roots music with global message."
+    },
+    "Mozart": {
+      "quotes": [
+        "The music is not in the notes, but in the silence between.",
+        "Neither a lofty degree of intelligence nor imagination go to the making of genius. Love, love, love, that is the soul of genius."
+      ],
+      "philosophy": "Music as divine gift. Genius through love. Silence as essential as notes.",
+      "technique": "Classical composition. Prodigious output across all forms."
+    },
+    "Beethoven": {
+      "quotes": [
+        "Music is a higher revelation than all wisdom and philosophy.",
+        "Music is the electrical soil in which the spirit lives, thinks and invents.",
+        "Don't only practice your art, but force your way into its secrets; art deserves that.",
+        "I want to seize fate by the throat.",
+        "What you are, you are by accident of birth; what I am, I am by myself."
+      ],
+      "philosophy": "Music as higher revelation. Art as path to the Divine. Self-determination.",
+      "technique": "Classical to Romantic bridge. Composed through deafness."
+    },
+    "John Cage": {
+      "quotes": [
+        "There is no such thing as an empty space or an empty time. There is always something to see, something to hear.",
+        "There's no such thing as silence.",
+        "The material of music is sound and silence. Integrating these is composing.",
+        "The highest purpose is to have no purpose at all. This puts one in accordance with nature.",
+        "I can't understand why people are frightened of new ideas. I'm frightened of the old ones.",
+        "I gave up making choices. In their place I put the asking of questions."
+      ],
+      "philosophy": "No silence exists. Highest purpose is purposelessness. Chance operations.",
+      "technique": "Indeterminate music. 4'33\" silence piece. I Ching-based composition."
+    },
+    "Philip Glass": {
+      "quotes": [
+        "I've learned that there's a creative solution to almost any problem.",
+        "Music is another planet."
+      ],
+      "philosophy": "Minimalism as expansion. Repetition creates depth.",
+      "technique": "Minimalist composition. Repetitive structures, additive process."
+    },
+    "Rosalia": {
+      "quotes": [
+        "Flamenco is the most honest and visceral music. You have to be sincere when you sing it.",
+        "I think of any genre as a snow globe - you don't admire it for its stillness. You have to shake it up.",
+        "I sing flamenco from my perspective. It is absolutely necessary for me to play in my own way.",
+        "The flamenco cantes are my foundation. Without flamenco, my music wouldn't make sense.",
+        "No music is completely original. The key is in the context.",
+        "My favorite flamenco singers are not trying to look pretty. They're trying to put truth in what they do."
+      ],
+      "philosophy": "Sincerity essential. Shaking up tradition. Truth over beauty.",
+      "technique": "Master's degree in flamenco interpretation. Fusion of tradition with contemporary production."
+    },
+    "Jane Siberry": {
+      "quotes": [
+        "The first church is nature. That's the first thing I ever trusted spiritually.",
+        "We stumble, and then we have to figure a way out. That's why we need our creativity.",
+        "Most of the world uses music as a way to pray. I think it's natural and organic.",
+        "'Quirky' has always bothered me - it seems dismissive of people being more themselves than not.",
+        "My guiding light is that I come from the heart. The work has to be right, and I come second to the work."
+      ],
+      "philosophy": "Nature as first church. Music as prayer. Trust in the creative process.",
+      "technique": "Weaving individual, collective, and spiritual themes. Work takes precedence over self."
+    }
+  },
+  "spiritualist": {
+    "Teal Swan": {
+      "quotes": [
+        "Shadow work is the art of making the unconscious, conscious and the unacceptable, acceptable.",
+        "The more aware you are of your shadow, the more embodied you are as a conscious being.",
+        "Like a ghost, your shadow will follow you to the ends of the earth begging for the light of consciousness.",
+        "Positive focus works on everything except for the things you're trying to use positive focus to avoid."
+      ],
+      "philosophy": "Integration of shadow self. Consciousness as light.",
+      "technique": "Shadow work exercises. Making unconscious conscious.",
+      "lunar": {
+        "note": "Shadow work relates to lunar/dark aspects of psyche requiring integration."
+      }
+    },
+    "Ricardo Cervantes (El Gorila)": {
+      "location": "Teotihuacan, Mexico",
+      "philosophy": "Educational and spiritual guidance at sacred sites.",
+      "technique": "Temazcal ceremonies, medicine walks, cave meditation.",
+      "lunar": {
+        "note": "Pyramid of the Moon at Teotihuacan is central to his teaching location."
+      }
+    },
+    "Buddha": {
+      "quotes": [
+        "Three things cannot be long hidden: the sun, the moon, and the truth.",
+        "The mind is everything. What you think you become."
+      ],
+      "philosophy": "Enlightenment through awareness. End of suffering.",
+      "lunar": {
+        "quote": "Three things cannot be long hidden: the sun, the moon, and the truth.",
+        "symbolism": "Moon as symbol of truth that cannot be concealed."
+      }
+    },
+    "Abraham Hicks": {
+      "quotes": [
+        "The universe does not know whether the vibration you're offering is because of something you're observing or imagining. It just receives the vibration and answers it.",
+        "The universe is not punishing you or blessing you. The universe is simply responding to the vibrational attitude you are emitting.",
+        "As you think, you vibrate. And it is your vibrational offering that equals your point of attraction.",
+        "Never mind what is. Imagine it the way you want it to be.",
+        "The basis of your life is absolute freedom, the goal is joy."
+      ],
+      "philosophy": "Law of Attraction. Vibrational matching. Science of Deliberate Creation.",
+      "technique": "Alignment with source. Art of Allowing. Emotional guidance system."
+    },
+    "Walter Mercado": {
+      "quotes": [
+        "God bless you all, today, tomorrow and always. Mucho, mucho, mucho amor.",
+        "There is no obstacle too great, no dream too big for those who believe.",
+        "You have to be nice to people, you have to give the best of yourself every moment."
+      ],
+      "philosophy": "Interfaith religion combining Buddhism, Hinduism, Christianity with astrology. Self-love and acceptance.",
+      "technique": "Astrological readings with spiritual upliftment. Messages of peace and love.",
+      "inspirations": "Messenger of the Age of Aquarius. Changed name to Shanti Ananda (peace happiness)."
+    }
+  },
+  "mathematician": {
+    "Srinivasa Ramanujan": {
+      "quotes": [
+        "An equation has no meaning for me unless it expresses a thought of GOD.",
+        "While asleep, I had an unusual experience. I saw the goddess Namagiri, and she showed me mathematical proofs."
+      ],
+      "philosophy": "Mathematics as divine revelation. Intuition over proof.",
+      "technique": "Pattern recognition through dreams. Empirical induction.",
+      "lunar": {
+        "note": "Received mathematical insights through dreams - nocturnal revelation."
+      }
+    },
+    "Albert Einstein": {
+      "quotes": [
+        "Imagination is more important than knowledge.",
+        "The most beautiful thing we can experience is the mysterious."
+      ],
+      "philosophy": "Block universe. Relativity of time and space.",
+      "technique": "Thought experiments. Visualization of abstract concepts."
+    },
+    "Robert Edward Grant": {
+      "quotes": [
+        "Science + Heart + Spirituality as unified framework."
+      ],
+      "philosophy": "Energy mathematics. Sacred geometry in nature.",
+      "technique": "Numerical patterns, mind-body-brain connection."
+    },
+    "Sabine Hossenfelder": {
+      "quotes": [
+        "For 97 percent of all Wikipedia articles, if you click the first link repeatedly, you will eventually get to philosophy.",
+        "Philosophy is where our knowledge ends.",
+        "If your belief conflicts with empirically confirmed knowledge, then you are not seeking meaning; you are delusional.",
+        "Besides keeping us honest, math is the most economical and unambiguous terminology we know of."
+      ],
+      "philosophy": "Science has limits. Existential physics enriches dialogue with new insights.",
+      "technique": "Physics applied to existential questions. Science communication.",
+      "inspirations": "Author of 'Lost in Math' and 'Existential Physics'. Fearless honesty in science."
+    },
+    "Nicolaus Copernicus": {
+      "quotes": [
+        "Finally we shall place the Sun himself at the center of the Universe.",
+        "To know that we know what we know, and to know that we do not know what we do not know, that is true knowledge.",
+        "To know the mighty works of God, to appreciate the wonderful workings of His laws, surely must be a pleasing mode of worship.",
+        "In the midst of all dwells the Sun. For who could set this luminary in another or better place."
+      ],
+      "philosophy": "Heliocentric universe. True knowledge acknowledges its limits.",
+      "technique": "Mathematical astronomy. Challenging established paradigms through observation."
+    }
+  },
+  "writer": {
+    "Martin Luther King Jr.": {
+      "quotes": [
+        "Darkness cannot drive out darkness; only light can do that.",
+        "The time is always right to do what is right.",
+        "Injustice anywhere is a threat to justice everywhere."
+      ],
+      "philosophy": "Nonviolent resistance. Moral arc of universe.",
+      "lunar": {
+        "quote": "Darkness cannot drive out darkness; only light can do that.",
+        "symbolism": "Light/darkness duality - moon as light in darkness."
+      }
+    },
+    "Paul Coelho": {
+      "quotes": [
+        "When you want something, all the universe conspires in helping you to achieve it.",
+        "The secret of life is to fall seven times and to get up eight times."
+      ],
+      "philosophy": "Personal legend. Universe as ally in destiny."
+    },
+    "Nelson Mandela": {
+      "quotes": [
+        "Real leaders must be ready to sacrifice all for the freedom of their people.",
+        "A leader is like a shepherd. He stays behind the flock, letting the most nimble go out ahead.",
+        "For to be free is not merely to cast off one's chains, but to live in a way that respects the freedom of others.",
+        "I learned that courage was not the absence of fear, but the triumph over it.",
+        "No one is born hating another person. People must learn to hate, and if they can learn to hate, they can be taught to love."
+      ],
+      "philosophy": "Leadership through service. Freedom as mutual respect. Love over hate.",
+      "technique": "Nonviolent resistance. Long-term vision despite adversity."
+    },
+    "Rhonda Byrne": {
+      "quotes": [
+        "The law of attraction is a law of nature. It is as impartial as the law of gravity.",
+        "The Secret is the law of attraction! Everything coming into your life you are attracting by the images you hold in your mind.",
+        "Be grateful for what you have now. You will be amazed at the never ending thoughts of more things to be grateful for.",
+        "The only reason why people do not have what they want is because they think more about what they don't want."
+      ],
+      "philosophy": "Law of Attraction. Thoughts become things. Ask, believe, receive.",
+      "technique": "Visualization. Gratitude practice. Positive focus.",
+      "inspirations": "Influenced by Wallace Wattles' 'The Science of Getting Rich'."
+    },
+    "Dan Koe": {
+      "quotes": [
+        "With the rise of the internet, the difference between you and what you want is a skill. Not luck or riches.",
+        "You're bored because you haven't developed a skill set that allows you to take on interesting challenges.",
+        "You don't need a day off when your work is what you'd be doing on your day off.",
+        "Reading without writing is like eating without lifting.",
+        "The solution to boredom is building. Build a blog. Build a brand. Build ANYTHING."
+      ],
+      "philosophy": "You are the niche. Holistic synthesizer approach. Skills as currency.",
+      "technique": "Fusing philosophy, spirituality, and business. One-person business model.",
+      "inspirations": "Creator economy pioneer. Distilling personal experience as life's work."
+    }
+  },
+  "poet": {
+    "Patti Smith": {
+      "quotes": [
+        "In art and dream may you proceed with abandon.",
+        "Please, no matter how we advance technologically, please don't abandon the book."
+      ],
+      "philosophy": "Punk poetry. Art as rebellion and freedom.",
+      "technique": "Stream of consciousness. Poetry-music fusion."
+    },
+    "Confucius": {
+      "quotes": [
+        "It does not matter how slowly you go as long as you do not stop.",
+        "Everything has beauty, but not everyone sees it."
+      ],
+      "philosophy": "Virtue ethics. Continuous improvement."
+    },
+    "Sasha Stiles": {
+      "quotes": [
+        "I find it surreal and exhilarating to be a poet who writes not just poems, but poets.",
+        "I like to think that the AI-powered muse will help us compose poems we can't yet write.",
+        "Repetition is really characterizing poetic language - it's about patterns and recursion.",
+        "What does it mean to be human in the nearly post-human era?"
+      ],
+      "philosophy": "Poetry as technology. AI as creative collaborator. Human meaning in post-human age.",
+      "technique": "Technelegy - AI text generators fine-tuned on her writing. Poetry mentor to android BINA48.",
+      "inspirations": "Harvard/Oxford graduate. Co-founder of theVERSEverse. Prix Ars Electronica honored."
+    }
+  }
+}

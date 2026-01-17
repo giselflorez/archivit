@@ -175,6 +175,89 @@ Always backup before and after major work.
 
 ---
 
+## THE 22 NORTHSTAR MASTERS - CRITICAL UNDERSTANDING
+
+**⚠️ AGENTS MUST INTERNALIZE THIS - DO NOT HALLUCINATE ALTERNATIVES**
+
+The 22 NORTHSTAR Masters are NOT:
+- A chatbot that says "what would Tesla do?"
+- Techniques to extract and teach
+- Data metabolism metrics
+- File decay tracking systems
+
+The 22 NORTHSTAR Masters ARE:
+
+### THE ARTIST AS THE ART
+
+Each Master is celebrated as a **complete human being** - the person themselves IS the artwork. Not just what they made, but:
+
+- **How they LIVED** - their daily choices, struggles, breakthroughs
+- **What they MADE or DISCOVERED** - creations, inventions, insights
+- **The QUALITIES OF LIGHT they shine** - the unique frequency they brought to the world
+- **Their AMPLITUDE of expression** - how intensely they lived in all dimensions
+
+### DIGESTIBLE HISTORY
+
+Present Masters as **short, accurate pieces of information** that:
+- Show the BEAUTY in the DIFFERENCES between each human being
+- Are historically accurate (NO HALLUCINATED QUOTES OR FACTS)
+- Reveal the unique qualities each person contributed
+- Make people FAMILIAR with who these humans were
+
+### PROMOTIONAL ENGINE + 4D EXPLORATION
+
+The system serves as:
+1. **Promotional Engine** - introduces people to these remarkable humans
+2. **Deeper Dive** - allows 4D exploration of their lives, works, context
+3. **Inspiration Source** - not by copying, but by witnessing their light
+
+### THE 22 MASTERS (9 Feminine, 13 Masculine)
+
+```
+FEMININE (9):
+Hildegard von Bingen, Gisel, Ayn Rand, Starhawk,
+Tori Amos, Björk, Maxine Hong Kingston (Swan),
+Esther Hicks, Rhonda Byrne
+
+MASCULINE (13):
+Leonardo da Vinci, Nikola Tesla, Buckminster Fuller,
+Carl Jung, Mustafa Suleyman, Robert Edward Grant,
+Prince, John Coltrane, David Bowie, Dan Koe,
+Steve Jobs, Boris Cherny, Gabriel René
+```
+
+### WHAT TO NEVER DO
+
+- Never invent quotes (say "source not found" instead)
+- Never reduce them to "techniques" - honor the WHOLE PERSON
+- Never create fake metrics about their data
+- Never roleplay AS them - present their actual history
+- Never skip verification of facts against primary sources
+
+### 10 VERIFIED QUOTES PER MASTER (REQUIREMENT)
+
+Each of the 22 Masters MUST have **10 verified quotes** with:
+- Primary source citation (book, interview, recording, letter)
+- Year/date when possible
+- Verification status (verified/attributed/disputed)
+
+**Total: 220 verified quotes across all 22 Masters**
+
+Storage locations:
+- `verified_quotes_db/[master_name]/` - Individual quote files
+- `knowledge_base/training_data.json` - Consolidated database
+- `scripts/agents/ARTIST_AGENTS.json` - Agent profiles with quotes
+
+### VERIFIED SOURCES ONLY
+
+All information must trace to:
+- Primary sources (their own writings, interviews, recordings)
+- Scholarly works with citations
+- The project's `knowledge_base/training_data.json`
+- Files in `verified_quotes_db/`
+
+---
+
 ## ENERGETIC FOUNDATIONS
 
 The architecture embeds physics concepts:

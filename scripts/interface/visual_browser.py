@@ -1028,6 +1028,13 @@ def terms_of_service():
     """Terms of Service page"""
     return render_template('terms_of_service.html')
 
+@app.route('/public/<path:filename>')
+def serve_public(filename):
+    """Serve files from public directory"""
+    import os
+    public_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'public')
+    return send_from_directory(public_dir, filename)
+
 @app.route('/twitter-verify')
 def twitter_verify():
     """Twitter verification page"""
@@ -4573,6 +4580,12 @@ def masters_v2():
     """Masters V2 - Original electric glow visualization"""
     return render_template('masters_point_cloud_v2.html')
 
+@app.route('/tiktok-research')
+@app.route('/aligned-accounts')
+def tiktok_research():
+    """Aligned TikTok Accounts - NORTHSTAR Research for production team"""
+    return render_template('aligned_tiktok_accounts.html')
+
 # ============================================
 # ARC-8 FOUR MODE INTERFACES
 # ============================================
@@ -7479,6 +7492,121 @@ def nft_temporal_detail(contract, token_id):
         import traceback
         traceback.print_exc()
         return f"Error loading temporal view: {e}", 500
+
+
+# ============================================================================
+# TRAINING BROWSER ROUTES - 968 Subject Intelligence
+# ============================================================================
+
+@app.route('/training-browser')
+def training_browser():
+    """968 Subject Intelligence Browser"""
+    return render_template('training_browser.html')
+
+@app.route('/api/training/subjects')
+def api_training_subjects():
+    """Get all training subjects status"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'training'))
+        from subject_intelligence import SubjectIntelligence
+
+        engine = SubjectIntelligence()
+        status = engine.get_all_subjects_status()
+        return jsonify(status)
+    except Exception as e:
+        # Return placeholder data if engine not initialized
+        return jsonify({
+            "total": 968,
+            "pending": 968,
+            "partial": 0,
+            "complete": 0,
+            "verified": 0,
+            "total_size_bytes": 0,
+            "total_assets": 0,
+            "avg_quality": 0,
+            "subjects": [
+                {"id": i, "name": f"Moon {i:03d}", "status": "pending",
+                 "assets": 0, "quality": 0, "size": 0, "completeness": 0}
+                for i in range(1, 969)
+            ]
+        })
+
+@app.route('/api/training/subject/<int:subject_id>')
+def api_training_subject_detail(subject_id):
+    """Get detailed info for a single subject"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'training'))
+        from subject_intelligence import SubjectIntelligence
+
+        engine = SubjectIntelligence()
+        subject = engine.load_subject(subject_id)
+        if subject:
+            return jsonify(subject.to_dict())
+        return jsonify({"error": "Subject not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/training/storage')
+def api_training_storage():
+    """Get storage status for training data"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'training'))
+        from subject_intelligence import StorageManager
+
+        storage = StorageManager()
+        disk = storage.get_disk_usage()
+        estimate = storage.estimate_scrape_size()
+
+        return jsonify({
+            "disk": disk,
+            "estimate": estimate
+        })
+    except Exception as e:
+        import shutil
+        total, used, free = shutil.disk_usage("/")
+        return jsonify({
+            "disk": {
+                "disk_total_gb": total / (1024**3),
+                "disk_free_gb": free / (1024**3),
+                "disk_free_percent": (free / total) * 100
+            },
+            "estimate": {
+                "subjects": 968,
+                "estimated_size_gb": 63,
+                "can_proceed": True
+            }
+        })
+
+@app.route('/api/training/init', methods=['POST'])
+def api_training_init():
+    """Initialize the 968 subject directories"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'training'))
+        from subject_intelligence import SubjectIntelligence
+
+        engine = SubjectIntelligence()
+        success = engine.initialize_subjects()
+
+        return jsonify({"success": success})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/training/preflight')
+def api_training_preflight():
+    """Run preflight check before scraping"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'training'))
+        from subject_intelligence import SubjectIntelligence
+
+        engine = SubjectIntelligence()
+        can_proceed, message = engine.storage.preflight_check()
+
+        return jsonify({
+            "can_proceed": can_proceed,
+            "message": message
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ============================================================================

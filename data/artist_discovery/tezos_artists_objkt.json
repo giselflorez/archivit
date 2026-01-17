@@ -1,0 +1,742 @@
+{
+  "source": "objkt.com",
+  "user_address": "tz1ffGQDJ3rES6hvyDCycheiej4Bv93qhbtS",
+  "scan_date": "2026-01-16",
+  "total_artists": 71,
+  "artists": [
+    {
+      "address": "tz1S4sFrjWZGjCt5QjKw8TV9BGLeJex7fDkF",
+      "alias": "Gottfried J\u00e4ger",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Unknown"
+      ]
+    },
+    {
+      "address": "tz1fzJFDVUYJSCv5EkXWv6S1zDNjmPtsxRD2",
+      "alias": "James Bloom",
+      "twitter": "https://x.com/crashblossom1",
+      "tzdomain": "crashblossom.tez",
+      "pieces_collected": 4,
+      "works": [
+        "Unknown",
+        "vision two",
+        "Unknown",
+        "Digital painting 10"
+      ]
+    },
+    {
+      "address": "tz1STSBzSaWca9tBKwD8zdNRKLyhtzumGGKW",
+      "alias": "vespertino",
+      "twitter": "https://x.com/vespertinovsp",
+      "tzdomain": "vespertino.tez",
+      "pieces_collected": 1,
+      "works": [
+        "IMLS_13"
+      ]
+    },
+    {
+      "address": "tz1MdwFypAGD7PPknc4yJp9sS4mn34gxUUqo",
+      "alias": "Women's Museum",
+      "twitter": "https://x.com/WomenMuseumArt",
+      "tzdomain": "womenmuseum.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Aempatia"
+      ]
+    },
+    {
+      "address": "tz1Y5ukkwi6ADLNjDyBGXpVTx488LTL6q1pi",
+      "alias": "Aempatia",
+      "twitter": "https://x.com/Empatia17",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Aempatia"
+      ]
+    },
+    {
+      "address": "tz1ZAdD6jRm74YBB7FNF5KciDkZjdPSdKrJD",
+      "alias": "Gogolitus\u26a1",
+      "twitter": "https://x.com/gogolitus",
+      "tzdomain": "gogobjkt.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Lining the Cross"
+      ]
+    },
+    {
+      "address": "tz1Ttaq6U8M1YTHmDCrnhtm8hvFKPgj1L1yZ",
+      "alias": "MatNova",
+      "twitter": "https://x.com/mat__nova",
+      "tzdomain": "matnova.tez",
+      "pieces_collected": 1,
+      "works": [
+        "i had to lose you to become me"
+      ]
+    },
+    {
+      "address": "tz1UjCvDExdvArnjcPXHQBbrQQQp7e9tjCNj",
+      "alias": "Woman",
+      "twitter": "https://x.com/WomanNFT",
+      "tzdomain": "womannft.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Mary Xmas"
+      ]
+    },
+    {
+      "address": "tz1VmYgoNQPeGkKSjsS1TrGXVM9GW4Seqczc",
+      "alias": "FelixFelixFelix",
+      "twitter": "https://x.com/I____felix____I",
+      "tzdomain": "felixfelixfelix.tez",
+      "pieces_collected": 1,
+      "works": [
+        "XMAS ALERT"
+      ]
+    },
+    {
+      "address": "tz1gw8LQkpgVMV1AvrM1n3TNi7qnGEUQzb9h",
+      "alias": "Justa Ratio",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Normfront"
+      ]
+    },
+    {
+      "address": "tz1MaSEnax38sCmadfefrVjdpBmzaTLZfpAr",
+      "alias": "Ernesto Asch",
+      "twitter": "https://x.com/ernestoasch",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "The Illusion of Sense"
+      ]
+    },
+    {
+      "address": "tz1czjZUmhKtBbt1wrhAEc6p5T65c4nmoH1s",
+      "alias": "Michelle Thompson",
+      "twitter": "https://x.com/mich_tom",
+      "tzdomain": "michellethompson.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Somewhere New"
+      ]
+    },
+    {
+      "address": "tz2W3nHza52fLGAizWGksUzgDNPNxmN4XVVz",
+      "alias": "MEK.txt",
+      "twitter": "https://x.com/michaelmicasso",
+      "tzdomain": "micasso.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Subjective"
+      ]
+    },
+    {
+      "address": "tz2Geuyvj4qHqzfJsg6VHLs4rqg9BxE6igQf",
+      "alias": "dcn7rlz",
+      "twitter": null,
+      "tzdomain": "dcn7rlz.tez",
+      "pieces_collected": 2,
+      "works": [
+        "Gisel x Florez",
+        "Polaroid Impulse 600, 1988 (7/"
+      ]
+    },
+    {
+      "address": "tz1YbJAyfmSwqLbLwCrUTfEMeLgCncM9jj3z",
+      "alias": "Empress Trash",
+      "twitter": "https://x.com/Empresstrash",
+      "tzdomain": "empresstrash.tez",
+      "pieces_collected": 2,
+      "works": [
+        "Eye Wide Open (Edition)",
+        "Much Too Revealing"
+      ]
+    },
+    {
+      "address": "tz1Xbo6SJnN7fAcUesjfQ7zVeNNNf8vPzKUM",
+      "alias": "OONA",
+      "twitter": "https://x.com/madebyoona",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Warning Sensitive Content "
+      ]
+    },
+    {
+      "address": "tz1QXGY9z6RWC6Toy88ixFfsXFKwEN9q5khd",
+      "alias": "Tamas Antal",
+      "twitter": "https://x.com/tamasantalart",
+      "tzdomain": "tamasantal.tez",
+      "pieces_collected": 1,
+      "works": [
+        "total 1-bit eclipse close-up"
+      ]
+    },
+    {
+      "address": "tz1RDr6j75VpeLDGV8o64gy7eR4b3vWBFdZS",
+      "alias": "A. L. Crego",
+      "twitter": "https://x.com/ALCrego_",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Breath \u00b7"
+      ]
+    },
+    {
+      "address": "tz1baz3ZGF8EMTZ8omg62jEtf1S8evry7zkP",
+      "alias": "dreams of sound",
+      "twitter": "https://x.com/dreams_of_sound",
+      "tzdomain": null,
+      "pieces_collected": 2,
+      "works": [
+        "cozy",
+        "soft layer"
+      ]
+    },
+    {
+      "address": "KT1Wz92wmPaBmR4eEk9J2iAds2n1NEQTVsFb",
+      "alias": null,
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "$HUX Memory for tz2MaRqCE1CXmQ"
+      ]
+    },
+    {
+      "address": "tz1awaxC4kBZZGHSUVYSpNcMQ5xykUwThxvn",
+      "alias": "Brookhawk (COLD WALLET)",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "This CULT\ud83d\udd3a [CRYPTOART]\ud83d\udd3a Does N"
+      ]
+    },
+    {
+      "address": "tz1TQTZhyHcPF3VnMgbXkQAr29uhaH9vneQb",
+      "alias": "TRUTHFULNESS aka LASSINGER",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "\"Drowning in your own Tears\" ("
+      ]
+    },
+    {
+      "address": "tz1hJT1bV3vQzYkkkmYYftnoSLo5vTvVT3XL",
+      "alias": "Asa",
+      "twitter": "https://x.com/asanology",
+      "tzdomain": "asanology.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Funcker's Fortune"
+      ]
+    },
+    {
+      "address": "tz1SMEhS93oLW6v3Uw154nZ7JqzepqSaYZA4",
+      "alias": "Shilly Preston",
+      "twitter": "https://x.com/shillypreston",
+      "tzdomain": "shillypreston.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Let Love Prevail"
+      ]
+    },
+    {
+      "address": "tz1ezXY13fQefmXevVz5cELp2r8xhao3ofRV",
+      "alias": "Nikas Geisleris",
+      "twitter": "https://x.com/NikasGeisleris",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "TOURIST"
+      ]
+    },
+    {
+      "address": "tz1MjNtnX6vUusRRtkShgj9rjft6CH5qM1UF",
+      "alias": "Rondellhund",
+      "twitter": null,
+      "tzdomain": "rondellhund.tez",
+      "pieces_collected": 3,
+      "works": [
+        "Smells like lavender",
+        "Bubbleverse",
+        "Topsoil"
+      ]
+    },
+    {
+      "address": "tz1Xzhv5cdjjKrkfi7LhCQPPhUKiTwTfi2WJ",
+      "alias": "SeanRoberts",
+      "twitter": null,
+      "tzdomain": "seanroberts.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Women of War"
+      ]
+    },
+    {
+      "address": "tz1RjEHLzE5rudtWyuK331cew3F9qqWz65jp",
+      "alias": "INA VARE",
+      "twitter": "https://x.com/ina_vare",
+      "tzdomain": "inavare.tez",
+      "pieces_collected": 3,
+      "works": [
+        "2024",
+        "M U S H R O O M",
+        "G A R L I C"
+      ]
+    },
+    {
+      "address": "tz1fyAVLtX5CJvEaBo6wgiAZPW42Thhwy5Z9",
+      "alias": "Angie Taylor",
+      "twitter": "https://x.com/theangietaylor",
+      "tzdomain": null,
+      "pieces_collected": 2,
+      "works": [
+        "Punk Love & Strength 2024",
+        "Glorious Spamburn"
+      ]
+    },
+    {
+      "address": "tz1PgMiRHHCjLaJZPS739cJKnNHGaRXYnsCn",
+      "alias": "hal09999",
+      "twitter": "https://x.com/HAL09999",
+      "tzdomain": "hal09999.tez",
+      "pieces_collected": 2,
+      "works": [
+        "Si-operator",
+        "Si-operator #47"
+      ]
+    },
+    {
+      "address": "tz1QDkAea9R3ChnHFpZQhKshUBvcNRCGooDt",
+      "alias": "KUMALEON",
+      "twitter": "https://x.com/kumaleon_",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Si-operator #47"
+      ]
+    },
+    {
+      "address": "tz1UJTfbYQWyZBpR5AhfnRDgzcfaSvjfPz3c",
+      "alias": "Proof of X",
+      "twitter": "https://x.com/proofofx_",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Si-operator #47"
+      ]
+    },
+    {
+      "address": "tz1hZ9LFcdGxds27TksbJYBpBuuHKExyWNjY",
+      "alias": "theVERSEverse",
+      "twitter": "https://x.com/theVERSEverse",
+      "tzdomain": null,
+      "pieces_collected": 2,
+      "works": [
+        "PO\u00c8ME OBJKT/PO\u00c8ME SBJKT--Contr",
+        "Metareality"
+      ]
+    },
+    {
+      "address": "tz1QBzSw5dye6Aa2Npw2FaNN2WSEb1W2Ni3q",
+      "alias": "M\u00e9tamorphoses",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "PO\u00c8ME OBJKT/PO\u00c8ME SBJKT--Contr"
+      ]
+    },
+    {
+      "address": "tz1Wbtu9aCds2XxfWzm6iHFNAEBMGpmDyC8Q",
+      "alias": "albertine",
+      "twitter": "https://x.com/albertinmeunier",
+      "tzdomain": "albertine.tez",
+      "pieces_collected": 1,
+      "works": [
+        "PO\u00c8ME OBJKT/PO\u00c8ME SBJKT--Contr"
+      ]
+    },
+    {
+      "address": "tz1Rz1zEH8JNThT8tv5zU1i2ukVrzLqW124T",
+      "alias": "Beti Oph\u00e9lie",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "World Purchase"
+      ]
+    },
+    {
+      "address": "tz1icVKNq8hDF3A22FY2x96kypuocSiJtu7R",
+      "alias": "Poetry+AI=Art",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Metareality"
+      ]
+    },
+    {
+      "address": "tz1Pu8zRmNghAHzWxsT9Cy2qXHxkCrHcB3vc",
+      "alias": "Richard Nadler",
+      "twitter": "https://x.com/RichardNadler1",
+      "tzdomain": "dernadler.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Japanese Carnival I Nihon no k"
+      ]
+    },
+    {
+      "address": "tz1apRrybu1ueXQEcHy2gDpT8kfRNUkBusfb",
+      "alias": "rutger van der tas",
+      "twitter": "https://x.com/rutgervandertas",
+      "tzdomain": "rutgervandertas.tez",
+      "pieces_collected": 1,
+      "works": [
+        "face5"
+      ]
+    },
+    {
+      "address": "tz1SmFz7vPbLaCR9fetjFuhHpqB4EUhX6wfd",
+      "alias": "iragreenberg",
+      "twitter": "https://x.com/iragreenberg",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Astra Arborealis #68"
+      ]
+    },
+    {
+      "address": "tz1devCAbpLkegAY7VX5bJmgfsRbN8vBMAmK",
+      "alias": null,
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Hello OpenWorld #360"
+      ]
+    },
+    {
+      "address": "tz1X9BkgjiKitbyd1hNgmjAcdttCni1aW1sF",
+      "alias": "Popeye",
+      "twitter": "https://x.com/popeyepuzzle",
+      "tzdomain": null,
+      "pieces_collected": 3,
+      "works": [
+        "Sticker addict: PEPEYE #25",
+        "Sticker addict: PEPEYE #24",
+        "Sticker addict: PEPEYE #23"
+      ]
+    },
+    {
+      "address": "tz1VjaaBTjSEywNDdtHyQsdPKquDxKMwkmWp",
+      "alias": "clintfulkerson",
+      "twitter": "https://x.com/clintfulkerson",
+      "tzdomain": "clint.tez",
+      "pieces_collected": 2,
+      "works": [
+        "strata match",
+        "the artist's floor wallpapers "
+      ]
+    },
+    {
+      "address": "tz1P8GFuNMcG3dPso9eV8Qybi7WTzzv9r7rZ",
+      "alias": "playrecordmint",
+      "twitter": "https://x.com/playrecordmint",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Body Circles #37"
+      ]
+    },
+    {
+      "address": "tz1WwdvfQtw6uanXzhTmzCL7xrKL6ysavehX",
+      "alias": "Kunsthalle Z\u00fcrich",
+      "twitter": "https://x.com/DYOR_CryptoArt",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Body Circles #37"
+      ]
+    },
+    {
+      "address": "tz1dgXcFWb6F4F1ohd34k62KTmAfT6W1yKNb",
+      "alias": null,
+      "twitter": "https://x.com/zachlieberman",
+      "tzdomain": "zachlieberman.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Body Circles #37"
+      ]
+    },
+    {
+      "address": "tz1WGkVWkdBZnSHRTkL53c2JLfYi5TLtSELB",
+      "alias": "tiegenhof",
+      "twitter": "https://x.com/tiegenhof_",
+      "tzdomain": "gif-museum.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Body Circles #37"
+      ]
+    },
+    {
+      "address": "tz1LDPqQui9XvG7Dp6EKz7PWHp9hWYt7vRUP",
+      "alias": "HELL BOY",
+      "twitter": "https://x.com/HELLBOY_7676",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Support Each Others "
+      ]
+    },
+    {
+      "address": "tz1Zb1AnYUAcReV9Svqes2M9xCKQSoV6VGg2",
+      "alias": "p.i.x.e.l.l.a.r.e.\u2122",
+      "twitter": "https://x.com/_pixellare",
+      "tzdomain": "pixellare.tez",
+      "pieces_collected": 1,
+      "works": [
+        "s.p.a.c.e.&.o.d.d.i.t.y."
+      ]
+    },
+    {
+      "address": "tz1LCy8jh1gzwwBobrxNxjCVx4gC2wWaaXQU",
+      "alias": "byViki",
+      "twitter": "https://x.com/byviki00",
+      "tzdomain": "byviki.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Inhale-exhale byviki"
+      ]
+    },
+    {
+      "address": "tz1VnepzAtPKpQhC4jh9cCbxhXwFKTQxrhzZ",
+      "alias": "Lammetje",
+      "twitter": "https://x.com/lammetje_nl",
+      "tzdomain": "lammetje.tez",
+      "pieces_collected": 3,
+      "works": [
+        "Silk 63",
+        "Silk 34",
+        "Silk 69"
+      ]
+    },
+    {
+      "address": "tz2EaL8HTqjZhVAWrQ3Ddp4wNCxPeE8CtM5f",
+      "alias": "TacyTurn",
+      "twitter": "https://x.com/tacyturnh",
+      "tzdomain": "tacyturn.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Fading Decades"
+      ]
+    },
+    {
+      "address": "tz2E21862ecrwATgxAT7m6zaTAPhd8p2WLvF",
+      "alias": "Jesse Draxler",
+      "twitter": "https://x.com/jessedraxler",
+      "tzdomain": "jessedraxler.tez",
+      "pieces_collected": 1,
+      "works": [
+        "RC57 [U R FUCT]"
+      ]
+    },
+    {
+      "address": "tz1LedkAgnVvNkniY8cQXuaTY6F992h2viHV",
+      "alias": "FLUOR",
+      "twitter": "https://x.com/fluor_99",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "MS 5_ The Valley"
+      ]
+    },
+    {
+      "address": "tz1iB8Ayco6yPe2nBUJ8kbcF7CitAW8Aid74",
+      "alias": "shortcut",
+      "twitter": "https://x.com/unityofmulti",
+      "tzdomain": "shortcut.tez",
+      "pieces_collected": 1,
+      "works": [
+        "The Lovers"
+      ]
+    },
+    {
+      "address": "tz1Z5Ghyvqu3CR7ffq8pkBYtA6EzyrenEyZ5",
+      "alias": "NYICECREAMGALLERY",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "Crossings"
+      ]
+    },
+    {
+      "address": "tz1Q5dcqj57owGvZtpvC1HJ6ReGsSw4Vz6qc",
+      "alias": "Diana Smykova",
+      "twitter": "https://x.com/diana_smykova",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "love"
+      ]
+    },
+    {
+      "address": "tz1ZhimgHgutqRAy229UuadFCnYCtybjrJpL",
+      "alias": "tocame",
+      "twitter": "https://x.com/tocame_munich",
+      "tzdomain": "tocame.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Unknown Time"
+      ]
+    },
+    {
+      "address": "tz1chg2DdXaApZt9YdGfFxatHr9ot8gpjFtW",
+      "alias": "The Tickle",
+      "twitter": "https://x.com/InWarhol",
+      "tzdomain": null,
+      "pieces_collected": 3,
+      "works": [
+        "Tickle #81",
+        "Tickle #80",
+        "Tickle #79 - Chris Follows Edi"
+      ]
+    },
+    {
+      "address": "tz1UDFDYRcKU2LXkvAVAz5cQ9mBLwmnbtvM4",
+      "alias": "Sasha Stiles",
+      "twitter": null,
+      "tzdomain": "sashastiles.tez",
+      "pieces_collected": 1,
+      "works": [
+        "0RAL B1NARY: \u201cBINARY ODE\u201d #96"
+      ]
+    },
+    {
+      "address": "tz1avKxgBtiW75fnKGPgrvVB5S3oxGDB1zPV",
+      "alias": "nathanielstern",
+      "twitter": "https://x.com/nathanielstern",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "0RAL B1NARY: \u201cBINARY ODE\u201d #96"
+      ]
+    },
+    {
+      "address": "tz1av8SwB6GnswEha6ssRinaYM5bWft5ih69",
+      "alias": "agoston nagy",
+      "twitter": "https://x.com/_stc",
+      "tzdomain": null,
+      "pieces_collected": 1,
+      "works": [
+        "L-Poem #60"
+      ]
+    },
+    {
+      "address": "tz1cWTDSYWZHMyUKJTkUhxH8beAh7xB8oLhs",
+      "alias": "GeminiRising",
+      "twitter": "https://x.com/GeminiRising13",
+      "tzdomain": "geminirising.tez",
+      "pieces_collected": 2,
+      "works": [
+        "Cancer #4",
+        "Four Calling Birds"
+      ]
+    },
+    {
+      "address": "tz1a65srdAqrKTiRFy7eU3KPdzKx6H8VpUnK",
+      "alias": "SPAMART PARTY [ARCHIVED]",
+      "twitter": null,
+      "tzdomain": null,
+      "pieces_collected": 3,
+      "works": [
+        "POP SPAMSTRACTION_002",
+        "#SPAMART and #BADVIBESONLY com",
+        "SPAMART SPAM ART ART SPAM"
+      ]
+    },
+    {
+      "address": "tz1grVUuYi6NiVpRTMu4Ujja1XdtcbuUAcqK",
+      "alias": "aitso",
+      "twitter": "https://x.com/aitsolabs",
+      "tzdomain": "aitso.tez",
+      "pieces_collected": 1,
+      "works": [
+        "future desk 1"
+      ]
+    },
+    {
+      "address": "tz1hd67XVg6Ntp7FTVCehiwhN6NVoxBdF5mn",
+      "alias": "Luca Dini",
+      "twitter": "https://x.com/dini1789",
+      "tzdomain": null,
+      "pieces_collected": 2,
+      "works": [
+        "8-bit Epic #2",
+        "Adagio #49"
+      ]
+    },
+    {
+      "address": "tz1Pu1YPVWZV8HTyhsVquKjZ3NUnRvhniBeX",
+      "alias": "Paolo Curtoni",
+      "twitter": "https://x.com/Paolo_Curtoni",
+      "tzdomain": "paolocurtoni.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Adagio #49"
+      ]
+    },
+    {
+      "address": "tz1hPZM7v3n65y6k6pQDvqJY9USK6pCTp9Fg",
+      "alias": "joanna",
+      "twitter": "https://x.com/sereneObscurity",
+      "tzdomain": "joanna.tez",
+      "pieces_collected": 1,
+      "works": [
+        "you don't know me"
+      ]
+    },
+    {
+      "address": "tz1eHDCBkB6uG43eKAZqpr3WXATS9MrDZ3JZ",
+      "alias": "ekeko",
+      "twitter": "https://x.com/ekeko_mtdc",
+      "tzdomain": "ekeko.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Cables V80"
+      ]
+    },
+    {
+      "address": "tz1NMvVB48fNzrG3rPZS58Eo1nSJ6p3RjRyz",
+      "alias": "Hevey",
+      "twitter": "https://x.com/HeveyArt",
+      "tzdomain": "hevey.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Dencity development"
+      ]
+    },
+    {
+      "address": "tz1U4zhMgdvRvVuGcB4jm72A549RnBvShUhS",
+      "alias": "Tori",
+      "twitter": "https://x.com/ToriiaFil",
+      "tzdomain": "toriai.tez",
+      "pieces_collected": 1,
+      "works": [
+        "Friendliness"
+      ]
+    }
+  ]
+}

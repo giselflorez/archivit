@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>22 NORTHSTAR Masters - 4D Constellation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #030308;
+            color: #f0ece7;
+            font-family: -apple-system, BlinkMacSystemFont, monospace;
+            overflow: hidden;
+        }
+        #canvas { width: 100vw; height: 100vh; display: block; }
+        #info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(14,14,24,0.9);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(212,165,116,0.3);
+            max-width: 280px;
+            z-index: 100;
+        }
+        h1 { color: #d4a574; font-size: 28px; font-weight: 300; letter-spacing: 0.1em; margin-bottom: 15px; }
+        .count { color: #54a876; font-size: 20px; margin-bottom: 20px; }
+        .legend { font-size: 16px; color: #9a9690; }
+        .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .fem { background: #ba6587; }
+        .mas { background: #7865ba; }
+        #selected {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(14,14,24,0.95);
+            padding: 20px 40px;
+            border-radius: 12px;
+            border: 1px solid #d4a574;
+            text-align: center;
+            display: none;
+        }
+        #selected h2 { color: #d4a574; font-size: 32px; font-weight: 200; }
+        #selected p { color: #9a9690; margin-top: 10px; font-size: 20px; }
+        #instructions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: #5a5854;
+            font-size: 16px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="info">
+        <h1>22 NORTHSTAR MASTERS</h1>
+        <div class="count">9 Feminine · 13 Masculine</div>
+        <div class="legend">
+            <p><span class="fem"></span> Feminine Constellation</p>
+            <p><span class="mas"></span> Masculine Constellation</p>
+        </div>
+    </div>
+
+    <div id="selected">
+        <h2 id="master-name"></h2>
+        <p id="master-skill"></p>
+    </div>
+
+    <div id="instructions">
+        drag to rotate · scroll to zoom · click node for details
+    </div>
+
+    <script>
+    const masters = [
+        // Feminine (9) - Rose color
+        { name: "Hildegard von Bingen", skill: "Sacred Geometry & Sound", gender: "f", x: 0.8, y: 0.9, z: 0.7 },
+        { name: "Founder", skill: "Light Photography & Lunar Art", gender: "f", x: 0.6, y: 0.85, z: 0.5 },
+        { name: "Ayn Rand", skill: "Individual Sovereignty", gender: "f", x: 0.4, y: 0.75, z: 0.6 },
+        { name: "Starhawk", skill: "Decentralized Power", gender: "f", x: 0.3, y: 0.8, z: 0.8 },
+        { name: "Tori Amos", skill: "Breath Structure", gender: "f", x: 0.5, y: 0.95, z: 0.4 },
+        { name: "Björk", skill: "Boundary Dissolution", gender: "f", x: 0.7, y: 0.7, z: 0.9 },
+        { name: "Maxine Hong Kingston", skill: "Shadow Work", gender: "f", x: 0.2, y: 0.85, z: 0.3 },
+        { name: "Esther Hicks", skill: "Vibrational Alignment", gender: "f", x: 0.55, y: 0.78, z: 0.65 },
+        { name: "Rhonda Byrne", skill: "Visualization", gender: "f", x: 0.45, y: 0.88, z: 0.55 },
+
+        // Masculine (13) - Violet color
+        { name: "Leonardo da Vinci", skill: "Art-Science Unity", gender: "m", x: 0.5, y: 0.2, z: 0.5 },
+        { name: "Nikola Tesla", skill: "Energy-Frequency-Vibration", gender: "m", x: 0.8, y: 0.15, z: 0.7 },
+        { name: "Buckminster Fuller", skill: "Systems Thinking", gender: "m", x: 0.3, y: 0.25, z: 0.4 },
+        { name: "Carl Jung", skill: "Shadow Integration", gender: "m", x: 0.6, y: 0.3, z: 0.8 },
+        { name: "Mustafa Suleyman", skill: "Recognition-Generation", gender: "m", x: 0.4, y: 0.1, z: 0.6 },
+        { name: "James Grant", skill: "Sacred Geometry Math", gender: "m", x: 0.7, y: 0.35, z: 0.3 },
+        { name: "Prince", skill: "Creative Sovereignty", gender: "m", x: 0.2, y: 0.18, z: 0.9 },
+        { name: "John Coltrane", skill: "Breath as Spiritual Practice", gender: "m", x: 0.85, y: 0.28, z: 0.5 },
+        { name: "David Bowie", skill: "Permanent Reinvention", gender: "m", x: 0.15, y: 0.22, z: 0.7 },
+        { name: "Dan Koe", skill: "Skill Extraction", gender: "m", x: 0.65, y: 0.12, z: 0.35 },
+        { name: "Steve Jobs", skill: "Design Thinking", gender: "m", x: 0.35, y: 0.32, z: 0.55 },
+        { name: "David Cherny", skill: "AI Collaboration", gender: "m", x: 0.75, y: 0.08, z: 0.45 },
+        { name: "Gabriel René", skill: "Spatial Web", gender: "m", x: 0.55, y: 0.38, z: 0.25 }
+    ];
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const selected = document.getElementById('selected');
+    const masterName = document.getElementById('master-name');
+    const masterSkill = document.getElementById('master-skill');
+
+    let width, height;
+    let rotX = 0.3, rotY = 0.5, rotZ = 0;
+    let zoom = 300;
+    let time = 0;
+    let dragging = false;
+    let lastX, lastY;
+    let hoveredMaster = null;
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+
+    function project(x, y, z, w) {
+        // Center coordinates
+        x -= 0.5; y -= 0.5; z -= 0.5;
+
+        // Apply rotations
+        let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+        let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+        let cosZ = Math.cos(rotZ), sinZ = Math.sin(rotZ);
+
+        // Rotate around X
+        let y1 = y * cosX - z * sinX;
+        let z1 = y * sinX + z * cosX;
+
+        // Rotate around Y
+        let x2 = x * cosY + z1 * sinY;
+        let z2 = -x * sinY + z1 * cosY;
+
+        // Rotate around Z
+        let x3 = x2 * cosZ - y1 * sinZ;
+        let y3 = x2 * sinZ + y1 * cosZ;
+
+        // 4D to 3D projection (w affects scale)
+        let scale = zoom * (1 + w * 0.3);
+
+        return {
+            x: width/2 + x3 * scale,
+            y: height/2 + y3 * scale,
+            z: z2,
+            scale: scale
+        };
+    }
+
+    function draw() {
+        ctx.fillStyle = '#030308';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw connection lines (faint)
+        ctx.strokeStyle = 'rgba(212,165,116,0.08)';
+        ctx.lineWidth = 1;
+
+        // Sort by z for depth
+        const projected = masters.map((m, i) => {
+            const w = Math.sin(time * 0.5 + i * 0.3) * 0.5 + 0.5; // 4th dimension oscillation
+            const p = project(m.x, m.y, m.z, w);
+            return { ...m, ...p, w, index: i };
+        }).sort((a, b) => a.z - b.z);
+
+        // Draw connections within same gender
+        for (let i = 0; i < projected.length; i++) {
+            for (let j = i + 1; j < projected.length; j++) {
+                if (projected[i].gender === projected[j].gender) {
+                    const dist = Math.hypot(
+                        projected[i].x - projected[j].x,
+                        projected[i].y - projected[j].y
+                    );
+                    if (dist < 200) {
+                        ctx.globalAlpha = (1 - dist/200) * 0.3;
+                        ctx.beginPath();
+                        ctx.moveTo(projected[i].x, projected[i].y);
+                        ctx.lineTo(projected[j].x, projected[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        // Draw nodes
+        projected.forEach(m => {
+            const baseSize = 8 + m.w * 6;
+            const size = baseSize * (1 + (m.z + 0.5) * 0.3);
+
+            // Glow
+            const gradient = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, size * 3);
+            const color = m.gender === 'f' ? '#ba6587' : '#7865ba';
+            gradient.addColorStop(0, color + '40');
+            gradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, size * 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bright center
+            ctx.fillStyle = '#f0ece7';
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Label (only for front nodes)
+            if (m.z > -0.1) {
+                ctx.fillStyle = `rgba(240,236,231,${0.4 + m.z * 0.6})`;
+                ctx.font = '16px -apple-system, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(m.name.split(' ').pop(), m.x, m.y + size + 20);
+            }
+        });
+
+        time += 0.01;
+        requestAnimationFrame(draw);
+    }
+
+    canvas.addEventListener('mousedown', e => {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+    });
+
+    canvas.addEventListener('mousemove', e => {
+        if (dragging) {
+            rotY += (e.clientX - lastX) * 0.005;
+            rotX += (e.clientY - lastY) * 0.005;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+
+        // Check hover
+        const projected = masters.map((m, i) => {
+            const w = Math.sin(time * 0.5 + i * 0.3) * 0.5 + 0.5;
+            const p = project(m.x, m.y, m.z, w);
+            return { ...m, ...p };
+        });
+
+        hoveredMaster = null;
+        for (const m of projected) {
+            const dist = Math.hypot(e.clientX - m.x, e.clientY - m.y);
+            if (dist < 20) {
+                hoveredMaster = m;
+                break;
+            }
+        }
+        canvas.style.cursor = hoveredMaster ? 'pointer' : 'grab';
+    });
+
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => dragging = false);
+
+    canvas.addEventListener('wheel', e => {
+        zoom += e.deltaY * -0.5;
+        zoom = Math.max(150, Math.min(600, zoom));
+        e.preventDefault();
+    });
+
+    canvas.addEventListener('click', e => {
+        if (hoveredMaster) {
+            masterName.textContent = hoveredMaster.name;
+            masterSkill.textContent = hoveredMaster.skill;
+            selected.style.display = 'block';
+            setTimeout(() => selected.style.display = 'none', 3000);
+        }
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+    </script>
+</body>
+</html>

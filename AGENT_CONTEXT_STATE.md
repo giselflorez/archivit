@@ -2,9 +2,47 @@
 ## Auto-Recovery Memory for Claude Sessions
 
 **AUTO-READ ON STARTUP**: Claude MUST read this file at the start of every session
-**Last Updated:** 2026-01-16 (DOC-8 Pipeline Complete)
-**Session ID:** 2026-01-16-doc8-pipeline
-**Git Commit:** a44fd93 - DOC-8 Pipeline: Complete 8-stage knowledge extraction system
+**Last Updated:** 2026-01-16 (NORTHSTAR Masters Clarification)
+**Session ID:** 2026-01-16-masters-clarification
+**Git Commit:** 82b7687 - Fix MPS float64 error: disable word_timestamps for Apple Silicon
+
+---
+
+## ⚠️ CRITICAL CLARIFICATION (2026-01-16) - READ FIRST
+
+### THE 22 NORTHSTAR MASTERS - ARTIST AS THE ART
+
+**AGENTS MUST NOT HALLUCINATE SYSTEMS THAT DON'T EXIST.**
+
+The 22 Masters are NOT:
+- Chatbot personas ("What would Tesla do?")
+- Techniques to extract and teach
+- Data metabolism metrics
+- File decay tracking
+
+The 22 Masters ARE:
+- **THE ARTIST AS THE ART** - the person themselves IS the artwork
+- **AMPLITUDE OF EXPRESSION** - how intensely they lived in ALL dimensions
+- **QUALITIES OF LIGHT** - the unique frequency they brought to the world
+- **DIGESTIBLE HISTORY** - short accurate pieces showing BEAUTY in DIFFERENCES
+- **PROMOTIONAL ENGINE** - makes people FAMILIAR with these remarkable humans
+- **4D EXPLORATION** - deeper dive into their lives, works, context
+
+**HOW THEY LIVED → WHAT THEY MADE → QUALITIES OF LIGHT THEY SHINE**
+
+### REQUIREMENT: 10 Verified Quotes Per Master
+- Total: 220 quotes across 22 Masters
+- Must have primary source citations
+- NO HALLUCINATED QUOTES - say "source not found" if unsure
+- Stored in `verified_quotes_db/` and `knowledge_base/training_data.json`
+
+### DO NOT INVENT
+- Fake metrics (metabolism, decay, resonance scores)
+- Dashboard mockups that don't exist
+- Systems not in the codebase
+- Quotes without verified sources
+
+**When in doubt: READ THE ACTUAL FILES, don't invent.**
 
 ---
 
@@ -634,7 +672,7 @@ ARCHIV-IT (Umbrella)
 
 ### 22 NORTHSTAR Masters (Current)
 ```
-FEMININE (9): Hildegard, Founder, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
+FEMININE (9): Hildegard, Gisel, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
 MASCULINE (13): da Vinci, Tesla, Fuller, Jung, Suleyman, Grant, Prince, Coltrane, Bowie, Koe, Jobs, Cherny, Rene
 ```
 

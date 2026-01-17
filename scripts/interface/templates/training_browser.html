@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>968 Subject Intelligence Browser</title>
+    <style>
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --panel: #0e0e18;
+            --border: rgba(255,255,255,0.06);
+            --gold: #d4a574;
+            --emerald: #54a876;
+            --rose: #ba6587;
+            --violet: #7865ba;
+            --cyan: #5aa8b9;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', monospace;
+            background: var(--void);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--cosmic);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Storage Bar */
+        .storage-bar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--panel);
+            padding: 16px 24px;
+            border-radius: 8px;
+        }
+
+        .storage-visual {
+            width: 200px;
+            height: 12px;
+            background: var(--cosmic);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .storage-used {
+            height: 100%;
+            background: linear-gradient(90deg, var(--emerald), var(--gold));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .storage-used.warning {
+            background: linear-gradient(90deg, var(--gold), var(--rose));
+        }
+
+        .storage-text {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .storage-text strong {
+            color: var(--emerald);
+        }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 320px 1fr 380px;
+            height: calc(100vh - 100px);
+        }
+
+        /* Sidebar - Filters */
+        .sidebar {
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .filter-section {
+            margin-bottom: 28px;
+        }
+
+        .filter-title {
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--cosmic);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-item:hover {
+            border-color: var(--gold);
+        }
+
+        .filter-item.active {
+            border-color: var(--emerald);
+            background: rgba(84, 168, 118, 0.1);
+        }
+
+        .filter-label {
+            font-size: 14px;
+        }
+
+        .filter-count {
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--panel);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--cosmic);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 200;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        /* Subject Grid */
+        .subject-grid {
+            padding: 24px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            align-content: start;
+        }
+
+        .subject-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .subject-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .subject-card.selected {
+            border-color: var(--gold);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        .subject-id {
+            font-size: 22px;
+            font-weight: 200;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .subject-status {
+            display: inline-block;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .subject-status.pending {
+            background: rgba(90, 88, 84, 0.3);
+            color: var(--text-muted);
+        }
+
+        .subject-status.partial {
+            background: rgba(212, 165, 116, 0.2);
+            color: var(--gold);
+        }
+
+        .subject-status.complete {
+            background: rgba(84, 168, 118, 0.2);
+            color: var(--emerald);
+        }
+
+        .subject-status.verified {
+            background: rgba(120, 101, 186, 0.2);
+            color: var(--violet);
+        }
+
+        /* Size indicator */
+        .size-bar {
+            margin-top: 12px;
+            height: 4px;
+            background: var(--cosmic);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .size-fill {
+            height: 100%;
+            background: var(--cyan);
+            border-radius: 2px;
+        }
+
+        .size-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Quality indicator */
+        .quality-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .quality-badge.a { background: var(--emerald); color: var(--void); }
+        .quality-badge.b { background: var(--gold); color: var(--void); }
+        .quality-badge.c { background: var(--rose); color: white; }
+        .quality-badge.f { background: var(--text-muted); color: white; }
+
+        /* Detail Panel */
+        .detail-panel {
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .detail-header {
+            margin-bottom: 24px;
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 200;
+            color: var(--gold);
+        }
+
+        .detail-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .detail-section {
+            margin-bottom: 28px;
+        }
+
+        .detail-section-title {
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        /* Quality Meters */
+        .quality-meter {
+            margin-bottom: 16px;
+        }
+
+        .quality-meter-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .quality-meter-bar {
+            height: 8px;
+            background: var(--cosmic);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .quality-meter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .quality-meter-fill.high { background: var(--emerald); }
+        .quality-meter-fill.medium { background: var(--gold); }
+        .quality-meter-fill.low { background: var(--rose); }
+
+        /* Asset List */
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .asset-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            background: var(--cosmic);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .asset-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel);
+            border-radius: 8px;
+            font-size: 20px;
+        }
+
+        .asset-info {
+            flex: 1;
+        }
+
+        .asset-name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .asset-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .asset-quality {
+            text-align: right;
+        }
+
+        .asset-quality-score {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .asset-quality-label {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Verification Badges */
+        .verification-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .verification-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 6px 12px;
+            background: var(--cosmic);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .verification-badge.verified {
+            border-color: var(--emerald);
+            color: var(--emerald);
+        }
+
+        .verification-badge.warning {
+            border-color: var(--rose);
+            color: var(--rose);
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid var(--border);
+            background: var(--cosmic);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            border-color: var(--gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .btn.primary {
+            background: var(--gold);
+            color: var(--void);
+            border-color: var(--gold);
+        }
+
+        .btn.primary:hover {
+            background: #e0b585;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Scrape Estimate */
+        .scrape-estimate {
+            background: var(--cosmic);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .estimate-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .estimate-row:last-child {
+            border-bottom: none;
+        }
+
+        .estimate-label {
+            color: var(--text-muted);
+        }
+
+        .estimate-value {
+            font-weight: 500;
+        }
+
+        .estimate-value.good { color: var(--emerald); }
+        .estimate-value.warning { color: var(--gold); }
+        .estimate-value.danger { color: var(--rose); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div>
+            <h1 class="title">968 SUBJECT INTELLIGENCE</h1>
+            <p class="subtitle">MOONLANGUAGE Training Data Browser</p>
+        </div>
+        <div class="storage-bar">
+            <div class="storage-visual">
+                <div class="storage-used" id="storageBar" style="width: 15%"></div>
+            </div>
+            <div class="storage-text">
+                <strong id="storageFree">560 GB</strong> free of <span id="storageTotal">926 GB</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSubjects">968</div>
+                    <div class="stat-label">Subjects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalAssets">0</div>
+                    <div class="stat-label">Assets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSize">0 GB</div>
+                    <div class="stat-label">Data Size</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgQuality">--</div>
+                    <div class="stat-label">Avg Quality</div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title">Status</div>
+                <div class="filter-group">
+                    <div class="filter-item active" data-filter="all">
+                        <span class="filter-label">All</span>
+                        <span class="filter-count" id="countAll">968</span>
+                    </div>
+                    <div class="filter-item" data-filter="pending">
+                        <span class="filter-label">Pending</span>
+                        <span class="filter-count" id="countPending">968</span>
+                    </div>
+                    <div class="filter-item" data-filter="partial">
+                        <span class="filter-label">Partial</span>
+                        <span class="filter-count" id="countPartial">0</span>
+                    </div>
+                    <div class="filter-item" data-filter="complete">
+                        <span class="filter-label">Complete</span>
+                        <span class="filter-count" id="countComplete">0</span>
+                    </div>
+                    <div class="filter-item" data-filter="verified">
+                        <span class="filter-label">Verified</span>
+                        <span class="filter-count" id="countVerified">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title">Quality</div>
+                <div class="filter-group">
+                    <div class="filter-item" data-filter="quality-a">
+                        <span class="filter-label">A+ Grade</span>
+                        <span class="filter-count">0</span>
+                    </div>
+                    <div class="filter-item" data-filter="quality-b">
+                        <span class="filter-label">B Grade</span>
+                        <span class="filter-count">0</span>
+                    </div>
+                    <div class="filter-item" data-filter="quality-low">
+                        <span class="filter-label">Needs Work</span>
+                        <span class="filter-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title">Scrape Estimate</div>
+                <div class="scrape-estimate">
+                    <div class="estimate-row">
+                        <span class="estimate-label">Estimated Size</span>
+                        <span class="estimate-value" id="estimateSize">~63 GB</span>
+                    </div>
+                    <div class="estimate-row">
+                        <span class="estimate-label">Free After</span>
+                        <span class="estimate-value good" id="estimateAfter">~497 GB</span>
+                    </div>
+                    <div class="estimate-row">
+                        <span class="estimate-label">Backup Needed</span>
+                        <span class="estimate-value" id="estimateBackup">No</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Subject Grid -->
+        <section class="subject-grid" id="subjectGrid">
+            <!-- Populated by JavaScript -->
+        </section>
+
+        <!-- Detail Panel -->
+        <aside class="detail-panel" id="detailPanel">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🌙</div>
+                <div>Select a subject to view details</div>
+            </div>
+
+            <div id="subjectDetail" style="display: none;">
+                <div class="detail-header">
+                    <h2 class="detail-title" id="detailTitle">Subject 001</h2>
+                    <p class="detail-subtitle" id="detailSubtitle">Moon 001 • Pending</p>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Data Quality</div>
+                    <div class="quality-meter">
+                        <div class="quality-meter-label">
+                            <span>Verification</span>
+                            <span id="verificationScore">0%</span>
+                        </div>
+                        <div class="quality-meter-bar">
+                            <div class="quality-meter-fill low" id="verificationBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="quality-meter">
+                        <div class="quality-meter-label">
+                            <span>Metadata Integrity</span>
+                            <span id="integrityScore">0%</span>
+                        </div>
+                        <div class="quality-meter-bar">
+                            <div class="quality-meter-fill low" id="integrityBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="quality-meter">
+                        <div class="quality-meter-label">
+                            <span>Date Accuracy</span>
+                            <span id="dateScore">0%</span>
+                        </div>
+                        <div class="quality-meter-bar">
+                            <div class="quality-meter-fill low" id="dateBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="quality-meter">
+                        <div class="quality-meter-label">
+                            <span>Completeness</span>
+                            <span id="completenessScore">0%</span>
+                        </div>
+                        <div class="quality-meter-bar">
+                            <div class="quality-meter-fill low" id="completenessBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Verification Status</div>
+                    <div class="verification-list" id="verificationList">
+                        <div class="verification-badge warning">⚠ No EXIF data</div>
+                        <div class="verification-badge warning">⚠ Unverified source</div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Assets (<span id="assetCount">0</span>)</div>
+                    <div class="asset-list" id="assetList">
+                        <div class="empty-state" style="padding: 20px;">
+                            No assets yet
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Storage</div>
+                    <div class="estimate-row">
+                        <span class="estimate-label">Total Size</span>
+                        <span class="estimate-value" id="subjectSize">0 KB</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" onclick="openFolder()">Open Folder</button>
+                    <button class="btn primary" onclick="addMedia()">Add Media</button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // State
+        let subjects = [];
+        let selectedSubject = null;
+        let currentFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSubjects();
+            setupFilters();
+        });
+
+        // Load subjects from API
+        async function loadSubjects() {
+            try {
+                const response = await fetch('/api/training/subjects');
+                const data = await response.json();
+                subjects = data.subjects || [];
+                updateStats(data);
+                renderSubjects();
+            } catch (e) {
+                // Generate placeholder for demo
+                subjects = Array.from({length: 968}, (_, i) => ({
+                    id: i + 1,
+                    name: `Moon ${String(i + 1).padStart(3, '0')}`,
+                    status: 'pending',
+                    assets: [],
+                    quality: 0,
+                    size: 0,
+                    completeness: 0
+                }));
+                renderSubjects();
+            }
+        }
+
+        // Update stats display
+        function updateStats(data) {
+            document.getElementById('totalSubjects').textContent = data.total || 968;
+            document.getElementById('totalAssets').textContent = data.total_assets || 0;
+            document.getElementById('totalSize').textContent = formatSize(data.total_size_bytes || 0);
+            document.getElementById('avgQuality').textContent = data.avg_quality ?
+                (data.avg_quality * 100).toFixed(0) + '%' : '--';
+
+            document.getElementById('countAll').textContent = data.total || 968;
+            document.getElementById('countPending').textContent = data.pending || 968;
+            document.getElementById('countPartial').textContent = data.partial || 0;
+            document.getElementById('countComplete').textContent = data.complete || 0;
+            document.getElementById('countVerified').textContent = data.verified || 0;
+        }
+
+        // Render subject grid
+        function renderSubjects() {
+            const grid = document.getElementById('subjectGrid');
+            const filtered = filterSubjects(subjects, currentFilter);
+
+            grid.innerHTML = filtered.map(s => `
+                <div class="subject-card ${selectedSubject?.id === s.id ? 'selected' : ''}"
+                     onclick="selectSubject(${s.id})"
+                     data-id="${s.id}">
+                    ${s.quality > 0 ? `<div class="quality-badge ${getQualityClass(s.quality)}">${getQualityGrade(s.quality)}</div>` : ''}
+                    <div class="subject-id">${String(s.id).padStart(3, '0')}</div>
+                    <div class="subject-status ${s.status}">${s.status}</div>
+                    <div class="size-bar">
+                        <div class="size-fill" style="width: ${Math.min(s.size / 100000000 * 100, 100)}%"></div>
+                    </div>
+                    <div class="size-text">${formatSize(s.size || 0)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Filter subjects
+        function filterSubjects(subjects, filter) {
+            if (filter === 'all') return subjects;
+            if (filter === 'quality-a') return subjects.filter(s => s.quality >= 0.8);
+            if (filter === 'quality-b') return subjects.filter(s => s.quality >= 0.6 && s.quality < 0.8);
+            if (filter === 'quality-low') return subjects.filter(s => s.quality > 0 && s.quality < 0.6);
+            return subjects.filter(s => s.status === filter);
+        }
+
+        // Setup filter clicks
+        function setupFilters() {
+            document.querySelectorAll('.filter-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    currentFilter = item.dataset.filter;
+                    renderSubjects();
+                });
+            });
+        }
+
+        // Select a subject
+        function selectSubject(id) {
+            selectedSubject = subjects.find(s => s.id === id);
+            renderSubjects();
+            showDetail(selectedSubject);
+        }
+
+        // Show subject detail
+        function showDetail(subject) {
+            if (!subject) return;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('subjectDetail').style.display = 'block';
+
+            document.getElementById('detailTitle').textContent = `Subject ${String(subject.id).padStart(3, '0')}`;
+            document.getElementById('detailSubtitle').textContent = `${subject.name} • ${subject.status}`;
+
+            // Quality meters
+            const verification = (subject.verification || 0) * 100;
+            const integrity = (subject.integrity || 0) * 100;
+            const dateAcc = (subject.date_accuracy || 0) * 100;
+            const completeness = (subject.completeness || 0) * 100;
+
+            updateMeter('verification', verification);
+            updateMeter('integrity', integrity);
+            updateMeter('date', dateAcc);
+            updateMeter('completeness', completeness);
+
+            // Assets
+            document.getElementById('assetCount').textContent = subject.assets?.length || 0;
+            const assetList = document.getElementById('assetList');
+
+            if (subject.assets?.length > 0) {
+                assetList.innerHTML = subject.assets.map(a => `
+                    <div class="asset-item">
+                        <div class="asset-icon">${getAssetIcon(a.file_type)}</div>
+                        <div class="asset-info">
+                            <div class="asset-name">${a.filename}</div>
+                            <div class="asset-meta">${a.file_type} • ${formatSize(a.size_bytes)}</div>
+                        </div>
+                        <div class="asset-quality">
+                            <div class="asset-quality-score" style="color: ${getQualityColor(a.quality_score)}">${getQualityGrade(a.quality_score)}</div>
+                            <div class="asset-quality-label">Quality</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                assetList.innerHTML = '<div class="empty-state" style="padding: 20px;">No assets yet</div>';
+            }
+
+            document.getElementById('subjectSize').textContent = formatSize(subject.size || 0);
+        }
+
+        // Update quality meter
+        function updateMeter(name, value) {
+            document.getElementById(`${name}Score`).textContent = value.toFixed(0) + '%';
+            const bar = document.getElementById(`${name}Bar`);
+            bar.style.width = value + '%';
+            bar.className = 'quality-meter-fill ' + (value >= 70 ? 'high' : value >= 40 ? 'medium' : 'low');
+        }
+
+        // Helper functions
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        }
+
+        function getQualityGrade(score) {
+            if (score >= 0.9) return 'A+';
+            if (score >= 0.8) return 'A';
+            if (score >= 0.7) return 'B';
+            if (score >= 0.6) return 'C';
+            if (score >= 0.5) return 'D';
+            return 'F';
+        }
+
+        function getQualityClass(score) {
+            if (score >= 0.7) return 'a';
+            if (score >= 0.5) return 'b';
+            if (score > 0) return 'c';
+            return 'f';
+        }
+
+        function getQualityColor(score) {
+            if (score >= 0.7) return 'var(--emerald)';
+            if (score >= 0.5) return 'var(--gold)';
+            return 'var(--rose)';
+        }
+
+        function getAssetIcon(type) {
+            switch(type) {
+                case 'photo': return '📷';
+                case 'video': return '🎬';
+                case 'audio': return '🎵';
+                case 'document': return '📄';
+                case 'ascii': return '▓';
+                default: return '📁';
+            }
+        }
+
+        // Actions
+        function openFolder() {
+            if (selectedSubject) {
+                alert(`Opening folder for Subject ${selectedSubject.id}`);
+                // Would use: window.location = `/api/training/open/${selectedSubject.id}`
+            }
+        }
+
+        function addMedia() {
+            if (selectedSubject) {
+                alert(`Add media to Subject ${selectedSubject.id}\nUse file picker or drag & drop`);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,791 @@
+{
+  "metadata": {
+    "total_target": 968,
+    "created": "2026-01-16",
+    "last_updated": "2026-01-16",
+    "balance_requirements": {
+      "living_ratio": 0.5,
+      "gender_ratio": 0.5,
+      "domains": 8,
+      "per_domain": 121
+    },
+    "sources": {
+      "blockchain": ["tezos", "ethereum"],
+      "whatsapp_research": "data/private/whatsapp_artist_chat",
+      "institutional": ["Smithsonian AAA", "MoMA", "RISD", "archive.org"]
+    },
+    "counts": {
+      "living_from_blockchain": {
+        "total": 130,
+        "feminine": 18,
+        "masculine": 22,
+        "unclassified": 90
+      },
+      "historical_from_research": {
+        "total": 45,
+        "feminine": 12,
+        "masculine": 33,
+        "notes": "Extracted from WhatsApp artist chat 2026-01-16"
+      }
+    },
+    "pending_research": [],
+    "recently_verified": [
+      {"name": "Ricardo Cervantes (El Gorila)", "handle": "@gorilla", "verified": "2026-01-16", "description": "Teotihuacan spiritual guide"}
+    ]
+  },
+  "domains": {
+    "designer": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [],
+        "living_masculine": [],
+        "historical_feminine": [],
+        "historical_masculine": []
+      }
+    },
+    "visual_artist": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [
+          {
+            "name": "Eva Hess",
+            "handle": "@evahess",
+            "source": "whatsapp_research",
+            "notes": "Intricate webs of organized complexity"
+          },
+          {"name": "Etta Tottie", "source": "WOCA_cofounder", "notes": "WOCA founding member"},
+          {"name": "Stina Jones", "source": "WOCA_cofounder", "notes": "WOCA founding member, Arcana Tarot"},
+          {"name": "Sparrow", "source": "WOCA_cofounder", "notes": "WOCA founding member"},
+          {"name": "Kristy Glas", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "Voke", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Gala Mirissa", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Ann Ahoy", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Cyber Shakti", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Hair of Medusa", "source": "WOCA", "chain": "ethereum", "notes": "WOCA artist"},
+          {"name": "Cechk", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Barbara Tosti", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "The Bad Lament", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "KittyBast", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "Vanesa Stati", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "Heresy", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "Marigold", "source": "WOCA", "notes": "Arcana Tarot artist"},
+          {"name": "CrypticFauna", "source": "WOCA", "handle": "@cryptic_fauna", "notes": "Arcana Tarot artist"},
+          {"name": "oculardelusion", "source": "WOCA", "handle": "@oculardelusion", "notes": "Arcana Tarot artist"},
+          {"name": "inimerino", "source": "WOCA", "handle": "@inimerino", "notes": "Arcana Tarot artist"},
+          {"name": "luvrworldwide", "source": "WOCA", "handle": "@luvrworldwide", "notes": "Arcana Tarot artist"},
+          {"name": "blackbox.art", "source": "WOCA", "handle": "@blackbox.art", "notes": "Arcana Tarot artist"},
+          {"name": "DaniellaDoodles", "source": "WOCA", "handle": "@daniella_doodles", "notes": "Arcana Tarot artist"},
+          {"name": "placeofmany", "source": "WOCA", "handle": "@placeofmany", "notes": "Arcana Tarot artist"},
+          {"name": "siljethorn", "source": "WOCA", "handle": "@siljethorn", "notes": "Arcana Tarot artist"},
+          {"name": "lenarav", "source": "WOCA", "handle": "@lenarav", "notes": "Arcana Tarot artist"},
+          {"name": "combugnera", "source": "WOCA", "handle": "@combugnera", "notes": "Arcana Tarot artist"},
+          {"name": "adayinthesky", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Holliday Horton", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "JackiVR", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Mindbender Art", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Sara Phinn", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "stelcart", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "Stellabelle", "source": "WOCA", "notes": "WOCA artist"},
+          {"name": "TechMental", "source": "WOCA", "notes": "WOCA artist"},
+          {
+            "name": "Woman",
+            "chain": "tezos",
+            "twitter": "WomanNFT"
+          },
+          {
+            "name": "Michelle Thompson",
+            "chain": "tezos",
+            "twitter": "mich_tom"
+          },
+          {
+            "name": "Empress Trash",
+            "chain": "tezos",
+            "twitter": "Empresstrash"
+          },
+          {
+            "name": "OONA",
+            "chain": "tezos",
+            "twitter": "madebyoona"
+          },
+          {
+            "name": "INA VARE",
+            "chain": "tezos",
+            "twitter": "ina_vare"
+          },
+          {
+            "name": "Angie Taylor",
+            "chain": "both",
+            "twitter": "theangietaylor"
+          },
+          {
+            "name": "albertine",
+            "chain": "tezos",
+            "twitter": "albertinmeunier"
+          },
+          {
+            "name": "Diana Smykova",
+            "chain": "tezos",
+            "twitter": "diana_smykova"
+          },
+          {
+            "name": "Sasha Stiles",
+            "chain": "both"
+          },
+          {
+            "name": "joanna",
+            "chain": "tezos",
+            "twitter": "sereneObscurity"
+          },
+          {
+            "name": "Tori",
+            "chain": "tezos",
+            "twitter": "ToriiaFil"
+          },
+          {
+            "name": "Eleni Tomadaki",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Amber Vittoria",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Deborah Kass",
+            "chain": "ethereum"
+          },
+          {
+            "name": "MISS AL SIMPSON",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Bea",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Chabeli Farro",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Wanda Oliver",
+            "chain": "ethereum"
+          }
+        ],
+        "living_masculine": [
+          {
+            "name": "James Bloom",
+            "chain": "tezos",
+            "twitter": "crashblossom1"
+          },
+          {
+            "name": "FelixFelixFelix",
+            "chain": "tezos",
+            "twitter": "I____felix____I"
+          },
+          {
+            "name": "Ernesto Asch",
+            "chain": "tezos",
+            "twitter": "ernestoasch"
+          },
+          {
+            "name": "Nikas Geisleris",
+            "chain": "tezos",
+            "twitter": "NikasGeisleris"
+          },
+          {
+            "name": "SeanRoberts",
+            "chain": "tezos"
+          },
+          {
+            "name": "hal09999",
+            "chain": "tezos",
+            "twitter": "HAL09999"
+          },
+          {
+            "name": "Richard Nadler",
+            "chain": "tezos",
+            "twitter": "RichardNadler1"
+          },
+          {
+            "name": "rutger van der tas",
+            "chain": "tezos",
+            "twitter": "rutgervandertas"
+          },
+          {
+            "name": "clintfulkerson",
+            "chain": "tezos",
+            "twitter": "clintfulkerson"
+          },
+          {
+            "name": "Kunsthalle Z\u00fcrich",
+            "chain": "tezos",
+            "twitter": "DYOR_CryptoArt"
+          },
+          {
+            "name": "Jesse Draxler",
+            "chain": "tezos",
+            "twitter": "jessedraxler"
+          },
+          {
+            "name": "nathanielstern",
+            "chain": "tezos",
+            "twitter": "nathanielstern"
+          },
+          {
+            "name": "Luca Dini",
+            "chain": "tezos",
+            "twitter": "dini1789"
+          },
+          {
+            "name": "Paolo Curtoni",
+            "chain": "tezos",
+            "twitter": "Paolo_Curtoni"
+          },
+          {
+            "name": "Mattia Cuttini",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Collin",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Van Arman",
+            "chain": "ethereum"
+          },
+          {
+            "name": "travisleroy",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Misha Milovanovich",
+            "chain": "ethereum"
+          },
+          {
+            "name": "B\u00e5rd Ionson",
+            "chain": "ethereum"
+          },
+          {
+            "name": "KEVIN ABOSCH",
+            "chain": "ethereum"
+          },
+          {
+            "name": "Shepard Fairey",
+            "chain": "ethereum"
+          }
+        ],
+        "historical_feminine": [
+          {"name": "Frida Kahlo", "source": "founder_input", "domain": "visual_artist", "nationality": "Mexican", "notes": "Surrealist painter, self-portraits"},
+          {"name": "Georgia O'Keeffe", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Agnes Martin", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Barbara Kruger", "source": "whatsapp_research", "domain": "visual_artist"}
+        ],
+        "historical_masculine": [
+          {"name": "Leonardo da Vinci", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Vasily Kandinsky", "source": "whatsapp_research", "notes": "Graphic melodies in paint"},
+          {"name": "William Blake", "source": "whatsapp_research", "domain": "visual_artist/poet"},
+          {"name": "Anish Kapoor", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Marc Chagall", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Paul Klee", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Dan Flavin", "source": "whatsapp_research", "notes": "Light sculptor"},
+          {"name": "Man Ray", "source": "whatsapp_research", "domain": "visual_artist/photographer"},
+          {"name": "Jean-Michel Basquiat", "source": "whatsapp_research", "domain": "visual_artist"},
+          {"name": "Richard Misrach", "source": "whatsapp_research", "domain": "photographer"},
+          {"name": "William Eggleston", "source": "whatsapp_research", "notes": "Color photography pioneer"}
+        ]
+      }
+    },
+    "musician": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [
+          {"name": "Lauryn Hill", "source": "whatsapp_research", "notes": "Hip-hop legend"},
+          {"name": "Erykah Badu", "source": "whatsapp_research", "notes": "Neo-soul artist"},
+          {"name": "Jane Siberry", "source": "whatsapp_research", "notes": "Canadian singer-songwriter"},
+          {"name": "Rosalia", "source": "whatsapp_research", "notes": "Spanish flamenco-pop"},
+          {"name": "Plutonic Mind", "handle": "@plutonicmind", "chain": "ethereum", "source": "whatsapp_research", "notes": "968 audio interpretations"}
+        ],
+        "living_masculine": [
+          {"name": "Bob Marley", "source": "whatsapp_research", "notes": "Reggae legend (d. 1981)"}
+        ],
+        "historical_feminine": [],
+        "historical_masculine": [
+          {"name": "Mozart", "source": "whatsapp_research", "notes": "Classical composer"},
+          {"name": "Beethoven", "source": "whatsapp_research", "notes": "Classical composer"},
+          {"name": "John Cage", "source": "whatsapp_research", "notes": "Experimental composer"},
+          {"name": "Philip Glass", "source": "whatsapp_research", "notes": "Minimalist composer"}
+        ]
+      }
+    },
+    "performer": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [],
+        "living_masculine": [],
+        "historical_feminine": [],
+        "historical_masculine": []
+      }
+    },
+    "writer": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [
+          {"name": "Rhonda Byrne", "source": "whatsapp_research", "notes": "The Secret author"}
+        ],
+        "living_masculine": [
+          {"name": "Paul Coelho", "source": "whatsapp_research", "notes": "The Alchemist author"},
+          {"name": "Dan Koe", "source": "whatsapp_research", "quote": "Skills extract upwards"}
+        ],
+        "historical_feminine": [],
+        "historical_masculine": [
+          {"name": "Martin Luther King Jr.", "source": "whatsapp_research", "notes": "Civil rights leader"},
+          {"name": "Nelson Mandela", "source": "whatsapp_research", "notes": "Anti-apartheid revolutionary"}
+        ]
+      }
+    },
+    "poet": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [
+          {"name": "Patti Smith", "source": "whatsapp_research", "notes": "Punk poet laureate"}
+        ],
+        "living_masculine": [],
+        "historical_feminine": [],
+        "historical_masculine": [
+          {"name": "Confucius", "source": "whatsapp_research", "notes": "Chinese philosopher"}
+        ]
+      }
+    },
+    "mathematician": {
+      "target": 121,
+      "candidates": {
+        "living_feminine": [
+          {"name": "Sabine Hossenfelder", "source": "whatsapp_research", "notes": "Physicist, science communicator"}
+        ],
+        "living_masculine": [
+          {"name": "Robert Edward Grant", "source": "whatsapp_research", "notes": "ENERGY MATH, science+heart+spirituality"}
+        ],
+        "historical_feminine": [],
+        "historical_masculine": [
+          {"name": "Albert Einstein", "source": "whatsapp_research", "notes": "Block universe theory"},
+          {"name": "Paul Cohen", "source": "whatsapp_research", "notes": "Set theory"},
+          {"name": "Srinivasa Ramanujan", "source": "whatsapp_research", "notes": "Number theory genius"},
+          {"name": "Nicolaus Copernicus", "source": "whatsapp_research", "notes": "Heliocentric model"}
+        ]
+      }
+    },
+    "spiritualist": {
+      "target": 122,
+      "candidates": {
+        "living_feminine": [
+          {"name": "Teal Swan", "handle": "#tealswan", "source": "whatsapp_research", "notes": "Shadow work, hard truths"},
+          {"name": "Abraham Hicks", "handle": "#abrahamhicks", "source": "whatsapp_research", "notes": "Vibrational alignment"}
+        ],
+        "living_masculine": [
+          {"name": "Ricardo Cervantes (El Gorila)", "handle": "@gorilla", "source": "whatsapp_research", "notes": "Teotihuacan spiritual guide, temazcal ceremonies, medicine walks, cave meditation", "location": "Teotihuacan, Mexico", "status": "verified"},
+          {"name": "Walter Mercado", "source": "whatsapp_research", "notes": "Iconic astrologer (d. 2019)"},
+          {"name": "Godfrey Dawson", "source": "whatsapp_research"}
+        ],
+        "historical_feminine": [],
+        "historical_masculine": [
+          {"name": "Buddha", "source": "whatsapp_research", "notes": "Founder of Buddhism"}
+        ]
+      }
+    }
+  },
+  "verified": [],
+  "rejected": [],
+  "blockchain_unclassified": [
+    {
+      "name": "Gottfried J\u00e4ger",
+      "chain": "tezos"
+    },
+    {
+      "name": "vespertino",
+      "chain": "tezos",
+      "twitter": "vespertinovsp"
+    },
+    {
+      "name": "Women's Museum",
+      "chain": "tezos",
+      "twitter": "WomenMuseumArt"
+    },
+    {
+      "name": "Aempatia",
+      "chain": "tezos",
+      "twitter": "Empatia17"
+    },
+    {
+      "name": "Gogolitus\u26a1",
+      "chain": "tezos",
+      "twitter": "gogolitus"
+    },
+    {
+      "name": "MatNova",
+      "chain": "tezos",
+      "twitter": "mat__nova"
+    },
+    {
+      "name": "Justa Ratio",
+      "chain": "tezos"
+    },
+    {
+      "name": "MEK.txt",
+      "chain": "tezos",
+      "twitter": "michaelmicasso"
+    },
+    {
+      "name": "dcn7rlz",
+      "chain": "tezos"
+    },
+    {
+      "name": "Tamas Antal",
+      "chain": "tezos",
+      "twitter": "tamasantalart"
+    },
+    {
+      "name": "A. L. Crego",
+      "chain": "tezos",
+      "twitter": "ALCrego_"
+    },
+    {
+      "name": "dreams of sound",
+      "chain": "tezos",
+      "twitter": "dreams_of_sound"
+    },
+    {
+      "name": "Brookhawk (COLD WALLET)",
+      "chain": "tezos"
+    },
+    {
+      "name": "TRUTHFULNESS aka LASSINGER",
+      "chain": "tezos"
+    },
+    {
+      "name": "Asa",
+      "chain": "tezos",
+      "twitter": "asanology"
+    },
+    {
+      "name": "Shilly Preston",
+      "chain": "tezos",
+      "twitter": "shillypreston"
+    },
+    {
+      "name": "Rondellhund",
+      "chain": "tezos"
+    },
+    {
+      "name": "KUMALEON",
+      "chain": "tezos",
+      "twitter": "kumaleon_"
+    },
+    {
+      "name": "Proof of X",
+      "chain": "tezos",
+      "twitter": "proofofx_"
+    },
+    {
+      "name": "theVERSEverse",
+      "chain": "tezos",
+      "twitter": "theVERSEverse"
+    },
+    {
+      "name": "M\u00e9tamorphoses",
+      "chain": "tezos"
+    },
+    {
+      "name": "Beti Oph\u00e9lie",
+      "chain": "tezos"
+    },
+    {
+      "name": "Poetry+AI=Art",
+      "chain": "tezos"
+    },
+    {
+      "name": "iragreenberg",
+      "chain": "tezos",
+      "twitter": "iragreenberg"
+    },
+    {
+      "name": "Popeye",
+      "chain": "tezos",
+      "twitter": "popeyepuzzle"
+    },
+    {
+      "name": "playrecordmint",
+      "chain": "tezos",
+      "twitter": "playrecordmint"
+    },
+    {
+      "name": "tiegenhof",
+      "chain": "tezos",
+      "twitter": "tiegenhof_"
+    },
+    {
+      "name": "HELL BOY",
+      "chain": "tezos",
+      "twitter": "HELLBOY_7676"
+    },
+    {
+      "name": "p.i.x.e.l.l.a.r.e.\u2122",
+      "chain": "tezos",
+      "twitter": "_pixellare"
+    },
+    {
+      "name": "byViki",
+      "chain": "tezos",
+      "twitter": "byviki00"
+    },
+    {
+      "name": "Lammetje",
+      "chain": "tezos",
+      "twitter": "lammetje_nl"
+    },
+    {
+      "name": "TacyTurn",
+      "chain": "tezos",
+      "twitter": "tacyturnh"
+    },
+    {
+      "name": "FLUOR",
+      "chain": "tezos",
+      "twitter": "fluor_99"
+    },
+    {
+      "name": "shortcut",
+      "chain": "tezos",
+      "twitter": "unityofmulti"
+    },
+    {
+      "name": "NYICECREAMGALLERY",
+      "chain": "tezos"
+    },
+    {
+      "name": "tocame",
+      "chain": "tezos",
+      "twitter": "tocame_munich"
+    },
+    {
+      "name": "The Tickle",
+      "chain": "tezos",
+      "twitter": "InWarhol"
+    },
+    {
+      "name": "agoston nagy",
+      "chain": "tezos",
+      "twitter": "_stc"
+    },
+    {
+      "name": "GeminiRising",
+      "chain": "tezos",
+      "twitter": "GeminiRising13"
+    },
+    {
+      "name": "SPAMART PARTY [ARCHIVED]",
+      "chain": "tezos"
+    },
+    {
+      "name": "aitso",
+      "chain": "tezos",
+      "twitter": "aitsolabs"
+    },
+    {
+      "name": "ekeko",
+      "chain": "tezos",
+      "twitter": "ekeko_mtdc"
+    },
+    {
+      "name": "Hevey",
+      "chain": "tezos",
+      "twitter": "HeveyArt"
+    },
+    {
+      "name": "The Banksters (By Brandon Walsh)",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Aleksandra Jovani\u0107",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Omid G E'dlu AKA omg_visuals",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Isa Kost + oculardelusion",
+      "chain": "ethereum"
+    },
+    {
+      "name": "ArtePro",
+      "chain": "ethereum"
+    },
+    {
+      "name": "C.",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Yalo",
+      "chain": "ethereum"
+    },
+    {
+      "name": "mlibty",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Alexis Andr\u00e9",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Jason Ting x Matt Bilfield",
+      "chain": "ethereum"
+    },
+    {
+      "name": "luxpris",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Async Art",
+      "chain": "ethereum"
+    },
+    {
+      "name": "plutonic mind",
+      "chain": "ethereum"
+    },
+    {
+      "name": "WizardX",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Mr Richi",
+      "chain": "ethereum"
+    },
+    {
+      "name": "defiantsquid",
+      "chain": "ethereum"
+    },
+    {
+      "name": "hairofmedusa",
+      "chain": "ethereum"
+    },
+    {
+      "name": "fabiano speziari",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Hidden Forces",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Async",
+      "chain": "ethereum"
+    },
+    {
+      "name": "sgt_slaughtermelon",
+      "chain": "ethereum"
+    },
+    {
+      "name": "MIRO MAKART",
+      "chain": "ethereum"
+    },
+    {
+      "name": "WGMeets",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Michael Hughes and Azerty Betamax",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Turbo",
+      "chain": "ethereum"
+    },
+    {
+      "name": "PROOF OF STORY",
+      "chain": "ethereum"
+    },
+    {
+      "name": "BLACK7EVEN",
+      "chain": "ethereum"
+    },
+    {
+      "name": "XCOPY",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Alotta Money",
+      "chain": "ethereum"
+    },
+    {
+      "name": "NeonGlitch86 & EclecticMethod",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Cosmos Astro Art",
+      "chain": "ethereum"
+    },
+    {
+      "name": "MXJXN",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Strawberry Sith",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Godwits",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Tonya Zimmerman",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Arthr",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Matt Kane",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Sunrise Art Club",
+      "chain": "ethereum"
+    },
+    {
+      "name": "ZafGod, Azara(LHrisav)",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Dank Kane",
+      "chain": "ethereum"
+    },
+    {
+      "name": "mohini",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Hans Heiner Buhr ",
+      "chain": "ethereum"
+    },
+    {
+      "name": "ejthek",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Calvyn Justus",
+      "chain": "ethereum"
+    },
+    {
+      "name": "foodmasku",
+      "chain": "ethereum"
+    },
+    {
+      "name": "VVD",
+      "chain": "ethereum"
+    },
+    {
+      "name": "Museum of Crypto Art (M\u25cbC\u25b3)",
+      "chain": "ethereum"
+    }
+  ]
+}

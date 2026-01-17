@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRE-8 | ARCHIV-IT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --void: #030308;
+            --cosmic: #0a0a12;
+            --gold: #d4a574;
+            --gold-dim: rgba(212,165,116,0.3);
+            --emerald: #54a876;
+            --text: #f0ece7;
+            --text-dim: #9a9690;
+            --text-muted: #5a5854;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--void);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 2;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        .breadcrumb {
+            font-size: 0.6875rem;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--gold);
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            letter-spacing: 0.35em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--gold-dim);
+            margin-bottom: 4rem;
+            border: 1px solid var(--gold-dim);
+        }
+
+        .cell {
+            background: var(--void);
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .cell-number {
+            font-size: 1.5rem;
+            font-weight: 200;
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+        }
+
+        .cell-label {
+            font-size: 0.625rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .hint {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            line-height: 1.9;
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        .access {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--gold-dim);
+            color: var(--text-dim);
+            font-size: 0.6875rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        .access:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .access-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--emerald);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            font-size: 0.625rem;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Background elements */
+        .spiral {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            border: 1px solid rgba(212,165,116,0.04);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .spiral::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            right: 10%;
+            bottom: 10%;
+            border: 1px solid rgba(212,165,116,0.03);
+            border-radius: 50%;
+        }
+
+        .spiral::after {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            right: 25%;
+            bottom: 25%;
+            border: 1px solid rgba(212,165,116,0.02);
+            border-radius: 50%;
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 2.5rem; }
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="spiral"></div>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/">ARCHIV-IT</a> / CRE-8
+        </div>
+
+        <div class="logo">CRE-8</div>
+        <div class="subtitle">Create & Iterate</div>
+
+        <div class="grid">
+            <div class="cell">
+                <div class="cell-number">968</div>
+                <div class="cell-label">Intelligences</div>
+            </div>
+            <div class="cell">
+                <div class="cell-number">8</div>
+                <div class="cell-label">Domains</div>
+            </div>
+            <div class="cell">
+                <div class="cell-number">4D</div>
+                <div class="cell-label">Spatial</div>
+            </div>
+            <div class="cell">
+                <div class="cell-number">&infin;</div>
+                <div class="cell-label">Iterations</div>
+            </div>
+        </div>
+
+        <p class="hint">
+            Where archived wisdom becomes living creation.<br>
+            Rate. Remix. Regenerate.
+        </p>
+
+        <button class="access">
+            <span class="access-dot"></span>
+            Request Early Access
+        </button>
+
+        <div class="footer">Built with intention</div>
+    </div>
+</body>
+</html>

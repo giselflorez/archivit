@@ -256,8 +256,25 @@ Or disable AirPlay Receiver: System Settings → General → AirDrop & Handoff �
 | 3 | docs/FOUNDER_QUOTES.md | Philosophy |
 | 4 | docs/ULTRATHINK_SYNTHESIS.md | 22 Masters framework |
 
-### 22 NORTHSTAR Masters
-**Feminine (9)**: Hildegard, Founder, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
+### 22 NORTHSTAR Masters - THE ARTIST AS THE ART
+
+**⚠️ CRITICAL UNDERSTANDING - DO NOT HALLUCINATE**
+
+The Masters are NOT chatbot personas or "techniques to extract."
+They ARE complete human beings celebrated for:
+- **How they LIVED** - daily choices, struggles, breakthroughs
+- **What they MADE or DISCOVERED** - creations, insights
+- **Their QUALITIES OF LIGHT** - unique frequency they brought to the world
+- **Their AMPLITUDE of expression** - how intensely they lived
+
+**Purpose:** Digestible history showing the BEAUTY in DIFFERENCES. A promotional engine + 4D exploration of remarkable humans.
+
+**REQUIREMENT: Each Master needs 10 VERIFIED QUOTES with primary sources.**
+- No hallucinated quotes (say "source not found" instead)
+- Must trace to: original writings, interviews, recordings, scholarly sources
+- Stored in `verified_quotes_db/` and `knowledge_base/training_data.json`
+
+**Feminine (9)**: Hildegard, Gisel, Rand, Starhawk, Tori, Bjork, Swan, Hicks, Byrne
 **Masculine (13)**: da Vinci, Tesla, Fuller, Jung, Suleyman, Grant, Prince, Coltrane, Bowie, Koe, Jobs, Cherny, Rene
 
 ### Common Tasks
