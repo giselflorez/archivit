@@ -50,7 +50,7 @@ VISUAL ARTIST    MUSICIAN       WRITER         POET
 MATHEMATICIAN    SPIRITUALIST   DESIGNER       PERFORMER
 ```
 
-Each domain trained on verified quotes, philosophies, and techniques from masters historical and living.
+Each domain trained on verified quotes, philosophies, techniques, and inspirations from masters historical and living.
 
 ---
 
