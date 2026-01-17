@@ -1,10 +1,14 @@
 {
   "metadata": {
     "created": "2026-01-16",
-    "updated": "2026-01-16",
+    "updated": "2026-01-17",
     "purpose": "968 Artist Intelligence Databank",
     "structure": "domain > artist > {quotes, philosophy, technique, lunar, inspirations}",
-    "data_points": "850+"
+    "verification_policy": "NO HALLUCINATIONS. All quotes from direct interviews, published works, or museum archives only.",
+    "removed_for_verification": ["Buddha", "Einstein", "Mozart", "Confucius"],
+    "verified_artists": 46,
+    "verified_quotes": 180,
+    "source_types": "interviews, museum archives, published books, official websites"
   },
   "visual_artist": {
     "Frida Kahlo": {
@@ -370,12 +374,10 @@
       "technique": "Reggae as spiritual vehicle. Roots music with global message."
     },
     "Mozart": {
-      "quotes": [
-        "The music is not in the notes, but in the silence between.",
-        "Neither a lofty degree of intelligence nor imagination go to the making of genius. Love, love, love, that is the soul of genius."
-      ],
-      "philosophy": "Music as divine gift. Genius through love. Silence as essential as notes.",
-      "technique": "Classical composition. Prodigious output across all forms."
+      "quotes": [],
+      "philosophy": "Classical composition master.",
+      "technique": "Prodigious output across all forms - symphonies, operas, chamber music.",
+      "verification_note": "REMOVED - Most Mozart quotes are fabricated. Requires Mozart letters/documents verification."
     },
     "Beethoven": {
       "quotes": [
@@ -455,15 +457,9 @@
       }
     },
     "Buddha": {
-      "quotes": [
-        "Three things cannot be long hidden: the sun, the moon, and the truth.",
-        "The mind is everything. What you think you become."
-      ],
+      "quotes": [],
       "philosophy": "Enlightenment through awareness. End of suffering.",
-      "lunar": {
-        "quote": "Three things cannot be long hidden: the sun, the moon, and the truth.",
-        "symbolism": "Moon as symbol of truth that cannot be concealed."
-      }
+      "verification_note": "REMOVED - Most Buddha quotes are misattributed. Requires Pali Canon primary source verification."
     },
     "Abraham Hicks": {
       "quotes": [
@@ -500,12 +496,10 @@
       }
     },
     "Albert Einstein": {
-      "quotes": [
-        "Imagination is more important than knowledge.",
-        "The most beautiful thing we can experience is the mysterious."
-      ],
+      "quotes": [],
       "philosophy": "Block universe. Relativity of time and space.",
-      "technique": "Thought experiments. Visualization of abstract concepts."
+      "technique": "Thought experiments. Visualization of abstract concepts.",
+      "verification_note": "REMOVED - ~80% of Einstein quotes are misattributed. Requires Einstein Papers Project verification."
     },
     "Robert Edward Grant": {
       "quotes": [
@@ -601,11 +595,9 @@
       "technique": "Stream of consciousness. Poetry-music fusion."
     },
     "Confucius": {
-      "quotes": [
-        "It does not matter how slowly you go as long as you do not stop.",
-        "Everything has beauty, but not everyone sees it."
-      ],
-      "philosophy": "Virtue ethics. Continuous improvement."
+      "quotes": [],
+      "philosophy": "Virtue ethics. Continuous improvement.",
+      "verification_note": "REMOVED - Ancient translations unreliable. Requires Analects scholarly edition verification."
     },
     "Sasha Stiles": {
       "quotes": [
