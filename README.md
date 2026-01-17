@@ -2,7 +2,7 @@
 
 > *Your data. Your identity. Your sovereignty.*
 
-**⚠️ WORKING BUILD** — This is an active development build. If you encounter glitches, please report them at [issues](https://github.com/giselflorez/archivit/issues).
+**⚠️ WORKING BUILD** — Active development. Report glitches via Issues tab above.
 
 ---
 
