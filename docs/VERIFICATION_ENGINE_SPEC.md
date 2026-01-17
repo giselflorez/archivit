@@ -129,5 +129,31 @@ This ensures ancient verified truths remain visible even as new data floods in.
 
 ---
 
-*Concept from conversation with Kevin Abosch, Jan 17, 2026*
+## Collaboration Note
+
+This specification was developed through **human-AI collaboration**:
+
+**Founder concepts (GISELX):**
+- Weighted verification based on dataset count
+- Counter-data affecting weight
+- Oldest verified needing decay-resistant weighting
+- IPFS as permanence layer
+- Visibility tied to verification weight
+- "Rewinding and pinning from present back to future"
+- "Knowledge is a process, not a destination"
+
+**Claude-assisted formalization:**
+- Source Quality Weight values
+- Weight calculation formula
+- Contradiction penalty system
+- Age decay formula
+- Visibility threshold table
+- 8-step recursive process
+
+> "The freedom AI has allowed to syphon the data that is relevant to build the solutions to the problems people are facing every day. Each individual perspective of user that works with this software building their own local intelligence scraped as well as possible from consumer and post modern pressures of datamosh that makes this software imperative as open to all & each piece of software, or website built or mixed file dataset -understood- each of these people will be a very important piece to take a look at the whole puzzle that is life and how we can focus it better for all."
+
+---
+
+*Concept originated: Conversation with Kevin Abosch, Jan 17, 2026*
+*Human-AI collaboration: GISELX + Claude Opus 4.5*
 *Built with intention.*
