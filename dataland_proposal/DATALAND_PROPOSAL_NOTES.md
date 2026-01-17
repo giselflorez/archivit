@@ -504,7 +504,7 @@ MOONLANGUAGE MINT ARCHITECTURE
 - Key concept: **Knowledge as process, not destination**
 - Key concept: **Weighted recursive verification engine**
 - Key concept: **Human-AI collaboration as foundation**
-- Key concept: **Each user perspective = piece of the puzzle**
+- Key concept: **Each piece = tools to freedom past the labyrinth of gated clouds**
 
 ---
 
