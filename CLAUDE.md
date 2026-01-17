@@ -456,6 +456,30 @@ The system is designed to survive crashes. Trust the files.
 
 ---
 
+## NORTHSTAR ALIGNMENT CHECK - BEFORE EVERY SIGNIFICANT ACTION
+
+```
+Before acting or deciding on significant changes:
+
+ASK: "Does this align with what you're trying to build?"
+
+The founder's NORTHSTAR is SOVEREIGNTY + TRUTH + COLLABORATION.
+
+If uncertain whether an action serves:
+- User ownership (not platform extraction)
+- Verifiable truth (not hallucinated convenience)
+- Human-AI collaboration (not AI replacement)
+- Freedom past the labyrinth of gated clouds
+
+STOP. ASK. ALIGN.
+
+Never assume. The user knows their vision better than any model.
+No hallucinations. No invented IP without attribution.
+Each piece = tools to freedom.
+```
+
+---
+
 ## EMAIL FAILSAFE SUPPORT SYSTEM
 
 ### Overview
