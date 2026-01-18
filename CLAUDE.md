@@ -84,6 +84,189 @@
 
 ---
 
+## ⚠️ IP PROTECTION PROTOCOL (MANDATORY - READ EVERY SESSION)
+
+### CRITICAL: Read Before ANY Git Operations
+
+**Full protocol in:** `docs/IP_PROTECTION_PROTOCOL.md`
+
+### Pre-Push Checklist (ALWAYS ASK BEFORE `git push`)
+
+```
+⚠️ GIT PUSH PROTECTION CHECK
+
+Files being pushed: [list them]
+
+PROTECTION STATUS:
+- [ ] No new algorithms or implementations being pushed
+- [ ] No threshold values or weights exposed
+- [ ] No API keys or credentials in code
+- [ ] No internal documentation being published
+- [ ] No unreleased features going public
+
+Shall I proceed with the push?
+```
+
+### What's Already Public (Copyright + Patent by Jan 2027)
+
+| File | Status |
+|------|--------|
+| `pi_quadratic_seed.js` | PUBLIC - Patent deadline Jan 1, 2027 |
+| `spiral_compression.js` | PUBLIC - Patent deadline Jan 1, 2027 |
+| `quantum_provenance.js` | PUBLIC - Patent deadline Jan 1, 2027 |
+| `quantum_equilibrium.js` | PUBLIC - Patent deadline Jan 1, 2027 |
+| `pqs_quantum.js` | PUBLIC - Patent deadline Jan 1, 2027 |
+
+### What to Keep Local (Trade Secret)
+
+| Category | Action |
+|----------|--------|
+| Unreleased features | DO NOT PUSH without patent review |
+| Internal docs | NEVER push strategy/analysis files |
+| Provider configs | NEVER push API keys or provider lists |
+| Training data | KEEP `knowledge_base/` local |
+| Security details | NEVER push until patented |
+
+### Patent Deadline Reminder
+
+**⏰ CRITICAL DEADLINE: January 1, 2027**
+
+All core algorithms were publicly disclosed January 1, 2026.
+US patent law allows 1-year grace period.
+**File provisional patents BEFORE this deadline.**
+
+Priority filings:
+1. 6-Layer Anti-AI Protection
+2. Multi-Blockchain Auto-Detection
+3. Behavioral Fingerprinting
+4. Spiral Compression
+
+### Anti-Hallucination IP Rules
+
+**NEVER claim an invention is patentable unless:**
+- Working code EXISTS (not just documentation)
+- It solves a SPECIFIC technical problem
+- It's MORE than just a math formula
+- You've checked USPTO example mapping
+
+**ALWAYS be honest about:**
+- What's already public (can't be trade secret)
+- What's just an idea vs implemented
+- Mathematical concepts (not patentable alone)
+
+---
+
+## ⚠️ FILE STRUCTURE RULES (MANDATORY - READ EVERY SESSION)
+
+### Canonical Directory Structure
+
+```
+ARCHIVIT_01/
+├── docs/                      # ALL documentation (specs, guides, IP, reviews)
+│   ├── IP_MASTER_REGISTRY.md  # Patent/trademark tracking
+│   ├── INVENTION_DISCLOSURES.md
+│   ├── *_SPEC.md              # Technical specifications
+│   └── SESSION_LOGS.md        # Session history
+│
+├── applications/              # Grant/residency applications
+│   └── print_ready/           # ONLY printable HTML files go here
+│       └── *.html             # B&W printable documents
+│
+├── data/                      # User data, training data, discovery
+│   ├── artist_discovery/      # Artist research & databank
+│   ├── grants/                # Grant tracking
+│   └── discovery/             # Research findings
+│
+├── scripts/                   # ALL code
+│   ├── interface/             # Flask app, templates, static
+│   ├── agents/                # Agent systems
+│   └── search/                # Search functionality
+│
+├── public/                    # Public-facing HTML pages
+│
+├── knowledge_base/            # Verified knowledge for training
+│
+├── backups/                   # Session backups
+│   └── session_YYYY-MM-DD_description/
+│
+├── CLAUDE.md                  # THIS FILE - Agent instructions
+├── AGENT_CONTEXT_STATE.md     # Current state, pending reviews, TODOs
+└── AGENT_BRIEFING.md          # Generated context summary
+```
+
+### BEFORE CREATING ANY NEW FILE
+
+**⚠️ MANDATORY CHECKLIST:**
+
+1. **CHECK IF FILE EXISTS** - Search for similar files first:
+   ```bash
+   find . -name "*keyword*" -type f
+   ```
+
+2. **ASK FOUNDER** - "I want to create `[path/filename]`. Should I:
+   - A) Create new file at this location
+   - B) Update existing file `[similar file found]`
+   - C) Put it somewhere else"
+
+3. **ANNOUNCE LOCATION** - Always tell founder BEFORE creating:
+   "Creating file at: `docs/NEW_FILE.md`"
+
+### FILE PLACEMENT RULES
+
+| Content Type | Location | Example |
+|-------------|----------|---------|
+| Documentation, specs, IP | `docs/` | `docs/VERIFICATION_ENGINE_SPEC.md` |
+| Printable documents | `applications/print_ready/` | `applications/print_ready/IP_PORTFOLIO.html` |
+| Grant/residency apps | `applications/` | `applications/ARTS_MID_HUDSON.md` |
+| Artist research | `data/artist_discovery/` | `data/artist_discovery/artist_databank.json` |
+| Code files | `scripts/` | `scripts/interface/visual_browser.py` |
+| Public HTML pages | `public/` | `public/masters_spectral.html` |
+| Session backups | `backups/session_DATE_desc/` | `backups/session_2026-01-17_ip_scan/` |
+
+### ⚠️ DELETION/MODIFICATION RULES
+
+**NEVER DELETE OR SIGNIFICANTLY MODIFY WITHOUT APPROVAL:**
+
+1. **Deletions require explicit approval** - Ask: "Can I delete `[file]`? Reason: [why]"
+2. **Major changes require approval** - Ask: "Can I change `[what]` in `[file]`?"
+3. **Adding content is OK** - You can ADD to existing files without approval
+4. **Create backups before major changes** - `cp file file.bak`
+
+### DATA RETENTION ACROSS RESTARTS
+
+**These files persist and MUST be read every session:**
+
+1. `CLAUDE.md` - This file (auto-loaded by Claude Code)
+2. `AGENT_CONTEXT_STATE.md` - Current state, pending reviews, TODOs
+3. `docs/IP_MASTER_REGISTRY.md` - IP tracking with review checkboxes
+4. `docs/SOCI8_REVIEW_INVENTED_CONTENT.md` - Pending content review
+
+**On every session start, check:**
+- [ ] Any pending founder reviews in `AGENT_CONTEXT_STATE.md`?
+- [ ] Any unchecked boxes in `docs/IP_MASTER_REGISTRY.md`?
+- [ ] Any unresolved items in `docs/SOCI8_REVIEW_INVENTED_CONTENT.md`?
+
+### IF YOU CAN'T FIND A FILE
+
+**Check `docs/FILE_MIGRATION_LOG.md`** - All file moves are logged there.
+
+Files were reorganized on 2026-01-17:
+- Most `.md` docs moved from root → `docs/`
+- Legacy `.txt` specs moved to → `docs/legacy/`
+- Root now only contains essential startup files
+
+### PRINTABLE FILES LOCATION
+
+**ALL printable documents go in: `applications/print_ready/`**
+
+Current printable files:
+- `COMPLETE_IP_PORTFOLIO_PRINT.html` - 19 patents, 14 trademarks (B&W)
+- `ALL_APPLICATIONS_PRINT.html` - Older version (superseded)
+
+To print: `open applications/print_ready/COMPLETE_IP_PORTFOLIO_PRINT.html`
+
+---
+
 ## STEP 1: INITIALIZE CONTEXT (REQUIRED)
 
 Before doing ANY work, you MUST run this command:

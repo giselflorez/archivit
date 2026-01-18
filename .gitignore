@@ -497,3 +497,38 @@ knowledge_base/attachments/
 # END OF FOUNDER PRIVACY PROTECTION
 # ============================================================================
 data/private/
+
+# ============================================================================
+# SECTION 22: IP & LEGAL DOCUMENTS (Added 2026-01-17)
+# CRITICAL: Legal strategy documents must remain confidential
+# ============================================================================
+
+# Tester NDAs and legal agreements
+applications/print_ready/legal/
+
+# Patent strategy and filing documents
+applications/print_ready/patents/CLAIM_STRATEGY*.html
+applications/print_ready/patents/USPTO_EXAMPLE_MAPPING.html
+
+# IP tracking and assessment
+applications/print_ready/HONEST_IP_ASSESSMENT.html
+applications/print_ready/REVISED_PATENT_ASSESSMENT*.html
+
+# IP protection protocol (internal only)
+docs/IP_PROTECTION_PROTOCOL.md
+docs/IP_STATUS_DASHBOARD.md
+
+# Patent portfolios and claim sheets - PROTECT UNTIL FILED
+applications/print_ready/PATENT_CLAIM_SHEET*.html
+applications/print_ready/PRIOR_ART_EVIDENCE*.html
+applications/print_ready/EXPANDED_IP_PORTFOLIO*.html
+applications/print_ready/MASTER_IP_PORTFOLIO*.html
+applications/print_ready/TRADEMARK_REGISTRATION*.html
+applications/print_ready/COMPLETE_IP_PORTFOLIO*.html
+
+# Implementation audit (contains what's built vs conceptual)
+docs/IMPLEMENTATION_AUDIT.md
+
+# ============================================================================
+# END OF IP & LEGAL DOCUMENTS
+# ============================================================================

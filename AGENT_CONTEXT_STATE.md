@@ -2,9 +2,47 @@
 ## Auto-Recovery Memory for Claude Sessions
 
 **AUTO-READ ON STARTUP**: Claude MUST read this file at the start of every session
-**Last Updated:** 2026-01-16 (NORTHSTAR Masters Clarification)
-**Session ID:** 2026-01-16-masters-clarification
+**Last Updated:** 2026-01-17 (IP Protection Protocol Installed)
+**Session ID:** 2026-01-17-ip-protection
 **Git Commit:** 82b7687 - Fix MPS float64 error: disable word_timestamps for Apple Silicon
+
+---
+
+## ⚠️ IP PROTECTION PROTOCOL (2026-01-17) - READ EVERY SESSION
+
+### CRITICAL ACTIONS COMPLETED
+1. ✅ AGPL-3.0 license verified in repository
+2. ✅ Pre-push git hook installed (`.git/hooks/pre-push`)
+3. ✅ IP Protection Protocol created (`docs/IP_PROTECTION_PROTOCOL.md`)
+4. ✅ IP Status Dashboard created (`docs/IP_STATUS_DASHBOARD.md`)
+5. ✅ CLAUDE.md updated with IP protection rules
+6. ✅ Tester NDA created (`applications/print_ready/legal/TESTER_NDA_TRADE_SECRETS.html`)
+7. ✅ .gitignore updated with legal document protection
+
+### PATENT DEADLINE: January 1, 2027
+- Core algorithms publicly disclosed January 1, 2026
+- US patent grace period: 12 months
+- **FILE PROVISIONALS BEFORE THIS DATE**
+
+### Priority Patent Filings
+1. 6-Layer Anti-AI Protection
+2. Multi-Blockchain Auto-Detection
+3. Behavioral Fingerprinting
+4. Spiral Compression
+
+### BEFORE ANY GIT PUSH - ASK FOUNDER
+The pre-push hook will prompt, but agent should also verify:
+- No new algorithms without patent review
+- No threshold values or weights exposed
+- No API keys or credentials
+- No internal strategy documents
+
+### Files Created This Session
+- `docs/IP_PROTECTION_PROTOCOL.md`
+- `docs/IP_STATUS_DASHBOARD.md`
+- `applications/print_ready/legal/TESTER_NDA_TRADE_SECRETS.html`
+- `applications/print_ready/legal/PUBLIC_REPO_PROTECTION_STRATEGY.html`
+- `.git/hooks/pre-push`
 
 ---
 
@@ -599,7 +637,36 @@ VERIFIED REPLACEMENTS FOUND:
   - Fix φ^(-0.5) = 0.786, not 0.854 as stated
   - Document that elegance ≠ functional superiority
 
+### CRITICAL - PENDING FOUNDER REVIEWS
+**⚠️ CHECK THESE AT START OF EVERY SESSION:**
+
+- [ ] **IP MASTER REGISTRY REVIEW** - `docs/IP_MASTER_REGISTRY.md`
+  - 19 patentable inventions identified
+  - 14 trademarkable terms
+  - 7+ trade secrets
+  - **Founder must check boxes to approve each section**
+  - Created: 2026-01-17
+
+- [ ] **SOCI8 INVENTED CONTENT REVIEW** - `docs/SOCI8_REVIEW_INVENTED_CONTENT.md`
+  - 6 sections flagged as Claude-invented
+  - Founder must highlight what to REMOVE vs KEEP
+  - Created: 2026-01-17
+
+**AGENT NOTE:** Always scan ALL .md files before revising any project documentation. Use the IP_MASTER_REGISTRY.md as the authoritative list of pending reviews.
+
+---
+
 ### HIGH PRIORITY
+- [ ] **SOCI8 INVENTED CONTENT REVIEW** - AWAITING FOUNDER DECISION
+  - File: `docs/SOCI8_REVIEW_INVENTED_CONTENT.md`
+  - 6 sections flagged as Claude-invented (diagrams, tables, traits)
+  - Founder must highlight what to REMOVE vs KEEP+MARK as "Claude-assisted"
+  - Created: 2026-01-17
+  - **REMINDER: Ask founder about this at start of each session**
+- [ ] **LIVE SITE DOWN** - http://68.183.59.243:8000/archivit/home not responding
+  - Server ECONNREFUSED - needs investigation
+  - Check DigitalOcean droplet status
+  - May need to restart/redeploy
 - [x] Post-Quantum Cryptography Implementation (ML-KEM-768, ML-DSA-65) - COMPLETED
   - [x] docs/POST_QUANTUM_CRYPTOGRAPHY_SPEC.md (full spec)
   - [x] scripts/interface/static/js/core/pqc/ (kyber.js, dilithium.js, index.js)
